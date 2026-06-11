@@ -1,0 +1,372 @@
+{
+	"leagues": [
+		{
+			"league": { "id": 71, "name": "Serie A", "type": "League", "logo": "https://media.api-sports.io/football/leagues/71.png" },
+			"country": { "name": "Brazil", "code": "BR", "flag": "https://media.api-sports.io/flags/br.svg" },
+			"seasons": [
+				{
+					"year": 2018,
+					"start": "2018-04-14",
+					"end": "2018-12-02",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2019,
+					"start": "2019-04-27",
+					"end": "2019-12-08",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2020,
+					"start": "2020-08-08",
+					"end": "2021-02-26",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2021,
+					"start": "2021-05-29",
+					"end": "2021-12-05",
+					"current": true,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": true
+					}
+				}
+			]
+		},
+		{
+			"league": {
+				"id": 39,
+				"name": "Premier League",
+				"type": "League",
+				"logo": "https://media.api-sports.io/football/leagues/39.png"
+			},
+			"country": { "name": "England", "code": "GB", "flag": "https://media.api-sports.io/flags/gb.svg" },
+			"seasons": [
+				{
+					"year": 2018,
+					"start": "2018-08-10",
+					"end": "2019-05-12",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2019,
+					"start": "2019-08-09",
+					"end": "2020-07-26",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2020,
+					"start": "2020-09-12",
+					"end": "2021-05-23",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": true,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2021,
+					"start": "2021-08-13",
+					"end": "2022-05-22",
+					"current": true,
+					"coverage": {
+						"fixtures": { "events": false, "lineups": false, "statistics_fixtures": false, "statistics_players": false },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": true
+					}
+				}
+			]
+		},
+		{
+			"league": { "id": 61, "name": "Ligue 1", "type": "League", "logo": "https://media.api-sports.io/football/leagues/61.png" },
+			"country": { "name": "France", "code": "FR", "flag": "https://media.api-sports.io/flags/fr.svg" },
+			"seasons": [
+				{
+					"year": 2018,
+					"start": "2018-08-10",
+					"end": "2019-05-24",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2019,
+					"start": "2019-08-09",
+					"end": "2020-05-23",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2020,
+					"start": "2020-08-21",
+					"end": "2021-05-30",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": true,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2021,
+					"start": "2021-08-06",
+					"end": "2022-05-21",
+					"current": true,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": true
+					}
+				}
+			]
+		},
+		{
+			"league": {
+				"id": 78,
+				"name": "Bundesliga 1",
+				"type": "League",
+				"logo": "https://media.api-sports.io/football/leagues/78.png"
+			},
+			"country": { "name": "Germany", "code": "DE", "flag": "https://media.api-sports.io/flags/de.svg" },
+			"seasons": [
+				{
+					"year": 2018,
+					"start": "2018-08-24",
+					"end": "2019-05-27",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2019,
+					"start": "2019-08-16",
+					"end": "2020-07-06",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2020,
+					"start": "2020-09-18",
+					"end": "2021-05-29",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": true,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2021,
+					"start": "2021-08-13",
+					"end": "2022-05-14",
+					"current": true,
+					"coverage": {
+						"fixtures": { "events": false, "lineups": false, "statistics_fixtures": false, "statistics_players": false },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": true
+					}
+				}
+			]
+		},
+		{
+			"league": {
+				"id": 140,
+				"name": "Primera Division",
+				"type": "League",
+				"logo": "https://media.api-sports.io/football/leagues/140.png"
+			},
+			"country": { "name": "Spain", "code": "ES", "flag": "https://media.api-sports.io/flags/es.svg" },
+			"seasons": [
+				{
+					"year": 2019,
+					"start": "2019-08-16",
+					"end": "2020-07-19",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2020,
+					"start": "2020-09-12",
+					"end": "2021-05-23",
+					"current": false,
+					"coverage": {
+						"fixtures": { "events": true, "lineups": true, "statistics_fixtures": true, "statistics_players": true },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": true,
+						"predictions": true,
+						"odds": false
+					}
+				},
+				{
+					"year": 2021,
+					"start": "2021-08-13",
+					"end": "2022-05-22",
+					"current": true,
+					"coverage": {
+						"fixtures": { "events": false, "lineups": false, "statistics_fixtures": false, "statistics_players": false },
+						"standings": true,
+						"players": true,
+						"top_scorers": true,
+						"top_assists": true,
+						"top_cards": true,
+						"injuries": false,
+						"predictions": true,
+						"odds": true
+					}
+				}
+			]
+		}
+	]
+}
