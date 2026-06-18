@@ -48,6 +48,35 @@ Ha a redesign során egyedi értékre van szükség, előbb **tokent** vezessün
 
 ---
 
-## Komponens-szabályok (TBD — redesign-fázis)
+## Konvenció: komponens-típusok
 
-Itt fognak landolni: Button (default/primary/disabled/loading), Table (fej/sor/hover/sticky), Card/StatItem, Modal (backdrop/focus), állapotok (loading/empty/error). A `docs/design/odds-design.png` a referencia.
+- **Presentational, stateless leaf-primitív** → **function component** (`src/components/ui/`).
+- **Store-kötött / stateful** komponens → marad **class component + MobX** (`@inject`/`@observer`), a meglévő kódbázishoz illeszkedve.
+
+## Preflight-off reset (FONTOS)
+
+A Tailwind Preflight egyelőre KI van (lásd ADR 0001), ezért a böngésző natív elem-stílusai élnek. A redesignolt elemeknél a reseteket **helyben** kell megadni:
+- `<a>` (pl. navbar tab): `no-underline`.
+- `<button>`: `appearance-none border-0 cursor-pointer` + explicit `bg-*` (különben a natív világos gomb-háttér átüt).
+- A globális `margin/padding/box-sizing` resetet a `Main.module.scss` `*` blokkja adja.
+
+## Komponens-szabályok (1. redesign-fázis — Odds + app-shell)
+
+A `docs/design/odds-design.png` a referencia. Az alábbi primitívek a `src/components/ui/` alatt élnek.
+
+| Komponens | Osztályok / szabály |
+|---|---|
+| **Card** | `bg-surface border border-border-subtle rounded-xl` (konténer minden panelhez/táblához) |
+| **StatCard** | `Card` + `p-5`; címke `text-sm text-text-muted`, érték `text-3xl font-semibold`; `accent` → az érték `text-accent` |
+| **Pill** | `bg-surface border border-border-subtle rounded-full px-3 py-1 text-sm text-text-muted` (Szezon, Fetch) |
+| **Bar** | sín `h-1.5 bg-surface-2 rounded-full`, kitöltés `bg-accent` (`width: %`), mellette `text-text-muted` % |
+| **Navbar** (Main) | `sticky top-0 z-50 h-14 bg-surface border-b border-border-subtle`; brand-badge `h-7 w-7 rounded-md bg-brand`; tab inaktív `text-text-muted no-underline`, aktív `text-text border-b-2 border-brand` |
+| **Sidebar** (Odds) | `w-64 bg-sidebar border-r border-border-subtle`; szekció-címke `text-xs uppercase text-text-faint`; lista-gomb aktív `bg-surface-2 text-accent`, inaktív `bg-transparent text-text-muted hover:bg-surface-2 hover:text-text` |
+| **Primary gomb** | `bg-accent text-bg font-semibold rounded-lg hover:opacity-90` (+ a button-reset osztályok) |
+| **Table** | `Card`-ban; fejléc `text-text-muted border-b border-border-subtle`; sor `border-b border-border-subtle hover:bg-surface-2`; nyerő szám `text-positive`, vesztes `text-negative`, döntetlen `text-text-muted`; hiányzó érték „—" |
+| **Üres állapot** | `Card` középre zárt címmel (`text-lg font-semibold`) + magyarázó `text-sm text-text-muted` |
+
+### Még hátralévő (későbbi fázisok)
+- Fixtures és Arbitrage oldal tartalmának migrálása (most még régi SCSS + a régi navbar alatti tartalom).
+- Modal backdrop + focus-trap, aria/billentyűzet (audit #1) — a Fixtures/Arbitrage migrációval.
+- A teljes migráció végén: **Preflight bekapcsolása** és a `theme.scss` leépítése.

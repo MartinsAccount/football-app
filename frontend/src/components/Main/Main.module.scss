@@ -1,46 +1,9 @@
-@import '../../theme/theme.scss';
-
+// Globális reset. A Tailwind Preflight egyelőre KI van kapcsolva (lásd
+// docs/fe/adr/0001-tailwind-as-styling-base.md), ezért ez a reset él az
+// egész appra. A navbar stílusa már Tailwind-osztályokkal készül (Main.tsx).
 * {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-	font-family: $fontFamily;
-}
-
-.navbar {
-	background-color: rgb(37, 35, 35);
-	box-shadow: 0 8px 16px rgba($color: #fbfafa, $alpha: 0.2);
-	position: fixed;
-	height: 60px;
-	top: 0;
-	left: 0;
-	width: 100%;
-	z-index: 100;
-
-	ul {
-		display: flex;
-		// gap: 40px;
-		list-style-type: none;
-
-		li {
-			text-align: center;
-			@include centering;
-		}
-	}
-
-	a {
-		text-decoration: none;
-		color: $fontColor;
-		padding: 20px;
-		height: 60px;
-		display: inline-block;
-
-		&:hover {
-			background-color: $navColor;
-		}
-	}
-}
-
-.active {
-	background-color: $navColor;
+	font-family: sans-serif;
 }
