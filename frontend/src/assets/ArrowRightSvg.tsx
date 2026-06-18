@@ -11,7 +11,7 @@ export const ArrowRightSvg = () => {
 			height={25}
 			xmlSpace="preserve"
 		>
-			<style>{`.st0{display:none}.st1{display:inline}.st2{fill:#0a0a0a}`}</style>
+			<style>{`.st0{display:none}.st1{display:inline}.st2{fill:currentColor}`}</style>
 			<g id="row1_1_">
 				<g id="_x31__3_">
 					<path

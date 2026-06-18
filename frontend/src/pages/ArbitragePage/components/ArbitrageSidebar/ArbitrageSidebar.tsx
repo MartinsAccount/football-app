@@ -27,7 +27,7 @@ class ArbitrageSidebar extends Component<IArbitrageSidebarProps> {
 				className="appearance-none border-0 bg-transparent cursor-pointer w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-text hover:text-accent transition-colors"
 			>
 				<span>{label}</span>
-				<span className={`flex transition-transform ${open ? 'rotate-90' : ''}`}>
+				<span className={`flex text-accent transition-transform ${open ? 'rotate-90' : ''}`}>
 					<ArrowRightSvg />
 				</span>
 			</button>
@@ -36,7 +36,8 @@ class ArbitrageSidebar extends Component<IArbitrageSidebarProps> {
 
 	render() {
 		const { ArbitrageStore } = this.props.MainStore;
-		const betTypeCount = (ArbitrageStore.getArbitrages.length > 0 && ArbitrageStore.getArbitrages[0]?.arbitrages?.length) ?? 0;
+		const betTypeCount =
+			ArbitrageStore.getArbitrages.length > 0 ? ArbitrageStore.getArbitrages[0]?.arbitrages?.length ?? 0 : 0;
 
 		return (
 			<aside className="w-64 shrink-0 bg-sidebar border-r border-border-subtle flex flex-col gap-2 p-3 overflow-y-auto">

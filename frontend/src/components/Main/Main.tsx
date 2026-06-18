@@ -14,7 +14,7 @@ interface IMainProps {
 
 const tabBase =
 	'inline-flex items-center h-14 border-b-2 border-transparent text-sm text-text-muted no-underline hover:text-text transition-colors';
-const tabActive = 'text-text border-brand';
+const tabActive = 'text-accent border-accent font-medium';
 
 @inject('MainStore')
 @observer
