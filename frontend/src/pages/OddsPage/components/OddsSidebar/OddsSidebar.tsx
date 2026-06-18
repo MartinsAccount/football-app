@@ -26,9 +26,9 @@ class OddsSidebar extends Component<IOddsSidebarProps> {
 								key={key}
 								type="button"
 								onClick={() => OddsStore.changeLeague(key)}
-								className={`appearance-none border-0 cursor-pointer w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors ${
+								className={`appearance-none border-0 cursor-pointer w-full text-left px-4 py-3 rounded-lg text-base transition-colors ${
 									active
-										? 'bg-surface-2 text-accent font-medium'
+										? 'bg-surface text-accent font-medium'
 										: 'bg-transparent text-text-muted hover:bg-surface-2 hover:text-text'
 								}`}
 							>
