@@ -1,9 +1,0 @@
-// Globális reset. A Tailwind Preflight egyelőre KI van kapcsolva (lásd
-// docs/fe/adr/0001-tailwind-as-styling-base.md), ezért ez a reset él az
-// egész appra. A navbar stílusa már Tailwind-osztályokkal készül (Main.tsx).
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-	font-family: sans-serif;
-}

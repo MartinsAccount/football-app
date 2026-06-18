@@ -27,9 +27,11 @@ A jóváhagyott terv **react-scripts 5 + CRACO**-t irányzott elő (mert a régi
 
 **Végső döntés:** **react-scripts 4 → 5 upgrade, CRACO NÉLKÜL** (natív CRA-támogatás). Igazolva: tiszta `react-scripts build` a kimeneti CSS-be legenerálja a Tailwind utility-ket, és nem szivárog literális `@tailwind` direktíva.
 
-### Preflight kikapcsolva (egyelőre)
+### Preflight
 
-A Tailwind **Preflight** (globális reset) **KI van kapcsolva** (`corePlugins.preflight: false`), hogy a setup-fázisban az app vizuálisan változatlan maradjon (a Preflight nullázná pl. a `h1..h6`, `ul`, `button` stílusokat). A redesign-fázisban kontrollált módon kapcsoljuk vissza. A meglévő `Main.module.scss` `* { margin:0; box-sizing }` reset marad érvényben.
+A setup-fázisban a Tailwind **Preflight** (globális reset) **KI volt kapcsolva** (`corePlugins.preflight: false`), hogy az app vizuálisan változatlan maradjon, amíg az oldalak még régi SCSS-en voltak; a reseteket addig helyben adtuk meg.
+
+**Frissítés (záró fázis):** miután mind a három oldal Tailwindre került, a **Preflight BE lett kapcsolva**, és ezzel együtt megszűnt a régi SCSS-réteg: `theme.scss`, a `Main.module.scss` `*`-reset, az `App.css` és a `LoadingScreen` SCSS-e is. A `LoadingScreen` is Tailwindre került. Innentől nincs `*.module.scss`/`theme.scss` az appban — csak az `index.css` a `@tailwind` direktívákkal.
 
 ### `ajv@8` pin
 

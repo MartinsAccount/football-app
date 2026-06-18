@@ -2,7 +2,6 @@ import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Switch, Route, NavLink, Redirect } from 'react-router-dom';
 import { MainStore } from '../../stores/MainStore';
-import './Main.module.scss';
 import OddsPage from '../../pages/OddsPage/OddsPage';
 import FixturePage from '../../pages/FixturePage/FixturePage';
 import ArbitragePage from '../../pages/ArbitragePage/ArbitragePage';

@@ -1,12 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
 	content: ['./src/**/*.{ts,tsx}'],
-	// A Preflight (Tailwind globális reset) most KI van kapcsolva: a setup-fázisban
-	// az app vizuálisan változatlan kell maradjon. A redesign-fázisban kapcsoljuk vissza,
-	// kontrollált módon. A meglévő SCSS reset (Main.module.scss) érvényben marad.
-	corePlugins: {
-		preflight: false
-	},
+	// A Preflight (Tailwind globális alap-reset) BE van kapcsolva (alapértelmezett).
+	// A záró redesign-fázisban kapcsoltuk be, miután minden oldal Tailwindre került;
+	// ez váltotta ki a régi globális SCSS resetet (Main.module.scss). Lásd ADR 0001.
 	theme: {
 		extend: {
 			// Design tokenek a docs/design/odds-design.png alapján.

@@ -53,12 +53,12 @@ Ha a redesign során egyedi értékre van szükség, előbb **tokent** vezessün
 - **Presentational, stateless leaf-primitív** → **function component** (`src/components/ui/`).
 - **Store-kötött / stateful** komponens → marad **class component + MobX** (`@inject`/`@observer`), a meglévő kódbázishoz illeszkedve.
 
-## Preflight-off reset (FONTOS)
+## Globális reset: Preflight BE
 
-A Tailwind Preflight egyelőre KI van (lásd ADR 0001), ezért a böngésző natív elem-stílusai élnek. A redesignolt elemeknél a reseteket **helyben** kell megadni:
-- `<a>` (pl. navbar tab): `no-underline`.
-- `<button>`: `appearance-none border-0 cursor-pointer` + explicit `bg-*` (különben a natív világos gomb-háttér átüt).
-- A globális `margin/padding/box-sizing` resetet a `Main.module.scss` `*` blokkja adja.
+A Tailwind **Preflight BE van kapcsolva** (a záró fázis óta) — ez adja az egységes globális alap-resetet (`box-sizing`, margók, címsor/gomb/link normalizálás). Nincs külön globális SCSS reset, és nincs `theme.scss`.
+
+- A címsorokat mindig explicit utility-vel méretezzük (`text-2xl font-semibold` stb.), mert a Preflight a natív méretet/súlyt nullázza.
+- A migráció alatt hozzáadott helyi resetek (`no-underline` a linkeken, `appearance-none border-0` a gombokon) a Preflight mellett **redundánsak, de ártalmatlanok** — maradhatnak.
 
 ## Komponens-szabályok (1. redesign-fázis — Odds + app-shell)
 
@@ -84,5 +84,7 @@ A `docs/design/odds-design.png` a referencia. Az alábbi primitívek a `src/comp
 - ✅ 2. fázis: Fixtures (Meccs statisztikák) oldal — `SidebarItem`, `StatCard`-rács, üres állapot; `CustomStat` + debug gomb eltávolítva.
 - ✅ 3. fázis: Arbitrage oldal — `Button` (kiváltja a `MyButton`-t), `ModalShell` (a11y modálok), mindkét nézet (táblázat + fogadástípus) Tailwindre, szűrő-sidebar `aria-expanded`-del, magyar feliratok. Az `index===0`-thead trükk és az inline-style is megszűnt.
 
-### Még hátralévő (záró fázis)
-- **Preflight bekapcsolása** app-szinten + a `theme.scss` és a `Main.module.scss` `*`-reset leépítése (a komponens-szintű resetek átvétele).
+- ✅ Záró fázis: **Preflight bekapcsolva**; a `theme.scss`, a `Main.module.scss` `*`-reset, az `App.css` és a `LoadingScreen` SCSS-e megszűnt (a `LoadingScreen` is Tailwindre került). Nincs több `*.module.scss`/`theme.scss` — csak az `index.css` a `@tailwind` direktívákkal.
+
+### Kész
+A teljes UI a sötét, token-alapú Tailwind design-rendszeren van; a régi SCSS-réteg leépítve.
