@@ -1,24 +1,11 @@
-import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
-import FixtureService from './services/FixtureService';
-import { MainStore } from '../../stores/MainStore';
-import styles from './FixturePage.module.scss';
 import FixtureSidebar from './components/FixtureSidebar/FixtureSidebar';
 import FixtureContent from './components/FixtureContent/FixtureContent';
 
-interface IFixturePageProps {
-	MainStore?: MainStore;
-}
-
-@inject('MainStore')
-@observer
-class FixturePage extends Component<IFixturePageProps> {
+class FixturePage extends Component {
 	render() {
-		const { MainStore } = this.props;
-		const { FixtureStore } = this.props.MainStore;
-
 		return (
-			<main className={styles.pageContainer}>
+			<main className="flex items-stretch min-h-[calc(100vh-3.5rem)]">
 				<FixtureSidebar />
 				<FixtureContent />
 			</main>

@@ -2,6 +2,7 @@ import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { MainStore } from '../../../../stores/MainStore';
 import { SIDEBAR_LEAGUES } from '../../constants/leagueMeta';
+import SidebarItem from '../../../../components/ui/SidebarItem';
 
 interface IOddsSidebarProps {
 	MainStore?: MainStore;
@@ -18,25 +19,14 @@ class OddsSidebar extends Component<IOddsSidebarProps> {
 				<div className="px-4 pt-5 pb-2 text-xs uppercase tracking-wide text-text-faint">Ligák</div>
 
 				<nav className="flex flex-col gap-1 px-2">
-					{SIDEBAR_LEAGUES.map(({ key, label }) => {
-						const active = OddsStore.currentLeague === key;
-
-						return (
-							<button
-								key={key}
-								type="button"
-								onClick={() => OddsStore.changeLeague(key)}
-								className={`appearance-none border-0 cursor-pointer w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-base transition-colors ${
-									active
-										? 'bg-accent/10 text-accent font-medium'
-										: 'bg-transparent text-text-muted hover:bg-surface-2 hover:text-text'
-								}`}
-							>
-								<span className="h-4 w-4 rounded-[3px] border border-current opacity-70 shrink-0" />
-								{label}
-							</button>
-						);
-					})}
+					{SIDEBAR_LEAGUES.map(({ key, label }) => (
+						<SidebarItem
+							key={key}
+							label={label}
+							active={OddsStore.currentLeague === key}
+							onClick={() => OddsStore.changeLeague(key)}
+						/>
+					))}
 				</nav>
 
 				<div className="mt-auto p-4">

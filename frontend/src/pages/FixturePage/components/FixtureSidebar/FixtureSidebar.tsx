@@ -1,36 +1,33 @@
 import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
-import MyButton from '../../../../components/MyButton/MyButton';
 import { MainStore } from '../../../../stores/MainStore';
-import styles from './FixtureSidebar.module.scss';
+import SidebarItem from '../../../../components/ui/SidebarItem';
+import { FIXTURE_LEAGUE_FULL, FIXTURE_SIDEBAR_LEAGUES } from '../../../OddsPage/constants/leagueMeta';
 
-interface IArbitrageButtonsProps {
+interface IFixtureSidebarProps {
 	MainStore?: MainStore;
 }
 
 @inject('MainStore')
 @observer
-class FixtureSidebar extends Component<IArbitrageButtonsProps> {
+class FixtureSidebar extends Component<IFixtureSidebarProps> {
 	render() {
-		const { MainStore } = this.props;
-		const { ArbitrageStore, FixtureStore } = this.props.MainStore;
-		const g = 'getAllGoals';
+		const { FixtureStore } = this.props.MainStore;
 
 		return (
-			<aside className={styles.sidebar}>
-				<section className={styles.buttonsContainer}>
-					<MyButton title="Angol statisztikák" onClick={() => FixtureStore.leaguesStatistics('england')} />
-					<MyButton title="Teszt log" onClick={() => console.log(FixtureStore[g])} />
-					<MyButton title="Német statisztikák" onClick={() => FixtureStore.leaguesStatistics('germany')} />
-					<MyButton title="Spanyol statisztikák" onClick={() => FixtureStore.leaguesStatistics('spain')} />
-					<MyButton title="Francia statisztikák" onClick={() => FixtureStore.leaguesStatistics('france')} />
-					<MyButton title="Olasz statisztikák" onClick={() => FixtureStore.leaguesStatistics('italy')} />
+			<aside className="w-64 shrink-0 bg-sidebar border-r border-border-subtle flex flex-col">
+				<div className="px-4 pt-5 pb-2 text-xs uppercase tracking-wide text-text-faint">Ligák</div>
 
-					<div className={styles.marginTop}>
-						{/* <MyButton title="Arbitrage elemzés" onClick={() => ArbitrageStore.getHighestOdds()} type="primary" /> */}
-						<MyButton title="Összes statisztika" onClick={() => FixtureStore.leaguesStatistics('all')} type="primary" />
-					</div>
-				</section>
+				<nav className="flex flex-col gap-1 px-2">
+					{FIXTURE_SIDEBAR_LEAGUES.map(({ key, label }) => (
+						<SidebarItem
+							key={key}
+							label={label}
+							active={FixtureStore.currentLeague === FIXTURE_LEAGUE_FULL[key]}
+							onClick={() => FixtureStore.leaguesStatistics(key)}
+						/>
+					))}
+				</nav>
 			</aside>
 		);
 	}

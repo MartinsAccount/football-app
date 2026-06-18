@@ -67,16 +67,21 @@ A `docs/design/odds-design.png` a referencia. Az alábbi primitívek a `src/comp
 | Komponens | Osztályok / szabály |
 |---|---|
 | **Card** | `bg-surface border border-border-subtle rounded-xl` (konténer minden panelhez/táblához) |
-| **StatCard** | `Card` + `p-5`; címke `text-sm text-text-muted`, érték `text-3xl font-semibold`; `accent` → az érték `text-accent` |
+| **StatCard** | `Card` + `p-5`; címke `text-sm text-text-muted`, érték `text-3xl font-semibold`; `accent` → az érték `text-accent`; opcionális `sub` → halvány alsó sor (`text-sm text-text-muted`, pl. százalék) |
 | **Pill** | `bg-surface border border-border-subtle rounded-full px-3 py-1 text-sm text-text-muted` (Szezon, Fetch) |
 | **Bar** | sín `h-1.5 bg-surface-2 rounded-full`, kitöltés `bg-accent` (`width: %`), mellette `text-text-muted` % |
+| **SidebarItem** | megosztott liga-menüpont (Odds + Fixtures): leading ikon `h-4 w-4 rounded-[3px] border border-current`, aktív `bg-accent/10 text-accent font-medium`, inaktív `bg-transparent text-text-muted hover:bg-surface-2 hover:text-text` |
 | **Navbar** (Main) | `sticky top-0 z-50 h-14 bg-surface border-b border-border-subtle`; brand-badge `h-7 w-7 rounded-md bg-brand`; tab inaktív `text-text-muted no-underline`, aktív `text-text border-b-2 border-brand` |
-| **Sidebar** (Odds) | `w-64 bg-sidebar border-r border-border-subtle`; szekció-címke `text-xs uppercase text-text-faint`; lista-gomb aktív `bg-surface-2 text-accent`, inaktív `bg-transparent text-text-muted hover:bg-surface-2 hover:text-text` |
+| **Sidebar** | `w-64 bg-sidebar border-r border-border-subtle`; szekció-címke `text-xs uppercase text-text-faint`; a menüpontok `SidebarItem`-ek |
 | **Primary gomb** | `bg-accent text-bg font-semibold rounded-lg hover:opacity-90` (+ a button-reset osztályok) |
 | **Table** | `Card`-ban; fejléc `text-text-muted border-b border-border-subtle`; sor `border-b border-border-subtle hover:bg-surface-2`; nyerő szám `text-positive`, vesztes `text-negative`, döntetlen `text-text-muted`; hiányzó érték „—" |
 | **Üres állapot** | `Card` középre zárt címmel (`text-lg font-semibold`) + magyarázó `text-sm text-text-muted` |
 
+### Állapot
+- ✅ 1. fázis: Odds oldal + app-shell (navbar).
+- ✅ 2. fázis: Fixtures (Meccs statisztikák) oldal — sidebar (`SidebarItem`), header + `StatCard`-rács, üres állapot; `CustomStat` megszűnt, a debug „Teszt log" és a törött „Összes" gomb eltávolítva.
+
 ### Még hátralévő (későbbi fázisok)
-- Fixtures és Arbitrage oldal tartalmának migrálása (most még régi SCSS + a régi navbar alatti tartalom).
-- Modal backdrop + focus-trap, aria/billentyűzet (audit #1) — a Fixtures/Arbitrage migrációval.
+- **Arbitrage** oldal tartalmának migrálása (most még régi SCSS, az új navbar alatt).
+- Modal backdrop + focus-trap, aria/billentyűzet (audit #1) — az Arbitrage migrációval.
 - A teljes migráció végén: **Preflight bekapcsolása** és a `theme.scss` leépítése.
