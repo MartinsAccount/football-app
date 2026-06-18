@@ -12,9 +12,15 @@ interface IMainProps {
 	MainStore?: MainStore;
 }
 
-const tabBase =
-	'inline-flex items-center h-14 border-b-2 border-transparent text-sm text-text-muted no-underline hover:text-text transition-colors';
-const tabActive = 'text-accent border-accent font-medium';
+// Az aktív állapotot az aria-current variánssal stílusozzuk: a NavLink (RRv5)
+// az aktív linkre aria-current="page"-et tesz, és az aria-[current=page]:* utility
+// magasabb specificitású, ezért megbízhatóan felülírja az inaktív (text-text-muted /
+// border-transparent) alapot — szemben az activeClassName-mel, ahol ütköző utility-knél
+// a CSS-sorrend dönt, nem a class-string.
+const tab =
+	'inline-flex items-center h-14 border-b-2 border-transparent text-sm no-underline transition-colors ' +
+	'text-text-muted hover:text-text ' +
+	'aria-[current=page]:text-accent aria-[current=page]:border-accent aria-[current=page]:font-medium';
 
 @inject('MainStore')
 @observer
@@ -34,13 +40,13 @@ class Main extends Component<IMainProps> {
 						</div>
 
 						<div className="flex items-center gap-6">
-							<NavLink className={tabBase} activeClassName={tabActive} to="/odds">
+							<NavLink className={tab} to="/odds">
 								Odds műveletek
 							</NavLink>
-							<NavLink className={tabBase} activeClassName={tabActive} to="/fixtures">
+							<NavLink className={tab} to="/fixtures">
 								Meccs statisztikák
 							</NavLink>
-							<NavLink className={tabBase} activeClassName={tabActive} to="/arbitrage">
+							<NavLink className={tab} to="/arbitrage">
 								Arbitrage
 							</NavLink>
 						</div>
