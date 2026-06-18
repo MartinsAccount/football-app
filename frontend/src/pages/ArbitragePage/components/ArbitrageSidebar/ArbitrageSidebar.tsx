@@ -37,12 +37,22 @@ class ArbitrageSidebar extends Component<IArbitrageButtonsProps> {
 					</div>
 					{ArbitrageStore.openedFilterBlocks.includes('listView') && (
 						<>
-							<label onClick={() => ArbitrageStore.changeListView('original')} className={styles.checkboxContainer}>
-								<input checked={ArbitrageStore.activeListView === 'original'} type="checkbox" />
+							<label className={styles.checkboxContainer}>
+								<input
+									checked={ArbitrageStore.activeListView === 'original'}
+									onChange={() => ArbitrageStore.changeListView('original')}
+									type="radio"
+									name="listView"
+								/>
 								<div>Original</div>
 							</label>
-							<label onClick={() => ArbitrageStore.changeListView('betType')} className={styles.checkboxContainer}>
-								<input checked={ArbitrageStore.activeListView === 'betType'} type="checkbox" />
+							<label className={styles.checkboxContainer}>
+								<input
+									checked={ArbitrageStore.activeListView === 'betType'}
+									onChange={() => ArbitrageStore.changeListView('betType')}
+									type="radio"
+									name="listView"
+								/>
 								<div>Bet type </div>
 							</label>
 						</>
@@ -57,12 +67,20 @@ class ArbitrageSidebar extends Component<IArbitrageButtonsProps> {
 					</div>
 					{ArbitrageStore.openedFilterBlocks.includes('parameters') && (
 						<>
-							<label onClick={() => ArbitrageStore.selectParameters('twoParameter')} className={styles.checkboxContainer}>
-								<input checked={ArbitrageStore.selectedParameters === 'twoParameter'} type="checkbox" />
+							<label className={styles.checkboxContainer}>
+								<input
+									checked={ArbitrageStore.selectedParameters === 'twoParameter'}
+									onChange={() => ArbitrageStore.selectParameters('twoParameter')}
+									type="checkbox"
+								/>
 								<div>Two parameter ({ArbitrageStore.getParametersFrequency.twoParameter})</div>
 							</label>
-							<label onClick={() => ArbitrageStore.selectParameters('threeParameter')} className={styles.checkboxContainer}>
-								<input checked={ArbitrageStore.selectedParameters === 'threeParameter'} type="checkbox" />
+							<label className={styles.checkboxContainer}>
+								<input
+									checked={ArbitrageStore.selectedParameters === 'threeParameter'}
+									onChange={() => ArbitrageStore.selectParameters('threeParameter')}
+									type="checkbox"
+								/>
 								<div>Three parameter ({ArbitrageStore.getParametersFrequency.threeParameter})</div>
 							</label>
 						</>
@@ -78,8 +96,12 @@ class ArbitrageSidebar extends Component<IArbitrageButtonsProps> {
 
 					{ArbitrageStore.openedFilterBlocks.includes('arbitrageRanges') &&
 						ArbitrageStore.getArbitrageRanges.map((range) => (
-							<label onClick={() => ArbitrageStore.addArbitrageRangeFilter(range)} className={styles.checkboxContainer}>
-								<input checked={ArbitrageStore.activeArbitrageRangeFilter?.from === range.from} type="checkbox" />
+							<label key={range.from} className={styles.checkboxContainer}>
+								<input
+									checked={ArbitrageStore.activeArbitrageRangeFilter?.from === range.from}
+									onChange={() => ArbitrageStore.addArbitrageRangeFilter(range)}
+									type="checkbox"
+								/>
 								<div>
 									{range.from} - {range.to} ({range.frequency})
 								</div>
@@ -96,8 +118,12 @@ class ArbitrageSidebar extends Component<IArbitrageButtonsProps> {
 
 					{ArbitrageStore.openedFilterBlocks.includes('bookmakers') &&
 						ArbitrageStore.getBookmakers.map((item) => (
-							<label onClick={() => ArbitrageStore.toggleBookmakerFilter(item[0] as string)} className={styles.checkboxContainer}>
-								<input checked={ArbitrageStore.filteredBookmakers.includes(item[0])} type="checkbox" />
+							<label key={item[0]} className={styles.checkboxContainer}>
+								<input
+									checked={ArbitrageStore.filteredBookmakers.includes(item[0])}
+									onChange={() => ArbitrageStore.toggleBookmakerFilter(item[0] as string)}
+									type="checkbox"
+								/>
 								<div>
 									{item[0]} ({item[1]})
 								</div>
@@ -116,8 +142,12 @@ class ArbitrageSidebar extends Component<IArbitrageButtonsProps> {
 
 					{ArbitrageStore.openedFilterBlocks.includes('betTypes') &&
 						ArbitrageStore.getBetTypes.map((item) => (
-							<label onClick={() => ArbitrageStore.toggleBetTypeFilter(item[0] as string)} className={styles.checkboxContainer}>
-								<input checked={ArbitrageStore.filteredBetTypes.includes(item[0])} type="checkbox" />
+							<label key={item[0]} className={styles.checkboxContainer}>
+								<input
+									checked={ArbitrageStore.filteredBetTypes.includes(item[0])}
+									onChange={() => ArbitrageStore.toggleBetTypeFilter(item[0] as string)}
+									type="checkbox"
+								/>
 								<div>
 									{item[0]} ({item[1]})
 								</div>

@@ -2,7 +2,6 @@ import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { MainStore } from '../../../../stores/MainStore';
 import styles from './OddsContent.module.scss';
-import { v4 as uuidv4 } from 'uuid';
 import RowItem from '../RowItem/RowItem';
 import { ITableRow } from '../../models/ITableRow';
 
@@ -36,7 +35,7 @@ class OddsContent extends Component<IArbitrageContentProps> {
 						</thead>
 						<tbody>
 							{OddsStore.getTableRows.map((data: ITableRow, index: number) => (
-								<RowItem key={uuidv4()} data={data} index={index} />
+								<RowItem key={data.title} data={data} index={index} />
 							))}
 						</tbody>
 					</table>

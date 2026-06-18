@@ -5,7 +5,6 @@ import { IAnalyzedFixture } from '../../models/models';
 import Modal from '../Modal/Modal';
 import RowItem from '../RowItem/RowItem';
 import styles from './ArbitrageContent.module.scss';
-import { v4 as uuidv4 } from 'uuid';
 import MyButton from '../../../../components/MyButton/MyButton';
 import { IArbitrageByBetType } from '../../models/IArbitrageByBetType';
 import FixtureInformationModal from '../FixtureInformationModal/FixtureInformationModal';
@@ -52,11 +51,11 @@ class ArbitrageContent extends Component<IArbitrageContentProps> {
 						</div>
 					</div>
 					<div className={styles.separator}></div>
-					{ArbitrageStore.getArbitragesByBetType.map((data: IArbitrageByBetType, index: number) => (
+					{ArbitrageStore.getArbitragesByBetType.map((data: IArbitrageByBetType) => (
 						<div
 							onClick={() => ArbitrageStore.selectArbitrageByBetTypeItem(data)}
 							className={styles.listRowByBetType}
-							key={index}
+							key={`${data.data.fixture}-${data.betType}`}
 							style={
 								ArbitrageStore.isSelectedListItem(data) ? { display: 'flex', backgroundColor: '#ff9e00' } : { display: 'flex' }
 							}
@@ -128,7 +127,7 @@ class ArbitrageContent extends Component<IArbitrageContentProps> {
 				<div className={styles.tableContainer}>
 					<table className={styles.table}>
 						{ArbitrageStore.getArbitrages.map((data: IAnalyzedFixture, index: number) => (
-							<RowItem key={uuidv4()} data={data} index={index} />
+							<RowItem key={data.fixture} data={data} index={index} />
 						))}
 					</table>
 				</div>
