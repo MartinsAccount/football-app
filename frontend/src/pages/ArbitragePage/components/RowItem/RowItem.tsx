@@ -1,85 +1,44 @@
 import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { MainStore } from '../../../../stores/MainStore';
-import { IAnalyzedFixture, IArbitrage, IHighestOdds } from '../../models/models';
-import styles from './RowItem.module.scss';
+import { IAnalyzedFixture, IArbitrage } from '../../models/models';
 
 interface IRowItemProps {
 	MainStore?: MainStore;
 	data: IAnalyzedFixture;
-	index: number;
 }
 
 @inject('MainStore')
 @observer
 class RowItem extends Component<IRowItemProps> {
-	bookmakerString = (item: IArbitrage): string => {
-		// const obj: IArbitrage = Object.values(item)[0];
-		const highestOdds = item.highestOdds || [];
-
-		let bookmakers = [];
-		let odds = [];
-
-		highestOdds?.forEach((it: IHighestOdds) => {
-			let bet = `${it.odd} - (${it.name})`;
-
-			bookmakers.push(it.bookmaker);
-			odds.push(bet);
-		});
-
-		const joined = `${bookmakers.join('/')} - ${odds.join('/')}`;
-		return joined;
-	};
-
 	render() {
-		const { data, index } = this.props;
+		const { data } = this.props;
 		const { ArbitrageStore } = this.props.MainStore;
 
-		const inputDate = new Date(data?.date);
-		const options: Intl.DateTimeFormatOptions = {
-			month: 'numeric',
-			day: 'numeric',
-			hour: 'numeric',
-			minute: 'numeric'
-		};
-
-		const formattedDate = inputDate.toLocaleString('en-US', options);
-
-		if (index === 0) {
-			return (
-				<thead>
-					<tr className={styles.headerRow}>
-						<th className={styles.cell}>Fixture</th>
-						<th className={styles.cell}>Country</th>
-						<th className={styles.cell}>League</th>
-						<th className={styles.cell}>Date</th>
-
-						{data.arbitrages.map((item: IArbitrage) => (
-							<th key={item.name} className={styles.cell}>
-								{item.name}
-							</th>
-						))}
-					</tr>
-				</thead>
-			);
-		}
+		const options: Intl.DateTimeFormatOptions = { month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+		const formattedDate = new Date(data?.date).toLocaleString('hu-HU', options);
 
 		return (
-			<tr className={styles.row}>
-				<td className={styles.cell}>{data?.fixture}</td>
-				<td className={styles.cell}>{data?.country}</td>
-				<td className={styles.cell}>{data?.leagueName}</td>
-				<td className={styles.cell}>{formattedDate}</td>
+			<tr className="border-b border-border-subtle last:border-0 hover:bg-surface-2 transition-colors">
+				<td className="px-4 py-3 text-text">{data?.fixture}</td>
+				<td className="px-4 py-3 text-text-muted">{data?.country}</td>
+				<td className="px-4 py-3 text-text-muted">{data?.leagueName}</td>
+				<td className="px-4 py-3 text-text-muted whitespace-nowrap">{formattedDate}</td>
 
-				{data.arbitrages.map((item: IArbitrage) => (
-					<td
-						key={item.name}
-						onClick={() => ArbitrageStore.setSelectedItem(item)}
-						className={`${styles.clickableCell} ${item.arbitrage < 1 && item.arbitrage !== null && styles.arbitrageNumber}`}
-					>
-						{!item.arbitrage ? '-' : item.arbitrage}
-					</td>
-				))}
+				{data.arbitrages.map((item: IArbitrage) => {
+					const good = item.arbitrage < 1 && item.arbitrage !== null;
+					return (
+						<td
+							key={item.name}
+							onClick={() => ArbitrageStore.setSelectedItem(item)}
+							className={`px-3 py-3 text-center cursor-pointer tabular-nums transition-colors hover:underline ${
+								good ? 'bg-accent/15 text-accent font-semibold' : 'text-text-muted'
+							}`}
+						>
+							{!item.arbitrage ? '–' : item.arbitrage}
+						</td>
+					);
+				})}
 			</tr>
 		);
 	}

@@ -1,13 +1,14 @@
 import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { MainStore } from '../../../../stores/MainStore';
-import { IAnalyzedFixture } from '../../models/models';
+import { IAnalyzedFixture, IArbitrage } from '../../models/models';
 import Modal from '../Modal/Modal';
 import RowItem from '../RowItem/RowItem';
-import styles from './ArbitrageContent.module.scss';
-import MyButton from '../../../../components/MyButton/MyButton';
 import { IArbitrageByBetType } from '../../models/IArbitrageByBetType';
 import FixtureInformationModal from '../FixtureInformationModal/FixtureInformationModal';
+import Card from '../../../../components/ui/Card';
+import StatCard from '../../../../components/ui/StatCard';
+import Button from '../../../../components/ui/Button';
 
 interface IArbitrageContentProps {
 	MainStore?: MainStore;
@@ -21,116 +22,134 @@ class ArbitrageContent extends Component<IArbitrageContentProps> {
 	}
 
 	render() {
-		// const { MainStore } = this.props;
 		const { ArbitrageStore } = this.props.MainStore;
 
 		if (this.props.MainStore.isLoading) {
-			return <section className={styles.contentContainer}>Loading...</section>;
+			return (
+				<section className="flex-1 bg-bg p-8">
+					<Card className="flex items-center justify-center gap-3 p-16">
+						<span className="h-6 w-6 rounded-full border-2 border-border-subtle border-t-accent animate-spin" />
+						<span className="text-text-muted">{this.props.MainStore.loadingText ?? 'Betöltés…'}</span>
+					</Card>
+				</section>
+			);
 		}
 
+		// Bet-type szerinti lista nézet
 		if (ArbitrageStore.isBetTypeView) {
+			const rows = ArbitrageStore.getArbitragesByBetType;
+
 			return (
-				<section
-					style={{ display: 'flex', flex: 1, flexDirection: 'column', marginBottom: '8px', marginLeft: 350, marginTop: 80 }}
-				>
-					<div className={styles.listRowByBetTypeHeader} style={{ display: 'flex' }}>
-						<div style={{ flex: 1 }}>
-							{'Bet Type'.toUpperCase()} ({ArbitrageStore.getArbitragesByBetType.length})
-						</div>
-						<div style={{ flex: 1 }}>{'Arbitrage'.toUpperCase()}</div>
-						{/* Egyéb adatokat is hozzáadhatod az alábbiakhoz */}
+				<section className="flex-1 bg-bg p-8 overflow-x-auto">
+					<header className="mb-6">
+						<h1 className="text-2xl font-semibold text-text">Arbitrázs</h1>
+						<p className="text-sm text-text-muted mt-1">Fogadástípus szerint · {rows.length} találat</p>
+					</header>
 
-						<div style={{ display: 'flex', flex: 4 }}>
-							{[...Array(3)].map((_, bookmakerIndex) => {
-								return (
-									<div key={bookmakerIndex} style={{ flex: 1, marginRight: '8px' }}>
-										<strong>{'Bookmaker'.toUpperCase()}</strong> - {'Odd'.toUpperCase()} - {'Bet'.toUpperCase()}
+					<Card className="overflow-hidden">
+						<div className="flex px-5 py-3 text-sm text-text-muted border-b border-border-subtle">
+							<div className="flex-1">Fogadástípus</div>
+							<div className="flex-1">Arbitrázs</div>
+							<div className="flex-[4] flex gap-2">
+								{[...Array(3)].map((_, i) => (
+									<div key={i} className="flex-1">
+										Fogadóiroda – Odds – Tipp
 									</div>
-								);
-							})}
-						</div>
-					</div>
-					<div className={styles.separator}></div>
-					{ArbitrageStore.getArbitragesByBetType.map((data: IArbitrageByBetType) => (
-						<div
-							onClick={() => ArbitrageStore.selectArbitrageByBetTypeItem(data)}
-							className={styles.listRowByBetType}
-							key={`${data.data.fixture}-${data.betType}`}
-							style={
-								ArbitrageStore.isSelectedListItem(data) ? { display: 'flex', backgroundColor: '#ff9e00' } : { display: 'flex' }
-							}
-						>
-							<div style={{ flex: 1 }}>{data.betType}</div>
-							<div style={{ flex: 1 }}>{data.arbitrage}</div>
-							{/* Egyéb adatokat is hozzáadhatod az alábbiakhoz */}
-
-							<div style={{ display: 'flex', flex: 4 }}>
-								{[...Array(3)].map((_, bookmakerIndex) => {
-									const bookmaker = data.bookmakers[bookmakerIndex] || null;
-
-									if (!bookmaker) {
-										return <div key={bookmakerIndex} style={{ flex: 1, marginRight: '8px' }}></div>;
-									}
-
-									return (
-										<div key={bookmakerIndex} style={{ flex: 1, marginRight: '8px' }}>
-											<strong>{bookmaker.bookmaker}</strong> - {bookmaker.odd} - {bookmaker.name}
-										</div>
-									);
-								})}
+								))}
 							</div>
 						</div>
-					))}
+
+						{rows.map((data: IArbitrageByBetType) => {
+							const selected = ArbitrageStore.isSelectedListItem(data);
+							return (
+								<button
+									key={`${data.data.fixture}-${data.betType}`}
+									type="button"
+									onClick={() => ArbitrageStore.selectArbitrageByBetTypeItem(data)}
+									className={`appearance-none border-0 cursor-pointer w-full flex px-5 py-3 text-sm text-left border-b border-border-subtle last:border-0 transition-colors ${
+										selected ? 'bg-accent/10' : 'bg-transparent hover:bg-surface-2'
+									}`}
+								>
+									<div className="flex-1 text-text">{data.betType}</div>
+									<div className="flex-1 text-accent tabular-nums">{data.arbitrage}</div>
+									<div className="flex-[4] flex gap-2">
+										{[...Array(3)].map((_, i) => {
+											const bm = i < data.bookmakers.length ? data.bookmakers[i] : null;
+											return (
+												<div key={i} className="flex-1 text-text-muted">
+													{bm ? (
+														<>
+															<span className="text-text font-medium">{bm.bookmaker}</span> – {bm.odd} – {bm.name}
+														</>
+													) : null}
+												</div>
+											);
+										})}
+									</div>
+								</button>
+							);
+						})}
+					</Card>
 
 					{ArbitrageStore.isOpenFixtureInformationModal && <FixtureInformationModal />}
 				</section>
 			);
 		}
 
-		// {
-		// 	ArbitrageStore.getArbitragesByBetType.map((data: IArbitrageByBetType, index: number) => (
-		// 		<div style={{ display: 'flex' }}>
-		// 			<div style={{ flex: 1 }}>{data.betType}</div>
-		// 			<div style={{ flex: 1 }}>{data.arbitrage}</div>
-		// 		</div>
-		// 	));
-		// }
+		// Eredeti táblázat nézet
+		const info = ArbitrageStore.getInformations;
+		const fixtures = ArbitrageStore.getArbitrages;
+		const betTypeNames: string[] = fixtures.length > 0 ? fixtures[0].arbitrages.map((a: IArbitrage) => a.name) : [];
 
 		return (
-			<section className={styles.contentContainer}>
-				<div className={styles.contentHeader}>
-					<div className={styles.contentHeaderButtons}>
-						<MyButton
-							active={ArbitrageStore.filtering === 'goodArbitrage'}
-							title="Arbitrage < 1"
-							onClick={() => ArbitrageStore.setFilter('goodArbitrage')}
-						/>
-						<MyButton
-							active={!ArbitrageStore.filtering}
-							title={`All (${ArbitrageStore.Arbitrages.length})`}
-							onClick={() => ArbitrageStore.setFilter(null)}
-						/>
-					</div>
+			<section className="flex-1 bg-bg p-8 overflow-x-auto">
+				<header className="mb-6">
+					<h1 className="text-2xl font-semibold text-text">Arbitrázs</h1>
+					<p className="text-sm text-text-muted mt-1">Eredeti táblázat</p>
+				</header>
 
-					{/* <div className={styles.contentHeaderButtons}>
-						<MyButton title="Refresh Arbitrages" onClick={() => ArbitrageStore.searchAllLeagueIds()} type="primary" />
-					</div> */}
-				</div>
-				<div className={styles.contentInformations}>
-					<div>Fixtures: {ArbitrageStore.getInformations.fixtures}</div>
-					<div>All Arbitrage: {ArbitrageStore.getInformations.allArbitrage}</div>
-					<div>Good Arbitrage: {ArbitrageStore.getInformations.goodArbitrage}</div>
-					<div>Good Arbitrage (two params): {ArbitrageStore.getInformations.goodWithTwoParams}</div>
-					<div>Good Arbitrage (three params): {ArbitrageStore.getInformations.gooWithThreeParams}</div>
+				<div className="grid grid-cols-3 gap-4 mb-6">
+					<StatCard label="Meccsek" value={info.fixtures} />
+					<StatCard label="Összes arbitrázs" value={info.allArbitrage} />
+					<StatCard
+						label="Jó arbitrázs"
+						value={info.goodArbitrage}
+						accent
+						sub={`${info.goodWithTwoParams} két kimenet · ${info.gooWithThreeParams} három`}
+					/>
 				</div>
 
-				<div className={styles.tableContainer}>
-					<table className={styles.table}>
-						{ArbitrageStore.getArbitrages.map((data: IAnalyzedFixture, index: number) => (
-							<RowItem key={data.fixture} data={data} index={index} />
-						))}
+				<div className="flex items-center gap-2 mb-4">
+					<Button active={ArbitrageStore.filtering === 'goodArbitrage'} onClick={() => ArbitrageStore.setFilter('goodArbitrage')}>
+						Arbitrázs &lt; 1
+					</Button>
+					<Button active={!ArbitrageStore.filtering} onClick={() => ArbitrageStore.setFilter(null)}>
+						Összes ({ArbitrageStore.Arbitrages.length})
+					</Button>
+				</div>
+
+				<Card className="overflow-hidden">
+					<table className="w-full text-sm">
+						<thead>
+							<tr className="text-text-muted border-b border-border-subtle">
+								<th className="text-left font-medium px-4 py-3">Meccs</th>
+								<th className="text-left font-medium px-4 py-3">Ország</th>
+								<th className="text-left font-medium px-4 py-3">Liga</th>
+								<th className="text-left font-medium px-4 py-3">Dátum</th>
+								{betTypeNames.map((name) => (
+									<th key={name} className="text-center font-medium px-3 py-3">
+										{name}
+									</th>
+								))}
+							</tr>
+						</thead>
+						<tbody>
+							{fixtures.map((data: IAnalyzedFixture) => (
+								<RowItem key={data.fixture} data={data} />
+							))}
+						</tbody>
 					</table>
-				</div>
+				</Card>
 
 				{ArbitrageStore.selectedItem && <Modal />}
 			</section>

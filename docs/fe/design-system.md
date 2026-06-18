@@ -73,15 +73,16 @@ A `docs/design/odds-design.png` a referencia. Az alábbi primitívek a `src/comp
 | **SidebarItem** | megosztott liga-menüpont (Odds + Fixtures): leading ikon `h-4 w-4 rounded-[3px] border border-current`, aktív `bg-accent/10 text-accent font-medium`, inaktív `bg-transparent text-text-muted hover:bg-surface-2 hover:text-text` |
 | **Navbar** (Main) | `sticky top-0 z-50 h-14 bg-surface border-b border-border-subtle`; brand-badge `h-7 w-7 rounded-md bg-brand`; tab inaktív `text-text-muted no-underline`, aktív `text-text border-b-2 border-brand` |
 | **Sidebar** | `w-64 bg-sidebar border-r border-border-subtle`; szekció-címke `text-xs uppercase text-text-faint`; a menüpontok `SidebarItem`-ek |
-| **Primary gomb** | `bg-accent text-bg font-semibold rounded-lg hover:opacity-90` (+ a button-reset osztályok) |
-| **Table** | `Card`-ban; fejléc `text-text-muted border-b border-border-subtle`; sor `border-b border-border-subtle hover:bg-surface-2`; nyerő szám `text-positive`, vesztes `text-negative`, döntetlen `text-text-muted`; hiányzó érték „—" |
+| **Button** | megosztott gomb (`MyButton` helyett); `variant`: primary `bg-accent text-bg`, secondary `bg-surface border-border-subtle text-text-muted hover:bg-surface-2`; `active` → `bg-accent/10 border-accent text-accent` |
+| **ModalShell** | hozzáférhető modál-burok: backdrop `fixed inset-0 bg-black/60` (kattintásra zár), `role="dialog" aria-modal`, Esc-re zár, fókusz a panelen + Tab focus-trap, záráskor a fókusz visszaáll, „×" `aria-label="Bezárás"` |
+| **Lenyíló szűrő** (sidebar) | a blokk-fejléc `<button aria-expanded>` + forgó chevron; az opciók `<label><input class="accent-accent">` (radio = egyszeres, checkbox = többszörös) |
+| **Table** | `Card`-ban; fejléc `text-text-muted border-b border-border-subtle`; sor `border-b border-border-subtle hover:bg-surface-2`; pozitív/profitábilis érték `text-accent`/`bg-accent/15`, nyerő `text-positive`, vesztes `text-negative`, semleges `text-text-muted`; hiányzó érték „—" |
 | **Üres állapot** | `Card` középre zárt címmel (`text-lg font-semibold`) + magyarázó `text-sm text-text-muted` |
 
 ### Állapot
 - ✅ 1. fázis: Odds oldal + app-shell (navbar).
-- ✅ 2. fázis: Fixtures (Meccs statisztikák) oldal — sidebar (`SidebarItem`), header + `StatCard`-rács, üres állapot; `CustomStat` megszűnt, a debug „Teszt log" és a törött „Összes" gomb eltávolítva.
+- ✅ 2. fázis: Fixtures (Meccs statisztikák) oldal — `SidebarItem`, `StatCard`-rács, üres állapot; `CustomStat` + debug gomb eltávolítva.
+- ✅ 3. fázis: Arbitrage oldal — `Button` (kiváltja a `MyButton`-t), `ModalShell` (a11y modálok), mindkét nézet (táblázat + fogadástípus) Tailwindre, szűrő-sidebar `aria-expanded`-del, magyar feliratok. Az `index===0`-thead trükk és az inline-style is megszűnt.
 
-### Még hátralévő (későbbi fázisok)
-- **Arbitrage** oldal tartalmának migrálása (most még régi SCSS, az új navbar alatt).
-- Modal backdrop + focus-trap, aria/billentyűzet (audit #1) — az Arbitrage migrációval.
-- A teljes migráció végén: **Preflight bekapcsolása** és a `theme.scss` leépítése.
+### Még hátralévő (záró fázis)
+- **Preflight bekapcsolása** app-szinten + a `theme.scss` és a `Main.module.scss` `*`-reset leépítése (a komponens-szintű resetek átvétele).

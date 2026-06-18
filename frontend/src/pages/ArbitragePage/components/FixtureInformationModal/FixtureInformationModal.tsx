@@ -2,7 +2,7 @@ import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { MainStore } from '../../../../stores/MainStore';
 import { IHighestOdds } from '../../models/models';
-import styles from './FixtureInformationModal.module.scss';
+import ModalShell from '../../../../components/ui/ModalShell';
 
 interface IFixtureInformationModalProps {
 	MainStore?: MainStore;
@@ -14,64 +14,57 @@ class FixtureInformationModal extends Component<IFixtureInformationModalProps> {
 	render() {
 		const { ArbitrageStore } = this.props.MainStore;
 
-		console.log('render FixtureInformationModal');
-
 		return (
-			<article className={styles.modalContainer}>
+			<ModalShell onClose={() => ArbitrageStore.setIsOpenFixtureInformationModal(false)}>
 				{ArbitrageStore.isLoadingFixtureInformation ? (
-					<div className={styles.loading}>
-						<div className={styles.ldsRing}>
-							<div></div>
-							<div></div>
-							<div></div>
-							<div></div>
-						</div>
-						<h2>{this.props.MainStore.loadingText ?? 'Loading...'}</h2>
+					<div className="flex h-64 w-64 flex-col items-center justify-center gap-4">
+						<span className="h-8 w-8 rounded-full border-2 border-border-subtle border-t-accent animate-spin" />
+						<span className="text-text-muted">{this.props.MainStore.loadingText ?? 'Betöltés…'}</span>
 					</div>
 				) : (
-					<div className={styles.wrapper}>
-						<div className={styles.closeButton} onClick={() => ArbitrageStore.setIsOpenFixtureInformationModal(false)}>
-							X
-						</div>
+					<div className="min-w-[20rem]">
+						<dl className="flex flex-col gap-2 mb-5 text-sm">
+							<div className="flex gap-2">
+								<dt className="font-semibold text-text">Ország:</dt>
+								<dd className="text-text-muted">{ArbitrageStore.fixtureInformation.league.country}</dd>
+							</div>
+							<div className="flex gap-2">
+								<dt className="font-semibold text-text">Liga:</dt>
+								<dd className="text-text-muted">{ArbitrageStore.fixtureInformation.league.name}</dd>
+							</div>
+							<div className="flex gap-2">
+								<dt className="font-semibold text-text">Csapatok:</dt>
+								<dd className="text-text-muted">
+									{ArbitrageStore.fixtureInformation.teams.home.name} – {ArbitrageStore.fixtureInformation.teams.away.name}
+								</dd>
+							</div>
+							<div className="flex gap-2">
+								<dt className="font-semibold text-text">Dátum:</dt>
+								<dd className="text-text-muted">{new Date(ArbitrageStore.fixtureInformation.fixture.date).toLocaleString('hu-HU')}</dd>
+							</div>
+						</dl>
 
-						<div className={styles.fixtureInformationsContainer}>
-							<div className={styles.fixtureTeams}>
-								<div style={{ fontWeight: 'bold' }}>Country:</div>
-								<div>{ArbitrageStore.fixtureInformation.league.country}</div>
-							</div>
-							<div className={styles.fixtureTeams}>
-								<div style={{ fontWeight: 'bold' }}>League:</div>
-								<div>{ArbitrageStore.fixtureInformation.league.name}</div>
-							</div>
-							<div className={styles.fixtureTeams}>
-								<div style={{ fontWeight: 'bold' }}>Teams:</div>
-								<div>{ArbitrageStore.fixtureInformation.teams.home.name}</div>
-								<div> - </div>
-								<div>{ArbitrageStore.fixtureInformation.teams.away.name}</div>
-							</div>
-							<div className={styles.fixtureTeams}>
-								<div style={{ fontWeight: 'bold' }}>Date:</div>
-								<div>{new Date(ArbitrageStore.fixtureInformation.fixture.date).toLocaleString()}</div>
-							</div>
-						</div>
-
-						<table>
-							<tr>
-								<th className={styles.cell}>Bookmaker</th>
-								<th className={styles.cell}>Name</th>
-								<th className={styles.cell}>Odd</th>
-							</tr>
-							{ArbitrageStore.selectedListItem.bookmakers.map((bookmaker: IHighestOdds, index: number) => (
-								<tr key={index}>
-									<td className={styles.cell}>{bookmaker?.bookmaker}</td>
-									<td className={styles.cell}>{bookmaker?.name}</td>
-									<td className={styles.cell}>{bookmaker?.odd}</td>
+						<table className="text-sm">
+							<thead>
+								<tr className="text-text-muted border-b border-border-subtle">
+									<th className="px-4 py-2 text-left font-medium">Fogadóiroda</th>
+									<th className="px-4 py-2 text-left font-medium">Kimenet</th>
+									<th className="px-4 py-2 text-left font-medium">Odds</th>
 								</tr>
-							))}
+							</thead>
+							<tbody>
+								{ArbitrageStore.selectedListItem.bookmakers.map((bookmaker: IHighestOdds, index: number) => (
+									<tr key={index} className="border-b border-border-subtle last:border-0">
+										<td className="px-4 py-2 text-text">{bookmaker?.bookmaker}</td>
+										<td className="px-4 py-2 text-text-muted">{bookmaker?.name}</td>
+										<td className="px-4 py-2 text-accent tabular-nums">{bookmaker?.odd}</td>
+									</tr>
+								))}
+							</tbody>
 						</table>
 					</div>
 				)}
-			</article>
+			</ModalShell>
 		);
 	}
 }

@@ -2,7 +2,7 @@ import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { MainStore } from '../../../../stores/MainStore';
 import { IHighestOdds } from '../../models/models';
-import styles from './Modal.module.scss';
+import ModalShell from '../../../../components/ui/ModalShell';
 
 interface IModalProps {
 	MainStore?: MainStore;
@@ -15,27 +15,26 @@ class Modal extends Component<IModalProps> {
 		const { ArbitrageStore } = this.props.MainStore;
 
 		return (
-			<article className={styles.modalContainer}>
-				<div className={styles.wrapper}>
-					<div className={styles.closeButton} onClick={() => ArbitrageStore.setSelectedItem()}>
-						X
-					</div>
-					<table>
-						<tr>
-							<th className={styles.cell}>Bookmaker</th>
-							<th className={styles.cell}>Name</th>
-							<th className={styles.cell}>Odd</th>
+			<ModalShell onClose={() => ArbitrageStore.setSelectedItem()}>
+				<table className="text-sm">
+					<thead>
+						<tr className="text-text-muted border-b border-border-subtle">
+							<th className="px-4 py-2 text-left font-medium">Fogadóiroda</th>
+							<th className="px-4 py-2 text-left font-medium">Kimenet</th>
+							<th className="px-4 py-2 text-left font-medium">Odds</th>
 						</tr>
+					</thead>
+					<tbody>
 						{ArbitrageStore.selectedItem.highestOdds.map((item: IHighestOdds, index: number) => (
-							<tr key={index}>
-								<td className={styles.cell}>{item?.bookmaker}</td>
-								<td className={styles.cell}>{item?.name}</td>
-								<td className={styles.cell}>{item?.odd}</td>
+							<tr key={index} className="border-b border-border-subtle last:border-0">
+								<td className="px-4 py-2 text-text">{item?.bookmaker}</td>
+								<td className="px-4 py-2 text-text-muted">{item?.name}</td>
+								<td className="px-4 py-2 text-accent tabular-nums">{item?.odd}</td>
 							</tr>
 						))}
-					</table>
-				</div>
-			</article>
+					</tbody>
+				</table>
+			</ModalShell>
 		);
 	}
 }
