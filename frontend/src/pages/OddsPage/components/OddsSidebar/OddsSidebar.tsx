@@ -26,12 +26,13 @@ class OddsSidebar extends Component<IOddsSidebarProps> {
 								key={key}
 								type="button"
 								onClick={() => OddsStore.changeLeague(key)}
-								className={`appearance-none border-0 cursor-pointer w-full text-left px-4 py-3 rounded-lg text-base transition-colors ${
+								className={`appearance-none border-0 cursor-pointer w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-base transition-colors ${
 									active
-										? 'bg-surface text-accent font-medium'
+										? 'bg-accent/10 text-accent font-medium'
 										: 'bg-transparent text-text-muted hover:bg-surface-2 hover:text-text'
 								}`}
 							>
+								<span className="h-4 w-4 rounded-[3px] border border-current opacity-70 shrink-0" />
 								{label}
 							</button>
 						);
@@ -42,8 +43,9 @@ class OddsSidebar extends Component<IOddsSidebarProps> {
 					<button
 						type="button"
 						onClick={() => OddsStore.saveOdds('all')}
-						className="appearance-none border-0 cursor-pointer w-full bg-accent text-bg font-semibold rounded-lg px-4 py-3 text-sm transition-opacity hover:opacity-90"
+						className="appearance-none border-0 cursor-pointer w-full flex items-center justify-center gap-2 bg-accent text-bg font-semibold rounded-lg px-4 py-3 text-sm transition-opacity hover:opacity-90"
 					>
+						<span className="h-4 w-4 rounded-[3px] border border-current opacity-80 shrink-0" />
 						Összes odds mentése
 					</button>
 				</div>
