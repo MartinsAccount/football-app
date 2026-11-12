@@ -4,7 +4,7 @@
 
 ## Aktuális fázis
 
-M1 (docs/GOAL-M1.md): S01–S10 kész, következik S11 (történeti adat 2022–2024).
+M1 (docs/GOAL-M1.md): S01–S11a kész, következik S11b (football-data.co.uk CSV-odds import).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 
@@ -20,8 +20,10 @@ H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
 
-1. **S11 – Történeti adat 2022–2024 (élő, ≤ 15 hívás, naplózva):** `fixtures?league&season` 5 liga × 3 szezon → fixture-fájlok; +
-   football-data.co.uk CSV záró-oddsok (ingyenes) → import. Ha nem megy: backtest a 2020–21 adaton, DECISIONS-be.
+1. **S11b – CSV-odds import (ROADMAP 4.2):** `data/history/football-data/*.csv` →
+   `odds_snapshot(source='football-data-csv', kind=opening_csv/closing_csv)`, 1X2 + O/U 2.5 (B365, Pinnacle, Avg, Max →
+   bookmaker-sorok); párosítás liga + dátum + csapat, `team_alias(source='football-data-csv')`; párosítási arány ≥ 99%, a
+   párosítatlanok listája; tiszta parser tesztelve.
 2. **S12 – Core: feature-ök:** forma, hazai/vendég, H2H, pont-idejű tabellahely, szezonszakasz, motiváció/tét; tesztek.
 3. **S13 – Core: modell v0 `elo-poisson@0.1.0`:** Elo + Poisson → 1X2, O/U 2.5, indoklás (tényező-hozzájárulás); tesztek.
 4. **S14 – Core: kiértékelés + budget-becslés:** találat, flat profit, Brier, log-loss, CLV, kalibrációs vödrök; budget-becslés
@@ -54,6 +56,7 @@ I. Arbitrázs átköltöztetése az új backendre
 | S08 – 1.4 Legacy import        | (lásd git log: feat(db): import legacy JSON)         | `npm run import:legacy -w @football/db [-- dataDir]` → `.data/pglite`; 3656 fixture, 510 snapshot, 150 899 quote; a 2. futás 0 írás                                                   |
 | S09 – 1.2 api-client + budget  | (lásd git log: feat(api-client))                     | `@football/api-client`: `ApiFootballClient` (mock/live), `SqlBudgetStore` (`api_budget_reserve`), `SqlCallLogger`, `getAllPages`, `status()`                                          |
 | S10 – 1.5 Olvasó API           | (lásd git log: feat(server))                         | `@football/server`: `createApiHandler({repo,budget})` Web Request→Response; `/api/fixtures` (szűrés+lapozás), `/api/odds/:id`, `/api/budget`; `npm run dev -w @football/server` :5100 |
+| S11a – Történeti meccsek       | (lásd git log: feat(data): fetch 2022–2024 history)  | 15 élő hívás (`fetch:history`, napló: `api_call_log`); `data/history/api-football` 5341 meccs + `football-data` 15 CSV; `import:history` idempotens                                   |
 
 ## Polish backlog
 
@@ -99,6 +102,8 @@ I. Arbitrázs átköltöztetése az új backendre
 - Fixture-mód él: minden `FetchService*.get` a `resolveFixture`-ből felel, hacsak nincs `VITE_DATA_MODE=live` (a `.env`-be a
   tulajdonos írja).
 
-- Mentett adat csak 2020–2021 (`frontend/src/data/allMatch*`) és 2021-es Unibet odds (`backend/stores`); a 2022–24 adat az S11-ben
-  jön (élő, max. 20 hívás/nap, naplózva, fixture-be mentve).
+- Történeti adat: `data/history/` (README). 2022–24 meccsek a DB-ben (`npm run import:history -w @football/db`, a
+  `mapLegacyFixtures` újrahasznosítva). CSV: `B365H/D/A` nyitó, `B365CH/CD/CA` záró, `PSH`/`PSCH` Pinnacle, `AvgH`/`AvgCH`,
+  `Avg>2.5`/`AvgC>2.5`; `Date` dd/mm/yyyy; csapatnév-eltérés („Man United”) → alias. 2026-11-12-én 15 élő hívás ment el (keret
+  20).
 - ui-audit P0/P1 = a §5 táblázat 🔴 (#1–3) és 🟠 (#4–8) tételei, szeletekhez rendelve.
