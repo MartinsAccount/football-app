@@ -1,12 +1,13 @@
 # STATE – autonóm fejlesztés állapota
 
-> Minden session ezt olvassa el ELSŐKÉNT, és minden szelet végén frissíti.
-> Ha minden szelet kész, írd ide külön sorba: ALL_DONE
+> Minden session ezt olvassa el ELSŐKÉNT, és minden szelet végén frissíti. Ha minden szelet kész, írd ide külön sorba: ALL_DONE
 
 ## Aktuális fázis
-Előkészítés: a szeletlistát az első session tölti ki a ROADMAP.md és a docs/design/ alapján.
+
+M1 (docs/GOAL-M1.md): a szeletlista kész, a megvalósítás S01-gyel indul.
 
 ## Következő szeletek (sorrendben, az első a soron következő)
+
 <!-- Javasolt nagy sorrend, ha a ROADMAP.md mást mond, az az irányadó:
 A. Design (frontend/src/design/DESIGN.md): A1 tokenek bekötése + format.ts (core) → A2 komponensek → A3 oldalak
 B. App shell, navigáció, új route-ok üres oldalakkal (/, /evaluation, /settings)
@@ -18,14 +19,59 @@ G. Kiértékelő mag + /evaluation dashboard
 H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
-1. (az első session tölti ki)
+
+1. **S01 – 0.5 Fixture-mód:** `DATA_MODE=fixture|live` kapcsoló (alap: fixture); a `FetchService*` fixture módban a
+   `frontend/src/data` / `backend/stores` JSON-okból válaszol, 0 élő hívás; teszt: a `fetchNumber` 0 marad.
+2. **S02 – A1 Tokenek bekötése:** `npm run tokens` + `predev`/`prebuild`; `tokens.css` + `components.css` import a belépési
+   pontban; `tailwind.config.cjs` theme `var(--…)`-ra.
+3. **S03 – Core: format.ts + odds-matek:** magyar formázás (odds, %, pp, EV, Ft, egység, idő, dátum) + fair valószínűség
+   (margin-mentesítés, konszenzus, legjobb odds), EV, edge, min. odds; unit tesztek (DESIGN §8–9, ROADMAP 5.1).
+4. **S04 – Core: szelvény-matek:** kötés eredő odds/esély/EV/min. odds, szingli-összevetés, nyeremény, kockázat, „egy meccs = egy
+   tipp” ellenőrzés; tesztek.
+5. **S05 – B App shell:** AppHeader + AppShell, route-ok (`/` Ma, `/evaluation`, `/settings`, `/arbitrage`), `/odds` és
+   `/fixtures` átirányítva, üres oldalak PageIntro-val; ui-audit #4, #12; screenshot 1440/390.
+6. **S06 – 1.3 DB-séma:** `db/migrations/*.sql` (liga, csapat, meccs, tabella-snapshot, odds-snapshot + quote, prediction
+   append-only, evaluation, api_call_log, api_budget_day, setting), idempotens (`IF NOT EXISTS`). A Supabase-bekötés → BLOCKERS.
+7. **S07 – packages/db repository:** repository-interfész + in-memory/fixture adapter, tesztekkel (prediction append-only,
+   upsert-idempotencia).
+8. **S08 – 1.4 Import script:** régi JSON-ok (`frontend/src/data/allMatch*`, `backend/stores/*-odds.json`) → adapter; idempotens
+   (2. futás 0 új sor); teszt.
+9. **S09 – 1.2 packages/api-client + budget-őr:** host/kulcs env-ből (csak szerver), napi számláló (soha > 100), `errors`-kezelés,
+   lapozás, hívásnapló, mock mód; tesztek fixture-rel.
+10. **S10 – Backend-proxy:** `api/` olvasó végpontok (`/api/fixtures`, `/api/odds/:id`, `/api/budget`) az adapterből, lokálisan; a
+    kulcs csak szerveroldalon.
+11. **S11 – Történeti adat 2022–2024 (élő, ≤ 15 hívás, naplózva):** `fixtures?league&season` 5 liga × 3 szezon → fixture-fájlok; +
+    football-data.co.uk CSV záró-oddsok (ingyenes) → import. Ha nem megy: backtest a 2020–21 adaton, DECISIONS-be.
+12. **S12 – Core: feature-ök:** forma, hazai/vendég, H2H, pont-idejű tabellahely, szezonszakasz, motiváció/tét; tesztek.
+13. **S13 – Core: modell v0 `elo-poisson@0.1.0`:** Elo + Poisson → 1X2, O/U 2.5, indoklás (tényező-hozzájárulás); tesztek.
+14. **S14 – Core: kiértékelés + budget-becslés:** találat, flat profit, Brier, log-loss, CLV, kalibrációs vödrök; budget-becslés
+    ligánként; tesztek.
+15. **S15 – Backtest-futtató:** walk-forward 2022–2023 → 2024, piaci baseline vs. v0; riport `docs/analysis/backtest-v0.md` + JSON
+    az `/evaluation`-hoz.
+16. **S16 – A2a TipCard:** TipCard, TeamForm, ProbabilityBars, TipActions, Disclosure, EngineBanner (DESIGN §7.3–7.4).
+17. **S17 – A2b MatchDetails:** LeagueStrip, H2HList, RecentList (DESIGN §7.5).
+18. **S18 – `/` Ajánlások oldal:** predikciók fixture-adatból, PRD 6. mezők, adatkor, figyelmeztetések, min. odds; screenshot.
+19. **S19 – SlipStore + SlipPanel:** SlipLegs, SlipTotals, RiskMeter, StakeSelector, TippmixTransfer (beírt odds + tét mentése,
+    leadás nincs).
+20. **S20 – Mobil szelvény + SlipPresets:** SlipBar + BottomSheet, SlipPresets; screenshot 390.
+21. **S21 – `/evaluation` dashboard:** ROI, Brier, log-loss, kalibráció, CLV a backtest-JSON-ból; szűrők.
+22. **S22 – `/settings`:** ligák, piacok, irodák, becsült napi hívás és tárhely (core budget-becslés).
+23. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
+24. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
+    `ALL_DONE M1`.
 
 ## Kész
+
 | Szelet | Commit | Megjegyzés |
-|---|---|---|
+| ------ | ------ | ---------- |
 
 ## Polish backlog
+
 -
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
--
+
+- Mentett adat csak 2020–2021 (`frontend/src/data/allMatch*`) és 2021-es Unibet odds (`backend/stores`); a 2022–24 adat az S11-ben
+  jön (élő, max. 20 hívás/nap, naplózva, fixture-be mentve).
+- A `.env`-ben nincs Supabase-adat → S06-ban a valódi bekötés a BLOCKERS-be, in-memory adapterrel megyünk tovább.
+- ui-audit P0/P1 = a §5 táblázat 🔴 (#1–3) és 🟠 (#4–8) tételei, szeletekhez rendelve.
