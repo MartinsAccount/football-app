@@ -55,6 +55,15 @@ export const formatFt = (amount: number): string => {
 /** Egység: 1 tizedes, előjellel. `0.9` → `+0,9 egység`. */
 export const formatUnits = (units: number): string => `${formatSigned(units, 1)}${NBSP}egység`;
 
+/** Tizedes szám (pl. átlag), `decimals` tizedesre, valódi mínusszal. `1.8` → `1,8`. */
+export const formatDecimal = (value: number, decimals = 1): string => {
+	const body = formatAbs(value, decimals);
+	return value < 0 && Number(body.replace(/ /g, '').replace(',', '.')) !== 0 ? MINUS + body : body;
+};
+
+/** Előjeles egész (gólkülönbség). `4` → `+4`, `-2` → `−2`, `0` → `0`. */
+export const formatSignedInt = (value: number): string => formatSigned(Math.round(value), 0);
+
 const WEEKDAY_SHORT: Record<string, string> = {
 	Mon: 'H',
 	Tue: 'K',

@@ -56,6 +56,8 @@ export interface ITip {
 	home: ITipTeam;
 	away: ITipTeam;
 	h2h: IH2HEntry[];
+	/** A liga csapatszáma (tabella-sáv, DESIGN §7.5); alapból 20. */
+	leagueSize?: number;
 	modelVersion: string;
 }
 

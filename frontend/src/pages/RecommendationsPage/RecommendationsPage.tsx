@@ -1,6 +1,7 @@
 import React, { Component, CSSProperties } from 'react';
 import PageIntro from '../../components/PageIntro/PageIntro';
 import EngineBanner from '../../components/EngineBanner/EngineBanner';
+import MatchDetails from '../../components/MatchDetails/MatchDetails';
 import TipCard from '../../components/TipCard/TipCard';
 import { sampleTips } from '../../components/TipCard/sampleTips';
 import { ITip } from '../../components/TipCard/tipView';
@@ -18,8 +19,9 @@ interface IRecommendationsPageState {
  * TODO(polish): S18 – valódi predikciók RecommendationStore-ból a minta helyett; S19 – a kijelölés a SlipStore-ba kerül.
  */
 class RecommendationsPage extends Component<{}, IRecommendationsPageState> {
-	state: IRecommendationsPageState = { selectedIds: [], expandedId: null };
 	tips: ITip[] = sampleTips();
+	// Bemutatáshoz az első kártya nyitva indul (DESIGN-referencia).
+	state: IRecommendationsPageState = { selectedIds: [], expandedId: this.tips[0]?.id ?? null };
 
 	toggleSlip = (tip: ITip) =>
 		this.setState(({ selectedIds }) => ({
@@ -56,8 +58,7 @@ class RecommendationsPage extends Component<{}, IRecommendationsPageState> {
 									onToggleSlip={this.toggleSlip}
 									onToggleExpand={this.toggleExpand}
 								>
-									{/* TODO(polish): S17 – MatchDetails (LeagueStrip, H2HList, RecentList). */}
-									<p className="oe-muted text-small m-0">A forma, az egymás elleni meccsek és a tabella hamarosan itt lesznek.</p>
+									<MatchDetails tip={tip} />
 								</TipCard>
 							))}
 						</div>

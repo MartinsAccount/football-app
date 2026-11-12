@@ -1,6 +1,8 @@
 import {
 	formatAge,
 	formatDayHeading,
+	formatDecimal,
+	formatSignedInt,
 	formatEv,
 	formatFt,
 	formatKickoff,
@@ -53,6 +55,16 @@ describe('format (DESIGN §8)', () => {
 		expect(formatUnits(0.9)).toBe(`+0,9${NB}egység`);
 		expect(formatUnits(-1.25)).toBe(`${M}1,3${NB}egység`);
 		expect(formatUnits(0)).toBe(`0,0${NB}egység`);
+	});
+
+	it('tizedes szám és előjeles egész', () => {
+		expect(formatDecimal(1.8)).toBe('1,8');
+		expect(formatDecimal(2.44)).toBe('2,4');
+		expect(formatDecimal(-0.04)).toBe('0,0');
+		expect(formatDecimal(-1.5, 2)).toBe(`${M}1,50`);
+		expect(formatSignedInt(4)).toBe('+4');
+		expect(formatSignedInt(-2)).toBe(`${M}2`);
+		expect(formatSignedInt(0)).toBe('0');
 	});
 
 	describe('kezdési időpont (Europe/Budapest)', () => {

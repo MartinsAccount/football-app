@@ -1,5 +1,5 @@
 import { expectedValue, MatchResult, minOdds } from '@football/core';
-import { Confidence, IFormEntry, ITip } from './tipView';
+import { Confidence, IFormEntry, IH2HEntry, ITip } from './tipView';
 
 // Minta-kártyák a TipCard bemutatásához és teszteléséhez, amíg az S18 a valódi predikciókat be nem köti.
 // A számok a magból jönnek (EV, min. odds); a csapat- és forma-adat kitalált.
@@ -15,6 +15,21 @@ const form = (now: Date, rows: [MatchResult, string, boolean, number, number][])
 		goalsAgainst,
 		date: new Date(now.getTime() - (rows.length - i) * 7 * DAY_MS)
 	}));
+
+/** H2H sorok: [hány hónapja, a mostani hazai volt-e otthon, hazai gól, vendég gól]; az eredmény a mostani hazai szemszögéből. */
+const h2h = (now: Date, home: string, away: string, rows: [number, boolean, number, number][]): IH2HEntry[] =>
+	rows.map(([monthsAgo, currentHomeAtHome, homeGoals, awayGoals]) => {
+		const diff = currentHomeAtHome ? homeGoals - awayGoals : awayGoals - homeGoals;
+		const result: MatchResult = diff > 0 ? 'W' : diff < 0 ? 'L' : 'D';
+		return {
+			date: new Date(now.getTime() - monthsAgo * 30 * DAY_MS),
+			homeName: currentHomeAtHome ? home : away,
+			awayName: currentHomeAtHome ? away : home,
+			homeGoals,
+			awayGoals,
+			result
+		};
+	});
 
 const at = (now: Date, hours: number, minutes: number): Date => {
 	const d = new Date(now);
@@ -34,7 +49,11 @@ interface ISampleInput {
 	warnings?: string[];
 }
 
-const tip = (now: Date, input: ISampleInput, rest: Pick<ITip, 'home' | 'away' | 'market' | 'outcome'>): ITip => ({
+const tip = (
+	now: Date,
+	input: ISampleInput,
+	rest: Pick<ITip, 'home' | 'away' | 'market' | 'outcome'> & Partial<Pick<ITip, 'h2h' | 'leagueSize'>>
+): ITip => ({
 	id: input.id,
 	fixtureId: Number(input.id),
 	league: input.league,
@@ -70,6 +89,13 @@ export const sampleTips = (now: Date = new Date()): ITip[] => [
 		{
 			market: 'Over/Under 2.5',
 			outcome: 'Under',
+			h2h: h2h(now, 'Bologna', 'Lazio', [
+				[7, false, 1, 1],
+				[11, true, 0, 0],
+				[20, false, 2, 0],
+				[24, true, 2, 1],
+				[30, false, 1, 1]
+			]),
 			home: {
 				name: 'Bologna',
 				rank: 7,
@@ -116,6 +142,12 @@ export const sampleTips = (now: Date = new Date()): ITip[] => [
 		{
 			market: 'Match Winner',
 			outcome: 'Home',
+			h2h: h2h(now, 'Arsenal', 'Chelsea', [
+				[6, false, 1, 1],
+				[13, true, 5, 0],
+				[18, false, 0, 2],
+				[25, true, 1, 0]
+			]),
 			home: {
 				name: 'Arsenal',
 				rank: 2,
@@ -156,6 +188,11 @@ export const sampleTips = (now: Date = new Date()): ITip[] => [
 		{
 			market: 'Both Teams Score',
 			outcome: 'Yes',
+			leagueSize: 18,
+			h2h: h2h(now, 'Borussia Mönchengladbach', 'Heidenheim', [
+				[5, false, 2, 2],
+				[11, true, 3, 1]
+			]),
 			home: {
 				name: 'Borussia Mönchengladbach',
 				rank: 11,

@@ -4,7 +4,7 @@
 
 ## Aktuális fázis
 
-M1 (docs/GOAL-M1.md): S01–S16 kész, következik S17 (A2b MatchDetails).
+M1 (docs/GOAL-M1.md): S01–S17 kész, következik S18 (`/` Ajánlások oldal).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 
@@ -20,15 +20,14 @@ H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
 
-1. **S17 – A2b MatchDetails:** LeagueStrip, H2HList, RecentList (DESIGN §7.5); a TipCard `children`-jébe kötve (minta-adattal).
-2. **S18 – `/` Ajánlások oldal:** predikciók fixture-adatból, PRD 6. mezők, adatkor, figyelmeztetések, min. odds; screenshot.
-3. **S19 – SlipStore + SlipPanel:** SlipLegs, SlipTotals, RiskMeter, StakeSelector, TippmixTransfer (beírt odds + tét mentése,
+1. **S18 – `/` Ajánlások oldal:** predikciók fixture-adatból, PRD 6. mezők, adatkor, figyelmeztetések, min. odds; screenshot.
+2. **S19 – SlipStore + SlipPanel:** SlipLegs, SlipTotals, RiskMeter, StakeSelector, TippmixTransfer (beírt odds + tét mentése,
    leadás nincs).
-4. **S20 – Mobil szelvény + SlipPresets:** SlipBar + BottomSheet, SlipPresets; screenshot 390.
-5. **S21 – `/evaluation` dashboard:** ROI, Brier, log-loss, kalibráció, CLV a backtest-JSON-ból; szűrők.
-6. **S22 – `/settings`:** ligák, piacok, irodák, becsült napi hívás és tárhely (core budget-becslés).
-7. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
-8. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
+3. **S20 – Mobil szelvény + SlipPresets:** SlipBar + BottomSheet, SlipPresets; screenshot 390.
+4. **S21 – `/evaluation` dashboard:** ROI, Brier, log-loss, kalibráció, CLV a backtest-JSON-ból; szűrők.
+5. **S22 – `/settings`:** ligák, piacok, irodák, becsült napi hívás és tárhely (core budget-becslés).
+6. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
+7. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
    `ALL_DONE M1`.
 
 ## Kész
@@ -52,9 +51,13 @@ I. Arbitrázs átköltöztetése az új backendre
 | S14 – Kiértékelés + budget     | (lásd git log: feat(core): add evaluation and budget estimates) | `evaluation/` (`settleBet`, `flatProfit`, `brierScore`, `logLoss`, `closingLineValue`, `calibrationBuckets`, `summarizeBets`, `summarizeProbabilities`); `budget/` (`estimateLeagueCallsPerRound`, `estimateDailyCalls`, `estimateOddsStorage`) |
 | S15 – Backtest-futtató         | (lásd git log: feat(core): add walk-forward backtest)           | `backtest/` (`runBacktest`, `summarizeSegment`, `buildBacktestReport`); `npm run backtest -w @football/db` (CSV, 0 hívás) → `data/backtest/backtest-v0.json` + `docs/analysis/backtest-v0.md`; v0 LL 1X2 0,997 vs. záró 0,957                   |
 | S16 – A2a TipCard              | (lásd git log: feat(ui): add TipCard)                           | `components/TipCard/`: `TipCard`, `TeamForm`, `ProbabilityBars`, `TipActions`, `Disclosure`, `tipView.ts` (`ITip` = PRD 6 nézet-modell, magyar címkék); `components/EngineBanner/`; `/` minta-kártyákkal (`sampleTips`), screenshot 1440/390    |
+| S17 – A2b MatchDetails         | (lásd git log: feat(ui): add MatchDetails)                      | `components/MatchDetails/`: `LeagueStrip`, `H2HList`, `RecentList`, `matchDetailsView.ts` (sáv-zónák, H2H/forma összegzés); core `formatDecimal`/`formatSignedInt`; `ITip.leagueSize`; minta-H2H; screenshot 1440/390                           |
 
 ## Polish backlog
 
+- MatchDetails: tabella-zónák fixek (BL 1–4, EK 5–6, kiesés utolsó 3), ligánként a `standings.description`-ből kellene; 1440-en a
+  4 blokk 3+1 elrendezésű (auto-fit 300 px); a tabella-sorban a pont/gólkül. is félkövér (referenciában csak a név); Hiányzók
+  blokk.
 - Nav-link 36 px magas (a referencia szerint), a DESIGN érintési célja 44 px; 390-en a nav 2 sorba törik → mobil overflow-menü?
 - `/arbitrage` 390-en: a 256 px-es oldalsáv mellett a tartalom összenyomódik (S23).
 - Headless Edge 500 px alatt nem szűkíti a viewportot: 390-es screenshot iframe-burkolóval (`<iframe width=390>`) készül.
@@ -66,6 +69,10 @@ I. Arbitrázs átköltöztetése az új backendre
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- MatchDetails (S17): `<MatchDetails tip />` a TipCard `children`-jébe; adat: `ITip.home/away` (rank, points, goalDiff, stake,
+  last5), `ITip.h2h` (eredmény a mostani hazai szemszögéből), `ITip.leagueSize` (alap 20). S18-nál ezeket a features-ből
+  (`deriveStandings`, `teamForm`, `headToHead`, `teamMotivation` → stake szöveg) kell kitölteni. Az első kártya nyitva indul.
 
 - TipCard (S16): `<TipCard tip selected expanded blockedReason? onToggleSlip onToggleExpand now?>{MatchDetails}</TipCard>`; a
   lenyitott tartalom a `children` (S17 ide köti a MatchDetails-t; adat: `ITip.home/away` {rank, points, goalDiff, stake, last5},
