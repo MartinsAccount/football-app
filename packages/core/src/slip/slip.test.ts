@@ -1,4 +1,15 @@
-import { addLeg, assertValidSlip, hasFixture, legOdds, riskLevel, slipTypeName, summarizeSlip, type SlipLeg } from './slip';
+import {
+	addLeg,
+	assertValidSlip,
+	hasFixture,
+	legOdds,
+	parseOddsInput,
+	riskLevel,
+	slipTypeName,
+	summarizeSlip,
+	transferStatus,
+	type SlipLeg
+} from './slip';
 
 const a: SlipLeg = { fixtureId: 1, pModel: 0.6, bestOdds: 1.9 };
 const b: SlipLeg = { fixtureId: 2, pModel: 0.5, bestOdds: 2.2, tippmixOdds: 2.1 };
@@ -61,5 +72,25 @@ describe('szelvény-matek', () => {
 		expect(slipTypeName(2)).toBe('Dupla kötés');
 		expect(slipTypeName(3)).toBe('Hármas kötés');
 		expect(slipTypeName(9)).toBe('9-es kötés');
+	});
+});
+
+describe('Tippmixre vitel', () => {
+	it('beírt odds: vessző, pont, szóköz', () => {
+		expect(parseOddsInput('1,76')).toBe(1.76);
+		expect(parseOddsInput(' 2.10 ')).toBe(2.1);
+		expect(parseOddsInput('12')).toBe(12);
+		expect(parseOddsInput('')).toBeNull();
+		expect(parseOddsInput('1')).toBeNull();
+		expect(parseOddsInput('0,95')).toBeNull();
+		expect(parseOddsInput('1,7,6')).toBeNull();
+		expect(parseOddsInput('abc')).toBeNull();
+	});
+
+	it('láb-állapot a min. oddshoz képest', () => {
+		expect(transferStatus(1.76, 1.72)).toBe('valid');
+		expect(transferStatus(1.72, 1.72)).toBe('valid');
+		expect(transferStatus(1.62, 1.64)).toBe('below');
+		expect(transferStatus(null, 1.64)).toBe('missing');
 	});
 });

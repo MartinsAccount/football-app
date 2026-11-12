@@ -104,3 +104,20 @@ export const summarizeSlip = (
 		estimated: legs.some((l) => l.tippmixOdds === undefined)
 	};
 };
+
+/**
+ * Beírt odds értelmezése (DESIGN §7.7): vesszőt és pontot is elfogad, szóközt eldob.
+ * Érvénytelen vagy ≤ 1 értékre null.
+ */
+export const parseOddsInput = (input: string): number | null => {
+	const text = input.replace(/[\s ]/g, '').replace(',', '.');
+	if (!/^\d+(\.\d+)?$/.test(text)) return null;
+	const odds = Number(text);
+	return Number.isFinite(odds) && odds > 1 ? odds : null;
+};
+
+/** Tippmixre vitel lábanként: `valid` = megéri, `below` = min. alatt, `missing` = odds kell (üres vagy érvénytelen). */
+export type TransferStatus = 'valid' | 'below' | 'missing';
+
+export const transferStatus = (tippmixOdds: number | null | undefined, minimumOdds: number): TransferStatus =>
+	tippmixOdds == null ? 'missing' : tippmixOdds >= minimumOdds ? 'valid' : 'below';
