@@ -16,7 +16,7 @@ export class FetchService {
 		let myHeaders = new Headers();
 
 		// A kulcs a frontend/.env-ből jön (minta: .env.example) — kódba kulcsot nem írunk.
-		const API_KEY = process.env.REACT_APP_RAPIDAPI_KEY ?? '';
+		const API_KEY = import.meta.env.VITE_RAPIDAPI_KEY ?? '';
 
 		this.MainStore.increaseFetchNumber();
 		// console.log('this.MainStore.fetchNumber', this.MainStore.fetchNumber);

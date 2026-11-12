@@ -52,11 +52,12 @@
 - [x] **0.6 Dokumentáció rendbetétele:** az ADR-ek egy helyre kerülnek (`docs/fe/adr/` →
   `docs/adr/`), és a hivatkozásuk is javul; ADR-sablon; a `CLAUDE.md` naprakészen tartása.
   *Ellenőrzés:* nincs törött relatív link a `docs/` alatt.
-- [ ] **0.7 CRA → Vite + Vitest** *(a 9.1-ből előrehozva; ADR-0003)*: a CRA nem fordít
+- [x] **0.7 CRA → Vite + Vitest** *(a 9.1-ből előrehozva; ADR-0007)*: a CRA nem fordít
   `src/`-n kívüli TS-t, így a közös `packages/core` (amit a backend/API is használ) csak
   Vite mellett működik; ráadásul a CRA megszűnt. A MobX v5 és a viselkedés változatlan;
   `REACT_APP_*` → `VITE_*`; a `/api` proxy a Vite dev szerverben.
   *Ellenőrzés:* `npm run verify` zöld; dev szerver + build megy; a három útvonal renderel.
+  — kész: Vite 5.4, Vitest 2.1, TS 5.6; mindhárom útvonal headless Edge-ben renderelve (dev + build).
 - [ ] **0.8 npm workspaces + `packages/core`** *(az 1.1-ből előrehozva)*: gyökér
   `package.json` (workspaces: `frontend`, `backend`, `packages/*`), egy `npm install`,
   gyökér `verify`; az arbitrázsmag `packages/core`-ba költözik.
@@ -242,7 +243,7 @@
 
 ## 9. Frontend-modernizáció (az 1. fázis után bármikor)
 
-- [ ] **9.0 🔶 Döntés (ADR-0007):** CRA marad / **Vite + MobX** (javaslat) / Next.js.
+- [x] **9.0 🔶 Döntés (ADR-0007):** Vite + Vitest, a MobX v5 marad — elfogadva 2026-11-12.
 - [ ] **9.1 ~~CRA → Vite~~ → előrehozva: 0.7.**, a MobX v5 marad, a viselkedés változatlan.
   *Ellenőrzés:* a build, a tesztek és a három régi útvonal screenshotja egyezik.
 - [ ] **9.2 MobX 5 → 6, React 17 → 18**, a `--legacy-peer-deps` megszűnik.

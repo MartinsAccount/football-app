@@ -56,11 +56,11 @@ export class OddsStore {
 	});
 
 	loadFixtures = flow(function* (this: OddsStore) {
-		let { response: england } = yield require('../../../data/allMatchPremierLeague_2021.json');
-		let { response: germany } = yield require('../../../data/allMatchBundesliga_2021.json');
-		let { response: spain } = yield require('../../../data/allMatchLaLiga_2021.json');
-		let { response: italy } = yield require('../../../data/allMatchSeriaA_2021.json');
-		let { response: france } = yield require('../../../data/allMatchFrance_2021.json');
+		let { response: england } = yield import('../../../data/allMatchPremierLeague_2021.json').then((m) => m.default);
+		let { response: germany } = yield import('../../../data/allMatchBundesliga_2021.json').then((m) => m.default);
+		let { response: spain } = yield import('../../../data/allMatchLaLiga_2021.json').then((m) => m.default);
+		let { response: italy } = yield import('../../../data/allMatchSeriaA_2021.json').then((m) => m.default);
+		let { response: france } = yield import('../../../data/allMatchFrance_2021.json').then((m) => m.default);
 
 		this.Fixtures = {
 			england: england,

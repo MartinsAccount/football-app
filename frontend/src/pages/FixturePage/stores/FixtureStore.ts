@@ -48,24 +48,24 @@ export class FixtureStore {
 
 		switch (country) {
 			case 'england':
-				_fixtures = yield require('../../../data/allMatchPremierLeague_2020.json');
+				_fixtures = yield import('../../../data/allMatchPremierLeague_2020.json').then((m) => m.default);
 				_league = 'Angol bajnokság';
 				break;
 			case 'germany':
-				_fixtures = yield require('../../../data/allMatchBundesliga_2020.json');
+				_fixtures = yield import('../../../data/allMatchBundesliga_2020.json').then((m) => m.default);
 				_league = 'Német bajnokság';
 				break;
 			case 'spain':
-				_fixtures = yield require('../../../data/allMatchLaLiga_2020.json');
+				_fixtures = yield import('../../../data/allMatchLaLiga_2020.json').then((m) => m.default);
 				_league = 'Spanyol bajnokság';
 				break;
 			case 'italy':
-				_fixtures = yield require('../../../data/allMatchSeriaA_2020.json');
+				_fixtures = yield import('../../../data/allMatchSeriaA_2020.json').then((m) => m.default);
 				_league = 'Olasz bajnokság';
 				break;
 			case 'france':
 				_league = 'Francia bajnokság';
-				_fixtures = yield require('../../../data/allMatchFrance_2020.json');
+				_fixtures = yield import('../../../data/allMatchFrance_2020.json').then((m) => m.default);
 		}
 
 		this.fixtures = _fixtures.response;

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A personal, single-user football (soccer) betting-analysis app that automates the owner's pre-match analysis. The app is being reshaped around its new **main feature: match analysis + bet recommendations**. For the owner's configured leagues it collects fixtures, standings, injuries and pre-match odds snapshots on a schedule. It estimates per-market probabilities (form, home/away, H2H, table position, motivation/stakes, injuries, season phase) against a market baseline and recommends value bets with an explanation. It logs every prediction with its model version and feature snapshot, and evaluates them automatically after each match (hit rate, ROI, Brier/calibration, CLV), so the strategy can improve over time. **Arbitrage detection** (best odd per outcome across bookmakers, `Σ 1/odd < 1`) remains as a separate, secondary module.
 
-**Today vs. target:** today it is a localhost CRA + MobX v5 SPA that calls API-Football directly from the browser, caches in localStorage, and has a small Express backend that stores JSON files. The target is a hosted app on Vercel (Hobby, decided) with a Supabase Postgres database (decided). Behind it, a backend API proxy with a daily call budget (free tier: 100 calls/day) and scheduled ingestion jobs. The architecture sections below describe the **current** code. The target is in `docs/architecture.md`.
+**Today vs. target:** today it is a localhost Vite + React 17 + MobX v5 SPA that calls API-Football directly from the browser, caches in localStorage, and has a small Express backend that stores JSON files. The target is a hosted app on Vercel (Hobby, decided) with a Supabase Postgres database (decided). Behind it, a backend API proxy with a daily call budget (free tier: 100 calls/day) and scheduled ingestion jobs. The architecture sections below describe the **current** code. The target is in `docs/architecture.md`.
 
 The repo is a two-package monorepo with **no root tooling** — `frontend/` and `backend/` are installed and run independently. Note: the code, comments, and many identifiers are in **Hungarian** (e.g. `Vegeredmeny` = Match Winner, `MindketCsapatGol` = Both Teams Score). Preserve this when editing.
 
@@ -30,13 +30,19 @@ Run each package from its own directory.
 # Backend (Express API, port 5000)
 cd backend && npm install && npm start      # nodemon server.js
 
-# Frontend (CRA + TypeScript, port 3000, proxies /api to :5000)
-cd frontend && npm install && npm start     # react-scripts start
-cd frontend && npm run build                # production build
-cd frontend && npm test                     # react-scripts test (Jest) — run a single file: npm test -- App.test.tsx
+# Frontend (Vite + React 17 + TypeScript 5, port 3000, proxies /api to :5000)
+cd frontend && npm install && npm run dev   # vite dev server
+cd frontend && npm run build                # production build → frontend/build
+cd frontend && npm test                     # vitest watch — single file: npx vitest run src/core/arbitrage
+cd frontend && npm run verify               # typecheck + prettier check + tests + build — run before every commit
 ```
 
-There is no linter wired up and the backend `test` script is a placeholder. Both packages use Prettier (`.prettierrc`) with tabs.
+- **Definition of done for a change:** `npm run verify` is green; for UI changes also render the route and look at it (see "Visual check" below).
+- No ESLint (CRA's was dropped with the Vite migration). The backend `test` script is a placeholder. One root `.prettierrc` (tabs, single quotes, width 130).
+- `frontend/.npmrc` pins `legacy-peer-deps` (mobx-react 5 peer range) — don't remove it.
+- **Network on this machine:** TLS is intercepted (Check Point Harmony SASE). `npm install` needs `NODE_OPTIONS=--use-system-ca` (and running outside the sandbox); `curl` needs `--ssl-no-revoke`.
+- **Visual check without Playwright:** headless Edge works — `msedge --headless=new --virtual-time-budget=30000 --window-size=1440,900 --screenshot=<scratchpad>/x.png http://localhost:3000/<route>` (use `--dump-dom` + `--enable-logging=stderr` to read console errors).
+- **MobX v5 decorators under Vite:** `tsconfig` has `experimentalDecorators: true` + `useDefineForClassFields: false`, and `vite.config.ts` gives plugin-react's Babel the `decorators-legacy` parser plugin. Breaking either one silently stops the app from rendering in dev.
 
 ## Architecture
 
@@ -52,15 +58,16 @@ There is no linter wired up and the backend `test` script is a placeholder. Both
 This is the heart of the app. Flow:
 1. `searchAllLeagueIds` — pages through the API's odds-mapping endpoint to collect every league id that has an upcoming (not-yet-played) fixture.
 2. `helperHighestOdds` → `getHighestOdds(leagueId)` — for each league, fetch all fixtures-with-bookmakers and compute arbitrage per bet type.
-3. `analyzeBookmaker(bookmakers, betType, expectGoals?)` — scans all bookmakers, keeps the highest odd per outcome, sums `1/odd`. Bet types are bucketed into **twoParams** (2 outcomes, e.g. Home/Away), **threeParams** (1X2 results), and **specialTwoParams** (Over/Under goal lines, parameterized by `expectGoals` 2.5/3.5). `arbitrage < 1` = profitable.
+3. `analyzeBookmaker(bookmakers, betType, expectGoals?)` — delegates to the pure, tested `src/core/arbitrage/analyzeBookmakers.ts`; scans all bookmakers, keeps the highest odd per outcome, sums `1/odd`. Bet types are bucketed into **twoParams** (2 outcomes, e.g. Home/Away), **threeParams** (1X2 results), and **specialTwoParams** (Over/Under goal lines, parameterized by `expectGoals` 2.5/3.5). `arbitrage < 1` = profitable.
 4. Results (`Arbitrages: IAnalyzedFixture[]`) feed `@computed` getters that power the UI's filtering/grouping (`getArbitragesByBetType`, `getArbitrageRanges`, `getBookmakers`, `getBetTypes`, `getInformations`) and the bet-type vs. original list views.
 
 Bet-type enum (API string ↔ Hungarian name) is in `src/core/constants/BetTypes.ts`. `CALCULATE_ARBITRAGE` / `CALCULATE_GOAL_NUMBER_ARBITRAGE` arrays in the store select which bet types are analyzed.
 
 ### External API access & rate limits
 
-- The football API is the **free API-Football tier: 100 requests/day** (limited season window, `CURRENT_SEASON = 2025`). The code still carries older per-minute throttling (~61s pause every 10 requests, `timeoutAllLeaguesId`) which does not protect the daily cap; `MainStore.fetchNumber` counts calls. See `docs/plans/api-optimization.md`. Planned: route all calls through the backend as proxy + cache + daily counter (ROADMAP §1).
-- **API keys live in `frontend/.env`** (git-ignored; template `frontend/.env.example`): `REACT_APP_RAPIDAPI_KEY` for `FetchService`, `REACT_APP_APISPORTS_KEY` for `FetchService3`. Never write a key into source. CRA bakes env vars in at dev-server start, so restart `npm start` after changing `.env`; until the backend proxy (ROADMAP §1) takes over, the keys still ship in the browser bundle. The two services target different API hosts: `FetchService` → `api-football-v1.p.rapidapi.com` (RapidAPI), `FetchService3` → `v3.football.api-sports.io` (direct API-Sports). `ArbitrageStore` uses `MainStore.FetchService` (the former); `OddsService` uses `FetchService3`.- All API URLs are centralized in `src/services/ApiURLs.ts`. Season and bookmaker ids are in `src/core/constants/constants.ts` (`CURRENT_SEASON`, `UNIBET`).
+- The football API is the **free API-Football tier: 100 requests/day** (seasons 2022–2024 only, `CURRENT_SEASON = 2024`). The code still carries older per-minute throttling (~61s pause every 10 requests, `timeoutAllLeaguesId`) which does not protect the daily cap; `MainStore.fetchNumber` counts calls. See `docs/plans/api-optimization.md`. Planned: route all calls through the backend as proxy + cache + daily counter (ROADMAP §1).
+- **API keys live in `frontend/.env`** (git-ignored; template `frontend/.env.example`): `VITE_RAPIDAPI_KEY` for `FetchService`, `VITE_APISPORTS_KEY` for `FetchService3` (read via `import.meta.env`, typed in `src/vite-env.d.ts`). Never write a key into source. Restart the dev server after changing `.env`; until the backend proxy (ROADMAP §1) takes over, the keys still ship in the browser bundle. The two services target different API hosts: `FetchService` → `api-football-v1.p.rapidapi.com` (RapidAPI), `FetchService3` → `v3.football.api-sports.io` (direct API-Sports). `ArbitrageStore` uses `MainStore.FetchService` (the former); `OddsService` uses `FetchService3`.
+- All API URLs are centralized in `src/services/ApiURLs.ts`. Season and bookmaker ids are in `src/core/constants/constants.ts` (`CURRENT_SEASON`, `UNIBET`).
 
 ### Caching
 

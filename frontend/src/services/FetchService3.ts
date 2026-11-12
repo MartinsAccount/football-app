@@ -11,7 +11,7 @@ class FetchService {
 		let myHeaders = new Headers();
 
 		// A kulcs a frontend/.env-ből jön (minta: .env.example) — kódba kulcsot nem írunk.
-		const API_KEY = process.env.REACT_APP_APISPORTS_KEY ?? '';
+		const API_KEY = import.meta.env.VITE_APISPORTS_KEY ?? '';
 
 		if (sport === 'football') myHeaders.append('x-rapidapi-host', 'v3.football.api-sports.io');
 		if (sport === 'basketball') myHeaders.append('x-rapidapi-host', 'v1.basketball.api-sports.io');

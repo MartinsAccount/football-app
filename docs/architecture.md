@@ -337,12 +337,12 @@ a kódban a magyar domain-nevek (pl. `Vegeredmeny`) a `market.code` mezőben él
 
 | # | Téma | Javaslat | Függ tőle |
 |---|---|---|---|
-| ADR-0002 | **Adatforrás / API-csomag** (a free csomag szezon-hozzáférése) | Mérés, utána Pro csomag vagy több forrás | minden ingestion |
-| ADR-0003 | **Hosting** | Vercel Hobby | ütemező, auth |
-| ADR-0004 | **Adatbázis + ORM** | Neon Postgres + Drizzle | adatmodell |
+| ADR-0002 | **Adatforrás / API-csomag** | ✅ Elfogadva: Free, 2022–2024 | minden ingestion |
+| ADR-0003 | **Hosting** | ✅ Elfogadva: Vercel Hobby | ütemező, auth |
+| ADR-0004 | **Adatbázis + ORM** | ✅ Elfogadva: Supabase Postgres (ORM: Drizzle javaslat, nyitott) | adatmodell |
 | ADR-0005 | **Hozzáférés-védelem** | Vercel Authentication + egyfelhasználós app-session | deploy |
 | ADR-0006 | **Ütemezés és feladatsor** | 15 perces tick + `ingest_task` + advisory lock; tartalék: külső pinger | ingestion |
-| ADR-0007 | **Frontend toolchain** | Vite, MobX marad (később v6) | UI-munka |
+| ADR-0007 | **Frontend toolchain** | ✅ Elfogadva: Vite + Vitest, MobX v5 marad (később v6) | UI-munka |
 | ADR-0008 | **Repó-szerkezet** (npm workspaces, `packages/core`) | igen | minden backend-szelet |
 | ADR-0009 | **Modellezés nyelve** | TS az élesben; Python opcionális a feltáráshoz | strategy |
 | ADR-0010 | **Odds-tárolási szint** | csak az elemzett piacok normalizálva, nyers payload 14 napig | tárhely |
