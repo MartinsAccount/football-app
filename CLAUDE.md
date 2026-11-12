@@ -95,3 +95,76 @@ The `stores/*.json` files are the persisted dataset and are committed to the rep
 
 - **Match the surrounding style**: tabs, Hungarian identifiers/comments, MobX v5 decorator patterns, class components. Large blocks of commented-out alternative implementations are intentional scratch history — don't assume they're dead code to delete unless asked.
 - **Styling is Tailwind** (ADR `docs/adr/0001-tailwind-as-styling-base.md`, tokens in `tailwind.config.js`, documented in `docs/fe/design-system.md`). Preflight is on; the legacy SCSS layer was removed. New UI uses Tailwind utilities with named tokens, no hardcoded hex.
+
+
+## Autonóm munkamód
+
+Ez a szakasz **felülírja a PRD 12. fejezetének jóváhagyási pontjait** („javaslatot csak a
+tulajdonos fogad el”, „élő hívás csak jóváhagyással”). A tulajdonos nincs jelen, és nem akar
+kérdéseket kapni. Haladj magadtól, szeletről szeletre.
+
+### 1. Ne kérdezz, dönts
+- Ha kérdés merül fel, a PRD, a ROADMAP, az `architecture.md` és a `strategy.md` alapján
+  válaszold meg. Ha ezekből nem derül ki, válaszd a **legegyszerűbb, később könnyen
+  visszafordítható** megoldást.
+- Minden ilyen döntést írj be egy sorban a `docs/DECISIONS.md`-be:
+  `dátum | kérdés | döntés | indok | felülvizsgálandó: igen/nem`.
+- Nagyobb architekturális döntésnél írj ADR-t `Status: Accepted (agent) – review pending`
+  státusszal, és folytasd a munkát.
+- A terv (`docs/plans/<téma>.md`, legfeljebb kb. 40 sor) nem igényel jóváhagyást: megírod,
+  és azonnal megvalósítod.
+
+### 2. Csak itt állj meg
+Ezekben az esetekben **ne csináld meg**:
+- API-kulcs, `.env` vagy titok módosítása;
+- fizetős szolgáltatás vagy csomagváltás;
+- éles deploy, illetve Vercel- vagy Supabase-projekt beállítása;
+- adatvesztő migráció vagy törlés;
+- `git push --force`, history átírása;
+- PRD 8. fejezet (nem-célok).
+
+Ilyenkor írd be a `docs/BLOCKERS.md`-be (mi kell, miért, mit csinálnál), és
+**folytasd a következő, nem blokkolt szelettel**.
+
+### 3. Élő API
+- Alapból mock- vagy fixture-adatból dolgozz.
+- Élő API-Football-hívás fejlesztésre **naponta legfeljebb 20** fér bele.
+- Minden élő hívást naplózz.
+- A választ mentsd fixture-be, hogy ugyanazt soha ne kelljen újra lekérni.
+
+### 4. Szelet-ciklus (egy szelet = egy commit)
+1. Olvasd el a `docs/STATE.md`-t, és vedd a „Következő szeletek” lista első elemét.
+2. Rövid terv kell, ha a szelet 3-nál több fájlt érint.
+3. Valósítsd meg.
+4. Ellenőrizd: `typecheck`, majd az **érintett** tesztek.
+5. UI-változásnál: 1 screenshot (deviceScaleFactor 1).
+6. Frissítsd a `docs/STATE.md`-t: kész lista, következő szeletek, polish backlog, max. 10 soros
+   „jegyzet a következő sessionnek”.
+7. `git commit` (conventional commit üzenet).
+
+Szeletméret: legfeljebb kb. 10 fájl és egy jól körülhatárolt cél. Ha nagyobb, bontsd szét,
+és a részeket írd be a STATE.md-be.
+
+**Kész-definíció = működő alap.** Típusos, a tiszta mag tesztelt, a UI a tokenekre épül.
+Finomhangolás nem kell: a hiányokat `TODO(polish)` komment és a STATE.md polish backlogja
+jelölje, ne akadj el rajtuk.
+
+### 5. Design
+- Forrás: `docs/design/`.
+- Sorrend:
+  1. **Design tokenek** egy helyen (szín, tipó, spacing, radius, shadow → `tokens.css` +
+     TS export);
+  2. alapkomponensek;
+  3. app shell és navigáció;
+  4. oldalak a PRD 5.8 szerint, a meglévő oldalak átalakítása.
+- Tokenen kívüli, beégetett szín vagy méret tilos.
+
+### 6. Token-fegyelem
+- **Ne olvasd be egészben** a PRD-t, a ROADMAP-ot vagy a design-fájlokat. A STATE.md-ből indulj,
+  előbb `Grep`/`Glob`, és csak a releváns szakaszt olvasd be.
+- Parancskimenet: `2>&1 | tail -n 40`. Tesztből csak a hibák kellenek, a teljes build-log nem.
+- Egyszerre **1 subagent**. Legfeljebb 2 párhuzamosan, és csak független feladatra. A subagent
+  legfeljebb 15 sorban válaszoljon.
+- Ne írj hosszú összefoglalót. A commit üzenet és a STATE.md elég.
+- Ha a kontextus megtelt, vagy egy szelet kész: írd meg a STATE.md-t úgy, hogy egy **friss
+  session** (előzmények nélkül) onnan folytathassa.
