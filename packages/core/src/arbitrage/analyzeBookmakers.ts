@@ -1,5 +1,5 @@
-import { BETS_TYPES } from '../constants/BetTypes';
-import { Bet, BetsValue, Bookmaker } from '../models/models';
+import { BETS_TYPES } from '../constants/betTypes';
+import { Bet, BetsValue, Bookmaker } from '../odds/types';
 import { IArbitrage, IHighestOdds } from './types';
 
 // Tiszta függvény: nincs store-, API- vagy DOM-függőség, ezért unit-tesztelhető

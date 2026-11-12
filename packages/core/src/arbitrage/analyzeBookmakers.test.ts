@@ -1,5 +1,5 @@
-import { BETS_TYPES } from '../constants/BetTypes';
-import { Bookmaker } from '../models/models';
+import { BETS_TYPES } from '../constants/betTypes';
+import { Bookmaker } from '../odds/types';
 import { analyzeBookmakers } from './analyzeBookmakers';
 
 const bookmaker = (id: number, name: string, bets: { name: BETS_TYPES; values: [string, string][] }[]): Bookmaker => ({
@@ -79,7 +79,7 @@ describe('analyzeBookmakers', () => {
 
 			const result = analyzeBookmakers(books, BETS_TYPES.MindketCsapatGol);
 
-			expect(result.highestOdds.map((o) => [o.name, o.odd, o.bookmaker])).toEqual([
+			expect(result.highestOdds!.map((o) => [o.name, o.odd, o.bookmaker])).toEqual([
 				['Yes', 1.85, 'B'],
 				['No', 1.95, 'A']
 			]);
@@ -145,7 +145,7 @@ describe('analyzeBookmakers', () => {
 		it('ha egy iroda nem ad oddsot a vonalra, az nem számít', () => {
 			const result = analyzeBookmakers(books, BETS_TYPES.GolokSzama, 3.5);
 
-			expect(result.highestOdds.map((o) => o.bookmaker)).toEqual(['A', 'A']);
+			expect(result.highestOdds!.map((o) => o.bookmaker)).toEqual(['A', 'A']);
 			expect(result.arbitrage).toBe(1.063); // 1/3.4 + 1/1.3
 		});
 	});

@@ -11,7 +11,7 @@ import { IInformations } from '../models/IInformations';
 import { IArbitrageRange } from '../models/IArbitrageRange';
 import { IArbitrageByBetType } from '../models/IArbitrageByBetType';
 import { Fixture } from '../../FixturePage/models/models';
-import { analyzeBookmakers } from '../../../core/arbitrage/analyzeBookmakers';
+import { analyzeBookmakers } from '@football/core';
 
 // TODO cache data hogy egy nap többször lehessen használni
 

@@ -6,7 +6,7 @@ export interface IHighestOdds {
 
 export interface IArbitrage {
 	name: string;
-	highestOdds: IHighestOdds[];
-	arbitrage: number;
+	highestOdds: IHighestOdds[] | null;
+	arbitrage: number | null; // null: nem támogatott fogadástípus; Infinity: nincs odds
 	// betType: BetsNames
 }

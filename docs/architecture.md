@@ -241,7 +241,7 @@ scripts/             # backfill, backtest, import (legacy JSON, football-data.co
 backend/             # a régi Express: a migráció végéig marad, utána megszűnik
 ```
 
-npm workspaces a gyökérben. Ez az első gyökérszintű tooling, és a ROADMAP 1. fázisában jön létre.
+npm workspaces a gyökérben — **elkészült** (ROADMAP 0.8, ADR-0008); a `packages/core` már él, a többi mappa az 1. fázisban jön.
 
 ## 9. Frontend: marad a CRA + MobX, vagy migrálunk? (döntés: D5)
 
@@ -343,7 +343,7 @@ a kódban a magyar domain-nevek (pl. `Vegeredmeny`) a `market.code` mezőben él
 | ADR-0005 | **Hozzáférés-védelem** | Vercel Authentication + egyfelhasználós app-session | deploy |
 | ADR-0006 | **Ütemezés és feladatsor** | 15 perces tick + `ingest_task` + advisory lock; tartalék: külső pinger | ingestion |
 | ADR-0007 | **Frontend toolchain** | ✅ Elfogadva: Vite + Vitest, MobX v5 marad (később v6) | UI-munka |
-| ADR-0008 | **Repó-szerkezet** (npm workspaces, `packages/core`) | igen | minden backend-szelet |
+| ADR-0008 | **Repó-szerkezet** (npm workspaces, `packages/core`) | ✅ Elfogadva | minden backend-szelet |
 | ADR-0009 | **Modellezés nyelve** | TS az élesben; Python opcionális a feltáráshoz | strategy |
 | ADR-0010 | **Odds-tárolási szint** | csak az elemzett piacok normalizálva, nyers payload 14 napig | tárhely |
 

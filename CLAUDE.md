@@ -8,7 +8,18 @@ A personal, single-user football (soccer) betting-analysis app that automates th
 
 **Today vs. target:** today it is a localhost Vite + React 17 + MobX v5 SPA that calls API-Football directly from the browser, caches in localStorage, and has a small Express backend that stores JSON files. The target is a hosted app on Vercel (Hobby, decided) with a Supabase Postgres database (decided). Behind it, a backend API proxy with a daily call budget (free tier: 100 calls/day) and scheduled ingestion jobs. The architecture sections below describe the **current** code. The target is in `docs/architecture.md`.
 
-The repo is a two-package monorepo with **no root tooling** — `frontend/` and `backend/` are installed and run independently. Note: the code, comments, and many identifiers are in **Hungarian** (e.g. `Vegeredmeny` = Match Winner, `MindketCsapatGol` = Both Teams Score). Preserve this when editing.
+**Repo layout** (npm workspaces, one `npm install` at the root — ADR-0008):
+
+```
+packages/core/   @football/core — pure domain logic, no I/O (odds & bet types, arbitrage; later: features, models, evaluation). Strict TS. Unit-tested.
+frontend/        Vite + React 17 + MobX v5 SPA (football-app-web). Imports domain logic from @football/core.
+backend/         legacy Express JSON store (football-app-legacy-api) — replaced by Vercel api/ + Supabase in ROADMAP §1
+docs/            PRD, ROADMAP, architecture, api/, analysis/, adr/, plans/, fe/
+```
+
+Planned next to these (ROADMAP §1): `api/` (Vercel functions), `packages/db`, `packages/api-client`, `scripts/`. **Where new code goes:** anything that computes (probabilities, EV, arbitrage, evaluation, feature extraction, budget estimates) → `packages/core` with tests; UI/state → `frontend`; I/O (HTTP, DB) → `api/` / `packages/*-client`, never in core.
+
+Note: the code, comments, and many identifiers are in **Hungarian** (e.g. `Vegeredmeny` = Match Winner, `MindketCsapatGol` = Both Teams Score). Preserve this when editing.
 
 ## Start here (agentic workflow)
 
@@ -19,27 +30,26 @@ The repo is a two-package monorepo with **no root tooling** — `frontend/` and 
 - **`docs/analysis/strategy.md`**: the prediction/recommendation methodology. Covers factors, baseline models (market, API `/predictions`, Elo, Poisson/Dixon–Coles), EV and staking rules, and the learning loop (logging, evaluation, backtesting, model lifecycle).
 - **Work loop for non-trivial changes:** plan in `docs/plans/<topic>.md` → user approval → implement → verify (tests, typecheck, screenshot of the running app for UI) → ADR if a decision was made. ADRs live in `docs/adr/` (template: `docs/adr/_template.md`), numbered `NNNN-slug.md`.
 - **API budget & data (ADR `docs/adr/0002-adatforras.md`):** free plan, **only seasons 2022–2024** are accessible (`CURRENT_SEASON = 2024`). Live calls are **allowed within the 100/day quota** to test fetching/saving — check `/status` (free, doesn't count) before and after a batch, and never run unbounded loops (full arbitrage run, all-league scans) without asking. UI and business-logic work uses saved data (fixtures/DB) by default. Never print the API keys. On Windows, `curl` needs `--ssl-no-revoke`.
-- **Database:** Supabase Postgres (owner's choice, ADR-0004 pending formal write-up); keep SQL standard Postgres.
+- **Decided:** hosting Vercel Hobby (ADR-0003), database Supabase Postgres (ADR-0004; keep SQL standard Postgres), frontend Vite + Vitest (ADR-0007), workspaces + `packages/core` (ADR-0008). The owner lets the agent shape repo structure and tooling; product decisions (🔶) still go to the owner.
 - **Docs language:** project docs (PRD, plans, ADRs) are Hungarian; commit messages are English.
 
 ## Commands
 
-Run each package from its own directory.
+Run from the repo root.
 
 ```bash
-# Backend (Express API, port 5000)
-cd backend && npm install && npm start      # nodemon server.js
-
-# Frontend (Vite + React 17 + TypeScript 5, port 3000, proxies /api to :5000)
-cd frontend && npm install && npm run dev   # vite dev server
-cd frontend && npm run build                # production build → frontend/build
-cd frontend && npm test                     # vitest watch — single file: npx vitest run src/core/arbitrage
-cd frontend && npm run verify               # typecheck + prettier check + tests + build — run before every commit
+npm install                      # all workspaces (see network note below)
+npm run dev                      # backend :5000 + frontend :3000 (Vite proxies /api → :5000)
+npm run verify                   # prettier check + per-workspace verify (core: typecheck+tests; frontend: typecheck+tests+build)
+npm test                         # all workspace tests once
+npm run format                   # prettier --write
+npm run test -w @football/core   # vitest watch in one workspace; single file: npx vitest run src/arbitrage -w ... or cd into it
+npm run build                    # frontend production build → frontend/build
 ```
 
 - **Definition of done for a change:** `npm run verify` is green; for UI changes also render the route and look at it (see "Visual check" below).
-- No ESLint (CRA's was dropped with the Vite migration). The backend `test` script is a placeholder. One root `.prettierrc` (tabs, single quotes, width 130).
-- `frontend/.npmrc` pins `legacy-peer-deps` (mobx-react 5 peer range) — don't remove it.
+- No ESLint (CRA's was dropped with the Vite migration). The backend has no tests. One root `.prettierrc` (tabs, single quotes, width 130); `.gitattributes` keeps LF.
+- Root `.npmrc` pins `legacy-peer-deps` (mobx-react 5 peer range) — don't remove it. `packages/core` is consumed as TS source (`exports: ./src/index.ts`), no build step.
 - **Network on this machine:** TLS is intercepted (Check Point Harmony SASE). `npm install` needs `NODE_OPTIONS=--use-system-ca` (and running outside the sandbox); `curl` needs `--ssl-no-revoke`.
 - **Visual check without Playwright:** headless Edge works — `msedge --headless=new --virtual-time-budget=30000 --window-size=1440,900 --screenshot=<scratchpad>/x.png http://localhost:3000/<route>` (use `--dump-dom` + `--enable-logging=stderr` to read console errors).
 - **MobX v5 decorators under Vite:** `tsconfig` has `experimentalDecorators: true` + `useDefineForClassFields: false`, and `vite.config.ts` gives plugin-react's Babel the `decorators-legacy` parser plugin. Breaking either one silently stops the app from rendering in dev.

@@ -58,10 +58,11 @@
   `REACT_APP_*` → `VITE_*`; a `/api` proxy a Vite dev szerverben.
   *Ellenőrzés:* `npm run verify` zöld; dev szerver + build megy; a három útvonal renderel.
   — kész: Vite 5.4, Vitest 2.1, TS 5.6; mindhárom útvonal headless Edge-ben renderelve (dev + build).
-- [ ] **0.8 npm workspaces + `packages/core`** *(az 1.1-ből előrehozva)*: gyökér
+- [x] **0.8 npm workspaces + `packages/core`** *(az 1.1-ből előrehozva)*: gyökér
   `package.json` (workspaces: `frontend`, `backend`, `packages/*`), egy `npm install`,
   gyökér `verify`; az arbitrázsmag `packages/core`-ba költözik.
   *Ellenőrzés:* gyökérből `npm run verify` zöld; a frontend a `@football/core`-ból importál.
+  — kész (ADR-0008): egy lockfile, gyökér `dev`/`verify`/`test`/`format`; a core strict TS.
 
 ## 1. Backend-alap: API-proxy, DB, hosting
 
