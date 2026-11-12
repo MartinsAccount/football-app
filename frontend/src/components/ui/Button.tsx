@@ -11,7 +11,14 @@ interface IButtonProps {
 
 // Megosztott gomb (kiváltja a régi MyButton-t). Preflight ki van, ezért a natív
 // gomb-stílust helyben reseteljük.
-const Button: React.FC<IButtonProps> = ({ children, onClick, variant = 'secondary', active = false, type = 'button', className = '' }) => {
+const Button: React.FC<IButtonProps> = ({
+	children,
+	onClick,
+	variant = 'secondary',
+	active = false,
+	type = 'button',
+	className = ''
+}) => {
 	const base = 'appearance-none border cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium transition-colors';
 
 	let look: string;

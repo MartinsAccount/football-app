@@ -36,8 +36,7 @@ class ArbitrageSidebar extends Component<IArbitrageSidebarProps> {
 
 	render() {
 		const { ArbitrageStore } = this.props.MainStore;
-		const betTypeCount =
-			ArbitrageStore.getArbitrages.length > 0 ? ArbitrageStore.getArbitrages[0]?.arbitrages?.length ?? 0 : 0;
+		const betTypeCount = ArbitrageStore.getArbitrages.length > 0 ? ArbitrageStore.getArbitrages[0]?.arbitrages?.length ?? 0 : 0;
 
 		return (
 			<aside className="w-64 shrink-0 bg-sidebar border-r border-border-subtle flex flex-col gap-2 p-3 overflow-y-auto">

@@ -36,17 +36,57 @@ class FixtureContent extends Component<IFixtureContentProps> {
 			base ? `${Math.round((value / base) * 100)}% ${suffix}` : undefined;
 
 		const stats: { label: string; value: number; sub?: string }[] = [
-			{ label: 'Összes gól', value: allGoals, sub: fixturesCount ? `${(allGoals / fixturesCount).toFixed(2)} gól / meccs` : undefined },
+			{
+				label: 'Összes gól',
+				value: allGoals,
+				sub: fixturesCount ? `${(allGoals / fixturesCount).toFixed(2)} gól / meccs` : undefined
+			},
 			{ label: 'Meccsek száma', value: fixturesCount },
-			{ label: 'Mindkét csapat gól', value: FixtureStore.bothTeamsScore, sub: pctOf(FixtureStore.bothTeamsScore, fixturesCount, 'a meccsekből') },
-			{ label: 'Első félidő összes gól', value: FixtureStore.getFirstHalfGoals, sub: pctOf(FixtureStore.getFirstHalfGoals, allGoals, 'az összes gólból') },
-			{ label: 'Döntetlen meccsek', value: FixtureStore.getDrawFixtures, sub: pctOf(FixtureStore.getDrawFixtures, fixturesCount, 'a meccsekből') },
-			{ label: 'Hazai nyert meccsek', value: FixtureStore.getHomeWinners, sub: pctOf(FixtureStore.getHomeWinners, fixturesCount, 'a meccsekből') },
-			{ label: 'Páratlan gól', value: FixtureStore.getOddGoals, sub: pctOf(FixtureStore.getOddGoals, fixturesCount, 'a meccsekből') },
-			{ label: 'Páros gól', value: FixtureStore.getEvenGoals, sub: pctOf(FixtureStore.getEvenGoals, fixturesCount, 'a meccsekből') },
-			{ label: '0,5 gól felett', value: FixtureStore.overNullGoal, sub: pctOf(FixtureStore.overNullGoal, fixturesCount, 'a meccsekből') },
-			{ label: '1,5 gól felett', value: FixtureStore.overOneGoal, sub: pctOf(FixtureStore.overOneGoal, fixturesCount, 'a meccsekből') },
-			{ label: 'Csapatok száma (min. 1 döntetlen)', value: FixtureStore.teamWithDraw, sub: pctOf(FixtureStore.teamWithDraw, teams, 'a csapatokból') }
+			{
+				label: 'Mindkét csapat gól',
+				value: FixtureStore.bothTeamsScore,
+				sub: pctOf(FixtureStore.bothTeamsScore, fixturesCount, 'a meccsekből')
+			},
+			{
+				label: 'Első félidő összes gól',
+				value: FixtureStore.getFirstHalfGoals,
+				sub: pctOf(FixtureStore.getFirstHalfGoals, allGoals, 'az összes gólból')
+			},
+			{
+				label: 'Döntetlen meccsek',
+				value: FixtureStore.getDrawFixtures,
+				sub: pctOf(FixtureStore.getDrawFixtures, fixturesCount, 'a meccsekből')
+			},
+			{
+				label: 'Hazai nyert meccsek',
+				value: FixtureStore.getHomeWinners,
+				sub: pctOf(FixtureStore.getHomeWinners, fixturesCount, 'a meccsekből')
+			},
+			{
+				label: 'Páratlan gól',
+				value: FixtureStore.getOddGoals,
+				sub: pctOf(FixtureStore.getOddGoals, fixturesCount, 'a meccsekből')
+			},
+			{
+				label: 'Páros gól',
+				value: FixtureStore.getEvenGoals,
+				sub: pctOf(FixtureStore.getEvenGoals, fixturesCount, 'a meccsekből')
+			},
+			{
+				label: '0,5 gól felett',
+				value: FixtureStore.overNullGoal,
+				sub: pctOf(FixtureStore.overNullGoal, fixturesCount, 'a meccsekből')
+			},
+			{
+				label: '1,5 gól felett',
+				value: FixtureStore.overOneGoal,
+				sub: pctOf(FixtureStore.overOneGoal, fixturesCount, 'a meccsekből')
+			},
+			{
+				label: 'Csapatok száma (min. 1 döntetlen)',
+				value: FixtureStore.teamWithDraw,
+				sub: pctOf(FixtureStore.teamWithDraw, teams, 'a csapatokból')
+			}
 		];
 
 		return (

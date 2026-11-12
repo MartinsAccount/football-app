@@ -40,7 +40,9 @@ class FixtureInformationModal extends Component<IFixtureInformationModalProps> {
 							</div>
 							<div className="flex gap-2">
 								<dt className="font-semibold text-text">Dátum:</dt>
-								<dd className="text-text-muted">{new Date(ArbitrageStore.fixtureInformation.fixture.date).toLocaleString('hu-HU')}</dd>
+								<dd className="text-text-muted">
+									{new Date(ArbitrageStore.fixtureInformation.fixture.date).toLocaleString('hu-HU')}
+								</dd>
 							</div>
 						</dl>
 

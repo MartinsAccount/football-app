@@ -35,7 +35,8 @@ class ApiURLs {
 		GET_FIXTURE_STATISTICS: (fixtureId: number) => `${this.urls.football}/fixtures/statistics?fixture=${fixtureId}`,
 
 		// Odds-okkal kapcsolatos lekérések
-		GET_UNIBET_ODDS: (leaguesId: number) => `${this.urls.football}/odds?season=${CURRENT_SEASON}&league=${leaguesId}&bookmaker=${UNIBET}`,
+		GET_UNIBET_ODDS: (leaguesId: number) =>
+			`${this.urls.football}/odds?season=${CURRENT_SEASON}&league=${leaguesId}&bookmaker=${UNIBET}`,
 		GET_BOOKMAKERS: () => `${this.urls.football}/odds/bookmakers`,
 		AVAILABLE_FIXTURES_FOR_ODDS: (page: number = 1) => `${this.urls.football}/odds/mapping?page=${page}`,
 		GET_LEAGUE_ODDS: (leaguesId: number) => `${this.urls.football}/odds?league=${leaguesId}&season=${CURRENT_SEASON}`
