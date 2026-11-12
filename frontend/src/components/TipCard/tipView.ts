@@ -59,6 +59,10 @@ export interface ITip {
 	/** A liga csapatszáma (tabella-sáv, DESIGN §7.5); alapból 20. */
 	leagueSize?: number;
 	modelVersion: string;
+	/** Indoklás: a fő tényezők hozzájárulása (PRD 6), magyar mondatok. */
+	reasons?: string[];
+	/** Javasolt tét egységben (flat: 1). */
+	stakeUnits?: number;
 }
 
 export const RESULT_LETTER: Record<MatchResult, string> = { W: 'Gy', D: 'D', L: 'V' };

@@ -1,10 +1,14 @@
-import React, { Component, ReactNode } from 'react';
-import { formatKickoff, formatPairing } from '@football/core';
+import React, { Component, CSSProperties, ReactNode } from 'react';
+import { formatKickoff, formatPairing, NBSP } from '@football/core';
 import Disclosure from './Disclosure';
 import ProbabilityBars from './ProbabilityBars';
 import TeamForm from './TeamForm';
 import TipActions from './TipActions';
 import { confidenceText, ITip } from './tipView';
+import { v } from '../../design/tokens/tokens';
+
+const detailsStyle: CSSProperties = { gap: v('space.8') };
+const reasonsStyle: CSSProperties = { paddingLeft: v('space.10') };
 
 interface ITipCardProps {
 	tip: ITip;
@@ -51,7 +55,8 @@ class TipCard extends Component<ITipCardProps> {
 					onToggleSlip={this.toggleSlip}
 				/>
 				<div className="oe-muted text-caption">
-					{tip.bookmaker} · {formatKickoff(tip.oddsAt, now)} · {tip.modelVersion}
+					{tip.bookmaker} · {formatKickoff(tip.oddsAt, now)}
+					{tip.stakeUnits !== undefined && ` · tét ${tip.stakeUnits}${NBSP}egység`} · {tip.modelVersion}
 				</div>
 				{tip.warnings.map((w) => (
 					<div key={w} className="oe-warning">
@@ -59,7 +64,21 @@ class TipCard extends Component<ITipCardProps> {
 					</div>
 				))}
 				<Disclosure expanded={expanded} controlsId={detailsId} onToggle={this.toggleExpand} />
-				{expanded && <div id={detailsId}>{children}</div>}
+				{expanded && (
+					<div id={detailsId} className="flex flex-col" style={detailsStyle}>
+						{tip.reasons?.length > 0 && (
+							<div>
+								<div className="oe-label">Miért?</div>
+								<ul className="oe-muted text-small list-disc" style={reasonsStyle}>
+									{tip.reasons.map((r) => (
+										<li key={r}>{r}</li>
+									))}
+								</ul>
+							</div>
+						)}
+						{children}
+					</div>
+				)}
 			</article>
 		);
 	}

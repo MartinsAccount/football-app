@@ -1,11 +1,14 @@
 import React, { Component, CSSProperties } from 'react';
+import { formatAge, RecommendationSnapshot } from '@football/core';
 import PageIntro from '../../components/PageIntro/PageIntro';
+import EmptyState from '../../components/PageIntro/EmptyState';
 import EngineBanner from '../../components/EngineBanner/EngineBanner';
 import MatchDetails from '../../components/MatchDetails/MatchDetails';
 import TipCard from '../../components/TipCard/TipCard';
-import { sampleTips } from '../../components/TipCard/sampleTips';
 import { ITip } from '../../components/TipCard/tipView';
 import { v } from '../../design/tokens/tokens';
+import snapshotJson from '../../../../data/recommendations/recommendations-v0.json';
+import { groupTipsByDay, ITipDay } from './recommendationsView';
 
 const stackStyle: CSSProperties = { gap: v('space.9'), paddingBottom: v('space.14') };
 
@@ -15,13 +18,20 @@ interface IRecommendationsPageState {
 }
 
 /**
- * `/` – Ma: ajánlások TipCard-okkal + szelvény (PRD 5.8).
- * TODO(polish): S18 – valódi predikciók RecommendationStore-ból a minta helyett; S19 – a kijelölés a SlipStore-ba kerül.
+ * `/` – Ma: ajánlások TipCard-okkal (PRD 5.8, ROADMAP 5.4) a mentett ajánlás-pillanatképből (0 külső hívás).
+ * A pillanatkép: `npm run recommendations -w @football/db`. TODO(polish): S19 – a kijelölés a SlipStore-ba kerül + SlipPanel;
+ * később a DB-ből (`/api/predictions`).
  */
 class RecommendationsPage extends Component<{}, IRecommendationsPageState> {
-	tips: ITip[] = sampleTips();
-	// Bemutatáshoz az első kártya nyitva indul (DESIGN-referencia).
-	state: IRecommendationsPageState = { selectedIds: [], expandedId: this.tips[0]?.id ?? null };
+	snapshot = snapshotJson as RecommendationSnapshot;
+	now = new Date(this.snapshot.now);
+	days: ITipDay[] = groupTipsByDay(this.snapshot);
+	tipCount = this.days.reduce((n, d) => n + d.tips.length, 0);
+	// Az első kártya nyitva indul (DESIGN-referencia).
+	state: IRecommendationsPageState = {
+		selectedIds: [],
+		expandedId: this.days.find((d) => d.tips.length)?.tips[0].id ?? null
+	};
 
 	toggleSlip = (tip: ITip) =>
 		this.setState(({ selectedIds }) => ({
@@ -31,38 +41,64 @@ class RecommendationsPage extends Component<{}, IRecommendationsPageState> {
 	// Egyszerre egy kártya lehet nyitva (DESIGN §7.4).
 	toggleExpand = (tip: ITip) => this.setState(({ expandedId }) => ({ expandedId: expandedId === tip.id ? null : tip.id }));
 
-	render() {
+	renderDay(day: ITipDay) {
 		const { selectedIds, expandedId } = this.state;
+		const headingId = `tips-${day.key}`;
+		return (
+			<section key={day.key} aria-labelledby={headingId}>
+				<div className="oe-section-head">
+					<h2 className="oe-h2" id={headingId}>
+						{day.title}
+					</h2>
+					<span className="oe-muted text-small">{day.tips.length} tipp</span>
+				</div>
+				{day.tips.length === 0 ? (
+					<p className="oe-muted m-0">Erre a napra nincs a szabályoknak megfelelő tipp.</p>
+				) : (
+					<div className="oe-card-grid">
+						{day.tips.map((tip) => (
+							<TipCard
+								key={tip.id}
+								tip={tip}
+								now={this.now}
+								selected={selectedIds.includes(tip.id)}
+								expanded={expandedId === tip.id}
+								onToggleSlip={this.toggleSlip}
+								onToggleExpand={this.toggleExpand}
+							>
+								<MatchDetails tip={tip} />
+							</TipCard>
+						))}
+					</div>
+				)}
+			</section>
+		);
+	}
+
+	render() {
+		const { snapshot, now, tipCount } = this;
+		const oldestOdds = Math.min(...snapshot.items.map((i) => Date.parse(i.oddsAt)));
+		const age = Number.isFinite(oldestOdds) ? `, az odds ${formatAge(now.getTime() - oldestOdds)}` : '';
 		return (
 			<>
-				<PageIntro title="Rakd össze a mai szelvényt." subtitle="Minta-kártyák, amíg a motor nem fut." />
+				<PageIntro
+					title="Rakd össze a mai szelvényt."
+					subtitle={`${snapshot.analyzed} meccsből ${tipCount} érték-tipp.`}
+					date={now}
+				/>
 				<div className="flex flex-col" style={stackStyle}>
 					<EngineBanner
-						title="Minta-adat."
-						text="A kártyák a TipCard bemutatására szolgálnak; a valódi ajánlásokat a modell a mentett meccs- és odds-adatból számolja majd."
+						title="Mentett adat."
+						text={`Az ingyenes API-csomag nem ad idei szezont, ezért a lista egy 2025. áprilisi hétvégéből készült (${snapshot.modelVersion}${age}). Sérültlista és 5 iroda nincs a forrásban; a tipp a piaccal kombinált becslés.`}
 					/>
-					<section aria-labelledby="tips-today">
-						<div className="oe-section-head">
-							<h2 className="oe-h2" id="tips-today">
-								Ma
-							</h2>
-							<span className="oe-muted text-small">{this.tips.length} tipp</span>
-						</div>
-						<div className="oe-card-grid">
-							{this.tips.map((tip) => (
-								<TipCard
-									key={tip.id}
-									tip={tip}
-									selected={selectedIds.includes(tip.id)}
-									expanded={expandedId === tip.id}
-									onToggleSlip={this.toggleSlip}
-									onToggleExpand={this.toggleExpand}
-								>
-									<MatchDetails tip={tip} />
-								</TipCard>
-							))}
-						</div>
-					</section>
+					{tipCount === 0 ? (
+						<EmptyState
+							title="Ma nincs érték-tipp."
+							text="A modell minden meccset átnézett, de egyik sem ment át az EV-, eltérés- és odds-szűrőn."
+						/>
+					) : (
+						this.days.map((day) => this.renderDay(day))
+					)}
 				</div>
 			</>
 		);

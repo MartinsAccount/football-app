@@ -4,6 +4,7 @@ import type { Fixture, Team } from '../types';
 import {
 	CSV_BOOKMAKERS,
 	CSV_MARKETS,
+	csvKickoffUtc,
 	csvRowSnapshots,
 	matchCsvRows,
 	normalizeTeamName,
@@ -53,6 +54,12 @@ describe('parseFootballDataCsv', () => {
 		});
 		expect(rows[0].odds['B365H']).toBe(4.2);
 		expect(rows[1].odds['PSH']).toBeUndefined();
+	});
+	it('kezdés: Time oszlop, angol helyi idő → UTC (BST/GMT)', () => {
+		expect(parseFootballDataCsv(CSV)[0].time).toBe('20:00');
+		expect(csvKickoffUtc('2025-04-12', '15:00')).toBe('2025-04-12T14:00:00.000Z');
+		expect(csvKickoffUtc('2025-01-11', '17:30')).toBe('2025-01-11T17:30:00.000Z');
+		expect(csvKickoffUtc('2025-04-12')).toBe('2025-04-12T14:00:00.000Z');
 	});
 	it('dátum: dd/mm/yyyy és dd/mm/yy', () => {
 		expect(parseCsvDate('05/08/2022')).toBe('2022-08-05');

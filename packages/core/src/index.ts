@@ -21,3 +21,5 @@ export * from './features/matchFeatures';
 export * from './evaluation/evaluation';
 export * from './budget/budget';
 export * from './backtest/backtest';
+export * from './recommend/recommend';
+export * from './recommend/snapshot';

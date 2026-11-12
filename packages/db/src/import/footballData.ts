@@ -35,6 +35,8 @@ export const OPENING_OFFSET_MS = 48 * 3600 * 1000;
 export interface CsvMatchRow {
 	div: string;
 	date: string; // YYYY-MM-DD (a CSV dd/mm/yyyy, angol helyi idő)
+	/** `HH:MM` angol helyi idő (a régi CSV-kben nincs). */
+	time?: string;
 	home: string;
 	away: string;
 	goalsHome: number | null;
@@ -48,7 +50,9 @@ export function parseFootballDataCsv(text: string): CsvMatchRow[] {
 	const lines = text.replace(/^﻿/, '').split(/\r?\n/);
 	const header = lines[0].split(',').map((h) => h.trim());
 	const idx = (name: string) => header.indexOf(name);
-	const [iDiv, iDate, iHome, iAway, iFthg, iFtag] = ['Div', 'Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG'].map(idx);
+	const [iDiv, iDate, iHome, iAway, iFthg, iFtag, iTime] = ['Div', 'Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'Time'].map(
+		idx
+	);
 	const rows: CsvMatchRow[] = [];
 	for (const line of lines.slice(1)) {
 		const cells = line.split(',');
@@ -62,9 +66,11 @@ export function parseFootballDataCsv(text: string): CsvMatchRow[] {
 			const n = Number(raw);
 			if (Number.isFinite(n) && n > 1) odds[h] = n;
 		});
+		const time = iTime >= 0 ? cells[iTime]?.trim() : undefined;
 		rows.push({
 			div: cells[iDiv].trim(),
 			date: parseCsvDate(cells[iDate]),
+			...(time && /^\d{1,2}:\d{2}$/.test(time) ? { time: time.padStart(5, '0') } : {}),
 			home,
 			away,
 			goalsHome: toInt(cells[iFthg]),
@@ -85,6 +91,24 @@ export function parseCsvDate(raw: string): string {
 	const [d, m, y] = raw.trim().split('/');
 	const year = y.length === 2 ? `20${y}` : y;
 	return `${year}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+}
+
+/** CSV dátum + angol helyi idő (Europe/London, BST/GMT) → UTC ISO. Idő nélkül 15:00. */
+export function csvKickoffUtc(date: string, time = '15:00'): string {
+	const guess = Date.parse(`${date}T${time}:00Z`);
+	const [lh, lm] = new Intl.DateTimeFormat('en-GB', {
+		timeZone: 'Europe/London',
+		hour: '2-digit',
+		minute: '2-digit',
+		hourCycle: 'h23'
+	})
+		.format(new Date(guess))
+		.split(':')
+		.map(Number);
+	const [h, m] = time.split(':').map(Number);
+	// A helyi és az UTC óra különbsége (−12…+12 h), napátfordulón is.
+	const offsetMin = ((((lh * 60 + lm - (h * 60 + m)) % 1440) + 1440 + 720) % 1440) - 720;
+	return new Date(guess - offsetMin * 60_000).toISOString();
 }
 
 /** Névnormalizálás: kisbetű, ékezet nélkül, írásjel és gyakori klub-előtag/utótag nélkül. */

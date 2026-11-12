@@ -142,7 +142,7 @@
       külön run-t ad, és a régi sor nem változik.
 - [ ] **5.3 Kiértékelő job:** a `results` után `evaluation` (win/loss/void, profit, Brier, log-loss, CLV a záró-közeli
       snapshottal). _Ellenőrzés:_ unit-tesztek a képletekre; mock: a PST státuszú meccs void.
-- [ ] **5.4 Ajánlások oldal (kezdőoldal):** a mai és holnapi tételek a PRD 6. fejezetében felsorolt mezőkkel; az adatok kora; a
+- [x] **5.4 Ajánlások oldal (kezdőoldal):** a mai és holnapi tételek a PRD 6. fejezetében felsorolt mezőkkel; az adatok kora; a
       minimális vállalható odds. _Ellenőrzés:_ screenshot mock adattal; az oldal betöltése 0 külső hívás.
 - [ ] **5.5 Kiértékelő dashboard:** találati arány vs. várt, ROI (flat), Brier, log-loss, kalibrációs görbe, CLV; modellverzió-,
       liga- és piacszűrő; idősor. _Ellenőrzés:_ screenshot; a mutatók egyeznek egy kézzel ellenőrzött mini-adatkészleten.
