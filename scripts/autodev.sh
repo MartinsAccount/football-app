@@ -59,7 +59,14 @@ for i in $(seq 1 "$MAX_ITER"); do
     --max-turns 80 \
     --output-format json > ".autodev/run-$i.json"
 
-  run_cost="$(jq -r '.total_cost_usd // 0' ".autodev/run-$i.json" 2>/dev/null || echo 0)"
+  if ! run_cost="$(node -e '
+    const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
+    const c = j.total_cost_usd;
+    if (typeof c !== "number" || !Number.isFinite(c)) process.exit(1);
+    console.log(c);
+  ' ".autodev/run-$i.json" 2>/dev/null)" || [ -z "$run_cost" ]; then
+    echo "A kör költsége nem olvasható ki, biztonsági leállás."; break
+  fi
   spent="$(awk -v a="$spent" -v b="$run_cost" 'BEGIN{printf "%.2f", a+b}')"
   echo "Kör költsége: \$$run_cost, összesen: \$$spent / \$$BUDGET_USD"
 
