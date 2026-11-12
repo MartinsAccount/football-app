@@ -1,27 +1,87 @@
 /** @type {import('tailwindcss').Config} */
+
+// Floodlight design tokenek (frontend/src/design/tokens/tokens.css) → Tailwind theme.
+// Minden érték CSS-változóra mutat; a forrás a tokens.json (DESIGN.md §2).
+// A `<alpha-value>` + color-mix miatt az átlátszóság-módosítók (pl. bg-accent/10) is működnek.
+const c = (name) => `color-mix(in srgb, var(--color-${name}) calc(<alpha-value> * 100%), transparent)`;
+
 module.exports = {
 	content: ['./src/**/*.{ts,tsx}'],
-	// A Preflight (Tailwind globális alap-reset) BE van kapcsolva (alapértelmezett).
-	// A záró redesign-fázisban kapcsoltuk be, miután minden oldal Tailwindre került;
-	// ez váltotta ki a régi globális SCSS resetet (Main.module.scss). Lásd ADR 0001.
+	// A Preflight (Tailwind globális alap-reset) BE van kapcsolva (alapértelmezett). Lásd ADR 0001.
 	theme: {
 		extend: {
-			// Design tokenek a docs/design/odds-design.png alapján.
-			// Névvel hivatkozhatók (pl. bg-bg, text-text-muted, border-border-subtle).
-			// A spacing- és típusskála szándékosan a Tailwind defaultja marad.
 			colors: {
-				bg: '#14161C',
-				surface: '#1C1F27',
-				'surface-2': '#1A1D24',
-				sidebar: '#16181F',
-				brand: '#C02434',
-				accent: '#F5A623',
-				text: '#E8E9ED',
-				'text-muted': '#9CA0AB',
-				'text-faint': '#6E727D',
-				positive: '#4ADE80',
-				negative: '#F87171',
-				'border-subtle': 'rgba(255,255,255,0.08)'
+				// Floodlight nevek
+				canvas: c('bg-canvas'),
+				raised: c('bg-raised'),
+				inset: c('bg-inset'),
+				track: c('bg-track'),
+				selected: c('bg-selected'),
+				'text-primary': c('text-primary'),
+				'text-secondary': c('text-secondary'),
+				'text-inverse': c('text-inverse'),
+				'border-default': c('border-default'),
+				'border-strong': c('border-strong'),
+				warning: c('signal-warning'),
+				neutral: c('signal-neutral'),
+				'data-model': c('data-model'),
+				'data-market': c('data-market'),
+				// Régi (pre-Floodlight) nevek, most tokenre kötve – a meglévő komponensek így változatlanul futnak.
+				// TODO(polish): az A3 oldal-átírásoknál a Floodlight nevekre cserélni, utána ezeket törölni.
+				bg: c('bg-canvas'),
+				surface: c('bg-surface'),
+				'surface-2': c('bg-raised'),
+				sidebar: c('bg-inset'),
+				brand: c('accent-default'),
+				accent: c('accent-default'),
+				text: c('text-primary'),
+				'text-muted': c('text-muted'),
+				'text-faint': c('signal-neutral'),
+				positive: c('signal-positive'),
+				negative: c('signal-negative'),
+				'border-subtle': c('border-default')
+			},
+			fontFamily: {
+				display: 'var(--font-family-display)',
+				body: 'var(--font-family-body)',
+				sans: 'var(--font-family-body)'
+			},
+			fontSize: {
+				micro: 'var(--font-size-micro)',
+				caption: 'var(--font-size-caption)',
+				small: 'var(--font-size-small)',
+				body: 'var(--font-size-body)',
+				lead: 'var(--font-size-lead)',
+				h3: 'var(--font-size-h3)',
+				h2: 'var(--font-size-h2)',
+				'h1-mobile': 'var(--font-size-h1-mobile)',
+				h1: 'var(--font-size-h1)',
+				display: 'var(--font-size-display)',
+				'num-s': 'var(--font-size-num-s)',
+				'num-m': 'var(--font-size-num-m)',
+				'num-l': 'var(--font-size-num-l)'
+			},
+			borderRadius: {
+				xs: 'var(--radius-xs)',
+				s: 'var(--radius-s)',
+				m: 'var(--radius-m)',
+				l: 'var(--radius-l)',
+				xl: 'var(--radius-xl)',
+				'2xl': 'var(--radius-2xl)',
+				'3xl': 'var(--radius-3xl)',
+				sheet: 'var(--radius-sheet)',
+				pill: 'var(--radius-pill)'
+			},
+			maxWidth: {
+				container: 'var(--size-container)'
+			},
+			transitionDuration: {
+				fast: 'var(--motion-fast)',
+				base: 'var(--motion-base)',
+				slow: 'var(--motion-slow)'
+			},
+			transitionTimingFunction: {
+				floodlight: 'var(--motion-easing)'
 			}
 		}
 	},

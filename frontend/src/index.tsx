@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import './design/tokens/tokens.css';
+import './design/components/components.css';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';

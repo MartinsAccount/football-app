@@ -20,6 +20,10 @@
 		"@football/core": "*"
 	},
 	"scripts": {
+		"tokens": "node src/design/tokens/build-tokens.mjs",
+		"predev": "npm run tokens",
+		"prestart": "npm run tokens",
+		"prebuild": "npm run tokens",
 		"start": "vite",
 		"dev": "vite",
 		"build": "vite build",
