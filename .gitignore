@@ -20,3 +20,7 @@ node_modules/
 .autodev/
 STOP
 football-app-autonom/
+
+# Design kit source archive (unpacked into frontend/src/design/)
+odds-elemzo-design-kit.zip
+*.zip

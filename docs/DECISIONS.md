@@ -1,0 +1,11 @@
+# Döntésnapló (autonóm munkamód)
+
+`dátum | kérdés | döntés | indok | felülvizsgálandó: igen/nem`
+
+| Dátum | Kérdés | Döntés | Indok | Felülvizsgálandó |
+|---|---|---|---|---|
+| 2026-11-12 | DESIGN.md §7.1 navigáció („Ma · Szelvény · Kiértékelés · Odds”) vs. PRD 5.8 | PRD nyer: `/` (Ma, ajánlások + szelvény-panel) · `/evaluation` · `/arbitrage` · `/settings`. A szelvény nem külön route, hanem panel a `/`-n; „Odds” menüpont csak az odds-history nézettel együtt, a `/odds` beolvad. | PRD 5.8 a route-ok forrása; a DESIGN.md is panelként írja le a szelvényt | igen |
+| 2026-11-12 | Szelvény (DESIGN.md §7.6–7.8, kötések, SlipPresets) vs. PRD | A szelvény a PRD 7.3-at (fogadás rögzítése) valósítja meg: csak helyi számolás, beírt Tippmix-odds + tét mentése, leadás nincs. A kötés-képletek függetlenséget feltételeznek (DESIGN.md §9). SlipPresets opcionális, a motor ajánlásaiból helyben állítja össze. | PRD 8.: automatikus fogadásleadás nem-cél; a PRD kötést nem tilt | igen |
+| 2026-11-12 | DESIGN.md §6/§7.9 mobil (SlipBar, BottomSheet, 390 px screenshot) vs. PRD 8. „Mobil-first UI” nem-cél | Asztali elsődleges, reszponzív (töréspont nélküli) mobil nézet; nem mobil-first. | A PRD célja: mobilon olvasható legyen; a DESIGN.md ugyanazt a komponenst használja | nem |
+| 2026-11-12 | Min. odds képlet: PRD 6. „fair odds × (1 + EV-küszöb)” vs. DESIGN.md §9 `(1/p_modell) × (1 + küszöb)` | Nincs ütközés: a fair odds a modell szerinti (PRD példa: 52% → 2,02). | A PRD példája a modell-valószínűséggel jön ki | nem |
+| 2026-11-12 | Prettier a vendorolt design kitre | `frontend/src/design/` a `.prettierignore`-ban. | A `tokens.css`/`tokens.ts` generált; a kit saját formázását megtartjuk, így a generálás után nincs diff | nem |

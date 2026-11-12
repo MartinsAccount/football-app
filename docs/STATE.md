@@ -8,7 +8,7 @@ Előkészítés: a szeletlistát az első session tölti ki a ROADMAP.md és a d
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 <!-- Javasolt nagy sorrend, ha a ROADMAP.md mást mond, az az irányadó:
-A. Design tokenek + alapkomponensek
+A. Design (frontend/src/design/DESIGN.md): A1 tokenek bekötése + format.ts (core) → A2 komponensek → A3 oldalak
 B. App shell, navigáció, új route-ok üres oldalakkal (/, /evaluation, /settings)
 C. DB-séma + ingestion váz mock API-val, hívás-budget számláló
 D. /settings oldal (ligák, piacok, budget-kijelzés)

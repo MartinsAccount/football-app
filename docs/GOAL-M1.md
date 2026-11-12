@@ -33,18 +33,48 @@
   Az eredmény a `docs/analysis/backtest-v0.md`-be kerül.
 
 ### 3. Design és UI
-- **Design tokenek** a `docs/fe/design-system.md` + `docs/design/*.png` alapján, egy helyen
-  (CSS-változók + `tailwind.config.cjs` theme). Beégetett szín vagy méret nincs.
-- Alapkomponensek: gomb, kártya, táblázat, badge, stat-csempe, üres és hibaállapot.
-- A `docs/fe/ui-audit.md` P0/P1 tételei javítva.
-- App shell + navigáció. Oldalak a PRD 5.8 szerint, mind fixture-adatból:
-  - `/` ajánlások (a PRD 6. fejezet mezőivel, adatkor és figyelmeztetések);
-  - meccs-részletek (feature-ök, modell vs. piac, odds-mozgás);
+Forrás: **`frontend/src/design/DESIGN.md`** (Floodlight). Csak a releváns fejezetet olvasd.
+A `docs/design/*.png` régi tervek; ütközéskor a DESIGN.md nyer. Ha a DESIGN.md és a PRD
+ütközik, a **PRD nyer**, és az eltérés a `docs/DECISIONS.md`-be kerül.
+
+**Útvonalak**
+- `frontend/src/design/tokens/tokens.json`: a tokenek egyetlen forrása. Generált:
+  `tokens.css` (`:root` változók) és `tokens.ts` (`tokens`, `cssVar`, `v()`), kézzel nem szerkeszted.
+- `frontend/src/design/components/components.css`: `oe-*` komponens-osztályok;
+  `components.html`: élő kinézet-referencia.
+- Bekötés: a belépési pont importálja a `tokens.css`-t és a `components.css`-t.
+- `npm run tokens` script (`node src/design/tokens/build-tokens.mjs`), ami a `dev` és a
+  `build` előtt is lefut (`predev` / `prebuild`).
+- A `tailwind.config.cjs` theme a CSS-változókra hivatkozik (`var(--color-…)`, `var(--space-…)`),
+  nem nyers értékre. Beégetett szín vagy méret nincs.
+
+**Tiszta mag (`packages/core`, unit tesztekkel)** – DESIGN.md §9:
+- EV, edge (pp), min. odds (`(1/p_modell) × (1 + EV-küszöb)`, küszöb alapból 5%), kötés eredő
+  odds / esélye / EV-je / min. oddsa, szingli-összevetés, nyeremény, kockázat (low/medium/high).
+- Ugyanarról a meccsről két tipp nem kerülhet egy szelvényre (a mag ellenőrzi).
+- Magyar számformázás egy közös `format.ts`-ben (DESIGN.md §8, `Intl.NumberFormat('hu-HU')`):
+  odds, %, pp, EV, Ft, egység, időpont, dátum. A komponens sosem hív `toFixed`-et.
+
+**Komponensek** (DESIGN.md §7, fa: §13): **AppShell** (AppHeader + tartalom), **TipCard**
+(TeamForm, ProbabilityBars, TipActions, Disclosure), **MatchDetails** (LeagueStrip, H2HList,
+RecentList), **SlipPanel** (SlipLegs, SlipTotals, RiskMeter, StakeSelector),
+**TippmixTransfer**, **SlipPresets**, mobilon **SlipBar** + **BottomSheet**. Mellettük
+PageIntro (ModeSwitch), EngineBanner. Store: `SlipStore` (MobX v5), a képletek a magból jönnek.
+
+**Szelvény** = a PRD 7. fejezet 3. pontja (fogadás rögzítése): csak helyi számolás, beírt
+Tippmix-odds és tét mentése, **automatikus fogadásleadás nincs** (PRD 8. nem-cél).
+
+**Oldalak** a PRD 5.8 szerint, mind fixture-adatból:
+  - `/` ajánlások TipCard-okkal + SlipPanel (a PRD 6. fejezet mezőivel, adatkor és figyelmeztetések);
+  - meccs-részletek a TipCard lenyitott MatchDetails részében (forma, tabella, H2H; később odds-mozgás);
   - `/evaluation` (ROI, Brier, kalibráció, CLV a backtest-adatból);
   - `/settings` (ligák, piacok, irodák, becsült napi hívás és tárhely);
   - `/arbitrage` átalakítva az új core-ra és a designra;
   - `/odds` és `/fixtures` beolvasztva vagy átirányítva.
-- Mobilon az ajánlások listája olvasható.
+- A `docs/fe/ui-audit.md` P0/P1 tételei javítva.
+
+**Kész-feltétel (UI):** screenshot a futó appról **1440 és 390 px** szélességen, vízszintes
+görgetés nélkül, a konzolban nincs hiba.
 
 ### 4. Minőségkapu (minden szelet végén)
 - `npm run verify` zöld.

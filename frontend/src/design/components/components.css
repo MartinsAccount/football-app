@@ -1,0 +1,195 @@
+/* Odds elemző – Floodlight komponens-réteg.
+   Csak tokenekre (tokens.css) épül; nyers színérték itt nincs.
+   Osztály-prefix: oe-  ·  Állapotok: aria-* attribútumokból, ahol lehet. */
+
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+/* ── Alap ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--color-bg-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body);
+  line-height: var(--font-line-height-body);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--color-text-secondary); text-decoration: none; }
+a:hover { color: var(--color-text-primary); }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: var(--focus-ring) solid var(--color-accent-default); outline-offset: 2px; }
+
+.oe-container { max-width: var(--size-container); margin: 0 auto; padding: 0 var(--size-gutter) var(--space-28); }
+@media (max-width: 640px) { .oe-container { padding-inline: var(--size-gutter-mobile); } }
+
+.oe-num { font-variant-numeric: tabular-nums; }
+.oe-display { font-family: var(--font-family-display); }
+.oe-muted { color: var(--color-text-muted); }
+.oe-label {
+  margin: 0;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--font-tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.oe-h1 {
+  margin: var(--space-4) 0 0;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-h1);
+  line-height: var(--font-line-height-tight);
+  letter-spacing: var(--font-tracking-display);
+}
+.oe-h1 .oe-muted { color: var(--color-text-muted); }
+@media (max-width: 640px) { .oe-h1 { font-size: var(--font-size-h1-mobile); } }
+.oe-h2 { margin: 0; font-family: var(--font-family-display); font-size: var(--font-size-h3); font-weight: var(--font-weight-semibold); }
+
+/* ── Layout ───────────────────────────────────────────── */
+.oe-split { display: flex; flex-wrap: wrap; gap: var(--space-14); align-items: flex-start; }
+.oe-split__main { flex: 999 1 var(--size-main-basis); min-width: 0; display: flex; flex-direction: column; gap: var(--space-14); }
+.oe-split__aside { flex: 1 1 var(--size-aside-basis); min-width: 0; }
+.oe-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--size-card-min)), 1fr)); gap: var(--space-6); }
+.oe-section-head { display: flex; align-items: baseline; gap: var(--space-6); margin-bottom: var(--space-6); }
+
+/* ── Fejléc / navigáció ───────────────────────────────── */
+.oe-header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-6) var(--space-12); padding: var(--space-10) 0; }
+.oe-brand { display: flex; align-items: center; gap: var(--space-5); font-family: var(--font-family-display); font-weight: var(--font-weight-bold); font-size: var(--font-size-lead); }
+.oe-nav { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2); background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-pill); }
+.oe-nav__link { display: flex; align-items: center; min-height: 36px; padding: 0 var(--space-8); border-radius: var(--radius-pill); }
+.oe-nav__link[aria-current="page"] { background: var(--color-text-primary); color: var(--color-text-inverse); font-weight: var(--font-weight-bold); }
+.oe-status { display: inline-flex; align-items: center; gap: var(--space-4); font-size: var(--font-size-small); color: var(--color-text-muted); }
+.oe-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent-default); }
+.oe-status[data-state="stale"]::before { background: var(--color-signal-warning); }
+.oe-status[data-state="error"]::before { background: var(--color-signal-negative); }
+
+/* ── Gombok ───────────────────────────────────────────── */
+.oe-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
+  min-height: var(--size-touch); padding: 0 var(--space-8);
+  border-radius: var(--radius-l); border: 1px solid var(--color-border-strong);
+  background: transparent; color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold); font-size: var(--font-size-small); cursor: pointer;
+  transition: background var(--motion-fast) var(--motion-easing), border-color var(--motion-fast) var(--motion-easing);
+}
+.oe-btn:hover { border-color: var(--color-text-muted); }
+.oe-btn--primary { background: var(--color-accent-default); border-color: var(--color-accent-default); color: var(--color-text-inverse); }
+.oe-btn--light { background: var(--color-text-primary); border-color: var(--color-text-primary); color: var(--color-text-inverse); }
+.oe-btn--cta { min-height: var(--size-cta); border-radius: var(--radius-xl); font-size: var(--font-size-body); font-weight: var(--font-weight-heavy); width: 100%; }
+.oe-btn--icon { width: var(--size-touch); padding: 0; border-color: var(--color-border-default); color: var(--color-text-muted); }
+/* Szelvény-kapcsoló a tippkártyán: aria-pressed="true" → kitöltött */
+.oe-btn--toggle[aria-pressed="true"] { background: var(--color-accent-default); border-color: var(--color-accent-default); color: var(--color-text-inverse); }
+
+/* Szegmentált választó (nap, mód, tét) */
+.oe-segmented { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-2); background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-xl); }
+.oe-segmented__btn { flex: 1 1 auto; min-height: var(--size-touch); padding: 0 var(--space-8); border: 0; border-radius: var(--radius-l); background: transparent; color: var(--color-text-secondary); font-weight: var(--font-weight-bold); cursor: pointer; text-align: left; }
+.oe-segmented__btn small { display: block; font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); opacity: .75; }
+.oe-segmented__btn[aria-pressed="true"] { background: var(--color-text-primary); color: var(--color-text-inverse); }
+
+/* ── Banner / figyelmeztetés ──────────────────────────── */
+.oe-banner { display: flex; gap: var(--space-7); align-items: flex-start; padding: var(--space-9) var(--space-10); border-radius: var(--radius-xl); background: var(--color-bg-info); border: 1px solid var(--color-border-info); font-size: var(--font-size-small); line-height: var(--font-line-height-body); }
+.oe-warning { display: flex; gap: var(--space-3); font-size: var(--font-size-caption); color: var(--color-signal-warning); }
+.oe-warning--box { padding: var(--space-5) var(--space-6); border-radius: var(--radius-l); background: var(--color-warning-surface-bg); border: 1px solid var(--color-warning-surface-border); }
+.oe-warning--danger { color: var(--color-signal-negative); }
+
+/* ── Tippkártya ───────────────────────────────────────── */
+.oe-card { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-2xl); padding: var(--space-9); display: flex; flex-direction: column; gap: var(--space-7); }
+.oe-card[data-selected="true"] { background: var(--color-bg-selected); border-color: var(--color-accent-default); }
+.oe-card[data-expanded="true"] { grid-column: 1 / -1; }
+.oe-card__meta { display: flex; justify-content: space-between; gap: var(--space-4); font-size: var(--font-size-caption); color: var(--color-text-muted); }
+.oe-card__title { margin: 0; font-size: var(--font-size-lead); font-weight: var(--font-weight-bold); }
+.oe-card__market { margin-top: var(--space-2); font-size: var(--font-size-small); color: var(--color-text-secondary); }
+.oe-card__actions { display: flex; align-items: center; gap: var(--space-8); }
+.oe-card__actions > :last-child { margin-left: auto; }
+
+/* Csapat-sor: helyezés + utolsó 5 */
+.oe-teams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
+.oe-team__name { margin-bottom: 5px; font-size: var(--font-size-caption); color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oe-team__name strong { color: var(--color-text-primary); }
+
+/* Gy / D / V chip */
+.oe-form { display: flex; gap: 3px; padding: 0; margin: 0; list-style: none; }
+.oe-chip { width: var(--size-chip); height: var(--size-chip); flex: none; border-radius: var(--radius-s); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: var(--font-weight-heavy); color: var(--color-result-on); }
+.oe-chip--win  { background: var(--color-result-win); }
+.oe-chip--draw { background: var(--color-result-draw); }
+.oe-chip--loss { background: var(--color-result-loss); }
+
+/* Valószínűség: Szerintünk / Irodák szerint */
+.oe-prob { display: grid; grid-template-columns: 96px 1fr 38px; gap: var(--space-3) var(--space-5); align-items: center; font-size: var(--font-size-caption); }
+.oe-prob__label { color: var(--color-text-muted); }
+.oe-prob__track { height: var(--size-bar); border-radius: 3px; background: var(--color-data-track); overflow: hidden; }
+.oe-prob__fill { height: 100%; border-radius: 3px; width: var(--p, 0%); }
+.oe-prob__fill--model { background: var(--color-data-model); }
+.oe-prob__fill--market { background: var(--color-data-market); }
+.oe-prob__value { text-align: right; font-weight: var(--font-weight-bold); font-variant-numeric: tabular-nums; }
+.oe-prob__value--market { font-weight: var(--font-weight-regular); color: var(--color-text-muted); }
+.oe-prob__edge { margin-top: var(--space-3); font-size: var(--font-size-caption); font-weight: var(--font-weight-bold); color: var(--color-accent-default); }
+
+/* Számpár (odds / min. / EV) */
+.oe-stat__label { font-size: var(--font-size-micro); color: var(--color-text-muted); }
+.oe-stat__value { font-weight: var(--font-weight-bold); font-variant-numeric: tabular-nums; }
+.oe-stat__value--ev { font-family: var(--font-family-display); color: var(--color-accent-default); }
+.oe-tile { background: var(--color-bg-raised); border-radius: var(--radius-xl); padding: var(--space-7); }
+.oe-tile .oe-stat__label { font-size: var(--font-size-caption); }
+.oe-tile .oe-stat__value { font-family: var(--font-family-display); font-size: var(--font-size-num-l); }
+.oe-tile__foot { font-size: var(--font-size-micro); color: var(--color-text-muted); }
+
+/* Lenyitó (Forma, egymás elleni, tabella) */
+.oe-disclosure { display: flex; align-items: center; justify-content: space-between; min-height: 40px; padding: 0 var(--space-6); border-radius: var(--radius-m); border: 1px solid var(--color-border-default); background: transparent; color: var(--color-text-secondary); font-size: var(--font-size-small); font-weight: var(--font-weight-semibold); cursor: pointer; }
+.oe-disclosure svg { transition: transform var(--motion-base) var(--motion-easing); }
+.oe-disclosure[aria-expanded="true"] svg { transform: rotate(180deg); }
+.oe-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: var(--space-11) var(--space-16); padding-top: var(--space-2); }
+.oe-details .oe-label { margin-bottom: var(--space-5); }
+.oe-details__legend { font-size: var(--font-size-micro); color: var(--color-text-muted); }
+
+/* Tabella-sáv */
+.oe-strip { display: flex; gap: var(--space-1); height: var(--size-strip); }
+.oe-strip__cell { flex: 1; border-radius: var(--radius-xs); background: var(--color-zone-mid); }
+.oe-strip__cell--cl  { background: var(--color-zone-champions); }
+.oe-strip__cell--eu  { background: var(--color-zone-europe); }
+.oe-strip__cell--rel { background: var(--color-zone-relegation); }
+.oe-strip__cell--home { background: var(--color-zone-home); }
+.oe-strip__cell--away { background: var(--color-zone-away); }
+.oe-swatch { display: inline-block; width: 8px; height: 8px; border-radius: var(--radius-xs); }
+
+/* Listasor (H2H, utolsó 5) */
+.oe-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) 40px; gap: var(--space-5); align-items: center; padding: var(--space-3) 0; border-top: 1px solid var(--color-bg-track); font-size: var(--font-size-small); }
+.oe-row--h2h { grid-template-columns: 58px minmax(0, 1fr) 40px 26px; }
+.oe-row__score { text-align: right; font-weight: var(--font-weight-bold); font-variant-numeric: tabular-nums; }
+.oe-row__ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Szelvény ─────────────────────────────────────────── */
+.oe-slip { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-3xl); overflow: hidden; }
+.oe-slip__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-4); padding: var(--space-11) var(--space-11) var(--space-8); border-bottom: 1px dashed var(--color-border-strong); }
+.oe-slip__body { padding: 0 var(--space-11) var(--space-11); display: flex; flex-direction: column; gap: var(--space-9); }
+.oe-slip__legs { list-style: none; margin: 0; padding: var(--space-4) 0 0; }
+.oe-slip__leg { display: grid; grid-template-columns: minmax(0, 1fr) auto var(--size-touch); gap: var(--space-5); align-items: center; padding: var(--space-6) 0; border-bottom: 1px solid var(--color-bg-track); }
+.oe-slip__totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
+.oe-slip__payout { display: flex; justify-content: space-between; align-items: baseline; padding-top: var(--space-8); border-top: 1px dashed var(--color-border-strong); }
+.oe-slip__payout strong { font-family: var(--font-family-display); font-size: var(--font-size-num-m); }
+.oe-slip__note { padding: var(--space-6) var(--space-7); border-radius: var(--radius-l); background: var(--color-bg-inset); font-size: var(--font-size-caption); color: var(--color-text-secondary); }
+
+.oe-risk__track { height: var(--size-bar-lg); border-radius: 5px; background: var(--color-data-track); overflow: hidden; margin-top: var(--space-3); }
+.oe-risk__fill { height: 100%; border-radius: 5px; width: var(--p, 0%); background: var(--color-risk-low); }
+.oe-risk__fill[data-level="medium"] { background: var(--color-risk-medium); }
+.oe-risk__fill[data-level="high"] { background: var(--color-risk-high); }
+
+/* Tét-választó: .oe-segmented helyett keretes gombsor */
+.oe-stake { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.oe-stake .oe-btn { flex: 1 1 70px; padding: 0 var(--space-4); white-space: nowrap; }
+.oe-stake .oe-btn[aria-pressed="true"] { background: var(--color-text-primary); border-color: var(--color-text-primary); color: var(--color-text-inverse); }
+
+/* Tippmix-odds beviteli mező */
+.oe-field { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--font-size-micro); color: var(--color-text-muted); }
+.oe-input { min-height: var(--size-touch); width: 100%; padding: 0 var(--space-5); border-radius: var(--radius-l); border: 1.5px solid var(--color-border-strong); background: var(--color-bg-canvas); color: var(--color-text-primary); font-weight: var(--font-weight-heavy); font-size: 16px; }
+.oe-input[aria-invalid="true"] { border-color: var(--color-signal-negative); }
+.oe-input[data-valid="true"] { border-color: var(--color-accent-default); }
+
+/* ── Mobil alsó lap ───────────────────────────────────── */
+.oe-sheet-backdrop { position: fixed; inset: 0; background: var(--color-overlay); }
+.oe-sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: 88vh; overflow: auto; background: var(--color-bg-surface); border-top: 1px solid var(--color-border-default); border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; padding-bottom: env(safe-area-inset-bottom); }
+.oe-sheet__handle { width: 40px; height: 4px; border-radius: 2px; background: var(--color-border-strong); margin: var(--space-5) auto 0; }
+.oe-slipbar { position: fixed; left: var(--space-6); right: var(--space-6); bottom: var(--space-8); display: flex; align-items: center; gap: var(--space-6); min-height: 64px; padding: var(--space-5) var(--space-6) var(--space-5) var(--space-9); border-radius: var(--radius-sheet); background: var(--color-accent-default); color: var(--color-text-inverse); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

@@ -94,7 +94,7 @@ The `stores/*.json` files are the persisted dataset and are committed to the rep
 ## Conventions
 
 - **Match the surrounding style**: tabs, Hungarian identifiers/comments, MobX v5 decorator patterns, class components. Large blocks of commented-out alternative implementations are intentional scratch history — don't assume they're dead code to delete unless asked.
-- **Styling is Tailwind** (ADR `docs/adr/0001-tailwind-as-styling-base.md`, tokens in `tailwind.config.js`, documented in `docs/fe/design-system.md`). Preflight is on; the legacy SCSS layer was removed. New UI uses Tailwind utilities with named tokens, no hardcoded hex.
+- **Styling is Tailwind** (ADR `docs/adr/0001-tailwind-as-styling-base.md`, config in `frontend/tailwind.config.cjs`). Preflight is on; the legacy SCSS layer was removed. Design rules and tokens: see "5. Design" under "Autonóm munkamód".
 
 
 ## Autonóm munkamód
@@ -150,14 +150,14 @@ Finomhangolás nem kell: a hiányokat `TODO(polish)` komment és a STATE.md poli
 jelölje, ne akadj el rajtuk.
 
 ### 5. Design
-- Forrás: `docs/design/`.
-- Sorrend:
-  1. **Design tokenek** egy helyen (szín, tipó, spacing, radius, shadow → `tokens.css` +
-     TS export);
-  2. alapkomponensek;
-  3. app shell és navigáció;
-  4. oldalak a PRD 5.8 szerint, a meglévő oldalak átalakítása.
-- Tokenen kívüli, beégetett szín vagy méret tilos.
+- A UI a `frontend/src/design/DESIGN.md` szerint készül (Floodlight). Új vagy módosított
+  komponens előtt olvasd el az érintett fejezetet.
+- Szín, térköz, betű, rádiusz csak tokenből: CSS-ben `var(--…)`, TS-ben `v('…')` a
+  `design/tokens/tokens.ts`-ből. Nyers hex/px tilos a komponensekben.
+- A `tokens.css` és `tokens.ts` generált fájl; a forrás a `tokens.json`.
+- Kinézet-referencia: `design/components/components.html` és `components.css` (oe-* osztályok).
+- Számformázás magyarul (tizedesvessző, ezres szóköz), közös `format.ts`-ből.
+- UI-változás után screenshot 1440 és 390 px szélességen; vízszintes görgetés nem lehet.
 
 ### 6. Token-fegyelem
 - **Ne olvasd be egészben** a PRD-t, a ROADMAP-ot vagy a design-fájlokat. A STATE.md-ből indulj,
