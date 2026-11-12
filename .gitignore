@@ -24,3 +24,4 @@ football-app-autonom/
 # Design kit source archive (unpacked into frontend/src/design/)
 odds-elemzo-design-kit.zip
 *.zip
+.data/

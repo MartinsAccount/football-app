@@ -84,7 +84,7 @@
   ([`architecture.md` §10](architecture.md#10-adatmodell-postgres-javaslat)); lokális dev DB
   (Docker-es Postgres vagy Supabase CLI lokális stack).
   *Ellenőrzés:* a migráció üres DB-n fut, és ismételt futtatásra idempotens. — **Kész (S06):** `packages/db/migrations`, PGlite-teszt; a lokális/Supabase DB → BLOCKERS.
-- [ ] **1.4 Import a régi JSON-okból (0 hívás):** a `backend/stores/*-odds.json` (2021,
+- [x] **1.4 Import a régi JSON-okból (0 hívás):** a `backend/stores/*-odds.json` (2021,
   Unibet) → `odds_snapshot(source = 'legacy-json')`; a `frontend/src/data/allMatch*_2020/2021.json`
   → `fixture`, `team`, `league`.
   *Ellenőrzés:* a sorok száma egyezik a fájlok elemszámával; a második futás 0 új sort ír.
