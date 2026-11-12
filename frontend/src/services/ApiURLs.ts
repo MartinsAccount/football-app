@@ -24,7 +24,7 @@ class ApiURLs {
 		GET_UEFA_EUROPA_LEAGUE_FIXTURES: (date: string) =>
 			`${this.urls.football}/fixtures?league=${LEAGUES.UEFA_Europa_League}&date=${date}&season=${CURRENT_SEASON}`,
 		GET_ALL_BOOKMAKERS_ODDS: (fixture: number, leaguesId?: number) =>
-			`${this.urls.football}/odds?season=2021&bet=1&fixture=${fixture}`,
+			`${this.urls.football}/odds?season=${CURRENT_SEASON}&bet=1&fixture=${fixture}`,
 		GET_CUSTOM_SEASON_FIXTURES: (season: number, leaguesId: number) =>
 			`${this.urls.football}/fixtures?season=${season}&league=${leaguesId}`,
 		GET_LEAGUES: (country?: string) => `${this.urls.football}/leagues`,
@@ -35,7 +35,7 @@ class ApiURLs {
 		GET_FIXTURE_STATISTICS: (fixtureId: number) => `${this.urls.football}/fixtures/statistics?fixture=${fixtureId}`,
 
 		// Odds-okkal kapcsolatos lekérések
-		GET_UNIBET_ODDS: (leaguesId: number) => `${this.urls.football}/odds?season=2021&league=${leaguesId}&bookmaker=${UNIBET}`,
+		GET_UNIBET_ODDS: (leaguesId: number) => `${this.urls.football}/odds?season=${CURRENT_SEASON}&league=${leaguesId}&bookmaker=${UNIBET}`,
 		GET_BOOKMAKERS: () => `${this.urls.football}/odds/bookmakers`,
 		AVAILABLE_FIXTURES_FOR_ODDS: (page: number = 1) => `${this.urls.football}/odds/mapping?page=${page}`,
 		GET_LEAGUE_ODDS: (leaguesId: number) => `${this.urls.football}/odds?league=${leaguesId}&season=${CURRENT_SEASON}`

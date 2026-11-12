@@ -22,16 +22,16 @@ export class MainStore {
 		this.Sport = 'football';
 		this.FetchService = new FetchService(this);
 
-		// this.OddsStore = new OddsStore(this);
+		this.OddsStore = new OddsStore(this);
 		this.ArbitrageStore = new ArbitrageStore(this);
-		// this.FixtureStore = new FixtureStore(this);
+		this.FixtureStore = new FixtureStore(this);
 
 		this.Init();
 	}
 
 	Init = flow(function* (this: MainStore) {
 		try {
-			// yield this.OddsStore.Init();
+			yield this.OddsStore.Init();
 			// yield this.ArbitrageStore.Init();
 			// yield this.FixtureStore.Init();
 		} catch (e) {

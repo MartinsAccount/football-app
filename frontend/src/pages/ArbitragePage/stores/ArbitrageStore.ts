@@ -197,8 +197,8 @@ export class ArbitrageStore {
 			const cachedAllLeagueIds = LocalStorageUtil.Get('AllLeagueIds');
 			const cachedArbitrages = LocalStorageUtil.Get('Arbitrages');
 
-			this.allLeagueIds = cachedAllLeagueIds;
-			this.Arbitrages = cachedArbitrages;
+			this.allLeagueIds = cachedAllLeagueIds || [];
+			this.Arbitrages = cachedArbitrages || [];
 
 			this.MainStore.isLoading = false;
 			this.MainStore.loadingText = null;

@@ -32,10 +32,14 @@ export class OddsStore {
 	Init = flow(function* (this: OddsStore) {
 		this.MainStore.isLoading = true;
 
-		yield this.loadOdds();
-		yield this.loadFixtures();
-
-		this.MainStore.isLoading = false;
+		try {
+			yield this.loadOdds();
+			yield this.loadFixtures();
+		} catch (e) {
+			console.log('OddsStore.Init error', e);
+		} finally {
+			this.MainStore.isLoading = false;
+		}
 	});
 
 	loadOdds = flow(function* (this: OddsStore) {
