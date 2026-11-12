@@ -79,11 +79,11 @@
   `errors` is hiba), lapozás, naplózás, mock mód.
   *Ellenőrzés:* unit-tesztek a mock fixture-ökkel (a budget-túllépés, az `errors.plan` és a
   lapozás esetére).
-- [ ] **1.3 DB-séma v1 + migrációk:** törzsadat, `fixture`, `odds_snapshot` + `odds_quote`,
+- [x] **1.3 DB-séma v1 + migrációk:** törzsadat, `fixture`, `odds_snapshot` + `odds_quote`,
   `api_budget_day`, `api_call_log`, `ingest_task`, `setting`
   ([`architecture.md` §10](architecture.md#10-adatmodell-postgres-javaslat)); lokális dev DB
   (Docker-es Postgres vagy Supabase CLI lokális stack).
-  *Ellenőrzés:* a migráció üres DB-n fut, és ismételt futtatásra idempotens.
+  *Ellenőrzés:* a migráció üres DB-n fut, és ismételt futtatásra idempotens. — **Kész (S06):** `packages/db/migrations`, PGlite-teszt; a lokális/Supabase DB → BLOCKERS.
 - [ ] **1.4 Import a régi JSON-okból (0 hívás):** a `backend/stores/*-odds.json` (2021,
   Unibet) → `odds_snapshot(source = 'legacy-json')`; a `frontend/src/data/allMatch*_2020/2021.json`
   → `fixture`, `team`, `league`.

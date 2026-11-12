@@ -1,0 +1,20 @@
+{
+	"name": "@football/db",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Database layer: Postgres SQL migrations (Supabase-compatible, standard Postgres), migration runner, (later) repositories and adapters.",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"test": "vitest",
+		"test:ci": "vitest run",
+		"typecheck": "tsc --noEmit",
+		"verify": "npm run typecheck && npm run test:ci"
+	},
+	"devDependencies": {
+		"@electric-sql/pglite": "^0.5.16",
+		"@types/node": "^22.20.5"
+	}
+}
