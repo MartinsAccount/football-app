@@ -104,8 +104,18 @@ fontossági sorrendet tartja (a kezdés előtti odds-snapshot megelőzi a backfi
 - **Mely ligák** érdekelnek (és ebből adódóan mennyi hívás megy rájuk). A UI mutatja a
   liga becsült napi hívásköltségét és a `coverage` flageket (van-e odds, sérült, statisztika).
 - **Opcionálisan csapatok:** csak bizonyos csapatok meccsei, vagy csapatok kizárása.
-- Piacok, EV-küszöb, minimum- és maximum-odds, tét-mód (flat / Kelly-tört), alapegység.
+- EV-küszöb, minimum- és maximum-odds, tét-mód (flat / Kelly-tört), alapegység.
 - Napi hívás-tartalék a backfillnek.
+- **Tárolási beállítások (mit mentünk el)** — a tárhely (Supabase free: 500 MB) és a
+  zaj kezelésére; a részletek: [`architecture.md` §4.1](architecture.md):
+  - **ligák:** csak a követett ligák adatai (meccs, tabella, odds) kerülnek tárolásra;
+  - **fogadási piacok:** nem minden fogadási lehetőséget tárolunk — piaconként
+    (pl. 1X2, Over/Under 2.5, BTTS) kapcsolható, globálisan és ligánként felülírhatóan;
+  - **fogadóirodák:** kiválasztható, mely irodák oddsait tároljuk (a legjobb és az átlag
+    odds ettől függetlenül kiszámolható a lekért teljes válaszból);
+  - **snapshot-megőrzés:** a lejátszott meccsekből csak a nyitó és a záró snapshot
+    marad meg (állítható).
+  - A UI mutatja a beállításokból **becsült tárhelyet szezononként**.
 
 ### 5.4 Predikció-követés és tanulási kör (P0 → P1)
 

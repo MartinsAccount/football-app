@@ -113,12 +113,32 @@ közvetlenül működik; a hivatalos dokumentációját nem néztük, ezért **n
 vagy **Prisma 7** (driver adapter kötelező, [upgrade guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-7)).
 **Javaslat: Drizzle + SQL-migrációs fájlok a repóban.**
 
-**Tárhelybecslés (odds a domináns tétel):** 5 liga × kb. 1 750 meccs/szezon × 3 snapshot
-× kb. 250 sor (csak az elemzett piacok, kb. 15–20 iroda) ≈ 1,3M sor/szezon. Soronként kb.
-60–80 bájt plusz index, ez **≈ 150–250 MB/szezon**. A fennmaradó tételek (meccs, statisztika,
-predikció) nagyságrenddel kisebbek. → **1 GB kb. 3–4 szezonra elég.** Ehhez az kell, hogy
-**csak a konfigurált piacokat** tároljuk normalizált sorként, ne a teljes nyers odds-payloadot.
-A nyers válaszok legfeljebb 14 napig maradnak meg (`api_raw_response`, opcionális).
+**Tárhelybecslés (odds a domináns tétel):**
+`sorok = meccsek × snapshot/meccs × irodák × kimenetelek (az elemzett piacokon)`.
+Megszorítás nélkül: 5 top liga × kb. 1 750 meccs/szezon × 3 snapshot × kb. 250 sor (15–20
+iroda) ≈ 1,3M sor/szezon, soronként kb. 60–80 bájt plusz index → **≈ 150–250 MB/szezon**,
+vagyis 500 MB-ba kb. 2 szezon fér. A meccsek, tabellák, statisztikák, predikciók
+nagyságrenddel kisebbek; a 2022–2024 historikus szezonokhoz API-odds nincs, a
+football-data.co.uk CSV kb. 1 MB/liga/szezon. A tárhelyet tehát az **élesítés után gyűlő**
+odds viszi — ezt a 4.1 tárolási szabályai szorítják le.
+
+### 4.1 Tárolási szabályok (konfigurálható, PRD 5.3)
+
+| Beállítás | Hol | Hatás | Alapértelmezés (javaslat) |
+|---|---|---|---|
+| Követett ligák | `followed_league.enabled` | Csak ezekre fut ingestion és tárolás | a meglévő 5 top liga |
+| Tárolt piacok | `market.stored` (globális) + `followed_league.markets` (ligánkénti felülírás, `null` = globális) | Az `odds_quote` csak ezeket a piacokat kapja | 1X2, Over/Under 2.5, BTTS |
+| Tárolt irodák | `bookmaker.stored` | Az `odds_quote` csak ezeket az irodákat kapja | kb. 5 nagy iroda |
+| Aggregátum | `odds_best` mindig mentve | A legjobb és az átlag odds **a teljes lekért válaszból** számolódik, mielőtt az iroda-szűrés eldobná a többit → az EV és az arbitrázs nem romlik | be |
+| Snapshot-megőrzés | `setting.odds_retention` | Lejátszott meccsnél csak `opening` + `closing` snapshot marad; a köztesek törlődnek (napi karbantartó job) | be |
+| Nyers válasz | `api_raw_response` | Hibakereséshez, legfeljebb 14 napig | ki |
+
+- A piac-/iroda-szűrés a **tárolásra** vonatkozik, nem a lekérésre: egy `/odds` hívás úgyis
+  az összes piacot visszaadja, a hívásszámot ez nem változtatja.
+- Ha egy piacot később bekapcsolunk, arra csak onnantól lesz adat (az API-ból a múltbeli
+  odds nem pótolható) → a UI ezt jelezze kapcsoláskor.
+- Ezekkel (5 iroda, 3 piac, nyitó + záró) a becslés kb. **10–20 MB/szezon/5 liga** →
+  500 MB-ba 10–15 liga több szezonja is belefér. A Beállítások UI ezt a becslést mutatja.
 
 ## 5. Titkok és konfiguráció
 
@@ -256,8 +276,8 @@ a kódban a magyar domain-nevek (pl. `Vegeredmeny`) a `market.code` mezőben él
 | `team` | `id` | `name`, `code`, `country`, `logo_url` | `/teams` |
 | `team_alias` | (`source`, `name`) | `team_id` | a football-data.co.uk CSV-k és más források csapatneveinek leképezése |
 | `season_team` | (`league_id`, `year`, `team_id`) | — | ki játszik az adott ligában |
-| `bookmaker` | `id` | `name` | `/odds/bookmakers` |
-| `market` | `id` (API bet id) | `name` (API), `code` (pl. `Vegeredmeny`), `analyzed bool` | `/odds/bets` + `BetTypes.ts` |
+| `bookmaker` | `id` | `name`, `stored bool` (tárolási beállítás, §4.1) | `/odds/bookmakers` |
+| `market` | `id` (API bet id) | `name` (API), `code` (pl. `Vegeredmeny`), `analyzed bool`, `stored bool` (tárolási beállítás, §4.1) | `/odds/bets` + `BetTypes.ts` |
 
 ### 10.2 Meccsek és események
 
@@ -276,8 +296,8 @@ a kódban a magyar domain-nevek (pl. `Vegeredmeny`) a `market.code` mezőben él
 | Tábla | Kulcs | Fő oszlopok | Megjegyzés |
 |---|---|---|---|
 | `odds_snapshot` | `id` (bigserial); UNIQUE(`fixture_id`, `captured_at`, `source`) | `fixture_id`, `captured_at` (amikor mi lekértük), `provider_updated_at` (az API `update` mezője), `source` (`api-football` / `football-data-csv` / `legacy-json` / `manual`), `kind` (`early` / `late` / `adhoc` / `opening_csv` / `closing_csv`) | append-only |
-| `odds_quote` | (`snapshot_id`, `bookmaker_id`, `market_id`, `selection`) | `line numeric null` (pl. 2.5), `odd numeric(7,3)` | **csak az `analyzed` piacok** |
-| `odds_best` *(nézet)* | (`snapshot_id`, `market_id`, `selection`) | `max_odd`, `bookmaker_id`, `avg_odd`, `n_books` | az ajánlásnak és az arbitrázsnak |
+| `odds_quote` | (`snapshot_id`, `bookmaker_id`, `market_id`, `selection`) | `line numeric null` (pl. 2.5), `odd numeric(7,3)` | **csak a `stored` piacok × `stored` irodák** (§4.1) |
+| `odds_best` *(tábla)* | (`snapshot_id`, `market_id`, `selection`, `line`) | `max_odd`, `bookmaker_id`, `avg_odd`, `n_books` | a **teljes** lekért válaszból számolva, szűrés előtt; az ajánlásnak és az arbitrázsnak |
 
 ### 10.4 Modell, predikció, kiértékelés
 
@@ -293,7 +313,7 @@ a kódban a magyar domain-nevek (pl. `Vegeredmeny`) a `market.code` mezőben él
 
 | Tábla | Kulcs | Fő oszlopok |
 |---|---|---|
-| `followed_league` | `league_id` | `enabled`, `priority`, `markets text[]`, `added_at` |
+| `followed_league` | `league_id` | `enabled`, `priority`, `markets text[] null` (tárolt piacok ligánkénti felülírása; `null` = globális `market.stored`), `added_at` |
 | `team_filter` | `team_id` | `mode` (`include` / `exclude`) |
 | `setting` | `key` | `value jsonb` (EV-küszöb, min/max odds, tét-mód, egység, backfill-plafon, aktív `model_version`) |
 | `ingest_task` | `id`; UNIQUE(`dedupe_key`) | lásd 7.1 |

@@ -88,15 +88,20 @@
 ## 2. Beállítások (ligák, csapatok)
 
 - [ ] **2.1 Beállítás-modell + API:** `followed_league`, `team_filter`, `setting`
-  (EV-küszöb, odds-sáv, tét-mód, backfill-plafon).
-  *Ellenőrzés:* CRUD integrációs teszt.
+  (EV-küszöb, odds-sáv, tét-mód, backfill-plafon), valamint a **tárolási szabályok**
+  ([`architecture.md` §4.1](architecture.md)): `market.stored` + ligánkénti felülírás,
+  `bookmaker.stored`, `odds_retention`.
+  *Ellenőrzés:* CRUD integrációs teszt; unit-teszt a „melyik piac/iroda tárolandó ebben a
+  ligában” feloldó függvényre.
 - [ ] **2.2 Liga-katalógus:** a `reference` job (`/leagues`, hetente) és a `coverage`
   flagek tárolása.
   *Ellenőrzés:* mock módban a katalógus feltöltődik; élesben heti 1 hívás.
 - [ ] **2.3 Beállítások UI:** ligák és csapatok kiválasztása; a **becsült napi
   hívásköltség** ligánként és összesen (a [`api-football.md` §6](api/api-football.md#6-hívás-budget)
   képlete szerint); a `coverage` jelzések; figyelmeztetés, ha a becslés túllépi a keretet.
-  *Ellenőrzés:* screenshot; unit-teszt a költségbecslő függvényre.
+  Tárolt piacok és irodák kapcsolói (globálisan és ligánként), snapshot-megőrzés, és a
+  **becsült tárhely szezononként** az 500 MB-hoz mérve.
+  *Ellenőrzés:* screenshot; unit-teszt a hívásköltség- és a tárhelybecslő függvényre.
 - [ ] **2.4 Budget-panel:** a mai felhasznált és maradék hívások, jobonkénti bontás, a
   `/status`-szal egyeztetett érték.
   *Ellenőrzés:* screenshot mock adattal.
@@ -121,6 +126,12 @@
   piacokkal, a `provider_updated_at` mentésével; a `late` a nap első kezdése előtt ≤ 3 órával.
   *Ellenőrzés:* mock: többoldalas válasz esetén is minden meccs bekerül; snapshotonként
   csak beszúrás történik.
+- [ ] **3.5b Tárolási szűrés + megőrzés:** a snapshot mentésekor előbb az `odds_best`
+  (legjobb/átlag) számolódik a teljes válaszból, utána csak a `stored` piacok × irodák
+  kerülnek az `odds_quote`-ba; napi karbantartó job: lejátszott meccsnél csak a nyitó +
+  záró snapshot marad (`odds_retention`).
+  *Ellenőrzés:* unit-teszt: a szűrés nem változtatja a `max_odd`-ot; mock: a karbantartás
+  után meccsenként ≤ 2 snapshot.
 - [ ] **3.6 `injuries`** `ids`-szel (max. 20 meccs / hívás), T−24 órával.
   *Ellenőrzés:* mock: a sérültlista a meccshez kötve tárolódik.
 - [ ] **3.7 💸 Élesítés + 1 hét mérés:** a tényleges hívás/nap vs. a becslés; a kihagyott
