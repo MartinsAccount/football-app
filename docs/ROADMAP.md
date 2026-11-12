@@ -74,7 +74,7 @@
 - [ ] **1.1 ~~Workspaces + `packages/core`~~ → előrehozva: 0.8.** gyökér `package.json` (workspaces); az
   arbitrázsmag (0.4) átköltözik, a frontend innen importál.
   *Ellenőrzés:* a frontend build és a tesztek zöldek, a viselkedés változatlan.
-- [ ] **1.2 `packages/api-client`:** egyetlen API-Football kliens: host és kulcs env-ből,
+- [x] **1.2 `packages/api-client`:** egyetlen API-Football kliens: host és kulcs env-ből,
   budget-őr (atomikus napi foglalás), szerializálás (≥ 7 s), `errors`-kezelés (a HTTP 200 +
   `errors` is hiba), lapozás, naplózás, mock mód.
   *Ellenőrzés:* unit-tesztek a mock fixture-ökkel (a budget-túllépés, az `errors.plan` és a

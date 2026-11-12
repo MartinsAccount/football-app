@@ -4,7 +4,7 @@
 
 ## Aktuális fázis
 
-M1 (docs/GOAL-M1.md): S01–S08 kész, következik S09 (api-client + budget-őr).
+M1 (docs/GOAL-M1.md): S01–S09 kész, következik S10 (backend-proxy olvasó végpontok).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 
@@ -20,28 +20,26 @@ H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
 
-1. **S09 – 1.2 packages/api-client + budget-őr:** host/kulcs env-ből (csak szerver), napi számláló (soha > 100), `errors`-kezelés,
-   lapozás, hívásnapló, mock mód; tesztek fixture-rel.
-2. **S10 – Backend-proxy:** `api/` olvasó végpontok (`/api/fixtures`, `/api/odds/:id`, `/api/budget`) az adapterből, lokálisan; a
+1. **S10 – Backend-proxy:** `api/` olvasó végpontok (`/api/fixtures`, `/api/odds/:id`, `/api/budget`) az adapterből, lokálisan; a
    kulcs csak szerveroldalon.
-3. **S11 – Történeti adat 2022–2024 (élő, ≤ 15 hívás, naplózva):** `fixtures?league&season` 5 liga × 3 szezon → fixture-fájlok; +
+2. **S11 – Történeti adat 2022–2024 (élő, ≤ 15 hívás, naplózva):** `fixtures?league&season` 5 liga × 3 szezon → fixture-fájlok; +
    football-data.co.uk CSV záró-oddsok (ingyenes) → import. Ha nem megy: backtest a 2020–21 adaton, DECISIONS-be.
-4. **S12 – Core: feature-ök:** forma, hazai/vendég, H2H, pont-idejű tabellahely, szezonszakasz, motiváció/tét; tesztek.
-5. **S13 – Core: modell v0 `elo-poisson@0.1.0`:** Elo + Poisson → 1X2, O/U 2.5, indoklás (tényező-hozzájárulás); tesztek.
-6. **S14 – Core: kiértékelés + budget-becslés:** találat, flat profit, Brier, log-loss, CLV, kalibrációs vödrök; budget-becslés
+3. **S12 – Core: feature-ök:** forma, hazai/vendég, H2H, pont-idejű tabellahely, szezonszakasz, motiváció/tét; tesztek.
+4. **S13 – Core: modell v0 `elo-poisson@0.1.0`:** Elo + Poisson → 1X2, O/U 2.5, indoklás (tényező-hozzájárulás); tesztek.
+5. **S14 – Core: kiértékelés + budget-becslés:** találat, flat profit, Brier, log-loss, CLV, kalibrációs vödrök; budget-becslés
    ligánként; tesztek.
-7. **S15 – Backtest-futtató:** walk-forward 2022–2023 → 2024, piaci baseline vs. v0; riport `docs/analysis/backtest-v0.md` + JSON
+6. **S15 – Backtest-futtató:** walk-forward 2022–2023 → 2024, piaci baseline vs. v0; riport `docs/analysis/backtest-v0.md` + JSON
    az `/evaluation`-hoz.
-8. **S16 – A2a TipCard:** TipCard, TeamForm, ProbabilityBars, TipActions, Disclosure, EngineBanner (DESIGN §7.3–7.4).
-9. **S17 – A2b MatchDetails:** LeagueStrip, H2HList, RecentList (DESIGN §7.5).
-10. **S18 – `/` Ajánlások oldal:** predikciók fixture-adatból, PRD 6. mezők, adatkor, figyelmeztetések, min. odds; screenshot.
-11. **S19 – SlipStore + SlipPanel:** SlipLegs, SlipTotals, RiskMeter, StakeSelector, TippmixTransfer (beírt odds + tét mentése,
+7. **S16 – A2a TipCard:** TipCard, TeamForm, ProbabilityBars, TipActions, Disclosure, EngineBanner (DESIGN §7.3–7.4).
+8. **S17 – A2b MatchDetails:** LeagueStrip, H2HList, RecentList (DESIGN §7.5).
+9. **S18 – `/` Ajánlások oldal:** predikciók fixture-adatból, PRD 6. mezők, adatkor, figyelmeztetések, min. odds; screenshot.
+10. **S19 – SlipStore + SlipPanel:** SlipLegs, SlipTotals, RiskMeter, StakeSelector, TippmixTransfer (beírt odds + tét mentése,
     leadás nincs).
-12. **S20 – Mobil szelvény + SlipPresets:** SlipBar + BottomSheet, SlipPresets; screenshot 390.
-13. **S21 – `/evaluation` dashboard:** ROI, Brier, log-loss, kalibráció, CLV a backtest-JSON-ból; szűrők.
-14. **S22 – `/settings`:** ligák, piacok, irodák, becsült napi hívás és tárhely (core budget-becslés).
-15. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
-16. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
+11. **S20 – Mobil szelvény + SlipPresets:** SlipBar + BottomSheet, SlipPresets; screenshot 390.
+12. **S21 – `/evaluation` dashboard:** ROI, Brier, log-loss, kalibráció, CLV a backtest-JSON-ból; szűrők.
+13. **S22 – `/settings`:** ligák, piacok, irodák, becsült napi hívás és tárhely (core budget-becslés).
+14. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
+15. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
     `ALL_DONE M1`.
 
 ## Kész
@@ -56,6 +54,7 @@ I. Arbitrázs átköltöztetése az új backendre
 | S06 – 1.3 DB-séma              | (lásd git log: feat(db): add Postgres schema)        | `packages/db`: `migrations/0001–0005_*.sql` (§10 teljes), `migrate()` + `schema_migration` checksum; PGlite-teszt; `api_budget_reserve` ≤ 100   |
 | S07 – DB repository            | (lásd git log: feat(db): add repository)             | `Repository` + `SqlRepository` (`SqlExecutor` fölött), `openMemoryRepository()` = PGlite+migrate; upsert → `{inserted,updated,unchanged}`       |
 | S08 – 1.4 Legacy import        | (lásd git log: feat(db): import legacy JSON)         | `npm run import:legacy -w @football/db [-- dataDir]` → `.data/pglite`; 3656 fixture, 510 snapshot, 150 899 quote; a 2. futás 0 írás |
+| S09 – 1.2 api-client + budget | (lásd git log: feat(api-client))                     | `@football/api-client`: `ApiFootballClient` (mock/live), `SqlBudgetStore` (`api_budget_reserve`), `SqlCallLogger`, `getAllPages`, `status()` |
 
 ## Polish backlog
 
@@ -69,14 +68,17 @@ I. Arbitrázs átköltöztetése az új backendre
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- API: `createClientFromEnv(process.env, { budget: new SqlBudgetStore(db), logger: new SqlCallLogger(db), fixtures })` – env
+  `API_FOOTBALL_MODE=mock|live` (alap mock), `API_FOOTBALL_KEY`, `API_FOOTBALL_HOST`. Hibák: `ApiFootballError.kind` (`budget`,
+  `plan`, `quota`, `token`, `http`, `api`, `mock-missing`), `retryable` csak 5xx/429. Mock-kulcs: `fixtureKey(endpoint, params)`.
+  Az S11 élő hívásai ezen menjenek (napló: `api_call_log`; a válasz fixture-be mentése a hívó dolga).
+
 - Import: `importLegacy(repo, { fixtureFiles, oddsFiles })`, `mapLegacyFixtures/mapLegacyOdds/parseSelection` (`"Over 2.5"` → Over + line 2.5) a `@football/db`-ből; az S11 CSV-import ugyanide (`packages/db/src/import/`). Lokális DB: `.data/pglite` (git-ignored); scriptek: `packages/db/scripts/` (vite-node).
 
 - DB: `import { openMemoryRepository } from '@football/db'` → `{ db, repo }` (PGlite + migrációk; `dataDir` arg = fájlba ment).
   Upsertek idempotensek (`unchanged` = S08 ellenőrzés), `insertOddsSnapshot` → `{id, created}` (kulcs:
   fixture+captured_at+source), predikció csak `appendPredictions`. Sorrend az FK-k miatt: league/season/team/bookmaker/market →
   fixture → odds.
-- Budget: `SELECT api_budget_reserve(day, cap)` → új `used` vagy NULL (nincs hívás); a `daily_limit` CHECK ≤ 100. S09 erre
-  épüljön.
 - Új oldal: `pages/<X>Page/`, `<PageIntro title subtitle date? aside?/>` + tartalom; a keret (`oe-container`, fejléc) az
   `AppShell`-ből jön. Route: `components/Main/Main.tsx`.
 - Szelvény: `summarizeSlip(legs, stake)` → eredő odds, esély, EV, min. odds, nyeremény, szingli-összevetés, kockázat, `estimated`
