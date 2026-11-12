@@ -301,6 +301,6 @@ fontossági sorrendet tartja (a kezdés előtti odds-snapshot megelőzi a backfi
 - **Reprodukálhatóság:** minden predikció modellverzióval és feature-pillanatképpel
   mentődik. A régi predikciót tilos átírni.
 - **Döntések nyoma:** nagyobb munka előtt terv (`docs/plans/<téma>.md`), döntés után ADR
-  (`docs/adr/`, a ROADMAP 0.6 után). Javaslatot csak a tulajdonos fogad el.
+  (`docs/adr/`). Javaslatot csak a tulajdonos fogad el.
 - **Szeletek:** a [`ROADMAP.md`](ROADMAP.md) szerint, egyszerre egy szelet = egy commit.
 - **Hatókör:** ami a 8. fejezet nem-céljai közé esik, azt az agent nem kezdi el, hanem jelzi.

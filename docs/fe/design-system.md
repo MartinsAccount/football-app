@@ -8,7 +8,7 @@
 
 ## Háttér
 
-Korábban a styling SCSS Modules + részleges SCSS-tokenek (`src/theme/theme.scss`) volt, hardkódolt hexekkel keverve, spacing-/típusskála nélkül (lásd `docs/fe/ui-audit.md`). A Tailwind mostantól a tokenek egyetlen forrása. A `theme.scss` és az SCSS Modules a fokozatos migráció alatt **párhuzamosan élnek** — lásd `docs/fe/adr/0001-tailwind-as-styling-base.md`.
+Korábban a styling SCSS Modules + részleges SCSS-tokenek (`src/theme/theme.scss`) volt, hardkódolt hexekkel keverve, spacing-/típusskála nélkül (lásd `docs/fe/ui-audit.md`). A Tailwind mostantól a tokenek egyetlen forrása. A `theme.scss` és az SCSS Modules a fokozatos migráció alatt **párhuzamosan élnek** — lásd `docs/adr/0001-tailwind-as-styling-base.md`.
 
 A setup részleteit (build-integráció, Preflight) az ADR írja le. Röviden: **react-scripts 5 natív Tailwind-támogatás** (nincs CRACO), és a Tailwind **Preflight (globális reset) egyelőre KI van kapcsolva**, hogy a meglévő UI vizuálisan változatlan maradjon a migráció előtt.
 

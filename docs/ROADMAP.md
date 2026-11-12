@@ -35,20 +35,32 @@
   `.env.example`, az `ApiKeys.ts` törölve; mindkét kulcs bekerül a dev bundle-be.
   **Nyitott (tulajdonos):** a git historyban maradt kulcsok rotálása a RapidAPI és az
   API-Sports dashboardon.
-- [ ] **0.3 Ellenőrző scriptek:** `npm run typecheck` (`tsc --noEmit`) és
+- [x] **0.3 Ellenőrző scriptek:** `npm run typecheck` (`tsc --noEmit`) és
   `npm run format:check` a frontendben.
   *Ellenőrzés:* mindkettő zölden fut le a CI-ban vagy lokálisan.
-- [ ] **0.4 Arbitrázsmag kiemelése + tesztek:** az `analyzeBookmaker` logikája tiszta
+  — `0705f32`, `872b873`: TS 4.3 → 4.9, Prettier 2.8, egy gyökér `.prettierrc`,
+  `verify` = typecheck + format:check + test:ci; `.npmrc`: `legacy-peer-deps`.
+- [x] **0.4 Arbitrázsmag kiemelése + tesztek:** az `analyzeBookmaker` logikája tiszta
   függvénybe kerül (`src/core/arbitrage/`), Jest-tesztekkel ismert oddsokra (2-, 3-esélyes
   és gólvonalas eset). Ezt a munkát az 1.1 szelet `packages/core`-ba viszi tovább.
   *Ellenőrzés:* `npm test` zöld; az arbitrázsoldal a cache-ből változatlanul renderel.
+  — `d566310`: 8 teszt; javítva: a vártnál több kimenetel nem dob hibát.
 - [ ] **0.5 Mock- és fixture mód:** a meglévő valós API-válaszokból
   (`frontend/src/data/*.json`, `backend/stores/*.json`) fixture-ök készülnek; kapcsoló
   (`USE_FIXTURES=true`), hogy fejlesztés közben **0 élő hívás** menjen.
   *Ellenőrzés:* mock módban a `MainStore.fetchNumber` értéke 0 marad egy teljes oldalbejárás után.
-- [ ] **0.6 Dokumentáció rendbetétele:** az ADR-ek egy helyre kerülnek (`docs/fe/adr/` →
+- [x] **0.6 Dokumentáció rendbetétele:** az ADR-ek egy helyre kerülnek (`docs/fe/adr/` →
   `docs/adr/`), és a hivatkozásuk is javul; ADR-sablon; a `CLAUDE.md` naprakészen tartása.
   *Ellenőrzés:* nincs törött relatív link a `docs/` alatt.
+- [ ] **0.7 CRA → Vite + Vitest** *(a 9.1-ből előrehozva; ADR-0003)*: a CRA nem fordít
+  `src/`-n kívüli TS-t, így a közös `packages/core` (amit a backend/API is használ) csak
+  Vite mellett működik; ráadásul a CRA megszűnt. A MobX v5 és a viselkedés változatlan;
+  `REACT_APP_*` → `VITE_*`; a `/api` proxy a Vite dev szerverben.
+  *Ellenőrzés:* `npm run verify` zöld; dev szerver + build megy; a három útvonal renderel.
+- [ ] **0.8 npm workspaces + `packages/core`** *(az 1.1-ből előrehozva)*: gyökér
+  `package.json` (workspaces: `frontend`, `backend`, `packages/*`), egy `npm install`,
+  gyökér `verify`; az arbitrázsmag `packages/core`-ba költözik.
+  *Ellenőrzés:* gyökérből `npm run verify` zöld; a frontend a `@football/core`-ból importál.
 
 ## 1. Backend-alap: API-proxy, DB, hosting
 
@@ -56,7 +68,7 @@
   (ADR-0004, **Supabase** — a tulajdonos választása; ORM: Drizzle javaslat), hozzáférés-védelem (ADR-0005), repó-szerkezet
   (ADR-0008, javaslat: npm workspaces + `packages/*`).
   *Ellenőrzés:* az ADR-ek „Elfogadva” státuszban vannak.
-- [ ] **1.1 Workspaces + `packages/core`:** gyökér `package.json` (workspaces); az
+- [ ] **1.1 ~~Workspaces + `packages/core`~~ → előrehozva: 0.8.** gyökér `package.json` (workspaces); az
   arbitrázsmag (0.4) átköltözik, a frontend innen importál.
   *Ellenőrzés:* a frontend build és a tesztek zöldek, a viselkedés változatlan.
 - [ ] **1.2 `packages/api-client`:** egyetlen API-Football kliens: host és kulcs env-ből,
@@ -231,7 +243,7 @@
 ## 9. Frontend-modernizáció (az 1. fázis után bármikor)
 
 - [ ] **9.0 🔶 Döntés (ADR-0007):** CRA marad / **Vite + MobX** (javaslat) / Next.js.
-- [ ] **9.1 CRA → Vite**, a MobX v5 marad, a viselkedés változatlan.
+- [ ] **9.1 ~~CRA → Vite~~ → előrehozva: 0.7.**, a MobX v5 marad, a viselkedés változatlan.
   *Ellenőrzés:* a build, a tesztek és a három régi útvonal screenshotja egyezik.
 - [ ] **9.2 MobX 5 → 6, React 17 → 18**, a `--legacy-peer-deps` megszűnik.
   *Ellenőrzés:* tiszta `npm ci`; a screenshotok egyeznek.

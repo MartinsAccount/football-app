@@ -347,4 +347,4 @@ a kódban a magyar domain-nevek (pl. `Vegeredmeny`) a `market.code` mezőben él
 | ADR-0009 | **Modellezés nyelve** | TS az élesben; Python opcionális a feltáráshoz | strategy |
 | ADR-0010 | **Odds-tárolási szint** | csak az elemzett piacok normalizálva, nyers payload 14 napig | tárhely |
 
-A meglévő ADR: `docs/fe/adr/0001-tailwind-as-styling-base.md`. A ROADMAP 0.6-ban `docs/adr/` alá kerül.
+Az ADR-ek helye: `docs/adr/`.
