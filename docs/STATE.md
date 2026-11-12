@@ -4,7 +4,7 @@
 
 ## Aktuális fázis
 
-M1 (docs/GOAL-M1.md): S01–S14 kész, következik S15 (backtest-futtató).
+M1 (docs/GOAL-M1.md): S01–S15 kész, következik S16 (A2a TipCard).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 
@@ -20,19 +20,17 @@ H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
 
-1. **S15 – Backtest-futtató:** walk-forward 2022–2023 → 2024, piaci baseline vs. v0; riport `docs/analysis/backtest-v0.md` + JSON
-   az `/evaluation`-hoz.
-2. **S16 – A2a TipCard:** TipCard, TeamForm, ProbabilityBars, TipActions, Disclosure, EngineBanner (DESIGN §7.3–7.4).
-3. **S17 – A2b MatchDetails:** LeagueStrip, H2HList, RecentList (DESIGN §7.5).
-4. **S18 – `/` Ajánlások oldal:** predikciók fixture-adatból, PRD 6. mezők, adatkor, figyelmeztetések, min. odds; screenshot.
-5. **S19 – SlipStore + SlipPanel:** SlipLegs, SlipTotals, RiskMeter, StakeSelector, TippmixTransfer (beírt odds + tét mentése,
+1. **S16 – A2a TipCard:** TipCard, TeamForm, ProbabilityBars, TipActions, Disclosure, EngineBanner (DESIGN §7.3–7.4).
+2. **S17 – A2b MatchDetails:** LeagueStrip, H2HList, RecentList (DESIGN §7.5).
+3. **S18 – `/` Ajánlások oldal:** predikciók fixture-adatból, PRD 6. mezők, adatkor, figyelmeztetések, min. odds; screenshot.
+4. **S19 – SlipStore + SlipPanel:** SlipLegs, SlipTotals, RiskMeter, StakeSelector, TippmixTransfer (beírt odds + tét mentése,
    leadás nincs).
-6. **S20 – Mobil szelvény + SlipPresets:** SlipBar + BottomSheet, SlipPresets; screenshot 390.
-7. **S21 – `/evaluation` dashboard:** ROI, Brier, log-loss, kalibráció, CLV a backtest-JSON-ból; szűrők.
-8. **S22 – `/settings`:** ligák, piacok, irodák, becsült napi hívás és tárhely (core budget-becslés).
-9. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
-10. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
-    `ALL_DONE M1`.
+5. **S20 – Mobil szelvény + SlipPresets:** SlipBar + BottomSheet, SlipPresets; screenshot 390.
+6. **S21 – `/evaluation` dashboard:** ROI, Brier, log-loss, kalibráció, CLV a backtest-JSON-ból; szűrők.
+7. **S22 – `/settings`:** ligák, piacok, irodák, becsült napi hívás és tárhely (core budget-becslés).
+8. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
+9. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
+   `ALL_DONE M1`.
 
 ## Kész
 
@@ -53,6 +51,7 @@ I. Arbitrázs átköltöztetése az új backendre
 | S12 – Core feature-ök          | (lásd git log: feat(core): add match features)                  | `features/`: `teamForm`, `homeAwaySplit`, `leagueHomeAdvantage`, `headToHead`, `deriveStandings` (4.3 mag), `tablePosition`, `seasonPhase`/`tableTier`, `teamMotivation` (§3.1), `buildMatchFeatures`                                           |
 | S13 – Modell v0                | (lásd git log: feat(core): add elo-poisson model)               | `model/elo.ts` (inkrementális Elo), `poisson.ts` (Dixon–Coles mátrix → 1X2/O-U 2.5/BTTS), `eloPoisson.ts` (`eloPoissonPrediction`, ablációs indoklás); terv: `docs/plans/model-v0.md`                                                           |
 | S14 – Kiértékelés + budget     | (lásd git log: feat(core): add evaluation and budget estimates) | `evaluation/` (`settleBet`, `flatProfit`, `brierScore`, `logLoss`, `closingLineValue`, `calibrationBuckets`, `summarizeBets`, `summarizeProbabilities`); `budget/` (`estimateLeagueCallsPerRound`, `estimateDailyCalls`, `estimateOddsStorage`) |
+| S15 – Backtest-futtató         | (lásd git log: feat(core): add walk-forward backtest)           | `backtest/` (`runBacktest`, `summarizeSegment`, `buildBacktestReport`); `npm run backtest -w @football/db` (CSV, 0 hívás) → `data/backtest/backtest-v0.json` + `docs/analysis/backtest-v0.md`; v0 LL 1X2 0,997 vs. záró 0,957                   |
 
 ## Polish backlog
 
@@ -68,11 +67,10 @@ I. Arbitrázs átköltöztetése az új backendre
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
-- Kiértékelés (S14, `packages/core/src/evaluation`): `outcome1x2(hg, ag)` / `overUnderOutcome(goals, 2.5)` → kimenet-index;
-  `summarizeProbabilities([{ probabilities, outcomeIndex }])` → átlag Brier + log-loss;
-  `summarizeBets([{ odds, outcome, p, closingOdds }])` → profit, ROI, `roiStdError`, találat vs. várt, `meanClv`;
-  `calibrationBuckets([{ p, hit }])` → 10%-os vödrök. S15 ezekkel írja a riportot és a JSON-t. Budget (`budget/`):
-  `estimateDailyCalls(leagues[])`, `estimateOddsStorage({...})` → S22.
+- Backtest (S15): `data/backtest/backtest-v0.json` = `BacktestReport` (`overall`/`bySeason`/`byLeague` → `h2h`/`ou25` →
+  `model`/`marketOpening`/`marketClosing` {n, meanBrier, meanLogLoss} + `bets` (BetSummary); `calibration.h2h/ou25`). S21 ezt
+  importálja. Eredmény: v0 rosszabb a piacnál (LL 1X2 +0,040, O/U +0,015), túl lapos (a favorit alulbecsülve) → `eloGoalSlope`/K
+  illesztése = ROADMAP 6.0/7.x; a „value” tippek ROI −21% / −12%, ezért az ajánlásoknál piaci kombinálás kell.
 
 - Modell v0 (S13): `eloPoissonPrediction(fixture, { history, leagueMatches?, elo? })` → `probabilities`
   (home/draw/away/over25/under25/btts), `lambdaHome/Away`, `inputs` (features-snapshot), `explanation` (tényező, `deltaPp`, magyar

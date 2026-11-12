@@ -1,0 +1,634 @@
+{
+	"modelVersion": "elo-poisson@0.1.0",
+	"evalSeasons": [
+		2023,
+		2024
+	],
+	"evThreshold": 0.05,
+	"matches": 3504,
+	"overall": {
+		"h2h": {
+			"model": {
+				"n": 3504,
+				"meanBrier": 0.5951297990334402,
+				"meanLogLoss": 0.9967514712228431
+			},
+			"marketOpening": {
+				"n": 3504,
+				"meanBrier": 0.5702508239844458,
+				"meanLogLoss": 0.9597855992075923
+			},
+			"marketClosing": {
+				"n": 3504,
+				"meanBrier": 0.5684192671473269,
+				"meanLogLoss": 0.95703704142978
+			},
+			"bets": {
+				"n": 2553,
+				"wins": 474,
+				"losses": 2079,
+				"voids": 0,
+				"hitRate": 0.18566392479435959,
+				"expectedHitRate": 0.2910374383485775,
+				"profit": -528.45,
+				"roi": -0.20699177438307875,
+				"roiStdError": 0.0376004661172228,
+				"meanClv": 0.010933898528649412,
+				"clvCount": 2553
+			}
+		},
+		"ou25": {
+			"model": {
+				"n": 3504,
+				"meanBrier": 0.48407547602952616,
+				"meanLogLoss": 0.67708020034617
+			},
+			"marketOpening": {
+				"n": 3504,
+				"meanBrier": 0.472854575207264,
+				"meanLogLoss": 0.6654081797546351
+			},
+			"marketClosing": {
+				"n": 3504,
+				"meanBrier": 0.4694271831625982,
+				"meanLogLoss": 0.6618438800282563
+			},
+			"bets": {
+				"n": 1528,
+				"wins": 603,
+				"losses": 925,
+				"voids": 0,
+				"hitRate": 0.3946335078534031,
+				"expectedHitRate": 0.503814220239478,
+				"profit": -189.51000000000047,
+				"roi": -0.12402486910994795,
+				"roiStdError": 0.028863029032300872,
+				"meanClv": -0.011566294083542067,
+				"clvCount": 1528
+			}
+		}
+	},
+	"bySeason": {
+		"2023": {
+			"h2h": {
+				"model": {
+					"n": 1752,
+					"meanBrier": 0.596042622207575,
+					"meanLogLoss": 0.9975576661133219
+				},
+				"marketOpening": {
+					"n": 1752,
+					"meanBrier": 0.5674140152503426,
+					"meanLogLoss": 0.9555505904624102
+				},
+				"marketClosing": {
+					"n": 1752,
+					"meanBrier": 0.5661292568948392,
+					"meanLogLoss": 0.953313154658575
+				},
+				"bets": {
+					"n": 1265,
+					"wins": 217,
+					"losses": 1048,
+					"voids": 0,
+					"hitRate": 0.1715415019762846,
+					"expectedHitRate": 0.30151435581299735,
+					"profit": -363.94999999999993,
+					"roi": -0.28770750988142285,
+					"roiStdError": 0.050693108103051325,
+					"meanClv": 0.013713718563167094,
+					"clvCount": 1265
+				}
+			},
+			"ou25": {
+				"model": {
+					"n": 1752,
+					"meanBrier": 0.4804025666569968,
+					"meanLogLoss": 0.673312616401915
+				},
+				"marketOpening": {
+					"n": 1752,
+					"meanBrier": 0.46954138340793256,
+					"meanLogLoss": 0.6620196778884753
+				},
+				"marketClosing": {
+					"n": 1752,
+					"meanBrier": 0.4662147795645362,
+					"meanLogLoss": 0.658514326742948
+				},
+				"bets": {
+					"n": 729,
+					"wins": 290,
+					"losses": 439,
+					"voids": 0,
+					"hitRate": 0.39780521262002744,
+					"expectedHitRate": 0.49976566483870144,
+					"profit": -82.75000000000007,
+					"roi": -0.1135116598079562,
+					"roiStdError": 0.04208459982098345,
+					"meanClv": -0.012890687246706055,
+					"clvCount": 729
+				}
+			}
+		},
+		"2024": {
+			"h2h": {
+				"model": {
+					"n": 1752,
+					"meanBrier": 0.5942169758593073,
+					"meanLogLoss": 0.9959452763323684
+				},
+				"marketOpening": {
+					"n": 1752,
+					"meanBrier": 0.573087632718551,
+					"meanLogLoss": 0.9640206079527832
+				},
+				"marketClosing": {
+					"n": 1752,
+					"meanBrier": 0.5707092773998164,
+					"meanLogLoss": 0.9607609282009852
+				},
+				"bets": {
+					"n": 1288,
+					"wins": 257,
+					"losses": 1031,
+					"voids": 0,
+					"hitRate": 0.19953416149068323,
+					"expectedHitRate": 0.28074760869602355,
+					"profit": -164.49999999999986,
+					"roi": -0.12771739130434773,
+					"roiStdError": 0.05539072162874452,
+					"meanClv": 0.00820371813760528,
+					"clvCount": 1288
+				}
+			},
+			"ou25": {
+				"model": {
+					"n": 1752,
+					"meanBrier": 0.4877483854020551,
+					"meanLogLoss": 0.6808477842904254
+				},
+				"marketOpening": {
+					"n": 1752,
+					"meanBrier": 0.4761677670065966,
+					"meanLogLoss": 0.6687966816207972
+				},
+				"marketClosing": {
+					"n": 1752,
+					"meanBrier": 0.4726395867606583,
+					"meanLogLoss": 0.6651734333135665
+				},
+				"bets": {
+					"n": 799,
+					"wins": 313,
+					"losses": 486,
+					"voids": 0,
+					"hitRate": 0.39173967459324155,
+					"expectedHitRate": 0.507508083677733,
+					"profit": -106.76000000000006,
+					"roi": -0.13361702127659583,
+					"roiStdError": 0.039675350873966425,
+					"meanClv": -0.010357930358953146,
+					"clvCount": 799
+				}
+			}
+		}
+	},
+	"byLeague": {
+		"D1": {
+			"h2h": {
+				"model": {
+					"n": 612,
+					"meanBrier": 0.6043097231752701,
+					"meanLogLoss": 1.009450336251125
+				},
+				"marketOpening": {
+					"n": 612,
+					"meanBrier": 0.5756493814810769,
+					"meanLogLoss": 0.9685085218569108
+				},
+				"marketClosing": {
+					"n": 612,
+					"meanBrier": 0.5743811050768904,
+					"meanLogLoss": 0.9664714400520122
+				},
+				"bets": {
+					"n": 437,
+					"wins": 87,
+					"losses": 350,
+					"voids": 0,
+					"hitRate": 0.19908466819221968,
+					"expectedHitRate": 0.31663352065854156,
+					"profit": -82.60000000000002,
+					"roi": -0.1890160183066362,
+					"roiStdError": 0.10072789158904831,
+					"meanClv": 0.00880260997879314,
+					"clvCount": 437
+				}
+			},
+			"ou25": {
+				"model": {
+					"n": 612,
+					"meanBrier": 0.46762498169580957,
+					"meanLogLoss": 0.6604299634273412
+				},
+				"marketOpening": {
+					"n": 612,
+					"meanBrier": 0.4527433628358209,
+					"meanLogLoss": 0.6445828098675943
+				},
+				"marketClosing": {
+					"n": 612,
+					"meanBrier": 0.446252548358013,
+					"meanLogLoss": 0.6375287648121575
+				},
+				"bets": {
+					"n": 259,
+					"wins": 107,
+					"losses": 152,
+					"voids": 0,
+					"hitRate": 0.41312741312741313,
+					"expectedHitRate": 0.5284711141939911,
+					"profit": -32.72999999999997,
+					"roi": -0.12637065637065625,
+					"roiStdError": 0.07048396562997397,
+					"meanClv": -0.002545771396040331,
+					"clvCount": 259
+				}
+			}
+		},
+		"E0": {
+			"h2h": {
+				"model": {
+					"n": 760,
+					"meanBrier": 0.5795579131286377,
+					"meanLogLoss": 0.9753111838295153
+				},
+				"marketOpening": {
+					"n": 760,
+					"meanBrier": 0.55600831250024,
+					"meanLogLoss": 0.9399011937564764
+				},
+				"marketClosing": {
+					"n": 760,
+					"meanBrier": 0.5509667910353022,
+					"meanLogLoss": 0.933717363154843
+				},
+				"bets": {
+					"n": 573,
+					"wins": 106,
+					"losses": 467,
+					"voids": 0,
+					"hitRate": 0.1849912739965096,
+					"expectedHitRate": 0.28426566291515504,
+					"profit": -98.99000000000001,
+					"roi": -0.17275741710296685,
+					"roiStdError": 0.08142874184398521,
+					"meanClv": 0.013628873699797185,
+					"clvCount": 573
+				}
+			},
+			"ou25": {
+				"model": {
+					"n": 760,
+					"meanBrier": 0.47607726406474543,
+					"meanLogLoss": 0.6691050528728372
+				},
+				"marketOpening": {
+					"n": 760,
+					"meanBrier": 0.47011748044542206,
+					"meanLogLoss": 0.6625409249397695
+				},
+				"marketClosing": {
+					"n": 760,
+					"meanBrier": 0.4689641179029723,
+					"meanLogLoss": 0.6613463649662811
+				},
+				"bets": {
+					"n": 328,
+					"wins": 145,
+					"losses": 183,
+					"voids": 0,
+					"hitRate": 0.4420731707317073,
+					"expectedHitRate": 0.5155800146047969,
+					"profit": -17.97999999999998,
+					"roi": -0.054817073170731645,
+					"roiStdError": 0.06210697181068938,
+					"meanClv": -0.010929317204632987,
+					"clvCount": 328
+				}
+			}
+		},
+		"F1": {
+			"h2h": {
+				"model": {
+					"n": 612,
+					"meanBrier": 0.6065588317279762,
+					"meanLogLoss": 1.0130021357578283
+				},
+				"marketOpening": {
+					"n": 612,
+					"meanBrier": 0.5880806403030979,
+					"meanLogLoss": 0.9861261773581484
+				},
+				"marketClosing": {
+					"n": 612,
+					"meanBrier": 0.5873706899398341,
+					"meanLogLoss": 0.9846362296590927
+				},
+				"bets": {
+					"n": 447,
+					"wins": 93,
+					"losses": 354,
+					"voids": 0,
+					"hitRate": 0.2080536912751678,
+					"expectedHitRate": 0.2859663424249368,
+					"profit": -46.919999999999995,
+					"roi": -0.10496644295302013,
+					"roiStdError": 0.08911067694807044,
+					"meanClv": 0.010072108476734763,
+					"clvCount": 447
+				}
+			},
+			"ou25": {
+				"model": {
+					"n": 612,
+					"meanBrier": 0.49359251095213,
+					"meanLogLoss": 0.6866873312260686
+				},
+				"marketOpening": {
+					"n": 612,
+					"meanBrier": 0.4852870925523986,
+					"meanLogLoss": 0.6780567116240477
+				},
+				"marketClosing": {
+					"n": 612,
+					"meanBrier": 0.4813129212111416,
+					"meanLogLoss": 0.674086883818791
+				},
+				"bets": {
+					"n": 243,
+					"wins": 99,
+					"losses": 144,
+					"voids": 0,
+					"hitRate": 0.4074074074074074,
+					"expectedHitRate": 0.5050662767747519,
+					"profit": -27.179999999999996,
+					"roi": -0.11185185185185184,
+					"roiStdError": 0.07026761785981502,
+					"meanClv": -0.0078253072087339,
+					"clvCount": 243
+				}
+			}
+		},
+		"I1": {
+			"h2h": {
+				"model": {
+					"n": 760,
+					"meanBrier": 0.6000396166606458,
+					"meanLogLoss": 1.0023841818178927
+				},
+				"marketOpening": {
+					"n": 760,
+					"meanBrier": 0.5719883534619918,
+					"meanLogLoss": 0.9600155170938732
+				},
+				"marketClosing": {
+					"n": 760,
+					"meanBrier": 0.5720554225515295,
+					"meanLogLoss": 0.9595395287100105
+				},
+				"bets": {
+					"n": 552,
+					"wins": 94,
+					"losses": 458,
+					"voids": 0,
+					"hitRate": 0.17028985507246377,
+					"expectedHitRate": 0.2804786049847832,
+					"profit": -150.34999999999997,
+					"roi": -0.27237318840579705,
+					"roiStdError": 0.07469669135420968,
+					"meanClv": 0.017661903266041105,
+					"clvCount": 552
+				}
+			},
+			"ou25": {
+				"model": {
+					"n": 760,
+					"meanBrier": 0.4985546116154769,
+					"meanLogLoss": 0.6916815106315217
+				},
+				"marketOpening": {
+					"n": 760,
+					"meanBrier": 0.487341275267477,
+					"meanLogLoss": 0.6804465853439327
+				},
+				"marketClosing": {
+					"n": 760,
+					"meanBrier": 0.4831612255591138,
+					"meanLogLoss": 0.67615363413402
+				},
+				"bets": {
+					"n": 298,
+					"wins": 112,
+					"losses": 186,
+					"voids": 0,
+					"hitRate": 0.37583892617449666,
+					"expectedHitRate": 0.5090687625458165,
+					"profit": -49.69999999999998,
+					"roi": -0.16677852348993283,
+					"roiStdError": 0.06303101827442929,
+					"meanClv": -0.013861656115100485,
+					"clvCount": 298
+				}
+			}
+		},
+		"SP1": {
+			"h2h": {
+				"model": {
+					"n": 760,
+					"meanBrier": 0.5891962336480712,
+					"meanLogLoss": 0.989247058425443
+				},
+				"marketOpening": {
+					"n": 760,
+					"meanBrier": 0.5640508523398564,
+					"meanLogLoss": 0.9512047413914982
+				},
+				"marketClosing": {
+					"n": 760,
+					"meanBrier": 0.5621738568526436,
+					"meanLogLoss": 0.9480324493282343
+				},
+				"bets": {
+					"n": 544,
+					"wins": 94,
+					"losses": 450,
+					"voids": 0,
+					"hitRate": 0.17279411764705882,
+					"expectedHitRate": 0.2924896354967029,
+					"profit": -149.59,
+					"roi": -0.2749816176470588,
+					"roiStdError": 0.07837279492062138,
+					"meanClv": 0.0036885195973721465,
+					"clvCount": 544
+				}
+			},
+			"ou25": {
+				"model": {
+					"n": 760,
+					"meanBrier": 0.4831778118288847,
+					"meanLogLoss": 0.676125591344449
+				},
+				"marketOpening": {
+					"n": 760,
+					"meanBrier": 0.4672883401142927,
+					"meanLogLoss": 0.6598215353838803
+				},
+				"marketClosing": {
+					"n": 760,
+					"meanBrier": 0.4652467386766281,
+					"meanLogLoss": 0.6577528675534808
+				},
+				"bets": {
+					"n": 400,
+					"wins": 140,
+					"losses": 260,
+					"voids": 0,
+					"hitRate": 0.35,
+					"expectedHitRate": 0.4735256716609663,
+					"profit": -61.91999999999992,
+					"roi": -0.1547999999999998,
+					"roiStdError": 0.058894035509093536,
+					"meanClv": -0.018492008377339834,
+					"clvCount": 400
+				}
+			}
+		}
+	},
+	"calibration": {
+		"h2h": [
+			{
+				"lower": 0,
+				"upper": 0.1,
+				"count": 47,
+				"meanP": 0.08551535584045551,
+				"hitRate": 0.06382978723404255
+			},
+			{
+				"lower": 0.1,
+				"upper": 0.2,
+				"count": 810,
+				"meanP": 0.16584348820000394,
+				"hitRate": 0.1037037037037037
+			},
+			{
+				"lower": 0.2,
+				"upper": 0.3,
+				"count": 4843,
+				"meanP": 0.25722947277854236,
+				"hitRate": 0.24406359694404295
+			},
+			{
+				"lower": 0.3,
+				"upper": 0.4,
+				"count": 1958,
+				"meanP": 0.3461160821097297,
+				"hitRate": 0.33094994892747703
+			},
+			{
+				"lower": 0.4,
+				"upper": 0.5,
+				"count": 1641,
+				"meanP": 0.44635903548073147,
+				"hitRate": 0.48567946374162096
+			},
+			{
+				"lower": 0.5,
+				"upper": 0.6,
+				"count": 796,
+				"meanP": 0.5443976433359462,
+				"hitRate": 0.6030150753768844
+			},
+			{
+				"lower": 0.6,
+				"upper": 0.7,
+				"count": 334,
+				"meanP": 0.6422344177081821,
+				"hitRate": 0.7335329341317365
+			},
+			{
+				"lower": 0.7,
+				"upper": 0.8,
+				"count": 77,
+				"meanP": 0.7392338629985957,
+				"hitRate": 0.7662337662337663
+			},
+			{
+				"lower": 0.8,
+				"upper": 0.9,
+				"count": 6,
+				"meanP": 0.8244871852408653,
+				"hitRate": 1
+			}
+		],
+		"ou25": [
+			{
+				"lower": 0.1,
+				"upper": 0.2,
+				"count": 2,
+				"meanP": 0.19532202661130127,
+				"hitRate": 0
+			},
+			{
+				"lower": 0.2,
+				"upper": 0.3,
+				"count": 83,
+				"meanP": 0.27293596717839147,
+				"hitRate": 0.3493975903614458
+			},
+			{
+				"lower": 0.3,
+				"upper": 0.4,
+				"count": 975,
+				"meanP": 0.36332804348755987,
+				"hitRate": 0.35794871794871796
+			},
+			{
+				"lower": 0.4,
+				"upper": 0.5,
+				"count": 2444,
+				"meanP": 0.4536423676643479,
+				"hitRate": 0.4590834697217676
+			},
+			{
+				"lower": 0.5,
+				"upper": 0.6,
+				"count": 2444,
+				"meanP": 0.5463576323356526,
+				"hitRate": 0.5409165302782324
+			},
+			{
+				"lower": 0.6,
+				"upper": 0.7,
+				"count": 975,
+				"meanP": 0.6366719565124404,
+				"hitRate": 0.642051282051282
+			},
+			{
+				"lower": 0.7,
+				"upper": 0.8,
+				"count": 83,
+				"meanP": 0.7270640328216081,
+				"hitRate": 0.6506024096385542
+			},
+			{
+				"lower": 0.8,
+				"upper": 0.9,
+				"count": 2,
+				"meanP": 0.8046779733886987,
+				"hitRate": 1
+			}
+		]
+	}
+}

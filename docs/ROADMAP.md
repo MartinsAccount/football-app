@@ -159,8 +159,9 @@
       Poisson-mátrixból adja az 1X2-t, DECISIONS.)_ _Ellenőrzés:_ unit-tesztek; az illesztés reprodukálható seed-del.
 - [x] **6.2 Poisson / Dixon–Coles (M2)** — `4757d41` (fix paraméterek, `elo-poisson@0.1.0`; ML-illesztés a 6.3 után) +
       eredménymátrix → 1X2, O/U 2.5 (BTTS előkészítve). _Ellenőrzés:_ unit-tesztek (a mátrix összege 1; a piacok konzisztensek).
-- [ ] **6.3 Backtest CLI** (walk-forward, 2022–2023 tanítás, 2024 holdout), riport: Brier, log-loss, kalibráció, ROI és CLV a
-      CSV-oddsokkal. _Ellenőrzés:_ a riport a `docs/analysis/backtests/<dátum>-<modell>.md`-be kerül; a futás determinisztikus.
+- [x] **6.3 Backtest CLI** — S15 (riport: `docs/analysis/backtest-v0.md`, JSON: `data/backtest/backtest-v0.json`) (walk-forward,
+      2022–2023 tanítás, 2024 holdout), riport: Brier, log-loss, kalibráció, ROI és CLV a CSV-oddsokkal. _Ellenőrzés:_ a riport a
+      `docs/analysis/backtests/<dátum>-<modell>.md`-be kerül; a futás determinisztikus.
 - [ ] **6.4 💸 API-predikció benchmark** (`api-predictions@1`), csak a jelöltekre / egy ligára. _Ellenőrzés:_ a benchmark sorai
       megjelennek a dashboardon.
 - [ ] **6.5 🔶 Shadow → live:** M1/M2 shadow módban (≥ 4 hét vagy 150 predikció), utána döntés a

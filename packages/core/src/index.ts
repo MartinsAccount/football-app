@@ -20,3 +20,4 @@ export * from './features/motivation';
 export * from './features/matchFeatures';
 export * from './evaluation/evaluation';
 export * from './budget/budget';
+export * from './backtest/backtest';

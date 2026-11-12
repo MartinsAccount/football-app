@@ -14,12 +14,14 @@
 		"verify": "npm run typecheck && npm run test:ci",
 		"import:legacy": "vite-node scripts/import-legacy.ts",
 		"import:history": "vite-node scripts/import-history.ts",
-		"import:odds-csv": "vite-node scripts/import-odds-csv.ts"
+		"import:odds-csv": "vite-node scripts/import-odds-csv.ts",
+		"backtest": "vite-node scripts/backtest.ts"
 	},
 	"devDependencies": {
 		"@types/node": "^22.20.5"
 	},
 	"dependencies": {
-		"@electric-sql/pglite": "^0.5.16"
+		"@electric-sql/pglite": "^0.5.16",
+		"@football/core": "0.1.0"
 	}
 }
