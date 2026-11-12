@@ -27,11 +27,14 @@
   `CURRENT_SEASON = 2024`, élő hívás a napi 100-on belül szabad.
 - [x] **0.1 Higiénia:** gyökér `.gitignore`; a félkész változások (szezon 2025, hibatűrés)
   commitolása. — `14fc4e0`, `b083413`, `2199705` (az `ApiKeys.ts` a 0.2-ben megy)
-- [ ] **0.2 API-kulcs ki a forráskódból:** a kulcsok kikerülnek a `FetchService*.ts` és az
-  `ApiKeys.ts` fájlokból, és `.env`-be kerülnek (`REACT_APP_API_KEY`, átmenetileg; az
-  1. fázisban a backend env-jébe költözik); a régi kulcsok érvénytelenítése (a tulajdonos
-  dashboardján).
+- [x] **0.2 API-kulcs ki a forráskódból:** a kulcsok kikerülnek a `FetchService*.ts` és az
+  `ApiKeys.ts` fájlokból, és `.env`-be kerülnek (átmenetileg; az 1. fázisban a backend
+  env-jébe költözik); a régi kulcsok érvénytelenítése (a tulajdonos dashboardján).
   *Ellenőrzés:* `git grep` nem talál kulcsmintát; az app a `.env`-ből indul.
+  — `5295497`: `frontend/.env` (`REACT_APP_RAPIDAPI_KEY`, `REACT_APP_APISPORTS_KEY`) +
+  `.env.example`, az `ApiKeys.ts` törölve; mindkét kulcs bekerül a dev bundle-be.
+  **Nyitott (tulajdonos):** a git historyban maradt kulcsok rotálása a RapidAPI és az
+  API-Sports dashboardon.
 - [ ] **0.3 Ellenőrző scriptek:** `npm run typecheck` (`tsc --noEmit`) és
   `npm run format:check` a frontendben.
   *Ellenőrzés:* mindkettő zölden fut le a CI-ban vagy lokálisan.

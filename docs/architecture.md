@@ -17,7 +17,7 @@
 | Réteg | Ma |
 |---|---|
 | Frontend | CRA 5 (`react-scripts@5`) + TypeScript + React 17 + **MobX v5** (legacy dekorátorok, `flow`) + `mobx-react@5` + react-router v5 + Tailwind. A `--legacy-peer-deps` telepítés kötelező. |
-| API-hívás | **Közvetlenül a böngészőből**, a forráskódba égetett kulcsokkal (`FetchService.ts`, `FetchService3.ts`, `core/constants/ApiKeys.ts`). Két host keveredik (lásd [`api-football.md` §8](api/api-football.md#8-a-mostani-kód-hívásainak-auditja-frontendsrcservicesapiurlsts)). |
+| API-hívás | **Közvetlenül a böngészőből**, a kulcsok 2026-11-12 óta a `frontend/.env`-ből jönnek (a böngésző-bundle-ben továbbra is láthatók). Két host keveredik (lásd [`api-football.md` §8](api/api-football.md#8-a-mostani-kód-hívásainak-auditja-frontendsrcservicesapiurlsts)). |
 | Cache | `localStorage` (`LocalStorageUtil`, `ls_` prefix). Az arbitrázs-eredmény és a liga-id-k **1 év TTL**-lel vannak tárolva. |
 | Backend | Express (`backend/server.js`). A `GET /api/odds` visszaadja az 5 országos JSON-t, a `POST /api/odds?country=` hozzáfűz a fájlhoz. Nincs DB. |
 | Adat | `backend/stores/*-odds.json`: **2021-es szezon**, csak Unibet, ligánként kb. 100–110 meccs (2021-09 és 2022-02 között). `frontend/src/data/allMatch*_2020/2021.json`: a teljes 2020-as és 2021-es szezon meccsei, 5 ligában. |
