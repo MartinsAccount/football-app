@@ -3,3 +3,6 @@ export * from './odds/types';
 export * from './constants/betTypes';
 export * from './arbitrage/types';
 export * from './arbitrage/analyzeBookmakers';
+export * from './odds/value';
+export * from './model/market';
+export * from './format/format';

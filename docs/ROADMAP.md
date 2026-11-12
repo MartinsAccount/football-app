@@ -173,7 +173,7 @@
 
 ## 5. Predikció-napló és kiértékelés (v0: piaci baseline)
 
-- [ ] **5.1 Piaci baseline (B0)** tiszta függvényként (`packages/core/model/market`):
+- [x] **5.1 Piaci baseline (B0)** (S03) tiszta függvényként (`packages/core/model/market`):
   margin-mentesítés, konszenzus, legjobb odds.
   *Ellenőrzés:* unit-tesztek ismert oddsokra (a Σp = 1, a margin helyes).
 - [ ] **5.2 Predikció-pipeline:** a `derive` lépés az odds-snapshot után; `model_version`,
