@@ -57,6 +57,7 @@ for i in $(seq 1 "$MAX_ITER"); do
     --effort medium \
     --permission-mode auto \
     --max-turns 80 \
+    --strict-mcp-config --mcp-config '{"mcpServers":{}}' \
     --output-format json > ".autodev/run-$i.json"
 
   if ! run_cost="$(node -e '
