@@ -37,7 +37,9 @@
 **C-vel indulunk (Free API-Football, 2022–2024 szezonok), amíg a felület és az üzleti
 logika (elemzés, ajánlás, kiértékelés) el nem készül.** A historikus adat erre teljesen
 megfelel. Az aktuális szezonhoz később választunk **A** (Pro) és **B** (vegyes ingyenes
-források) között — ez külön ADR lesz, amikor az élesítés napirendre kerül.
+források) között — ez külön ADR lesz, amikor az élesítés napirendre kerül. A tulajdonos
+ötlete a 2. körre: **football-data.org** az aktuális szezon meccseire és tabellájára,
+kombinálva a meglévő adatokkal (ROADMAP 10. fázis).
 
 - **`CURRENT_SEASON = 2024`** (a Free csomagban elérhető legfrissebb szezon).
 - **Élő hívások engedélyezettek a napi 100-as kereten belül** — a lekérés, a mentés és az

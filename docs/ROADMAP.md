@@ -236,6 +236,29 @@
 - [ ] **9.2 MobX 5 → 6, React 17 → 18**, a `--legacy-peer-deps` megszűnik.
   *Ellenőrzés:* tiszta `npm ci`; a screenshotok egyeznek.
 
+## 10. Aktuális szezon: football-data.org (2. kör, a UI és az üzleti logika után)
+
+> Ötlet (tulajdonos, 2026-11-12): az API-Football Free csak 2022–2024-et adja, a
+> football-data.org Free viszont **az aktuális szezont is** — a kettő kombinálható.
+> Forrás-összevetés: [`api-football.md` §7](api/api-football.md#7-free-csomag-kockázatok-és-alternatív-adatforrások), ADR-0002 „B” opció.
+
+- [ ] **10.0 🔶 Döntés (ADR):** adatforrás-felosztás. Javaslat: football-data.org →
+  aktuális meccsek, eredmények, tabella; API-Football Free → 2022–2024 history (meccs,
+  statisztika); odds-forrás az aktuális szezonhoz külön kérdés (The Odds API free, vagy
+  API-Football Pro) — football-data.org Free-ben **nincs odds, sérült, felállás**.
+  Ellenőrizni élesben: lefedett versenysorozatok (Free: 12), 10 hívás/perc, az eredmények
+  késleltetése.
+- [ ] **10.1 Csapat- és meccs-összepárosítás:** `team_alias(source='football-data-org')`,
+  meccs-egyezés (`kickoff_at` ± tűrés + hazai/vendég csapat); a `fixture` kap egy
+  `external_ids jsonb` mezőt.
+  *Ellenőrzés:* unit-teszt a párosítóra; az 5 top liga egy fordulóján 100% egyezés.
+- [ ] **10.2 `packages/api-client` második forrás:** football-data.org kliens (külön
+  rate-limit: 10/perc, külön kulcs env-ben), ugyanazzal a budget-/naplózó réteggel.
+  *Ellenőrzés:* unit-tesztek fixture-ökkel.
+- [ ] **10.3 Ingestion-jobok átkötése:** `fixtures_window`, `results`, `standings` forrása
+  ligánként konfigurálható (`followed_league.source`).
+  *Ellenőrzés:* mock: ugyanaz a meccs két forrásból nem duplikálódik.
+
 ## Parkoló (nem-célok, újranyitható)
 
 Automatikus fogadásleadás · élő (in-play) odds · push / e-mail értesítés · más
