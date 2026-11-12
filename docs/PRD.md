@@ -241,9 +241,9 @@ fontossági sorrendet tartja (a kezdés előtti odds-snapshot megelőzi a backfi
 
 | # | Kérdés | Javaslat | Hol dől el |
 |---|---|---|---|
-| **D1** | **Adatforrás, ha a Free csomag nem adja a jelenlegi szezont** | Mérni (ROADMAP 0.0). Ha nem adja: **API-Football Pro (19 USD/hó)** a szezon hónapjaira, mert a legegyszerűbb, és a meglévő tudás és kód megmarad. Ha 0 Ft a feltétel: free API-Football csak a backfillhez, és mellé football-data.org (meccsek) + The Odds API (odds). | ADR, a 0. fázisban |
+| **D1** | ~~Adatforrás~~ **ELDŐLT (2026-11-12, ADR-0002):** mérve, a Free csomag csak 2022–2024-et adja. **Free marad**, amíg a UI és az üzleti logika el nem készül; `CURRENT_SEASON = 2024`; élő hívás a napi 100-on belül szabad (lekérés/mentés tesztelése), a fejlesztés zöme mentett adatból megy. Az aktuális szezonhoz később Pro vagy vegyes ingyenes források — új ADR. | ADR-0002 |
 | **D2** | Hosting: Vercel vagy Netlify | **Vercel Hobby** (5 perces függvényidő, 15 percenként futtatható Schedules (béta), ingyenes beépített Vercel Authentication). Indoklás: [`architecture.md` §3](architecture.md). | ADR |
-| **D3** | Adatbázis | **Neon Postgres (free)**: nincs inaktivitás miatti szüneteltetés, 1 GB/projekt, Vercel-integráció. | ADR |
+| **D3** | Adatbázis | **Supabase Postgres (free)** — a tulajdonos máshol is ezt használja (ismert eszköz, admin felület, opcionális Auth). Figyelni: 500 MB tárhely (csak az elemzett piacokat tároljuk), 1 hét inaktivitás után szünetel (az ütemezett ingestion ezt elkerüli, addig kézi újraindítás), free-ben max. 2 aktív projekt/szervezet. Alternatíva: Neon (1 GB). Lásd [`architecture.md` §4](architecture.md). | ADR-0004 |
 | **D4** | Hozzáférés-védelem | A platform beépített védelme (Vercel Authentication) **és** egy szerveroldali, egyfelhasználós session (jelszó-hash env-ben, httpOnly cookie) az API-ra. | ADR |
 | **D5** | Frontend: CRA + MobX v5 marad, vagy migrálunk | **Fokozatos migrálás Vite-ra; a MobX marad** (v6-ra frissítve, amikor a tooling engedi). A Next.js-re váltás csak akkor, ha az API is ugyanabba a projektbe kerül. Lásd [`architecture.md` §8](architecture.md). | ADR |
 | **D6** | Mely ligák (és hány) | Kezdésnek a meglévő 5 top liga (PL, La Liga, Serie A, Bundesliga, Ligue 1), utána bővítés a budget-mérés alapján. | Beállítás |

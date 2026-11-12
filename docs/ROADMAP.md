@@ -16,13 +16,15 @@
 
 ## 0. Alapozás: az agentic fejlesztés feltételei
 
-- [ ] **0.0 💸🔶 Free-csomag szezon-hozzáférés mérése + adatforrás-döntés (ADR-0002).**
+- [x] **0.0 💸🔶 Free-csomag szezon-hozzáférés mérése + adatforrás-döntés (ADR-0002).**
   A közösségi források szerint a Free csomag 2026-ban csak a 2022–2024-es szezonokat
   engedi ([`api-football.md` §1, §7](api/api-football.md#7-free-csomag-kockázatok-és-alternatív-adatforrások)).
   A teszt: `/status` (ingyenes) → `fixtures?league=39&season=2026&next=1` → szükség
   esetén `season=2025` → `/status`. Ez **legfeljebb 2 hívás**.
   *Ellenőrzés:* az eredmény (az `errors` tartalma) bekerül az ADR-be. A döntés: Free marad /
   Pro / több forrás. **Ettől függ a 3–8. fázis.**
+  — `b3a65c8`. **Eredmény:** csak 2022–2024 érhető el. **Döntés (ADR-0002):** Free marad,
+  `CURRENT_SEASON = 2024`, élő hívás a napi 100-on belül szabad.
 - [x] **0.1 Higiénia:** gyökér `.gitignore`; a félkész változások (szezon 2025, hibatűrés)
   commitolása. — `14fc4e0`, `b083413`, `2199705` (az `ApiKeys.ts` a 0.2-ben megy)
 - [ ] **0.2 API-kulcs ki a forráskódból:** a kulcsok kikerülnek a `FetchService*.ts` és az
@@ -48,7 +50,7 @@
 ## 1. Backend-alap: API-proxy, DB, hosting
 
 - [ ] **1.0 🔶 Döntések:** hosting (ADR-0003, javaslat: Vercel Hobby), DB + ORM
-  (ADR-0004, javaslat: Neon + Drizzle), hozzáférés-védelem (ADR-0005), repó-szerkezet
+  (ADR-0004, **Supabase** — a tulajdonos választása; ORM: Drizzle javaslat), hozzáférés-védelem (ADR-0005), repó-szerkezet
   (ADR-0008, javaslat: npm workspaces + `packages/*`).
   *Ellenőrzés:* az ADR-ek „Elfogadva” státuszban vannak.
 - [ ] **1.1 Workspaces + `packages/core`:** gyökér `package.json` (workspaces); az
@@ -62,7 +64,7 @@
 - [ ] **1.3 DB-séma v1 + migrációk:** törzsadat, `fixture`, `odds_snapshot` + `odds_quote`,
   `api_budget_day`, `api_call_log`, `ingest_task`, `setting`
   ([`architecture.md` §10](architecture.md#10-adatmodell-postgres-javaslat)); lokális dev DB
-  (Docker vagy Neon branch).
+  (Docker-es Postgres vagy Supabase CLI lokális stack).
   *Ellenőrzés:* a migráció üres DB-n fut, és ismételt futtatásra idempotens.
 - [ ] **1.4 Import a régi JSON-okból (0 hívás):** a `backend/stores/*-odds.json` (2021,
   Unibet) → `odds_snapshot(source = 'legacy-json')`; a `frontend/src/data/allMatch*_2020/2021.json`

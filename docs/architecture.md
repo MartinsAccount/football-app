@@ -95,9 +95,18 @@ Ellenőrizve 2026-11-12-én.
 | Extra | branch-ek (10), HTTP driver (`@neondatabase/serverless`), PgBouncer | beépített Auth, pg_cron (free-ben **nem ellenőrzött**) | — | csak Cloudflare Workers mellett |
 | Forrás | [plans](https://neon.com/docs/introduction/plans), [scale-to-zero](https://neon.com/docs/introduction/scale-to-zero), [driver](https://neon.com/docs/serverless/serverless-driver) | [pricing](https://supabase.com/pricing) | [pricing](https://turso.tech/pricing) | [limits](https://developers.cloudflare.com/d1/platform/limits/) |
 
-**Javaslat: Neon Postgres (Free), Vercel Marketplace-integrációval.** Indoklás: nincs
-inaktivitás miatti szüneteltetés, 1 GB elég (lásd a becslést lent), Postgres
-(`jsonb`, ablakfüggvények az elemzéshez), és branch-ek a tesztkörnyezethez.
+**Választás (tulajdonos, 2026-11-12): Supabase Postgres (Free), Vercel
+Marketplace-integrációval.** Indoklás: a tulajdonos más projektekben is ezt használja
+(ismert eszköz, admin felület, opcionális Supabase Auth), és Postgres (`jsonb`,
+ablakfüggvények az elemzéshez). Következmények:
+
+- **500 MB tárhely** → csak az elemzett piacokat tároljuk normalizált sorként (lásd a
+  becslést lent: kb. 2 szezon odds fér el; ha szűk, régi snapshotok aggregálása / archiválása).
+- **1 hét inaktivitás után szünetel** → amíg nincs ütemezett ingestion, a dashboardon kell
+  újraindítani; utána a 15 percenkénti írás ébren tartja.
+- **Free-ben max. 2 aktív projekt / szervezet** — ellenőrizni a tulajdonos meglévő projektjei mellett.
+- Az elemzéshez szükséges SQL Postgres-szabvány marad (Supabase-specifikus funkcióra nem
+  építünk), így Neonra (1 GB) váltás egy `DATABASE_URL` csere + migrációk újrafuttatása.
 
 **ORM / migráció (ADR-jelölt):** **Drizzle** (könnyű, SQL-közeli, Neon HTTP driverrel
 közvetlenül működik; a hivatalos dokumentációját nem néztük, ezért **nem ellenőrzött**),
