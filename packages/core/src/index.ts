@@ -6,3 +6,4 @@ export * from './arbitrage/analyzeBookmakers';
 export * from './odds/value';
 export * from './model/market';
 export * from './format/format';
+export * from './slip/slip';
