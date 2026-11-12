@@ -1,0 +1,14 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Tooling artifacts
+.playwright-mcp/
+
+# Ad-hoc screenshots in the repo root (design/docs images live under docs/)
+/*.png
+
+# OS / editor
+.DS_Store
+Thumbs.db
