@@ -49,7 +49,7 @@
 
 ## 1. Backend-alap: API-proxy, DB, hosting
 
-- [ ] **1.0 🔶 Döntések:** hosting (ADR-0003, javaslat: Vercel Hobby), DB + ORM
+- [ ] **1.0 🔶 Döntések:** hosting (ADR-0003, **Vercel Hobby** — elfogadva 2026-11-12), DB + ORM
   (ADR-0004, **Supabase** — a tulajdonos választása; ORM: Drizzle javaslat), hozzáférés-védelem (ADR-0005), repó-szerkezet
   (ADR-0008, javaslat: npm workspaces + `packages/*`).
   *Ellenőrzés:* az ADR-ek „Elfogadva” státuszban vannak.

@@ -65,7 +65,7 @@ Ellenőrizve 2026-11-12-én.
 | DB-integráció | Marketplace: Neon, Supabase, Prisma Postgres, Aurora. A Vercel Postgres 2024 decemberében Neonra költözött ([postgres](https://vercel.com/docs/postgres)). | Netlify Database (GA 2026 áprilisától): 3 DB, 48 CU/időszak, a krediteket fogyasztja ([billing](https://docs.netlify.com/build/data-and-storage/netlify-database/billing-and-usage/)) |
 | Felhasználási feltétel | A Hobby **csak nem kereskedelmi, személyes használatra** szól ([fair use](https://vercel.com/docs/limits/fair-use-guidelines)). A személyes tippelőeszköz, hirdetés és bevétel nélkül, ennek megfelel. | A free csomagban nincs ilyen kikötés a dokumentációban (a ToS-t nem olvastuk: **nem ellenőrzött**) |
 
-**Javaslat: Vercel Hobby.** Indoklás:
+**Döntés (tulajdonos, 2026-11-12): Vercel Hobby.** Indoklás:
 
 - A 300 s-os futásidő **elég egy szerializált, ≤ 9 hívás/perces hívássorozathoz**, amely
   egy futásban kb. 20–30 hívást is elbír. A Netlify 30 s-os ütemezett limitje alatt csak
