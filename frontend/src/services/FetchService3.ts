@@ -10,8 +10,8 @@ class FetchService {
 	public async get(url: string, sport: ISports = 'football') {
 		let myHeaders = new Headers();
 
-		const API_KEY = '91b0609029c3b070f6c0de0c6e7c8950';
-		const API_KEY_GINA = '4aa4db2cf2cad515253c1a2b0fc662a3';
+		// A kulcs a frontend/.env-ből jön (minta: .env.example) — kódba kulcsot nem írunk.
+		const API_KEY = process.env.REACT_APP_APISPORTS_KEY ?? '';
 
 		if (sport === 'football') myHeaders.append('x-rapidapi-host', 'v3.football.api-sports.io');
 		if (sport === 'basketball') myHeaders.append('x-rapidapi-host', 'v1.basketball.api-sports.io');

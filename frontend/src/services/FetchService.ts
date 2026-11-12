@@ -15,12 +15,8 @@ export class FetchService {
 	public async get(url: string, sport: ISports = 'football') {
 		let myHeaders = new Headers();
 
-		const API_KEY = '01b49a920dmshdacd49512f0f049p17b789jsn76a1f7b3dc2b';
-
-		// const API_KEY = '91b0609029c3b070f6c0de0c6e7c8950'; //! Felfüggesztett
-		// const API_KEY_GINA = '03b42b2fc40a33be1db3bc0bed500095';
-		// const API_KEY_ARTI = 'b4d77835ab635fee8c4f41232238a12e';
-		// const API_KEY_DOKI = '71c2c7f80df5560417830a80ed2cc2cd';
+		// A kulcs a frontend/.env-ből jön (minta: .env.example) — kódba kulcsot nem írunk.
+		const API_KEY = process.env.REACT_APP_RAPIDAPI_KEY ?? '';
 
 		this.MainStore.increaseFetchNumber();
 		// console.log('this.MainStore.fetchNumber', this.MainStore.fetchNumber);
