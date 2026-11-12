@@ -11,6 +11,7 @@ import { IInformations } from '../models/IInformations';
 import { IArbitrageRange } from '../models/IArbitrageRange';
 import { IArbitrageByBetType } from '../models/IArbitrageByBetType';
 import { Fixture } from '../../FixturePage/models/models';
+import { analyzeBookmakers } from '../../../core/arbitrage/analyzeBookmakers';
 
 // TODO cache data hogy egy nap többször lehessen használni
 
@@ -390,131 +391,8 @@ export class ArbitrageStore {
 		}
 	});
 
-	analyzeBookmaker = (bookmakers: Bookmaker[], betType: BETS_TYPES, expectGoals?: number): IArbitrage => {
-		let result: IArbitrage = {
-			highestOdds: null,
-			arbitrage: null,
-			name: betType
-		};
-		//? twoParams
-		const {
-			MindketCsapatGol,
-			HazaiVagyVendeg,
-			ElsoFelidoMindketCsapatGol,
-			MasodikFelidoMindketCsapatGol,
-			HazaiMindketFelidoGyozelem,
-			VendegMindketFelidoGyozelem,
-			GolokSzama,
-			HazaiGolokSzama,
-			VendegGolokSzama
-		} = BETS_TYPES;
-
-		const twoParams = [
-			HazaiVagyVendeg,
-			MindketCsapatGol,
-			ElsoFelidoMindketCsapatGol,
-			MasodikFelidoMindketCsapatGol,
-			HazaiMindketFelidoGyozelem,
-			VendegMindketFelidoGyozelem
-		];
-		const specialTwoParams = [GolokSzama, HazaiGolokSzama, VendegGolokSzama];
-
-		//? threeParams
-		const { Vegeredmeny, ElsoFelidoVegeredmeny, MasodikFelidoVegeredmeny } = BETS_TYPES;
-
-		const threeParams = [Vegeredmeny, ElsoFelidoVegeredmeny, MasodikFelidoVegeredmeny];
-
-		let twoParamsStructure: IHighestOdds[] = [
-			{ name: 'highestHome', bookmaker: '', odd: 0 },
-			{ name: 'highestAway', bookmaker: '', odd: 0 }
-		];
-		let threeParamsStructure: IHighestOdds[] = [
-			{ name: 'highestHome', bookmaker: '', odd: 0 },
-			{ name: 'highestDraw', bookmaker: '', odd: 0 },
-			{ name: 'highestAway', bookmaker: '', odd: 0 }
-		];
-
-		// TODO: 'Goals Over/Under' {value: 'Over 3.5', odd: '2.55'},  {value: 'Under 4.5', odd: '1.20'}
-		//? Over 3.5 és Under 3.5 ods elemzése
-
-		// search highest odds / bookmaker / bet type
-		bookmakers.forEach((bookmaker: Bookmaker) => {
-			const selectedBet = bookmaker.bets.find((bet: Bet) => bet.name === betType);
-			if (!selectedBet) return;
-
-			if (twoParams.includes(betType)) {
-				selectedBet.values?.forEach((item: BetsValue, index) => {
-					const isHigherOdd = Number(item.odd) > twoParamsStructure[index].odd;
-
-					if (isHigherOdd) {
-						twoParamsStructure[index].name = item?.value;
-						twoParamsStructure[index].odd = Number(item.odd);
-						twoParamsStructure[index].bookmaker = bookmaker.name;
-					}
-				});
-				return;
-			}
-			if (threeParams.includes(betType)) {
-				selectedBet.values?.forEach((item: BetsValue, index) => {
-					const isHigherOdd = Number(item.odd) > threeParamsStructure[index].odd;
-
-					if (isHigherOdd) {
-						threeParamsStructure[index].name = item?.value;
-						threeParamsStructure[index].odd = Number(item.odd);
-						threeParamsStructure[index].bookmaker = bookmaker.name;
-					}
-				});
-				return;
-			}
-
-			// [{value: Over 2.5, odd: "2"}, {value: "Over 3.5", odd: "4"}]
-			if (specialTwoParams.includes(betType)) {
-				// TODO: dinamic
-				const searchGoalNumber = expectGoals;
-				const searchParams = [`Over ${searchGoalNumber}`, `Under ${searchGoalNumber}`];
-
-				searchParams.forEach((param: string, index: number) => {
-					const searchedItem = selectedBet.values.find((item: BetsValue) => item?.value === param);
-					const isHigherOdd = Number(searchedItem?.odd) > twoParamsStructure[index].odd;
-
-					if (isHigherOdd) {
-						twoParamsStructure[index].name = searchedItem?.value;
-						twoParamsStructure[index].odd = Number(searchedItem?.odd);
-						twoParamsStructure[index].bookmaker = bookmaker.name;
-					}
-				});
-
-				return;
-			}
-		});
-
-		// calculate arbitrage
-		if (twoParams.includes(betType)) {
-			twoParamsStructure.forEach((item: IHighestOdds) => {
-				result.arbitrage += 1 / Number(item.odd);
-			});
-			result.highestOdds = twoParamsStructure;
-		}
-		if (threeParams.includes(betType)) {
-			threeParamsStructure.forEach((item: IHighestOdds) => {
-				result.arbitrage += 1 / Number(item.odd);
-			});
-			result.highestOdds = threeParamsStructure;
-		}
-		if (specialTwoParams.includes(betType)) {
-			twoParamsStructure.forEach((item: IHighestOdds) => {
-				result.arbitrage += 1 / Number(item.odd);
-			});
-			result.highestOdds = twoParamsStructure;
-		}
-
-		result.arbitrage = Number(result.arbitrage.toFixed(3));
-
-		// console.log('result', result);
-		// console.log('this_Arbitrages', JSON.stringify(toJS(this.Arbitrages)));
-
-		return result;
-	};
+	analyzeBookmaker = (bookmakers: Bookmaker[], betType: BETS_TYPES, expectGoals?: number): IArbitrage =>
+		analyzeBookmakers(bookmakers, betType, expectGoals);
 
 	@computed get getArbitrages() {
 		let filteredItems = [...this.Arbitrages];

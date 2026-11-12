@@ -1,15 +1,6 @@
-export interface IHighestOdds {
-	name: string;
-	bookmaker: string;
-	odd: number;
-}
-
-export interface IArbitrage {
-	name: string;
-	highestOdds: IHighestOdds[];
-	arbitrage: number;
-	// betType: BetsNames
-}
+// Az arbitrázs-mag típusai a core-ban élnek; itt csak továbbexportáljuk a meglévő importok miatt.
+import type { IArbitrage, IHighestOdds } from '../../../core/arbitrage/types';
+export type { IArbitrage, IHighestOdds };
 
 export interface IAnalyzedFixture {
 	homeTeam?: string;
