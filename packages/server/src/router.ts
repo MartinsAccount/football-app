@@ -1,0 +1,111 @@
+import { utcDay, type BudgetStore } from '@football/api-client';
+import type { FixtureFilter, Repository } from '@football/db';
+
+/**
+ * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
+ * Node-szerveren (`scripts/dev.ts`) és később Vercel-függvényként. 0 külső hívás: minden a DB-ből jön.
+ * Az API-Football kulcs csak szerveroldali env-ben él; ez a réteg nem is látja.
+ */
+export interface ApiDeps {
+	repo: Pick<Repository, 'listFixtures' | 'getFixture' | 'getLatestOdds'>;
+	budget: Pick<BudgetStore, 'usage'>;
+	now?: () => Date;
+}
+
+export type ApiHandler = (req: Request) => Promise<Response>;
+
+export const DEFAULT_LIMIT = 200;
+export const MAX_LIMIT = 1000;
+
+const json = (status: number, body: unknown): Response =>
+	new Response(JSON.stringify(body), {
+		status,
+		headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
+	});
+
+const fail = (status: number, error: string, message: string) => json(status, { error, message });
+
+class BadRequest extends Error {}
+
+function intParam(q: URLSearchParams, name: string, opts: { min?: number; max?: number } = {}): number | undefined {
+	const raw = q.get(name);
+	if (raw === null || raw === '') return undefined;
+	if (!/^-?\d+$/.test(raw)) throw new BadRequest(`'${name}' egész szám legyen`);
+	const n = Number(raw);
+	if ((opts.min !== undefined && n < opts.min) || (opts.max !== undefined && n > opts.max))
+		throw new BadRequest(`'${name}' a [${opts.min ?? '-∞'}, ${opts.max ?? '∞'}] tartományon kívül esik`);
+	return n;
+}
+
+function dateParam(q: URLSearchParams, name: string): string | undefined {
+	const raw = q.get(name);
+	if (raw === null || raw === '') return undefined;
+	if (Number.isNaN(Date.parse(raw))) throw new BadRequest(`'${name}' nem értelmezhető dátum`);
+	return raw;
+}
+
+/** `?league&season&status=FT,NS&from&to&limit&offset` → szűrt, kezdési idő szerint rendezett meccslista. */
+export function parseFixtureQuery(q: URLSearchParams): { filter: FixtureFilter; limit: number; offset: number } {
+	const status = q
+		.get('status')
+		?.split(',')
+		.map((s) => s.trim())
+		.filter(Boolean);
+	const filter: FixtureFilter = {
+		leagueId: intParam(q, 'league', { min: 1 }),
+		season: intParam(q, 'season', { min: 1900, max: 2100 }),
+		status: status?.length ? status : undefined,
+		from: dateParam(q, 'from'),
+		to: dateParam(q, 'to')
+	};
+	return {
+		filter,
+		limit: intParam(q, 'limit', { min: 1, max: MAX_LIMIT }) ?? DEFAULT_LIMIT,
+		offset: intParam(q, 'offset', { min: 0 }) ?? 0
+	};
+}
+
+/** Ma még elkölthető hívás: ugyanaz a szabály, mint az `api_budget_reserve()`-ben (limit − tartalék − used, és a `/status` szerinti maradék). */
+export function remainingCalls(u: { used: number; limit: number; reserve: number; syncedRemaining: number | null }): number {
+	const local = u.limit - u.reserve - u.used;
+	return Math.max(0, u.syncedRemaining === null ? local : Math.min(local, u.syncedRemaining));
+}
+
+export function createApiHandler(deps: ApiDeps): ApiHandler {
+	const now = deps.now ?? (() => new Date());
+
+	return async (req) => {
+		const url = new URL(req.url);
+		const path = url.pathname.replace(/\/+$/, '');
+		if (req.method !== 'GET') return fail(405, 'method', 'Csak GET engedélyezett');
+		try {
+			if (path === '/api/fixtures') {
+				const { filter, limit, offset } = parseFixtureQuery(url.searchParams);
+				// TODO(polish): LIMIT/OFFSET SQL-ben, ha a lista nagy lesz (most a repo a teljes szűrt listát adja).
+				const all = await deps.repo.listFixtures(filter);
+				return json(200, { total: all.length, limit, offset, fixtures: all.slice(offset, offset + limit) });
+			}
+
+			const odds = /^\/api\/odds\/([^/]+)$/.exec(path);
+			if (odds) {
+				if (!/^\d+$/.test(odds[1])) throw new BadRequest('a fixtureId pozitív egész szám legyen');
+				const fixtureId = Number(odds[1]);
+				const fixture = await deps.repo.getFixture(fixtureId);
+				if (!fixture) return fail(404, 'not-found', `Nincs ilyen meccs: ${fixtureId}`);
+				return json(200, { fixtureId, snapshot: await deps.repo.getLatestOdds(fixtureId) });
+			}
+
+			if (path === '/api/budget') {
+				const day = utcDay(now());
+				const u = await deps.budget.usage(day);
+				return json(200, { day, ...u, remaining: remainingCalls(u) });
+			}
+
+			return fail(404, 'not-found', `Ismeretlen végpont: ${path}`);
+		} catch (e) {
+			if (e instanceof BadRequest) return fail(400, 'bad-request', e.message);
+			console.error('[api]', e);
+			return fail(500, 'internal', 'Szerverhiba');
+		}
+	};
+}

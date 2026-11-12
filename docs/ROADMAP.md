@@ -88,9 +88,9 @@
   Unibet) → `odds_snapshot(source = 'legacy-json')`; a `frontend/src/data/allMatch*_2020/2021.json`
   → `fixture`, `team`, `league`.
   *Ellenőrzés:* a sorok száma egyezik a fájlok elemszámával; a második futás 0 új sort ír.
-- [ ] **1.5 Olvasó API-végpontok:** `/api/fixtures`, `/api/odds/:fixtureId`, `/api/budget`
+- [x] **1.5 Olvasó API-végpontok:** `/api/fixtures`, `/api/odds/:fixtureId`, `/api/budget`
   (a DB-ből, 0 külső hívás), lokálisan futtatva.
-  *Ellenőrzés:* integrációs teszt a dev DB-n.
+  *Ellenőrzés:* integrációs teszt a dev DB-n. — **Kész (S10):** `packages/server` (Web Request→Response), PGlite-teszt + node:http integráció; a Vercel-belépési pont az 1.6-ban.
 - [ ] **1.6 Hosting és védelem:** deploy, env-ek, DB-integráció; platformvédelem és
   egyfelhasználós app-login (session cookie); a `/api/*` csak bejelentkezve érhető el.
   *Ellenőrzés:* bejelentkezés nélkül 401 vagy a platform belépési oldala jön; bejelentkezve

@@ -1,0 +1,24 @@
+{
+	"name": "@football/server",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Backend proxy: framework-free Web Request → Response handlers for the read API (/api/fixtures, /api/odds/:id, /api/budget) over @football/db. The API-Football key stays server-side.",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"dev": "vite-node scripts/dev.ts",
+		"test": "vitest",
+		"test:ci": "vitest run",
+		"typecheck": "tsc --noEmit",
+		"verify": "npm run typecheck && npm run test:ci"
+	},
+	"dependencies": {
+		"@football/api-client": "0.1.0",
+		"@football/db": "0.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.20.5"
+	}
+}
