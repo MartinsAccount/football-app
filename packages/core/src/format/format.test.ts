@@ -1,5 +1,6 @@
 import {
 	formatAge,
+	formatDayHeading,
 	formatEv,
 	formatFt,
 	formatKickoff,
@@ -72,6 +73,11 @@ describe('format (DESIGN §8)', () => {
 
 	it('dátum: ÉÉÉÉ.HH', () => {
 		expect(formatYearMonth(new Date('2025-04-20T18:00:00Z'))).toBe('2025.04');
+	});
+
+	it('oldalfejléc dátuma nagy kezdőbetűs nappal', () => {
+		expect(formatDayHeading(new Date('2026-11-12T10:00:00Z'))).toBe('Csütörtök, november 12.');
+		expect(formatDayHeading(new Date('2026-11-14T23:30:00Z'))).toBe('Vasárnap, november 15.');
 	});
 
 	it('eredmény és párosítás nagykötőjellel', () => {

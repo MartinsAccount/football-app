@@ -128,3 +128,13 @@ export const formatAge = (ageMs: number): string => {
 	if (hours < 48) return `${hours}${NBSP}órás`;
 	return `${Math.floor(hours / 24)}${NBSP}napos`;
 };
+
+/** Oldalfejléc dátuma (PageIntro): `Csütörtök, november 12.` */
+export const formatDayHeading = (date: Date, timeZone: string = DEFAULT_TIME_ZONE): string => {
+	const parts = new Intl.DateTimeFormat('hu-HU', { timeZone, weekday: 'long', month: 'long', day: 'numeric' }).formatToParts(
+		date
+	);
+	const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? '';
+	const weekday = get('weekday');
+	return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${get('month')} ${get('day')}.`;
+};
