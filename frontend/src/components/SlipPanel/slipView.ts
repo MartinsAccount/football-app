@@ -1,4 +1,13 @@
-import { formatFt, formatOdds, RiskLevel, SlipSummary, slipTypeName, TransferStatus } from '@football/core';
+import {
+	formatFt,
+	formatOdds,
+	formatPercent,
+	RiskLevel,
+	SlipPresetKind,
+	SlipSummary,
+	slipTypeName,
+	TransferStatus
+} from '@football/core';
 
 const RISK_LABEL: Record<RiskLevel, string> = { low: 'Alacsony', medium: 'Közepes', high: 'Magas' };
 const ORDINAL = ['', '', 'második', 'harmadik', 'negyedik', 'ötödik', 'hatodik', 'hetedik', 'nyolcadik', 'kilencedik', 'tizedik'];
@@ -31,3 +40,16 @@ export const TRANSFER_STATUS_TEXT: Record<TransferStatus, string> = {
 };
 
 export const transferFieldLabel = (minOdds: number): string => `Tippmix odds (min. ${formatOdds(minOdds)})`;
+
+/** Mobil szelvény-sáv szövege (DESIGN §6): „Szelvény · 2 tipp, dupla kötés” / „odds 3,10 · esély 39%”. */
+export const slipBarText = (summary: SlipSummary): { title: string; detail: string } => ({
+	title: `Szelvény · ${summary.legCount} tipp, ${slipTypeName(summary.legCount).toLowerCase()}`,
+	detail: `odds ${formatOdds(summary.combinedOdds)} · esély ${formatPercent(summary.probability)}`
+});
+
+/** Kész szelvény egymondatos indoklása (DESIGN §7.8). */
+export const PRESET_REASON: Record<SlipPresetKind, string> = {
+	single: 'A legnagyobb értékű tipp önmagában: a legnagyobb esély, kis szorzó.',
+	double: 'A két legjobb tipp kötésben: nagyobb szorzó, még vállalható esély.',
+	treble: 'A három legjobb tipp: nagy szorzó, de ritkán jön be.'
+};

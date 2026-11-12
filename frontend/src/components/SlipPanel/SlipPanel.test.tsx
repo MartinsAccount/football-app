@@ -54,4 +54,22 @@ describe('SlipPanel', () => {
 		expect(html).toContain('Megtettem – szelvény mentése');
 		expect(html).toMatch(/disabled=""/);
 	});
+
+	it('adds the mobile slip bar and opens the bottom sheet with the same content', () => {
+		const store = new SlipStore(memorySlipStorage());
+		let html = renderToStaticMarkup(<SlipPanel store={store} now={now} />);
+		expect(html).not.toContain('oe-slipbar');
+		store.toggle(a);
+		store.toggle(b);
+		html = renderToStaticMarkup(<SlipPanel store={store} now={now} />);
+		expect(html).toContain('Szelvény · 2 tipp, dupla kötés');
+		expect(html).not.toContain('role="dialog"');
+		store.openSheet();
+		store.openTransfer();
+		html = renderToStaticMarkup(<SlipPanel store={store} now={now} />);
+		expect(html).toContain('role="dialog"');
+		expect(html).not.toContain('class="oe-slipbar"');
+		expect(html).toContain('id="slip-tippmix-transfer-title"');
+		expect(html).toContain('id="sheet-tippmix-transfer-title"');
+	});
 });

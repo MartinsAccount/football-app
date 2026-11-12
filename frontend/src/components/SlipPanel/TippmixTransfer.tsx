@@ -14,18 +14,21 @@ interface ITippmixTransferProps {
 	onInput: (tipId: string, value: string) => void;
 	onSave: () => void;
 	onClose: () => void;
+	/** Egyedi id-előtag (asztali panel és mobil alsó lap egyszerre a DOM-ban). */
+	idPrefix?: string;
 }
 
 /**
  * DESIGN §7.7 – Tippmixre vitel: lábanként a beírt Tippmix-odds és állapota; az összesítő ezekkel számol újra.
  * Mentés = a megtett szelvény rögzítése (PRD 7.3); automatikus fogadásleadás nincs (PRD 8).
  */
-const TippmixTransfer = ({ rows, canSave, onInput, onSave, onClose }: ITippmixTransferProps) => {
+const TippmixTransfer = ({ rows, canSave, onInput, onSave, onClose, idPrefix = 'slip' }: ITippmixTransferProps) => {
+	const titleId = `${idPrefix}-tippmix-transfer-title`;
 	const below = rows.filter((r) => r.status === 'below');
 	return (
-		<section className="flex flex-col" style={listStyle} aria-labelledby="tippmix-transfer-title">
+		<section className="flex flex-col" style={listStyle} aria-labelledby={titleId}>
 			<div className="flex justify-between items-baseline">
-				<h3 className="oe-label" id="tippmix-transfer-title">
+				<h3 className="oe-label" id={titleId}>
 					Tippmixre viszem
 				</h3>
 				<button className="oe-btn" type="button" onClick={onClose}>

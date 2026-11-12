@@ -80,6 +80,8 @@ export class SlipStore {
 	@observable stake: number = DEFAULT_STAKE;
 	@observable inputs = observable.map<string, string>();
 	@observable transferOpen = false;
+	/** Mobilon (< 640 px) nyitva van-e az alsó lap. */
+	@observable sheetOpen = false;
 	@observable.shallow saved: ISavedSlip[];
 	/** Az utoljára mentett szelvény azonosítója (visszajelzéshez). */
 	@observable lastSavedId: string | null = null;
@@ -129,6 +131,29 @@ export class SlipStore {
 		this.tips = this.tips.filter((t) => t.id !== tipId);
 		this.inputs.delete(tipId);
 		if (this.tips.length === 0) this.transferOpen = false;
+	}
+
+	/** Kész szelvény (SlipPresets, DESIGN §7.8) betöltése: lecseréli a lábakat, utána szabadon szerkeszthető. */
+	@action applyPreset(tips: readonly ITip[]) {
+		const legs: ITip[] = [];
+		for (const tip of tips) if (!legs.some((l) => l.fixtureId === tip.fixtureId)) legs.push(tip);
+		this.tips = legs;
+		this.inputs.clear();
+		this.transferOpen = false;
+		this.lastSavedId = null;
+	}
+
+	/** Igaz, ha a szelvény pontosan ezekből a tippekből áll (a kiválasztott preset jelölése). */
+	hasExactly = (tipIds: readonly string[]): boolean =>
+		tipIds.length === this.tips.length && tipIds.every((id) => this.isSelected(id));
+
+	/** Mobil alsó lap (DESIGN §7.9). */
+	@action openSheet() {
+		this.sheetOpen = true;
+	}
+
+	@action closeSheet() {
+		this.sheetOpen = false;
 	}
 
 	@action setStake(stake: number) {

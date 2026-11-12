@@ -66,4 +66,19 @@ describe('SlipStore', () => {
 		expect(store.transferOpen).toBe(false);
 		expect(store.inputs.size).toBe(0);
 	});
+
+	it('applies a preset (one tip per fixture), clears inputs, and opens/closes the sheet', () => {
+		const store = new SlipStore(memorySlipStorage());
+		store.toggle(c);
+		store.setTippmixInput(c.id, '1,9');
+		store.applyPreset([a, b, { ...b, id: 'dup' }]);
+		expect(store.tips.map((t) => t.id)).toEqual([a.id, b.id]);
+		expect(store.inputs.size).toBe(0);
+		expect(store.hasExactly([b.id, a.id])).toBe(true);
+		expect(store.hasExactly([a.id])).toBe(false);
+		store.openSheet();
+		expect(store.sheetOpen).toBe(true);
+		store.closeSheet();
+		expect(store.sheetOpen).toBe(false);
+	});
 });

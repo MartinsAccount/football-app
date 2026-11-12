@@ -7,6 +7,8 @@ import SlipLegs from './SlipLegs';
 import SlipTotals from './SlipTotals';
 import StakeSelector from './StakeSelector';
 import TippmixTransfer from './TippmixTransfer';
+import SlipBar from './SlipBar';
+import BottomSheet from './BottomSheet';
 import { v } from '../../design/tokens/tokens';
 import { singlesNote, slipHeadText } from './slipView';
 
@@ -26,8 +28,10 @@ class SlipPanel extends Component<ISlipPanelProps> {
 	openTransfer = () => this.props.store.openTransfer();
 	closeTransfer = () => this.props.store.closeTransfer();
 	save = () => this.props.store.save();
+	openSheet = () => this.props.store.openSheet();
+	closeSheet = () => this.props.store.closeSheet();
 
-	renderBody() {
+	renderBody(idPrefix: string) {
 		const { store, now } = this.props;
 		const { summary, stake } = store;
 		if (!summary) {
@@ -62,6 +66,7 @@ class SlipPanel extends Component<ISlipPanelProps> {
 						onInput={this.setInput}
 						onSave={this.save}
 						onClose={this.closeTransfer}
+						idPrefix={idPrefix}
 					/>
 				) : (
 					<button className="oe-btn oe-btn--primary oe-btn--cta" type="button" onClick={this.openTransfer}>
@@ -72,16 +77,34 @@ class SlipPanel extends Component<ISlipPanelProps> {
 		);
 	}
 
-	render() {
+	renderContent(idPrefix: string) {
 		const count = this.props.store.tips.length;
 		return (
-			<aside className="oe-split__aside oe-slip" aria-label="Szelvény">
+			<>
 				<div className="oe-slip__head">
 					<h2 className="oe-h2">Szelvényem</h2>
 					{count > 0 && <span className="oe-muted text-small">{slipHeadText(count)}</span>}
 				</div>
-				<div className="oe-slip__body">{this.renderBody()}</div>
-			</aside>
+				<div className="oe-slip__body">{this.renderBody(idPrefix)}</div>
+			</>
+		);
+	}
+
+	/** Asztalon oldalsáv; < 640 px-en (DESIGN §6, §7.9) helyette SlipBar + BottomSheet ugyanezzel a tartalommal. */
+	render() {
+		const { store } = this.props;
+		const { summary, sheetOpen } = store;
+		return (
+			<>
+				<aside className="oe-split__aside oe-slip oe-slip--desktop" aria-label="Szelvény">
+					{this.renderContent('slip')}
+				</aside>
+				{summary && <div className="oe-slipbar-spacer" aria-hidden="true" />}
+				{summary && !sheetOpen && <SlipBar summary={summary} onOpen={this.openSheet} />}
+				<BottomSheet open={sheetOpen} label="Szelvény" onClose={this.closeSheet}>
+					<div className="oe-slip">{this.renderContent('sheet')}</div>
+				</BottomSheet>
+			</>
 		);
 	}
 }

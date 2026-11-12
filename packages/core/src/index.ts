@@ -10,6 +10,7 @@ export * from './model/poisson';
 export * from './model/eloPoisson';
 export * from './format/format';
 export * from './slip/slip';
+export * from './slip/presets';
 export * from './features/types';
 export * from './features/form';
 export * from './features/homeAway';

@@ -193,3 +193,24 @@ button, input { font: inherit; color: inherit; }
 .oe-slipbar { position: fixed; left: var(--space-6); right: var(--space-6); bottom: var(--space-8); display: flex; align-items: center; gap: var(--space-6); min-height: 64px; padding: var(--space-5) var(--space-6) var(--space-5) var(--space-9); border-radius: var(--radius-sheet); background: var(--color-accent-default); color: var(--color-text-inverse); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ── Kész szelvények (SlipPresets, §7.8) ─────────────── */
+.oe-presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--size-card-min)), 1fr)); gap: var(--space-6); }
+.oe-preset { display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-8); border-radius: var(--radius-xl); background: var(--color-bg-surface); border: 1px solid var(--color-border-default); color: var(--color-text-primary); text-align: left; cursor: pointer; font: inherit; }
+.oe-preset:hover { border-color: var(--color-text-muted); }
+.oe-preset[data-recommended="true"] { border-color: var(--color-accent-default); }
+.oe-preset__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.oe-badge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); background: var(--color-bg-raised); color: var(--color-text-secondary); font-size: var(--font-size-micro); font-weight: var(--font-weight-bold); }
+.oe-badge--accent { background: var(--color-accent-default); color: var(--color-text-inverse); }
+.oe-preset__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+
+/* ── Mobil szelvény (§6, §7.9): < 640 px sáv + alsó lap, fölötte oldalsáv ── */
+.oe-slipbar__text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; font-size: var(--font-size-small); }
+.oe-slipbar__text strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oe-slipbar .oe-btn { flex: none; background: var(--color-text-inverse); border-color: var(--color-text-inverse); color: var(--color-text-primary); }
+.oe-sheet__top { display: flex; justify-content: flex-end; padding: 0 var(--space-6); }
+.oe-sheet .oe-slip { border: 0; border-radius: 0; background: transparent; }
+.oe-slipbar-spacer { flex: 1 0 100%; height: calc(64px + var(--space-8)); }
+@media (min-width: 640px) { .oe-slipbar, .oe-slipbar-spacer, .oe-sheet, .oe-sheet-backdrop { display: none; } }
+@media (max-width: 639.98px) { .oe-slip--desktop { display: none; } }
+.oe-slipbar, .oe-sheet-backdrop, .oe-sheet { z-index: 20; }
