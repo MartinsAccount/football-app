@@ -15,6 +15,7 @@ import type {
 	PredictionRunInput,
 	Season,
 	Team,
+	TeamAlias,
 	UpsertResult
 } from './types';
 
@@ -26,6 +27,8 @@ export interface Repository {
 	upsertLeagues(rows: League[]): Promise<UpsertResult>;
 	upsertSeasons(rows: Season[]): Promise<UpsertResult>;
 	upsertTeams(rows: Team[]): Promise<UpsertResult>;
+	upsertTeamAliases(rows: TeamAlias[]): Promise<UpsertResult>;
+	listTeamAliases(source: string): Promise<TeamAlias[]>;
 	upsertBookmakers(rows: Bookmaker[]): Promise<UpsertResult>;
 	upsertMarkets(rows: Market[]): Promise<UpsertResult>;
 

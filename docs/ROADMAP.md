@@ -164,7 +164,7 @@
   elosztva.
   *Ellenőrzés:* a backfill-állapot a dashboardon; a napi működés közben nem marad ki egy
   snapshot sem.
-- [ ] **4.2 football-data.co.uk import:** CSV → `odds_snapshot(source = 'football-data-csv',
+- [x] **4.2 football-data.co.uk import:** (S11b, 5330/5330 párosítva) CSV → `odds_snapshot(source = 'football-data-csv',
   kind = opening/closing)` + a meccsek párosítása; `team_alias` mapping.
   *Ellenőrzés:* a párosítási arány ≥ 99% a lefedett ligákra; a párosítatlanokról lista készül.
 - [ ] **4.3 `standing_derived`:** pont-idejű tabella a meccsekből (`as_of`).

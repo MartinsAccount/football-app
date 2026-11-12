@@ -18,6 +18,7 @@ import {
 	type PredictionRunInput,
 	type Season,
 	type Team,
+	type TeamAlias,
 	type UpsertResult
 } from './types';
 
@@ -71,6 +72,16 @@ const TEAM: UpsertSpec<Team> = {
 		{ field: 'code', column: 'code', fallback: null },
 		{ field: 'country', column: 'country', fallback: null },
 		{ field: 'logoUrl', column: 'logo_url', fallback: null }
+	]
+};
+
+const TEAM_ALIAS: UpsertSpec<TeamAlias> = {
+	table: 'team_alias',
+	key: ['source', 'name'],
+	cols: [
+		{ field: 'source', column: 'source' },
+		{ field: 'name', column: 'name' },
+		{ field: 'teamId', column: 'team_id' }
 	]
 };
 
@@ -182,6 +193,16 @@ export class SqlRepository implements Repository {
 	}
 	upsertTeams(rows: Team[]) {
 		return this.upsert(TEAM, rows);
+	}
+	upsertTeamAliases(rows: TeamAlias[]) {
+		return this.upsert(TEAM_ALIAS, rows);
+	}
+	async listTeamAliases(source: string): Promise<TeamAlias[]> {
+		const { rows } = await this.db.query<{ source: string; name: string; team_id: number | string }>(
+			'SELECT source, name, team_id FROM team_alias WHERE source = $1 ORDER BY name',
+			[source]
+		);
+		return rows.map((r) => ({ source: r.source, name: r.name, teamId: Number(r.team_id) }));
 	}
 	upsertBookmakers(rows: Bookmaker[]) {
 		return this.upsert(BOOKMAKER, rows);

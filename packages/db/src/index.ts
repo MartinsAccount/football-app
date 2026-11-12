@@ -6,3 +6,15 @@ export { openMemoryRepository } from './memory';
 export * from './types';
 export { importLegacy, mapLegacyFixtures, mapLegacyOdds, parseSelection } from './import/legacy';
 export type { LegacyFixturesFile, LegacyOddsFile, LegacyImportReport } from './import/legacy';
+export {
+	CSV_BOOKMAKERS,
+	CSV_MARKETS,
+	CSV_SOURCE,
+	DIV_LEAGUE,
+	csvRowSnapshots,
+	matchCsvRows,
+	normalizeTeamName,
+	parseCsvDate,
+	parseFootballDataCsv
+} from './import/footballData';
+export type { CsvMatchRow, MatchResult } from './import/footballData';

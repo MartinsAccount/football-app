@@ -24,6 +24,13 @@ export interface Team {
 	logoUrl?: string | null;
 }
 
+/** Külső forrás csapatneve → csapat (pl. football-data CSV „Man United”). */
+export interface TeamAlias {
+	source: string;
+	name: string;
+	teamId: number;
+}
+
 export interface Bookmaker {
 	id: number;
 	name: string;
@@ -156,6 +163,7 @@ export const COUNTABLE_TABLES = [
 	'league',
 	'season',
 	'team',
+	'team_alias',
 	'bookmaker',
 	'market',
 	'fixture',

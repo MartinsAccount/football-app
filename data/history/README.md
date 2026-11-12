@@ -10,4 +10,5 @@ Nyers, változatlan forrásfájlok; soha ne kérd le újra őket.
 Ligák: 39 Premier League (`E0`), 61 Ligue 1 (`F1`), 78 Bundesliga (`D1`), 135 Serie A (`I1`), 140 La Liga (`SP1`). Szezon: API
 `2022` = CSV `2223`.
 
-DB-be: `npm run import:history -w @football/db` (meccsek). A CSV-oddsok importja: S11b.
+DB-be: `npm run import:history -w @football/db` (meccsek), utána `npm run import:odds-csv -w @football/db` (CSV-odds →
+`odds_snapshot` opening_csv/closing_csv + `team_alias`; a párosítatlan sorok listája: `unmatched-csv.json`).
