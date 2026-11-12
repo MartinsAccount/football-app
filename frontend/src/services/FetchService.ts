@@ -1,4 +1,6 @@
 import { MainStore } from '../stores/MainStore';
+import { isFixtureMode } from './dataMode';
+import { resolveFixture } from './fixtures/fixtureResolver';
 
 type ISports = 'football' | 'baseball' | 'basketball';
 
@@ -13,6 +15,9 @@ export class FetchService {
 	}
 
 	public async get(url: string, sport: ISports = 'football') {
+		// Fixture-mód: mentett válasz, nincs élő hívás és nem nő a fetchNumber (ROADMAP 0.5).
+		if (isFixtureMode()) return resolveFixture(url);
+
 		let myHeaders = new Headers();
 
 		// A kulcs a frontend/.env-ből jön (minta: .env.example) — kódba kulcsot nem írunk.

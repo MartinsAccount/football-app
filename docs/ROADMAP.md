@@ -45,10 +45,11 @@
   és gólvonalas eset). Ezt a munkát az 1.1 szelet `packages/core`-ba viszi tovább.
   *Ellenőrzés:* `npm test` zöld; az arbitrázsoldal a cache-ből változatlanul renderel.
   — `d566310`: 8 teszt; javítva: a vártnál több kimenetel nem dob hibát.
-- [ ] **0.5 Mock- és fixture mód:** a meglévő valós API-válaszokból
+- [x] **0.5 Mock- és fixture mód:** a meglévő valós API-válaszokból
   (`frontend/src/data/*.json`, `backend/stores/*.json`) fixture-ök készülnek; kapcsoló
   (`USE_FIXTURES=true`), hogy fejlesztés közben **0 élő hívás** menjen.
   *Ellenőrzés:* mock módban a `MainStore.fetchNumber` értéke 0 marad egy teljes oldalbejárás után.
+  — kész: kapcsoló `VITE_DATA_MODE=fixture|live` (alap fixture), `frontend/src/services/fixtures/fixtureResolver.ts`, 9 teszt.
 - [x] **0.6 Dokumentáció rendbetétele:** az ADR-ek egy helyre kerülnek (`docs/fe/adr/` →
   `docs/adr/`), és a hivatkozásuk is javul; ADR-sablon; a `CLAUDE.md` naprakészen tartása.
   *Ellenőrzés:* nincs törött relatív link a `docs/` alatt.
