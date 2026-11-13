@@ -9,3 +9,5 @@ Autonóm mód, a tulajdonos nincs jelen. Ne kérdezz.
    következővel folytasd.
 5. Ha a GOAL-M1.md végállapota teljesül, vagy egy leállási feltétel áll fenn, írd a STATE.md-be
    külön sorba: ALL_DONE
+6. Ha induláskor a munkafa nem tiszta (`git status`), az az előző, félbeszakadt kör munkája a
+   lista első szeletén: nézd át, fejezd be, ellenőrizd és commitold — ne dobd el.
