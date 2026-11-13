@@ -4,9 +4,10 @@
 
 ## Aktuális fázis
 
-M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesül.
+M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesül. ALL_DONE M1
 
-ALL_DONE M1
+**Most: „Floodlight v0.2” redesign** (S25–S30). Terv: `docs/plans/redesign-floodlight-v0.2.md` (a tulajdonos jóváhagyta,
+2026-11-13); csomag: `docs/design/floodlight-v0.2/` (DESIGN.md, CHANGES.md „Kész, ha” pontok, screens/, reference/).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 
@@ -22,8 +23,20 @@ H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
 
-(üres – az M1 kész; az M2 szeleteit a ROADMAP 1.6 (Vercel `api/`), 6.x/7.x (modell-illesztés), 8.3 (régi oldalak törlése) alapján
-kell felvenni)
+Minden szeletnél: a terv „Szeletek” pontja + CHANGES.md megfelelő fejezete. Screenshot: sötét + világos × 1440 + 390
+(`?theme=light|dark`) → `docs/plans/screens/<szelet>-<oldal>-<téma>-<szélesség>.png`, összevetés a csomag screens/-ével.
+Adatot nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / modell / ingestion / DB-séma nem változik.
+
+1. **S25 – Tokenek és téma** (CHANGES 0.): v0.2 tokens + components.css (vendor, változatlan), DESIGN.md csere, data-theme +
+   villanásmentes inline script, ThemeStore (MobX, `oe-theme`), fejléc-váltó, kieső osztályok/tokenek kiváltása
+   (Tailwind-utility tokenből), ADR: Tailwind + Floodlight komponens-CSS. A v0.2 `reference/*.html` → `src/design/reference/`
+   (a v0.1 `components.html` helyett, CLAUDE.md hivatkozás frissítése).
+2. **S26 – Közös keret** (CHANGES 1.): fejléc/nav/`.oe-status-pill`, `PageHead` (kompakt cím + meta-chipek), semleges kiválasztás.
+3. **S27a – Ma: tippkártya + adat-állapot sor** (CHANGES 2.1, 2.4, 2.5).
+4. **S27b – Ma: szelvény + presetek** (CHANGES 2.2, 2.3; core preset/„minden N-edik” tesztekkel).
+5. **S28 – Kiértékelés** (CHANGES 3.; core goals/verdict tesztekkel).
+6. **S29 – Arbitrázs** (CHANGES 4.; core kerekítés-címke teszttel).
+7. **S30 – Beállítások** (CHANGES 5.).
 
 ## Kész
 
