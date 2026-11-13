@@ -168,6 +168,8 @@ tételek).
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- **Supabase él (2026-11-13).** `DATABASE_URL` a gyökér `.env`-ben (Session pooler, eu-west-3). `npm run db:migrate -w @football/db` (NODE_OPTIONS=--use-system-ca, sandboxon kívül) idempotens; 0001–0005 alkalmazva, RLS minden táblán (policy nincs → anon kulccsal zárva). Adapter: `openPg()` (`src/pg.ts`). Következő: az importok (`import:history`, `import:odds-csv`) Supabase-célra + a server Postgres-adaptere.
+
 - **M6 Expo-váz kész.** `cd apps/mobile && npm install` (külön, nem workspace; `NODE_OPTIONS=--use-system-ca`, sandboxon kívül, lassú hálózat: ~25 perc). Ellenőrzés: `npx tsc --noEmit` + `npx expo export --platform android` (a `dist/` git-ignored, töröld). Új megosztott csomag mobilon: a `metro.config.js` `shared` listájába + `tsconfig.json` `paths`. A megosztott csomag nem importálhat külső npm-függőséget (a Metro csak az apps/mobile/node_modules-ból old fel). APK + éles API → BLOCKERS. Következő: M7 (11.7+).
 
 - **M5 `packages/theme` kész.** Mobilon: `import { rnTheme } from '@football/theme'` (függőség nélküli, TS-forrás). A forrás

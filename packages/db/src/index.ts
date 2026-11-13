@@ -1,5 +1,7 @@
 export { MIGRATIONS_DIR, loadMigrations, migrate } from './migrate';
 export type { Migration, SqlExecutor } from './migrate';
+export { openPg, readDatabaseUrl } from './pg';
+export type { PgExecutor } from './pg';
 export type { Repository } from './repository';
 export { SqlRepository } from './sqlRepository';
 export { openMemoryRepository } from './memory';

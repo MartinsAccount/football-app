@@ -119,3 +119,5 @@
 | 2026-11-13 | M6: mit mutat az „Ajánlások” képernyő | a `listFixtures({ limit: 50 })` meccslistáját (kezdés, státusz, eredmény); csapatnév helyett `#id` | az olvasó API-nak még nincs ajánlás-végpontja, a `FixtureDto` csak csapat-id-t ad (TODO(polish)) | igen |
 | 2026-11-13 | M6: a base URL tárolása | a tokennel együtt `expo-secure-store`-ban | egy helyen a kapcsolat; nem titok, de így egyszerűbb | nem |
 | 2026-11-13 | M6: az apps/mobile prettier-formázása | nincs a gyökér format-globban (`{frontend,packages}`); a kód a gyökér `.prettierrc` stílusát követi | a gyökér verify ne függjön a külön telepített apptól | nem |
+| 2026-11-13 | Supabase: melyik kapcsolat | Session pooler (5432), egyetlen `pg.Client` (`openPg`), `DATABASE_URL` env vagy gyökér `.env` | a Direct connection free csomagon csak IPv6; a `migrate()` tranzakciója egy sessiont igényel | nem |
+| 2026-11-13 | Supabase: TLS-ellenőrzés | `ssl: { rejectUnauthorized: false }` (titkosított, nem ellenőrzött) | a Supabase saját CA-t használ; a CA-fájl bekötése TODO(polish) | igen |
