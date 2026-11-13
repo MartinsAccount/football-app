@@ -5,6 +5,7 @@ import './design/components/components.css';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { registerServiceWorker } from './pwa/registerServiceWorker';
 
 // <React.StrictMode>
 
@@ -19,3 +20,5 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+registerServiceWorker();

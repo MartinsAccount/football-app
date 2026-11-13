@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+	<!-- Odds elemző ikon (Floodlight: bg.canvas #0B1220, accent #35E0C2). PNG-k: headless Edge-dzsel renderelve (docs/STATE.md). -->
+	<rect width="512" height="512" rx="112" fill="#0B1220" />
+	<g transform="translate(256 256)" fill="none" stroke="#35E0C2">
+		<circle r="168" stroke-width="28" />
+		<path d="M0 -168 V168 M-168 0 H168" stroke-width="14" opacity=".5" />
+	</g>
+	<circle cx="256" cy="256" r="52" fill="#35E0C2" />
+</svg>

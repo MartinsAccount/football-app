@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { MainStore } from '../../stores/MainStore';
 import LoadingScreen from '../LoadingScreen/LoadingScreen';
 import AppHeader from './AppHeader';
+import OfflineIndicator from './OfflineIndicator';
 
 interface IAppShellProps {
 	MainStore?: MainStore;
@@ -19,6 +20,7 @@ class AppShell extends Component<IAppShellProps> {
 			<div className="oe-container">
 				{MainStore.isLoading && <LoadingScreen />}
 				<AppHeader />
+				<OfflineIndicator />
 				<main>{children}</main>
 			</div>
 		);

@@ -33,12 +33,11 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 **Mobil (ROADMAP 11):**
 
-1. **M1 PWA** (11.1) – manifest, ikonok, `public/sw.js`, offline-jelző.
-2. **M2 `packages/contract`** (11.2) – DTO-típusok + `createApiClient`.
-3. **M3 Bearer auth** (11.3) – `packages/server`, `APP_API_TOKEN_HASH`, token-script.
-4. **M4 Hordozható állapot** (11.4) – Settings/Slip/Theme tiszta logika a core-ba, async `KeyValueStorage`.
-5. **M5 `packages/theme`** (11.5) – RN-téma a tokenekből.
-6. **M6 Expo-váz** (11.6) – `apps/mobile`, Ajánlások képernyő.
+1. **M2 `packages/contract`** (11.2) – DTO-típusok + `createApiClient`.
+2. **M3 Bearer auth** (11.3) – `packages/server`, `APP_API_TOKEN_HASH`, token-script.
+3. **M4 Hordozható állapot** (11.4) – Settings/Slip/Theme tiszta logika a core-ba, async `KeyValueStorage`.
+4. **M5 `packages/theme`** (11.5) – RN-téma a tokenekből.
+5. **M6 Expo-váz** (11.6) – `apps/mobile`, Ajánlások képernyő.
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).
@@ -87,9 +86,14 @@ tételek).
 | S27a – Tippkártya + adat-állapot | (lásd git log: feat(ui): redesign tip card)                     | `.oe-hero` + `PageIntro/DataState.tsx` (`dataState(snapshot)`: „Mentett adat · 2025. ápr. 12–13.”, „Odds 17 órás”, „Mit jelent?”), EngineBanner törölve; TipCard a referencia sorrendjében (`.oe-decision`, `ProbabilityTile` `--p`/`--m`, `.oe-tip__details` hidden, `.oe-tip__source`); core `formatDateRange`; tabella-zónák nélkül; `frontend/scripts/shots.mjs`                                                                                                                                                                                       |
 | S28 – Kiértékelés                | (lásd git log: feat(ui): evaluation verdict)                    | core `evaluation/goals.ts` (`evaluateGoals` 5 PRD-cél ok/fail/info, ROI < 300 tipp → info, `roiInterval`, `ciScale`, `calibrationDotSize`, `calibrationFlags`, `calibrationError`) + `verdict.ts` (`evaluationVerdict`: tónus §8.3, cím, 2 mondat számokkal; teszt: mostani számok → negative, 2/5); core `formatClv`/`formatSignedDecimal`; oldal `.oe-stack`: fej → `.oe-verdict` → sikermutatók → KPI-k → pontosság → kalibráció (`.oe-chart` + `.oe-calib-row`) → bontás; `EvaluationSections.tsx`; screenshot `docs/plans/screens/s28-*` (+ `-gol25`) |
 | S29 – Arbitrázs                  | (lásd git log: fix(arbitrage): label by rounded payout)         | core `arbitrageStakes` → `staked` + `band` (arb csak Σ<1 és kerekítve `worstPayout ≥ staked`), `roundedBand`; teszt: Monza–Napoli odds → „near”; view: címke/szűrő/számlálók a kerekített sávból (`arbitrageTiles(snap,total)`), `historicalNotice(source)`, `ARBITRAGE_SUBTITLE` chip; `PageHead` `notice` slot (`.oe-pill--warning`), szűrők a fej jobb oldalán; kártya `.oe-tip`; `cardSelected` törölve; screenshot `docs/plans/screens/s29-*`                                                                                                         |
+| M1 – PWA (11.1)                  | (lásd git log: feat(pwa): add manifest, service worker)         | `public/manifest.json` (Odds elemző, hu, standalone, canvas #0B1220), ikonok `public/icons/` (SVG forrás → headless Edge PNG 192/512/maskable 512); `public/sw.js` (shell precache + verziózott cache, `/api/*` és `*.json` network-first, navigáció → `index.html` fallback, egyéb azonos originű GET cache-first); `vite.config.ts` `pwaPrecache` plugin tölti a precache-listát/BUILD_ID-t; szabály: `src/pwa/cacheStrategy.ts` (teszt veti össze a sw.js-sel); `OfflineIndicator` az AppShellben; screenshot `docs/plans/screens/m1-*`                 |
 | S30 – Beállítások                | (lásd git log: feat(ui): settings sections)                     | szekció-menü (`SettingsNav`: asztalon bal oszlop, mobilon görgethető chip-sor, `aria-current` semleges); `missingCoverage` (csak a hiány, `.oe-pill--warning`); piac/iroda/liga jelölőnégyzetes tömör sorok; Megjelenés `.oe-segmented` → `ThemeStore.setPreference`; `SettingsStore` `saved`/`draft`/`dirty`/`save`/`discard`, localStorage csak mentéskor, szelvény a mentettet követi; `SaveBar` + `settingsDiff`; `toggleBtn` törölve; screenshot `s30-*`, `s30-*-mentes`, záró `s30-final-*` (16)                                                     |
 
 ## Polish backlog
+
+- PWA (M1): nincs „új verzió elérhető” jelzés (a SW `skipWaiting`-gel azonnal vált, a következő betöltés kapja); a lusta chunkok
+  csak első megnyitáskor kerülnek a cache-be (az adott oldal offline csak akkor megy, ha online már megnyitottad); nincs
+  világos-téma `theme_color` a manifestben (a meta-t a ThemeStore állítja).
 
 - Kiértékelés (S28): kalibráció csak összesítve (szegmensnél „összesített adat” pill); PRD 9 „saját modell vs. API /predictions”
   sor nincs (nincs adat); a bontás-sorok gombja 44 px → magas sorok; a táblák `--min` 600 px (referencia 640/720); a pozitív
@@ -152,6 +156,11 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **M1 PWA kész.** A SW csak prod-buildben regisztrál (`src/pwa/registerServiceWorker.ts`, `<html data-sw="registered">`). A
+  cache-szabály a `cacheStrategy.ts` `SW-SHARED` blokkjában él, a `public/sw.js` szó szerinti másolata – mindkettőt együtt
+  módosítsd (a teszt elbukik, ha eltérnek). Ellenőrzés: `npm run build` + `vite preview` + CDP-script (offline emulációval): 0
+  konzolhiba, offline reload a cache-ből megy és mutatja a jelzőt. Következő: M2 `packages/contract`.
 
 - **S30 kész, ALL_DONE Floodlight v0.2.** `SettingsStore`: `saved` (localStorage, ezt követi az app, pl. `stakeOptions` és a
   MainStore tét-reaction) vs. `draft` (űrlap); `save()`/`discard()`/`dirty`/`diff`. A téma nem része a piszkozatnak (`ThemeStore`

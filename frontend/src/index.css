@@ -6,3 +6,10 @@
 code {
 	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+/* PWA offline-jelző (M1): a fejléc alatt, a tartalom fölött. */
+.oe-offline {
+	display: flex;
+	justify-content: center;
+	margin-bottom: var(--space-6);
+}
