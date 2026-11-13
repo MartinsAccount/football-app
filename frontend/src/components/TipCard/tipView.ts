@@ -1,4 +1,4 @@
-import { formatPp, formatScore, MatchResult, NBSP } from '@football/core';
+import { formatPercent, formatScore, MatchResult, NBSP } from '@football/core';
 
 /** Egy forma-bejegyzés egy csapat szemszögéből (DESIGN §7.4–7.5). */
 export interface IFormEntry {
@@ -84,15 +84,28 @@ export const formChipTitle = (entry: IFormEntry): string =>
 		entry.goalsAgainst
 	)}`;
 
-/** Az érték-sor szövege; `positive` → accent kiemelés. */
-export const edgeText = (pModel: number, pMarket: number): { text: string; positive: boolean } => {
-	const pp = Math.round((pModel - pMarket) * 100);
-	return pp > 0
-		? { text: `${formatPp(pp)} érték a javunkra`, positive: true }
-		: { text: `${formatPp(pp)} a piachoz képest`, positive: false };
-};
-
 /** Sáv-szélesség CSS-értékként (0–100%), a `--p` változóhoz. */
 export const barWidth = (p: number): string => `${Math.round(Math.min(1, Math.max(0, p)) * 100)}%`;
 
 export const slipToggleText = (selected: boolean): string => (selected ? '✓ Szelvényen' : `+${NBSP}Szelvényre`);
+
+const OUTCOME_SIDE: Record<string, string> = { Home: 'hazai', Draw: 'döntetlen', Away: 'vendég' };
+
+/**
+ * A kártya piac-sora (DESIGN §6 Ma – tippkártya): a Tippmix-címke utolsó tagja a kimenet-badge, 1X2-nél a térfél nevével.
+ * „Végeredmény · 2” + Away → { market: 'Végeredmény', badge: '2 · vendég' }; „Gólok száma 2,5 · Alatt” → badge 'Alatt'.
+ */
+export const tipMarketParts = (tippmixLabel: string, outcome: string): { market: string; badge: string } => {
+	const cut = tippmixLabel.lastIndexOf(' · ');
+	const market = cut < 0 ? tippmixLabel : tippmixLabel.slice(0, cut);
+	const pick = cut < 0 ? outcome : tippmixLabel.slice(cut + 3);
+	const side = OUTCOME_SIDE[outcome];
+	return { market, badge: side ? `${pick} · ${side}` : pick };
+};
+
+/** Az esély-sáv felolvasása (DESIGN §10): „Szerintünk 36%, irodák szerint 33%”. */
+export const probabilityAriaLabel = (pModel: number, pMarket: number): string =>
+	`Szerintünk ${formatPercent(pModel)}, irodák szerint ${formatPercent(pMarket)}`;
+
+export const DISCLOSURE_CLOSED = 'Indoklás, tabella, egymás ellen';
+export const DISCLOSURE_OPEN = 'Részletek elrejtése';

@@ -3,12 +3,9 @@ import { IFormEntry, IH2HEntry, ITipTeam, RESULT_LETTER } from '../TipCard/tipVi
 
 // MatchDetails nézet-logika (DESIGN §7.5): csak csoportosítás és magyar szöveg, a számolás triviális összegzés.
 
-export type StripZone = 'cl' | 'eu' | 'rel' | 'mid' | 'home' | 'away';
+export type StripZone = 'mid' | 'home' | 'away';
 
 export const STRIP_CELL_CLASS: Record<StripZone, string> = {
-	cl: 'oe-strip__cell oe-strip__cell--cl',
-	eu: 'oe-strip__cell oe-strip__cell--eu',
-	rel: 'oe-strip__cell oe-strip__cell--rel',
 	mid: 'oe-strip__cell',
 	home: 'oe-strip__cell oe-strip__cell--home',
 	away: 'oe-strip__cell oe-strip__cell--away'
@@ -21,17 +18,14 @@ export const H2H_MAX = 5;
 export const H2H_MIN_RELIABLE = 4;
 
 /**
- * Tabella-sáv cellái (1. hely balra). Alapzónák: BL 1–4., európai kupa 5–6., kiesés az utolsó 3.
- * TODO(polish): ligánkénti zónák a `standings.description`-ből (core `Zone`), ha az ingestion menti.
+ * Tabella-sáv cellái (1. hely balra): csak a két csapat helye jelölt. Zóna-színezés (BL/EK/kiesés) nincs, amíg a ligánkénti
+ * `standings.description` nincs a forrásban (DECISIONS.md, S27a).
  */
 export const stripCells = (leagueSize: number, homeRank?: number, awayRank?: number): StripZone[] =>
 	Array.from({ length: leagueSize }, (_, i): StripZone => {
 		const pos = i + 1;
 		if (pos === homeRank) return 'home';
 		if (pos === awayRank) return 'away';
-		if (pos <= 4) return 'cl';
-		if (pos <= 6) return 'eu';
-		if (pos > leagueSize - 3) return 'rel';
 		return 'mid';
 	});
 

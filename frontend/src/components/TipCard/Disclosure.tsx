@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { DISCLOSURE_CLOSED, DISCLOSURE_OPEN } from './tipView';
 
 interface IDisclosureProps {
 	expanded: boolean;
@@ -12,7 +13,7 @@ interface IDisclosureProps {
 class Disclosure extends Component<IDisclosureProps> {
 	render() {
 		const { expanded, controlsId, onToggle } = this.props;
-		const { closedLabel = 'Forma, egymás elleni, tabella', openLabel = 'Részletek elrejtése' } = this.props;
+		const { closedLabel = DISCLOSURE_CLOSED, openLabel = DISCLOSURE_OPEN } = this.props;
 		return (
 			<button className="oe-disclosure" type="button" aria-expanded={expanded} aria-controls={controlsId} onClick={onToggle}>
 				<span>{expanded ? openLabel : closedLabel}</span>

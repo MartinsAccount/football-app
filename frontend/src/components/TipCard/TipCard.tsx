@@ -1,14 +1,9 @@
-import React, { Component, CSSProperties, ReactNode } from 'react';
-import { formatKickoff, formatPairing, NBSP } from '@football/core';
-import Disclosure from './Disclosure';
-import ProbabilityBars from './ProbabilityBars';
+import React, { Component, ReactNode } from 'react';
+import { formatEv, formatKickoff, formatOdds, formatPairing, NBSP } from '@football/core';
+import ProbabilityTile from './ProbabilityTile';
 import TeamForm from './TeamForm';
 import TipActions from './TipActions';
-import { confidenceText, ITip } from './tipView';
-import { v } from '../../design/tokens/tokens';
-
-const detailsStyle: CSSProperties = { gap: v('space.8') };
-const reasonsStyle: CSSProperties = { paddingLeft: v('space.10') };
+import { confidenceText, ITip, tipMarketParts } from './tipView';
 
 interface ITipCardProps {
 	tip: ITip;
@@ -20,11 +15,14 @@ interface ITipCardProps {
 	onToggleExpand: (tip: ITip) => void;
 	/** „Most” a relatív időpontokhoz (teszt / fixture-mód). */
 	now?: Date;
-	/** Lenyitott tartalom (S17: MatchDetails). */
+	/** Lenyitott tartalom az indoklás után (MatchDetails: `.oe-details` rács). */
 	children?: ReactNode;
 }
 
-/** DESIGN §7.4 – a fő egység: meta, cím, forma, valószínűségek, akciók, forrás, figyelmeztetések, lenyitó. */
+/**
+ * DESIGN §6 „Ma – tippkártya” (`reference/ma.html`): fej + nagy EV, döntési csempék, forma, figyelmeztetések, két gomb,
+ * lenyitva indoklás + részletek + forrás. A „Miért?” csip-sor rejtve: a pillanatképben nincs strukturált pp-adat (DECISIONS.md).
+ */
 class TipCard extends Component<ITipCardProps> {
 	toggleSlip = () => this.props.onToggleSlip(this.props.tip);
 	toggleExpand = () => this.props.onToggleExpand(this.props.tip);
@@ -32,53 +30,69 @@ class TipCard extends Component<ITipCardProps> {
 	render() {
 		const { tip, selected, expanded, blockedReason, now, children } = this.props;
 		const detailsId = `tip-details-${tip.id}`;
+		const { market, badge } = tipMarketParts(tip.tippmixLabel, tip.outcome);
+		const oddsAt = `${tip.bookmaker} · ${formatKickoff(tip.oddsAt, now)}`;
 		return (
-			<article className="oe-tip min-w-0" data-selected={selected} data-expanded={expanded}>
-				<div className="oe-tip__meta flex justify-between gap-sp-4">
-					<span className="truncate">
-						{tip.league} · {formatKickoff(tip.kickoff, now)}
-					</span>
-					<span className="shrink-0">{confidenceText(tip.confidence)}</span>
+			<article className="oe-tip min-w-0" data-selected={selected}>
+				<div className="oe-tip__head">
+					<div className="min-w-0">
+						<div className="oe-tip__meta">
+							{tip.league} · {formatKickoff(tip.kickoff, now)} · {confidenceText(tip.confidence)}
+						</div>
+						<h3 className="oe-tip__title">{formatPairing(tip.home.name, tip.away.name)}</h3>
+						<div className="oe-tip__market">
+							{market} <span className="oe-badge">{badge}</span>
+						</div>
+					</div>
+					<div className="oe-tip__ev">
+						<div className="oe-tip__ev-label">várható érték</div>
+						<div className="oe-tip__ev-value">{formatEv(tip.ev)}</div>
+					</div>
 				</div>
-				<div className="min-w-0">
-					<h3 className="oe-tip__title truncate">{formatPairing(tip.home.name, tip.away.name)}</h3>
-					<div className="oe-tip__market">{tip.tippmixLabel}</div>
+				<div className="oe-decision">
+					<div className="oe-tile">
+						<div className="oe-tile__label">Legjobb odds</div>
+						<div className="oe-tile__value">{formatOdds(tip.bestOdds)}</div>
+						<div className="oe-tile__foot">{oddsAt}</div>
+					</div>
+					<div className="oe-tile">
+						<div className="oe-tile__label">Tippmixen legalább</div>
+						<div className="oe-tile__value">{formatOdds(tip.minOdds)}</div>
+						<div className="oe-tile__foot">ennél rosszabbra ne</div>
+					</div>
+					<ProbabilityTile pModel={tip.pModel} pMarket={tip.pMarket} />
 				</div>
 				<TeamForm home={tip.home} away={tip.away} />
-				<ProbabilityBars pModel={tip.pModel} pMarket={tip.pMarket} />
-				<TipActions
-					odds={tip.bestOdds}
-					minOdds={tip.minOdds}
-					ev={tip.ev}
-					selected={selected}
-					blockedReason={blockedReason}
-					onToggleSlip={this.toggleSlip}
-				/>
-				<div className="oe-muted text-caption">
-					{tip.bookmaker} · {formatKickoff(tip.oddsAt, now)}
-					{tip.stakeUnits !== undefined && ` · tét ${tip.stakeUnits}${NBSP}egység`} · {tip.modelVersion}
-				</div>
 				{tip.warnings.map((w) => (
 					<div key={w} className="oe-warning">
 						⚠ {w}
 					</div>
 				))}
-				<Disclosure expanded={expanded} controlsId={detailsId} onToggle={this.toggleExpand} />
-				{expanded && (
-					<div id={detailsId} className="flex flex-col" style={detailsStyle}>
-						{tip.reasons?.length > 0 && (
-							<div>
-								<div className="oe-label">Miért?</div>
-								<ul className="oe-muted text-small list-disc" style={reasonsStyle}>
-									{tip.reasons.map((r) => (
-										<li key={r}>{r}</li>
-									))}
-								</ul>
-							</div>
-						)}
-						{children}
+				<TipActions
+					selected={selected}
+					blockedReason={blockedReason}
+					onToggleSlip={this.toggleSlip}
+					expanded={expanded}
+					detailsId={detailsId}
+					onToggleExpand={this.toggleExpand}
+				/>
+				<div className="oe-tip__details" id={detailsId} hidden={!expanded}>
+					{tip.reasons && tip.reasons.length > 0 && (
+						<div>
+							<h4 className="oe-label">A modell indoklása</h4>
+							<ul className="oe-reasons list-disc">
+								{tip.reasons.map((r) => (
+									<li key={r}>{r}</li>
+								))}
+							</ul>
+						</div>
+					)}
+					{children}
+					<div className="oe-tip__source">
+						Forrás: {oddsAt}
+						{tip.stakeUnits !== undefined && ` · tét ${tip.stakeUnits}${NBSP}egység`} · {tip.modelVersion}
 					</div>
-				)}
+				</div>
 			</article>
 		);
 	}

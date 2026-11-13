@@ -1,5 +1,6 @@
 import {
 	formatAge,
+	formatDateRange,
 	formatDayHeading,
 	formatDecimal,
 	formatSignedInt,
@@ -102,5 +103,16 @@ describe('format (DESIGN §8)', () => {
 		expect(formatAge(30 * h + 59_000)).toBe(`30${NB}órás`);
 		expect(formatAge(47 * h)).toBe(`47${NB}órás`);
 		expect(formatAge(72 * h)).toBe(`3${NB}napos`);
+	});
+
+	it('dátumtartomány rövid hónapnévvel, nagykötőjellel', () => {
+		const d = (iso: string) => new Date(iso);
+		expect(formatDateRange(d('2025-04-12T13:30:00Z'), d('2025-04-13T13:00:00Z'))).toBe('2025. ápr. 12–13.');
+		expect(formatDateRange(d('2025-04-13T13:00:00Z'), d('2025-04-12T13:30:00Z'))).toBe('2025. ápr. 12–13.');
+		expect(formatDateRange(d('2025-04-12T10:00:00Z'), d('2025-04-12T18:00:00Z'))).toBe('2025. ápr. 12.');
+		expect(formatDateRange(d('2025-04-30T10:00:00Z'), d('2025-05-02T10:00:00Z'))).toBe('2025. ápr. 30. – máj. 2.');
+		expect(formatDateRange(d('2024-12-31T10:00:00Z'), d('2025-01-02T10:00:00Z'))).toBe('2024. dec. 31. – 2025. jan. 2.');
+		// Budapest szerinti nap: 23:30Z már másnap.
+		expect(formatDateRange(d('2025-04-12T23:30:00Z'), d('2025-04-13T10:00:00Z'))).toBe('2025. ápr. 13.');
 	});
 });

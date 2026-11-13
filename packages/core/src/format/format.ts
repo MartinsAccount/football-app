@@ -147,3 +147,19 @@ export const formatDayHeading = (date: Date, timeZone: string = DEFAULT_TIME_ZON
 	const weekday = get('weekday');
 	return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${get('month')} ${get('day')}.`;
 };
+
+const MONTH_SHORT = ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'];
+
+/**
+ * Dátumtartomány (adat-állapot sor): `2025. ápr. 12.`, `2025. ápr. 12–13.`, `2025. ápr. 30. – máj. 2.`,
+ * évváltásnál `2024. dec. 31. – 2025. jan. 2.` A sorrend a két dátumból adódik (a korábbi elöl).
+ */
+export const formatDateRange = (a: Date, b: Date, timeZone: string = DEFAULT_TIME_ZONE): string => {
+	const [from, to] = a.getTime() <= b.getTime() ? [a, b] : [b, a];
+	const f = zonedParts(from, timeZone);
+	const t = zonedParts(to, timeZone);
+	const head = `${f.year}. ${MONTH_SHORT[f.month - 1]} ${f.day}`;
+	if (f.year === t.year && f.month === t.month) return f.day === t.day ? `${head}.` : `${head}${EN_DASH}${t.day}.`;
+	const tail = f.year === t.year ? `${MONTH_SHORT[t.month - 1]} ${t.day}.` : `${t.year}. ${MONTH_SHORT[t.month - 1]} ${t.day}.`;
+	return `${head}. ${EN_DASH} ${tail}`;
+};

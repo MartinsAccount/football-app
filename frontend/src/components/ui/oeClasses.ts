@@ -25,10 +25,6 @@ export const statValueEv = 'font-display text-accent-text';
 export const statusDot =
 	"inline-flex items-center gap-sp-4 text-small text-text-muted before:content-[''] before:h-sp-4 before:w-sp-4 before:rounded-pill before:bg-accent";
 
-/** Tájékoztató sáv (a v0.1 `.oe-banner` helyett). */
-export const banner =
-	'flex items-start gap-sp-7 rounded-xl border border-tint-positive-border bg-tint-positive px-sp-10 py-sp-9 text-small';
-
 /** Szöveges beviteli mező (a v0.1 `.oe-input` helyett). */
 export const input =
 	'min-h-touch w-full rounded-l border border-border-strong bg-canvas px-sp-5 text-num-s font-bold text-text-primary aria-[invalid=true]:border-negative data-[valid=true]:border-accent';

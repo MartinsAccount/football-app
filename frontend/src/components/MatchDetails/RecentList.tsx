@@ -1,14 +1,11 @@
-import React, { Component, CSSProperties } from 'react';
+import React, { Component } from 'react';
 import { formatScore } from '@football/core';
-import { v } from '../../design/tokens/tokens';
 import { formChipTitle, ITipTeam, RESULT_CHIP_CLASS, RESULT_LETTER } from '../TipCard/tipView';
 import { recentRows, recentSummary } from './matchDetailsView';
 
 interface IRecentListProps {
 	team: ITipTeam;
 }
-
-const summaryStyle: CSSProperties = { marginTop: v('space.4') };
 
 /** DESIGN §7.5 – „{csapat} · utolsó 5”: chip · vs/@ ellenfél · eredmény, legutóbbi felül. */
 class RecentList extends Component<IRecentListProps> {
@@ -29,11 +26,7 @@ class RecentList extends Component<IRecentListProps> {
 						<span className="oe-row__score">{formatScore(r.goalsFor, r.goalsAgainst)}</span>
 					</div>
 				))}
-				{rows.length > 0 && (
-					<p className="text-caption text-text-secondary m-0" style={summaryStyle}>
-						{recentSummary(rows)}
-					</p>
-				)}
+				{rows.length > 0 && <div className="oe-summary">{recentSummary(rows)}</div>}
 			</div>
 		);
 	}

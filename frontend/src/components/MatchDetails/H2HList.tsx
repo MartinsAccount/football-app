@@ -28,11 +28,7 @@ class H2HList extends Component<IH2HListProps> {
 						<span className={`oe-chip ${RESULT_CHIP_CLASS[r.result]}`}>{RESULT_LETTER[r.result]}</span>
 					</div>
 				))}
-				{rows.length > 0 && (
-					<p className="text-caption text-text-secondary m-0" style={summaryStyle}>
-						{h2hSummary(homeName, rows)}
-					</p>
-				)}
+				{rows.length > 0 && <div className="oe-summary">{h2hSummary(homeName, rows)}</div>}
 				{rows.length < H2H_MIN_RELIABLE && (
 					<div className="oe-warning" style={summaryStyle}>
 						⚠ {H2H_FEW_WARNING}

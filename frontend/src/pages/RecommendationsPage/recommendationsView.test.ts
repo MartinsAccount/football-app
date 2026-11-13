@@ -1,6 +1,6 @@
 import { DEFAULT_RECOMMENDATION_RULES, RecommendationItem, RecommendationSnapshot } from '@football/core';
 import snapshotJson from '../../../../data/recommendations/recommendations-v0.json';
-import { groupTipsByDay, toTip } from './recommendationsView';
+import { dataState, groupTipsByDay, toTip } from './recommendationsView';
 
 const item = (fixtureId: number, kickoff: string, outcome: RecommendationItem['outcome'] = 'Home'): RecommendationItem => ({
 	fixtureId,
@@ -73,5 +73,22 @@ describe('recommendationsView', () => {
 			expect(i.ev).toBeGreaterThanOrEqual(s.rules.evThreshold);
 			expect(i.pModel - i.pMarket).toBeGreaterThanOrEqual(s.rules.minEdge);
 		}
+	});
+
+	it('derives the data-state row from the snapshot items', () => {
+		const NB = ' ';
+		const state = dataState(snapshot([item(1, '2025-04-13T13:00:00.000Z'), item(2, '2025-04-12T13:30:00.000Z')]));
+		expect(state.label).toBe('Mentett adat · 2025. ápr. 12–13.');
+		// A legrégebbi odds 2025-04-11 14:00Z, a „most” 2025-04-12 07:00Z → 17 órás.
+		expect(state.chips).toEqual([`Odds 17${NB}órás`]);
+		expect(state.detail).toContain('2025. ápr. 12–13., modell: elo-poisson@0.1.0, az odds 17');
+		expect(state.detail).toContain('forrás: teszt');
+	});
+
+	it('shows the injury chip only when a warning says so, and handles an empty snapshot', () => {
+		const withInjury = { ...item(1, '2025-04-12T13:30:00.000Z'), warnings: ['Sérültlista nincs a forrásban'] };
+		expect(dataState(snapshot([withInjury])).chips).toContain('Sérültlista nincs a forrásban');
+		expect(dataState(snapshot([item(1, '2025-04-12T13:30:00.000Z')])).chips).not.toContain('Sérültlista nincs a forrásban');
+		expect(dataState(snapshot([]))).toMatchObject({ label: 'Mentett adat', chips: [] });
 	});
 });

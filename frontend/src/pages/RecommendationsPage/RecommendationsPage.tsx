@@ -1,9 +1,9 @@
 import React, { Component, CSSProperties } from 'react';
 import { inject, observer } from 'mobx-react';
-import { formatAge, RecommendationSnapshot } from '@football/core';
+import { RecommendationSnapshot } from '@football/core';
 import PageIntro from '../../components/PageIntro/PageIntro';
 import EmptyState from '../../components/PageIntro/EmptyState';
-import EngineBanner from '../../components/EngineBanner/EngineBanner';
+import DataState from '../../components/PageIntro/DataState';
 import MatchDetails from '../../components/MatchDetails/MatchDetails';
 import SlipPanel from '../../components/SlipPanel/SlipPanel';
 import SlipPresets from '../../components/SlipPresets/SlipPresets';
@@ -12,7 +12,7 @@ import { ITip } from '../../components/TipCard/tipView';
 import { v } from '../../design/tokens/tokens';
 import { MainStore } from '../../stores/MainStore';
 import snapshotJson from '../../../../data/recommendations/recommendations-v0.json';
-import { groupTipsByDay, ITipDay } from './recommendationsView';
+import { dataState, groupTipsByDay, ITipDay } from './recommendationsView';
 
 const splitStyle: CSSProperties = { paddingBottom: v('space.14') };
 
@@ -36,6 +36,7 @@ class RecommendationsPage extends Component<IRecommendationsPageProps, IRecommen
 	days: ITipDay[] = groupTipsByDay(this.snapshot);
 	allTips: ITip[] = this.days.flatMap((d) => d.tips);
 	tipCount = this.allTips.length;
+	dataRow = dataState(this.snapshot);
 	// Az első kártya nyitva indul (DESIGN-referencia).
 	state: IRecommendationsPageState = {
 		expandedId: this.days.find((d) => d.tips.length)?.tips[0].id ?? null
@@ -60,7 +61,7 @@ class RecommendationsPage extends Component<IRecommendationsPageProps, IRecommen
 					<h2 className="oe-h2" id={headingId}>
 						{day.title}
 					</h2>
-					<span className="oe-muted text-small">{day.tips.length} tipp</span>
+					<span className="oe-section-sub">{day.tips.length} tipp</span>
 				</div>
 				{day.tips.length === 0 ? (
 					<p className="oe-muted m-0">Erre a napra nincs a szabályoknak megfelelő tipp.</p>
@@ -87,22 +88,18 @@ class RecommendationsPage extends Component<IRecommendationsPageProps, IRecommen
 	}
 
 	render() {
-		const { snapshot, now, tipCount } = this;
-		const oldestOdds = Math.min(...snapshot.items.map((i) => Date.parse(i.oddsAt)));
-		const age = Number.isFinite(oldestOdds) ? `, az odds ${formatAge(now.getTime() - oldestOdds)}` : '';
+		const { snapshot, now, tipCount, dataRow } = this;
 		return (
 			<>
 				<PageIntro
 					title="Rakd össze a mai szelvényt."
 					subtitle={`${snapshot.analyzed} meccsből ${tipCount} érték-tipp.`}
 					date={now}
-				/>
+				>
+					<DataState label={dataRow.label} chips={dataRow.chips} detail={dataRow.detail} />
+				</PageIntro>
 				<div className="oe-split" style={splitStyle}>
 					<div className="oe-split__main">
-						<EngineBanner
-							title="Mentett adat."
-							text={`Az ingyenes API-csomag nem ad idei szezont, ezért a lista egy 2025. áprilisi hétvégéből készült (${snapshot.modelVersion}${age}). Sérültlista és 5 iroda nincs a forrásban; a tipp a piaccal kombinált becslés.`}
-						/>
 						<SlipPresets tips={this.allTips} store={this.slip} />
 						{tipCount === 0 ? (
 							<EmptyState

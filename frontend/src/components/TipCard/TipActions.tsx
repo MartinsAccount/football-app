@@ -1,37 +1,24 @@
 import React, { Component } from 'react';
-import { formatEv, formatOdds } from '@football/core';
 import { slipToggleText } from './tipView';
-import { cx, statLabel, statValue, statValueEv } from '../ui/oeClasses';
+import Disclosure from './Disclosure';
 
 interface ITipActionsProps {
-	odds: number;
-	minOdds: number;
-	ev: number;
 	selected: boolean;
 	/** Ha meg van adva, a toggle tiltott, és ez a magyarázat (pl. ugyanarról a meccsről már van tipp). */
 	blockedReason?: string;
 	onToggleSlip: () => void;
+	expanded: boolean;
+	detailsId: string;
+	onToggleExpand: () => void;
 }
 
-/** DESIGN §7.4/5: odds · Tippmix min. · EV + SlipToggle (`aria-pressed`). */
+/** DESIGN §6 Ma – tippkártya, 6.: két egyenrangú gomb – SlipToggle (`aria-pressed`) és a lenyitó. */
 class TipActions extends Component<ITipActionsProps> {
 	render() {
-		const { odds, minOdds, ev, selected, blockedReason, onToggleSlip } = this.props;
+		const { selected, blockedReason, onToggleSlip, expanded, detailsId, onToggleExpand } = this.props;
 		const blocked = !selected && !!blockedReason;
 		return (
-			<div className="flex flex-wrap items-center gap-sp-8 [&>:last-child]:ml-auto">
-				<div>
-					<div className={statLabel}>odds</div>
-					<div className={statValue}>{formatOdds(odds)}</div>
-				</div>
-				<div>
-					<div className={statLabel}>Tippmix min.</div>
-					<div className={statValue}>{formatOdds(minOdds)}</div>
-				</div>
-				<div>
-					<div className={statLabel}>EV</div>
-					<div className={cx(statValue, statValueEv)}>{formatEv(ev)}</div>
-				</div>
+			<div className="oe-tip__actions">
 				<button
 					className="oe-btn oe-btn--add"
 					type="button"
@@ -42,6 +29,7 @@ class TipActions extends Component<ITipActionsProps> {
 				>
 					{slipToggleText(selected)}
 				</button>
+				<Disclosure expanded={expanded} controlsId={detailsId} onToggle={onToggleExpand} />
 			</div>
 		);
 	}

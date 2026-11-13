@@ -9,13 +9,12 @@ const [bologna, arsenal, gladbach] = sampleTips(now);
 const M = '−';
 
 describe('matchDetailsView', () => {
-	it('builds the league strip with zones and both teams marked', () => {
+	it('marks only the two teams on the league strip (no fixed zones)', () => {
 		const cells = stripCells(20, 7, 6);
 		expect(cells).toHaveLength(20);
-		expect(cells.slice(0, 7)).toEqual(['cl', 'cl', 'cl', 'cl', 'eu', 'away', 'home']);
-		expect(cells.slice(17)).toEqual(['rel', 'rel', 'rel']);
-		expect(cells.filter((c) => c === 'mid')).toHaveLength(10);
-		expect(stripCells(18).slice(15)).toEqual(['rel', 'rel', 'rel']);
+		expect(cells.slice(4, 7)).toEqual(['mid', 'away', 'home']);
+		expect(cells.filter((c) => c === 'mid')).toHaveLength(18);
+		expect(stripCells(18).every((c) => c === 'mid')).toBe(true);
 		expect(stripAriaLabel(bologna.home, bologna.away, 20)).toBe('Bologna 7., Lazio 6. a 20-ból');
 	});
 
@@ -42,7 +41,7 @@ describe('matchDetailsView', () => {
 });
 
 describe('MatchDetails', () => {
-	it('renders the four blocks and the legend', () => {
+	it('renders the four blocks with v0.2 classes', () => {
 		const html = renderToStaticMarkup(<MatchDetails tip={bologna} />);
 		expect(html).toContain('Tabella · Serie A');
 		expect(html).toContain('Egymás ellen · utolsó 5');
@@ -50,7 +49,11 @@ describe('MatchDetails', () => {
 		expect(html).toContain('Lazio · utolsó 5');
 		expect(html).toContain('Tét: európai kupahelyért');
 		expect(html.match(/<span class="oe-strip__cell/g)).toHaveLength(20);
-		expect(html).toContain('„vs” = otthon');
+		expect(html).toContain('<small>Tét: európai kupahelyért</small>');
+		expect(html).toContain('class="oe-standing"');
+		expect(html).toContain('class="oe-summary"');
+		expect(html).not.toMatch(/oe-strip__cell--(cl|eu|rel)/);
+		expect(html).not.toContain('BL');
 		expect(html).not.toContain('Kevés egymás elleni meccs');
 	});
 
