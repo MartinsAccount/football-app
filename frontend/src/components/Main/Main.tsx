@@ -4,14 +4,11 @@ import AppShell from '../AppShell/AppShell';
 import RecommendationsPage from '../../pages/RecommendationsPage/RecommendationsPage';
 import EvaluationPage from '../../pages/EvaluationPage/EvaluationPage';
 import SettingsPage from '../../pages/SettingsPage/SettingsPage';
-import OddsPage from '../../pages/OddsPage/OddsPage';
-import FixturePage from '../../pages/FixturePage/FixturePage';
 import ArbitragePage from '../../pages/ArbitragePage/ArbitragePage';
-import LegacyArbitragePage from '../../pages/ArbitragePage/LegacyArbitragePage';
 
 // Route-ok a PRD 5.8 szerint. A régi /odds és /fixtures a Ma oldalra irányít (az odds-mozgás és a
-// meccs-statisztika a TipCard MatchDetails részébe olvad, ROADMAP H); a régi nézetek addig a
-// /legacy/* alatt elérhetők, navigációs link nélkül (DECISIONS 2026-11-12).
+// meccs-statisztika a TipCard MatchDetails részébe olvad, ROADMAP H). A régi /legacy/* nézetek az M1
+// zárásával kikerültek a routingból (ui-audit P0/P1, DECISIONS 2026-11-13); a kódjuk a 8.3-ig marad.
 class Main extends Component {
 	render() {
 		return (
@@ -29,15 +26,6 @@ class Main extends Component {
 						</Route>
 						<Route path="/arbitrage">
 							<ArbitragePage />
-						</Route>
-						<Route path="/legacy/arbitrage">
-							<LegacyArbitragePage />
-						</Route>
-						<Route path="/legacy/odds">
-							<OddsPage />
-						</Route>
-						<Route path="/legacy/fixtures">
-							<FixturePage />
 						</Route>
 						<Redirect from="/odds" to="/" />
 						<Redirect from="/fixtures" to="/" />

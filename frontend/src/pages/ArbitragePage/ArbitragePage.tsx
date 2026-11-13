@@ -39,7 +39,7 @@ const sectionStyle: CSSProperties = { display: 'flex', flexDirection: 'column', 
 /**
  * `/arbitrage` – Arbitrázs (PRD 5.8, ROADMAP 8.1/S23): irodák közti arbitrázs a mentett odds-pillanatképből
  * (`data/arbitrage/arbitrage-v0.json`, `npm run arbitrage -w @football/db`; 0 külső hívás). A régi oldal (élő API-pásztázás,
- * localStorage-cache, oldalsáv + modál) a `/legacy/arbitrage` alatt marad, amíg a 8.3 ki nem vezeti.
+ * localStorage-cache, oldalsáv + modál) route nélkül, `LegacyArbitragePage.tsx`-ként marad, amíg a 8.3 ki nem vezeti.
  * TODO(polish): a beállított ligák/irodák szűrése (SettingsStore), odds-kor figyelmeztetés, élő DB-snapshot (8.3).
  */
 class ArbitragePage extends Component<{}, IArbitragePageState> {

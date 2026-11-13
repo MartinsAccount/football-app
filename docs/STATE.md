@@ -4,7 +4,9 @@
 
 ## Aktuális fázis
 
-M1 (docs/GOAL-M1.md): S01–S23 kész, következik S24 (M1 zárás).
+M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesül.
+
+ALL_DONE M1
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 
@@ -20,8 +22,8 @@ H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
 
-1. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
-   `ALL_DONE M1`.
+(üres – az M1 kész; az M2 szeleteit a ROADMAP 1.6 (Vercel `api/`), 6.x/7.x (modell-illesztés), 8.3 (régi oldalak törlése) alapján
+kell felvenni)
 
 ## Kész
 
@@ -51,6 +53,7 @@ I. Arbitrázs átköltöztetése az új backendre
 | S21 – `/evaluation` dashboard   | (lásd git log: feat(ui): evaluation dashboard)                  | `pages/EvaluationPage/`: `evaluationView.ts` (szegmens-opciók, `betTiles` ROI ±1,96 SE, `scoreRows` modell/nyitó/záró, `verdict`, `segmentRows`, `calibrationPoints`/`calibrationError`), `CalibrationChart` (SVG, tokenekkel); szűrő: piac (1X2/Gól 2,5) + szegmens (szezon/liga, a bontás-sorra kattintva is); forrás `data/backtest/backtest-v0.json`; screenshot 1440/390 |
 | S22 – `/settings`               | (lásd git log: feat(ui): settings page)                         | `pages/SettingsPage/settingsView.ts` (katalógus: 9 liga, 3 piac, 8 iroda; `sanitizeSettings`, `estimateSettings` a core `budget/`-ből, `settingsWarnings`, `stakeOptions`); `stores/SettingsStore.ts` (localStorage `oe_settings`); a SlipStore tét-lépcsője az alapegységből; screenshot 1440/390                                                                            |
 | S23 – `/arbitrage`              | (lásd git log: feat(ui): arbitrage page)                        | core `arbitrage/scan.ts` (`scanMarket`, `arbitrageSum`, `arbitrageStakes`, `arbitrageBand`, `ArbitrageSnapshot`; egyezik a régi `analyzeBookmakers`-szel); `npm run arbitrage -w @football/db` → `data/arbitrage/arbitrage-v0.json` (88 meccs, 3 arb, 70 közeli); kártyák, sáv/piac/iroda szűrő, tét-elosztás 10 Ft-ra; régi oldal `/legacy/arbitrage`; screenshot 1440/390   |
+| S24 – M1 zárás                  | (lásd git log: chore(m1): close M1)                             | ui-audit P0/P1: a régi `/legacy/*` nézetek kikerültek a routingból (→ `/`), így #1–8 sehol nem áll fenn; screenshot 1440/390 minden route-ról (`/`, `/evaluation`, `/settings`, `/arbitrage`, `/odds`→`/`): scrollWidth ≤ viewport, 0 konzolhiba; `npm run verify` zöld                                                                                                       |
 
 ## Polish backlog
 
@@ -90,6 +93,12 @@ I. Arbitrázs átköltöztetése az új backendre
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **M1 lezárva (2026-11-13, S24).** Kész: fixture-mód, DB-séma + repo + import, api-client budgettel, olvasó API, core (format,
+  odds-matek, szelvény, feature-ök, elo-poisson v0, kiértékelés, backtest), UI (`/`, `/evaluation`, `/settings`, `/arbitrage`).
+  Blokkolt: Supabase/`DATABASE_URL` és Vercel `api/` (BLOCKERS.md). Tulajdonosi döntés: Supabase-projekt + Vercel-bekötés; a v0
+  modell rosszabb a piacnál (backtest-v0.md) → M2 fókusz a modell-illesztés és az élő adat. A régi oldalak kódja
+  (`LegacyArbitragePage`, `OddsPage`, `FixturePage`, régi store-ok) route nélkül él, 8.3-ban törlendő.
 
 - Arbitrázs (S23): `/arbitrage` = `pages/ArbitragePage/ArbitragePage.tsx` (komponens-state szűrő), `ArbitrageCard`,
   `arbitrageView.ts` (tiszta, teszt mellette); adat `reviveArbitrageSnapshot(json)` (JSON `Infinity` → `null`). Régi oldal:
