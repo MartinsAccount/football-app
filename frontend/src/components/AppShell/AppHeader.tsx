@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import { MainStore } from '../../stores/MainStore';
 import { isFixtureMode } from '../../services/dataMode';
-import { cx, statusDot } from '../ui/oeClasses';
 import ThemeToggle from './ThemeToggle';
 
 interface IAppHeaderProps {
@@ -31,24 +30,23 @@ class AppHeader extends Component<IAppHeaderProps> {
 		return (
 			<header className="oe-header">
 				<div className="oe-brand">
-					<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
-						<circle cx="15" cy="15" r="13" fill="none" stroke="var(--color-accent-default)" strokeWidth="2" />
-						<path d="M15 2 V28 M2 15 H28" stroke="var(--color-accent-default)" strokeWidth="1.2" opacity=".5" />
-						<circle cx="15" cy="15" r="4" fill="var(--color-accent-default)" />
+					<svg width="28" height="28" viewBox="0 0 30 30" aria-hidden="true">
+						<circle cx="15" cy="15" r="13" fill="none" stroke="currentColor" strokeWidth="2" />
+						<path d="M15 2 V28 M2 15 H28" stroke="currentColor" strokeWidth="1.2" opacity=".5" />
+						<circle cx="15" cy="15" r="4" fill="currentColor" />
 					</svg>
-					Odds elemző
+					<span className="text-text-primary">Odds elemző</span>
 				</div>
 				<nav className="oe-nav" aria-label="Fő navigáció">
 					{NAV_ITEMS.map(({ to, label, exact }) => (
 						// RRv5 NavLink az aktív linkre aria-current="page"-et tesz → .oe-nav__link[aria-current] stílus
-						<NavLink key={to} to={to} exact={exact} className="oe-nav__link">
+						<NavLink key={to} to={to} exact={exact} className="oe-nav__link min-h-touch">
 							{label}
 						</NavLink>
 					))}
 				</nav>
-				{/* TODO(polish): S26 – .oe-status-pill a referencia szerint. */}
 				<div className="oe-header__end">
-					<span className={cx(statusDot, fixture && 'before:bg-warning')}>
+					<span className="oe-status-pill" data-state={fixture ? 'saved' : 'live'} role="status">
 						{fixture ? 'Mentett adat' : 'Élő adat'} · {MainStore.fetchNumber}/{DAILY_CALL_LIMIT} hívás
 					</span>
 					<ThemeToggle store={MainStore.ThemeStore} />

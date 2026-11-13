@@ -150,3 +150,11 @@ export const parseTotalStake = (text: string): number | null => {
 	const n = Number(text.replace(/[\s ]/g, '').replace(',', '.'));
 	return Number.isFinite(n) && n >= MIN_TOTAL_STAKE ? Math.round(n) : null;
 };
+
+/** Kompakt oldalfej meta-chipjei (CHANGES 1.): forrás, meccs-, piac- és irodaszám a pillanatképből. */
+export const arbitrageHeadChips = (snap: ArbitrageSnapshot): string[] => [
+	snap.source,
+	`${snap.fixtures.length} meccs`,
+	`${snap.markets.length} piac`,
+	`${snap.bookmakers.length} iroda`
+];

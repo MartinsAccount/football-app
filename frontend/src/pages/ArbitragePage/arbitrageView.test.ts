@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { scanMarket, type ArbitrageSnapshot } from '@football/core';
-import { arbitrageRows, arbitrageTiles, defaultFilter, formatMarginPct, parseTotalStake } from './arbitrageView';
+import {
+	arbitrageHeadChips,
+	arbitrageRows,
+	arbitrageTiles,
+	defaultFilter,
+	formatMarginPct,
+	parseTotalStake
+} from './arbitrageView';
 
 const H2H = ['Home', 'Draw', 'Away'];
 const q = (bookmaker: string, outcome: string, odds: number) => ({ bookmaker, outcome, odds });
@@ -107,5 +114,16 @@ describe('parseTotalStake', () => {
 		expect(parseTotalStake('10 000')).toBe(10000);
 		expect(parseTotalStake('50')).toBeNull();
 		expect(parseTotalStake('abc')).toBeNull();
+	});
+});
+
+describe('arbitrageHeadChips', () => {
+	it('forrás és darabszámok a pillanatképből', () => {
+		expect(arbitrageHeadChips(snap)).toEqual([
+			'teszt',
+			`${snap.fixtures.length} meccs`,
+			'2 piac',
+			`${snap.bookmakers.length} iroda`
+		]);
 	});
 });

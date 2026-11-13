@@ -1,11 +1,12 @@
 import React, { Component, CSSProperties } from 'react';
 import { formatFt, reviveArbitrageSnapshot } from '@football/core';
-import PageIntro from '../../components/PageIntro/PageIntro';
+import PageHead from '../../components/PageIntro/PageHead';
 import EmptyState from '../../components/PageIntro/EmptyState';
 import { v } from '../../design/tokens/tokens';
 import snapshotJson from '../../../../data/arbitrage/arbitrage-v0.json';
 import ArbitrageCard from './ArbitrageCard';
 import {
+	arbitrageHeadChips,
 	arbitrageRows,
 	arbitrageTiles,
 	BAND_OPTIONS,
@@ -67,11 +68,10 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 		const rows = arbitrageRows(snapshot, filter, totalStake);
 		const shown = rows.slice(0, limit);
 		const stakeInvalid = parseTotalStake(stakeText) === null;
-		const subtitle = 'Garantált hozam irodák között.';
 
 		return (
 			<>
-				<PageIntro date={null} title="Arbitrázs." subtitle={subtitle} />
+				<PageHead title="Arbitrázs" chips={arbitrageHeadChips(snapshot)} />
 
 				<div style={tilesStyle}>
 					{arbitrageTiles(snapshot).map((t) => (

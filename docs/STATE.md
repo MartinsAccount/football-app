@@ -24,15 +24,14 @@ I. Arbitrázs átköltöztetése az új backendre
 -->
 
 Minden szeletnél: a terv „Szeletek” pontja + CHANGES.md megfelelő fejezete. Screenshot: sötét + világos × 1440 + 390
-(`?theme=light|dark`) → `docs/plans/screens/<szelet>-<oldal>-<téma>-<szélesség>.png`, összevetés a csomag screens/-ével.
-Adatot nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / modell / ingestion / DB-séma nem változik.
+(`?theme=light|dark`) → `docs/plans/screens/<szelet>-<oldal>-<téma>-<szélesség>.png`, összevetés a csomag screens/-ével. Adatot
+nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / modell / ingestion / DB-séma nem változik.
 
-1. **S26 – Közös keret** (CHANGES 1.): fejléc/nav/`.oe-status-pill`, `PageHead` (kompakt cím + meta-chipek), semleges kiválasztás.
-2. **S27a – Ma: tippkártya + adat-állapot sor** (CHANGES 2.1, 2.4, 2.5).
-3. **S27b – Ma: szelvény + presetek** (CHANGES 2.2, 2.3; core preset/„minden N-edik” tesztekkel).
-4. **S28 – Kiértékelés** (CHANGES 3.; core goals/verdict tesztekkel).
-5. **S29 – Arbitrázs** (CHANGES 4.; core kerekítés-címke teszttel).
-6. **S30 – Beállítások** (CHANGES 5.).
+1. **S27a – Ma: tippkártya + adat-állapot sor** (CHANGES 2.1, 2.4, 2.5).
+2. **S27b – Ma: szelvény + presetek** (CHANGES 2.2, 2.3; core preset/„minden N-edik” tesztekkel).
+3. **S28 – Kiértékelés** (CHANGES 3.; core goals/verdict tesztekkel).
+4. **S29 – Arbitrázs** (CHANGES 4.; core kerekítés-címke teszttel).
+5. **S30 – Beállítások** (CHANGES 5.).
 
 ## Kész
 
@@ -63,9 +62,14 @@ Adatot nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti lo
 | S22 – `/settings`               | (lásd git log: feat(ui): settings page)                         | `pages/SettingsPage/settingsView.ts` (katalógus: 9 liga, 3 piac, 8 iroda; `sanitizeSettings`, `estimateSettings` a core `budget/`-ből, `settingsWarnings`, `stakeOptions`); `stores/SettingsStore.ts` (localStorage `oe_settings`); a SlipStore tét-lépcsője az alapegységből; screenshot 1440/390                                                                            |
 | S23 – `/arbitrage`              | (lásd git log: feat(ui): arbitrage page)                        | core `arbitrage/scan.ts` (`scanMarket`, `arbitrageSum`, `arbitrageStakes`, `arbitrageBand`, `ArbitrageSnapshot`; egyezik a régi `analyzeBookmakers`-szel); `npm run arbitrage -w @football/db` → `data/arbitrage/arbitrage-v0.json` (88 meccs, 3 arb, 70 közeli); kártyák, sáv/piac/iroda szűrő, tét-elosztás 10 Ft-ra; régi oldal `/legacy/arbitrage`; screenshot 1440/390   |
 | S24 – M1 zárás                  | (lásd git log: chore(m1): close M1)                             | ui-audit P0/P1: a régi `/legacy/*` nézetek kikerültek a routingból (→ `/`), így #1–8 sehol nem áll fenn; screenshot 1440/390 minden route-ról (`/`, `/evaluation`, `/settings`, `/arbitrage`, `/odds`→`/`): scrollWidth ≤ viewport, 0 konzolhiba; `npm run verify` zöld                                                                                                       |
-| S25 – Tokenek és téma | (lásd git log: feat(design): adopt Floodlight v0.2 tokens) | v0.2 tokens(+light)/components.css (vendor)/DESIGN.md/reference; inline téma-script; `stores/ThemeStore.ts` (system/dark/light, `oe-theme`) + `AppShell/ThemeToggle`; kieső oe-* → v0.2 osztály vagy `components/ui/oeClasses.ts` (Tailwind, tokenből); ADR-0009; screenshot 16 db `docs/plans/screens/s25-*` |
+| S25 – Tokenek és téma           | (lásd git log: feat(design): adopt Floodlight v0.2 tokens)      | v0.2 tokens(+light)/components.css (vendor)/DESIGN.md/reference; inline téma-script; `stores/ThemeStore.ts` (system/dark/light, `oe-theme`) + `AppShell/ThemeToggle`; kieső oe-_ → v0.2 osztály vagy `components/ui/oeClasses.ts` (Tailwind, tokenből); ADR-0009; screenshot 16 db `docs/plans/screens/s25-_`                                                                 |
+| S26 – Közös keret               | (lásd git log: feat(ui): common header)                         | `.oe-status-pill[data-state]` (saved/live), nav ≥ 44 px; `PageIntro/PageHead.tsx` (`.oe-page-head`, meta-chipek, `filters` slot) a Kiértékelés/Arbitrázs/Beállítások oldalon; `evaluationHeadChips`, `arbitrageHeadChips`; liga-checkbox semleges; screenshot 16 db `docs/plans/screens/s26-*`                                                                                |
 
 ## Polish backlog
+
+- Közös keret (S26): a v0.2 `.oe-segmented__btn` 40 px magas (< 44); az Arbitrázs sávszűrőjében még `<small>` hint, a szűrők a fej
+  alatt (S29); a Kiértékelés fej alatt még a régi csempe-sor, az ítélet-sáv és a sikermutatók S28; az `oeClasses.ts`
+  `statusDot`/`toggleBtn`/`card` marad (nincs v0.2 megfelelő); a Beállítások-chipek a mentett állapotot mutatják (S30: piszkozat).
 
 - Beállítások (S22): a beállítás még nem hat az ajánlásokra/ingestionre (a `/` pillanatképe előre számolt); localStorage, nem a DB
   `setting` tábla; liga-katalógus és `coverage` kézzel (később `/leagues`); csapat-szűrő, ligánkénti piac-felülírás, tét-mód
@@ -95,7 +99,8 @@ Adatot nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti lo
   figyelmeztetés nincs; a „most” utáni 10 nap oddsa kezdés − 48 h; csak 1X2 és Gól 2,5 (AH nincs); a régi `/legacy/arbitrage`
   (oldalsáv, modál – ui-audit #3/#7/#8 ott maradt) a 8.3-mal törlendő.
 - Headless Edge 500 px alatt nem szűkíti a viewportot: 390-es screenshot iframe-burkolóval (`<iframe width=390>`) készül.
-- Téma (S25): a Beállításokban „Téma: Rendszer / Sötét / Világos” választó még nincs (a ThemeStore.setPreference kész); a fejléc status-pill és a nav S26.
+- Téma (S25): a Beállításokban „Téma: Rendszer / Sötét / Világos” választó még nincs (a ThemeStore.setPreference kész); a fejléc
+  status-pill és a nav S26.
 - `oeClasses.ts` (S25): appsaját Tailwind-osztálylisták; ahol S26–S30 v0.2 osztályt ad (pl. oe-status-pill, oe-kpi), ott cserélni.
 - Régi Tailwind színnevek (bg, surface, accent…) aliasként élnek a `tailwind.config.cjs`-ben; A3 után törölni.
 - `components.css` Google Fonts `@import`-ot húz (külső hálózat); később self-host.
@@ -106,7 +111,16 @@ Adatot nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti lo
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
-- **S25 kész (Floodlight v0.2 alap).** Téma: `<html data-theme>`, inline script az `index.html`-ben, `MainStore.ThemeStore` (`effective`, `toggle`, `setPreference`). A `components.css` vendor – NE szerkeszd; hiányzó elemhez `components/ui/oeClasses.ts` (Tailwind, csak tokenkulcs: `sp-N`, `touch`, `on-bg`, `tint-*`, `accent-text`…). Szövegszín accenthez `accent-text`/`negative-text`. Screenshot: `%TEMP%/claude/.../scratchpad/s25shot.mjs` mintája (CDP, saját vite `--port 3100 --strictPort`, mert a :3000-en egy régi dev server futhat elavult HMR-rel).
+- **S26 kész.** Kompakt fej: `<PageHead title chips filters />` (`components/PageIntro/PageHead.tsx`); a nagy `PageIntro` csak a
+  Ma oldalon (S27a: → `.oe-hero` + `DataState`). Fejléc: `.oe-status-pill[data-state]`. Screenshot: CDP-script (Edge
+  `--remote-debugging-port`, vite `--port 3126 --strictPort`), 4 oldal × 2 téma × 2 szélesség, scrollWidth + konzolhiba + fejléc ≥
+  44 px mérés.
+
+- **S25 kész (Floodlight v0.2 alap).** Téma: `<html data-theme>`, inline script az `index.html`-ben, `MainStore.ThemeStore`
+  (`effective`, `toggle`, `setPreference`). A `components.css` vendor – NE szerkeszd; hiányzó elemhez `components/ui/oeClasses.ts`
+  (Tailwind, csak tokenkulcs: `sp-N`, `touch`, `on-bg`, `tint-*`, `accent-text`…). Szövegszín accenthez
+  `accent-text`/`negative-text`. Screenshot: `%TEMP%/claude/.../scratchpad/s25shot.mjs` mintája (CDP, saját vite
+  `--port 3100 --strictPort`, mert a :3000-en egy régi dev server futhat elavult HMR-rel).
 
 - **M1 lezárva (2026-11-13, S24).** Kész: fixture-mód, DB-séma + repo + import, api-client budgettel, olvasó API, core (format,
   odds-matek, szelvény, feature-ök, elo-poisson v0, kiértékelés, backtest), UI (`/`, `/evaluation`, `/settings`, `/arbitrage`).

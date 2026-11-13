@@ -1,6 +1,6 @@
 import React, { Component, CSSProperties } from 'react';
 import { BacktestMarket, BacktestReport, formatDecimal, formatPercent } from '@football/core';
-import PageIntro from '../../components/PageIntro/PageIntro';
+import PageHead from '../../components/PageIntro/PageHead';
 import EmptyState from '../../components/PageIntro/EmptyState';
 import { v } from '../../design/tokens/tokens';
 import reportJson from '../../../../data/backtest/backtest-v0.json';
@@ -14,7 +14,7 @@ import {
 	segmentOptions,
 	segmentRows,
 	selectSegment,
-	seasonLabel,
+	evaluationHeadChips,
 	Tone,
 	verdict
 } from './evaluationView';
@@ -28,7 +28,6 @@ const toneColor = (tone: Tone): string | undefined =>
 	tone === 'positive' ? v('color.accent.text') : tone === 'negative' ? v('color.signal.negative-text') : undefined;
 
 const sectionStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: v('space.7'), marginTop: v('space.14') };
-const filterStyle: CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: v('space.6'), alignItems: 'flex-end' };
 const tilesStyle: CSSProperties = {
 	display: 'grid',
 	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.aside-basis')} * 3 / 4)), 1fr))`,
@@ -98,7 +97,7 @@ class EvaluationPage extends Component<{}, IEvaluationPageState> {
 		if (!report.matches) {
 			return (
 				<>
-					<PageIntro date={null} title="Kiértékelés." subtitle="Mennyire jók a tippjeink?" />
+					<PageHead title="Kiértékelés" chips={['Mennyire jók a tippjeink?']} />
 					<EmptyState
 						title="Még nincs kiértékelt tipp"
 						text="A backtest lefutása után itt látod a találati arányt, a hozamot, a Brier-pontszámot, a kalibrációt és a CLV-t."
@@ -112,55 +111,53 @@ class EvaluationPage extends Component<{}, IEvaluationPageState> {
 		const calib = report.calibration[market];
 		const points = calibrationPoints(calib);
 		const calibErr = formatDecimal(calibrationError(calib), 1);
-		const seasons = report.evalSeasons.map(seasonLabel).join(', ');
+		const headChips = evaluationHeadChips(report);
 		const groups = ['Összes', 'Szezon', 'Liga'] as const;
 
 		return (
 			<>
-				<PageIntro
-					date={null}
-					title="Kiértékelés."
-					subtitle={`Backtest ${report.modelVersion} · ${seasons} · ${report.matches} meccs · value-küszöb EV ≥ ${formatPercent(
-						report.evThreshold
-					)}`}
+				<PageHead
+					title="Kiértékelés"
+					chips={headChips}
+					filters={
+						<>
+							<div className="oe-segmented" role="group" aria-label="Piac">
+								{EVAL_MARKETS.map((m) => (
+									<button
+										key={m.key}
+										type="button"
+										className="oe-segmented__btn"
+										aria-pressed={m.key === market}
+										title={m.hint}
+										onClick={() => this.setState({ market: m.key })}
+									>
+										{m.label}
+									</button>
+								))}
+							</div>
+							<label className="oe-field">
+								Szegmens
+								<select
+									className="oe-select max-w-full"
+									value={segment}
+									onChange={(e) => this.setState({ segment: e.target.value })}
+								>
+									{groups.map((g) => (
+										<optgroup key={g} label={g}>
+											{options
+												.filter((o) => o.group === g)
+												.map((o) => (
+													<option key={o.key} value={o.key}>
+														{o.label}
+													</option>
+												))}
+										</optgroup>
+									))}
+								</select>
+							</label>
+						</>
+					}
 				/>
-
-				<div style={filterStyle}>
-					<div className="oe-segmented" role="group" aria-label="Piac">
-						{EVAL_MARKETS.map((m) => (
-							<button
-								key={m.key}
-								type="button"
-								className="oe-segmented__btn"
-								aria-pressed={m.key === market}
-								onClick={() => this.setState({ market: m.key })}
-							>
-								{m.label}
-								<small>{m.hint}</small>
-							</button>
-						))}
-					</div>
-					<label className="oe-field" style={{ minWidth: `min(100%, ${v('size.aside-basis')})` }}>
-						Szegmens
-						<select
-							className="oe-select w-full min-w-0"
-							value={segment}
-							onChange={(e) => this.setState({ segment: e.target.value })}
-						>
-							{groups.map((g) => (
-								<optgroup key={g} label={g}>
-									{options
-										.filter((o) => o.group === g)
-										.map((o) => (
-											<option key={o.key} value={o.key}>
-												{o.label}
-											</option>
-										))}
-								</optgroup>
-							))}
-						</select>
-					</label>
-				</div>
 
 				<section style={sectionStyle} aria-labelledby="eval-bets">
 					<h2 className="oe-h2" id="eval-bets">

@@ -1,7 +1,7 @@
 import React, { Component, CSSProperties } from 'react';
 import { inject, observer } from 'mobx-react';
 import { formatDecimal, formatFt, formatPercent } from '@football/core';
-import PageIntro from '../../components/PageIntro/PageIntro';
+import PageHead from '../../components/PageIntro/PageHead';
 import { v } from '../../design/tokens/tokens';
 import { MainStore } from '../../stores/MainStore';
 import {
@@ -63,7 +63,8 @@ const rowStyle: CSSProperties = {
 const checkStyle: CSSProperties = {
 	width: v('space.9'),
 	height: v('space.9'),
-	accentColor: v('color.accent.default'),
+	// Kiválasztás = semleges (DESIGN §1.3).
+	accentColor: v('color.on.bg'),
 	flex: 'none'
 };
 const rowMainStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: v('space.1'), minWidth: 0, flex: 1 };
@@ -191,7 +192,15 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 
 		return (
 			<>
-				<PageIntro date={null} title="Beállítások." subtitle="Ligák, piacok, irodák és a napi keret." />
+				<PageHead
+					title="Beállítások"
+					chips={[
+						`${s.leagues.length} / ${SETTINGS_LEAGUES.length} liga`,
+						`${s.markets.length} / ${SETTINGS_MARKETS.length} piac`,
+						`${s.bookmakers.length} / ${SETTINGS_BOOKMAKERS.length} iroda`,
+						`keret: ${DAILY_CALL_LIMIT} hívás/nap`
+					]}
+				/>
 
 				<section style={{ display: 'flex', flexDirection: 'column', gap: v('space.6') }} aria-label="Becslés">
 					<div style={tilesStyle}>

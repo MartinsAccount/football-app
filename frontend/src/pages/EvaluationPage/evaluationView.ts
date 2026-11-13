@@ -3,6 +3,7 @@ import {
 	BacktestReport,
 	BetSummary,
 	CalibrationBucket,
+	EN_DASH,
 	formatDecimal,
 	formatEv,
 	formatPercent,
@@ -34,6 +35,18 @@ export const leagueName = (code: string): string => LEAGUE_NAMES[code] ?? code;
 export const seasonLabel = (season: string | number): string => {
 	const y = Number(season);
 	return Number.isFinite(y) ? `${y}/${String((y + 1) % 100).padStart(2, '0')}` : String(season);
+};
+
+/** Kompakt oldalfej meta-chipjei (CHANGES 1.): modellverzió, szezon-tartomány, meccsszám, value-küszöb. */
+export const evaluationHeadChips = (report: BacktestReport): string[] => {
+	const seasons = report.evalSeasons.map(seasonLabel);
+	const range = seasons.length > 1 ? `${seasons[0]} ${EN_DASH} ${seasons[seasons.length - 1]}` : seasons[0];
+	return [
+		`Backtest · ${report.modelVersion}`,
+		...(range ? [range] : []),
+		`${formatDecimal(report.matches, 0)} meccs`,
+		`value-küszöb: EV ≥ ${formatPercent(report.evThreshold)}`
+	];
 };
 
 export interface ISegmentOption {

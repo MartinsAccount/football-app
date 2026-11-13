@@ -5,6 +5,7 @@ import {
 	betTiles,
 	calibrationError,
 	calibrationPoints,
+	evaluationHeadChips,
 	formatSignedPct,
 	scoreRows,
 	seasonLabel,
@@ -39,6 +40,14 @@ const cmp = (model: number, opening: number, closing: number): MarketComparison 
 });
 
 describe('evaluationView', () => {
+	it('oldalfej meta-chipek a riportból', () => {
+		const chips = evaluationHeadChips(report);
+		expect(chips[0]).toBe('Backtest · ' + report.modelVersion);
+		expect(chips).toContain('2023/24 – 2024/25');
+		expect(chips.some((c) => /^3\s504 meccs$/.test(c))).toBe(true);
+		expect(chips[chips.length - 1]).toBe('value-küszöb: EV ≥ 5%');
+	});
+
 	it('szezon-címke és előjeles %', () => {
 		expect(seasonLabel('2023')).toBe('2023/24');
 		expect(seasonLabel(2099)).toBe('2099/00');
