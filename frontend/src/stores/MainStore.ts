@@ -34,9 +34,9 @@ export class MainStore {
 		this.ThemeStore = new ThemeStore();
 		this.SettingsStore = new SettingsStore();
 		this.SlipStore = new SlipStore(undefined, () => this.SettingsStore.stakeOptions);
-		// Alapegység-váltáskor a tét az új egységre áll (a régi lépcső eleme már nem választható).
+		// Alapegység mentésekor (nem a piszkozatban) a tét az új egységre áll (a régi lépcső eleme már nem választható).
 		reaction(
-			() => this.SettingsStore.settings.stakeUnit,
+			() => this.SettingsStore.saved.stakeUnit,
 			(unit) => this.SlipStore.setStake(unit)
 		);
 

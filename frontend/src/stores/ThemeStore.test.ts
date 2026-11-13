@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ThemeName, ThemePreference } from '../design/tokens/tokens';
+import { THEME_OPTIONS } from '../pages/SettingsPage/settingsView';
 import { IThemeEnv, ThemeStore } from './ThemeStore';
 
 const fakeEnv = (opts: { url?: string | null; stored?: string | null; light?: boolean } = {}) => {
@@ -76,5 +77,23 @@ describe('ThemeStore', () => {
 		state.listener!(false);
 		state.listener!(true);
 		expect(state.applied.at(-1)).toBe('dark');
+	});
+
+	it('the Settings appearance options and the header toggle set the same preference (CHANGES 5.)', () => {
+		const { env, state } = fakeEnv({ light: false });
+		const store = new ThemeStore(env);
+		const pressed = () => THEME_OPTIONS.filter((o) => o.key === store.preference).map((o) => o.label);
+		expect(pressed()).toEqual(['Rendszer']);
+		// Beállítások → Világos: a fejléc-váltó ezt látja, és onnan vált tovább.
+		store.setPreference('light');
+		expect(state.stored).toBe('light');
+		store.toggle();
+		expect(store.preference).toBe('dark');
+		expect(state.stored).toBe('dark');
+		expect(pressed()).toEqual(['Sötét']);
+		// Vissza a rendszerre a Beállításokból: a mentett kézi választás törlődik.
+		store.setPreference('system');
+		expect(state.stored).toBeNull();
+		expect(pressed()).toEqual(['Rendszer']);
 	});
 });

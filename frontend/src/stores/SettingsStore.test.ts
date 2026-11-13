@@ -1,44 +1,84 @@
+import { reaction } from 'mobx';
 import { DEFAULT_SETTINGS, ISettings } from '../pages/SettingsPage/settingsView';
 import { ISettingsStorage, SettingsStore } from './SettingsStore';
 import { memorySlipStorage, SlipStore } from './SlipStore';
 
 const memory = (initial: unknown = null) => {
 	let saved: unknown = initial;
-	const storage: ISettingsStorage & { saved: () => unknown } = {
+	let writes = 0;
+	const storage: ISettingsStorage & { saved: () => unknown; writes: () => number } = {
 		load: () => saved,
 		save: (s: ISettings) => {
+			writes += 1;
 			saved = JSON.parse(JSON.stringify(s));
 		},
-		saved: () => saved
+		saved: () => saved,
+		writes: () => writes
 	};
 	return storage;
 };
 
 describe('SettingsStore', () => {
-	it('loads sanitized settings and persists every change', () => {
+	it('edits a draft and writes storage only on save', () => {
 		const storage = memory({ leagues: [39], stakeUnit: 2000 });
 		const store = new SettingsStore(storage);
-		expect(store.settings.leagues).toEqual([39]);
+		expect(store.draft.leagues).toEqual([39]);
+		expect(store.dirty).toBe(false);
 		store.toggleLeague(140);
 		store.toggleMarket('btts');
+		expect(store.dirty).toBe(true);
+		expect(storage.writes()).toBe(0);
+		expect(store.saved.leagues).toEqual([39]);
+		expect(store.diff).toMatch(/^Napi hívás: \d+ → \d+ · Tárhely\/szezon: /);
+		store.save();
+		expect(store.dirty).toBe(false);
 		expect((storage.saved() as ISettings).leagues).toEqual([39, 140]);
-		expect(new SettingsStore(storage).settings.markets).not.toContain('btts');
+		expect(new SettingsStore(storage).saved.markets).not.toContain('btts');
 		expect(store.stakeOptions).toEqual([1000, 2000, 4000, 10000]);
+	});
+
+	it('discards the draft back to the saved settings', () => {
+		const storage = memory();
+		const store = new SettingsStore(storage);
+		store.setStakeUnit(5000);
+		store.toggleLeague(271);
+		store.discard();
+		expect(store.dirty).toBe(false);
+		expect(store.draft).toEqual(DEFAULT_SETTINGS);
+		expect(storage.writes()).toBe(0);
+	});
+
+	it('toggling back to the saved value is not dirty', () => {
+		const store = new SettingsStore(memory());
+		store.toggleLeague(39);
+		store.toggleLeague(39);
+		expect(store.dirty).toBe(false);
 	});
 
 	it('rejects min odds not below max odds', () => {
 		const store = new SettingsStore(memory());
 		expect(store.setNumber('minOdds', 5)).toBe(false);
-		expect(store.settings.minOdds).toBe(DEFAULT_SETTINGS.minOdds);
+		expect(store.draft.minOdds).toBe(DEFAULT_SETTINGS.minOdds);
 		expect(store.setNumber('maxOdds', 6)).toBe(true);
 		store.reset();
-		expect(store.settings).toEqual(DEFAULT_SETTINGS);
+		expect(store.draft).toEqual(DEFAULT_SETTINGS);
 	});
 
-	it('feeds the slip stake ladder', () => {
+	it('feeds the slip stake ladder from the saved settings, not the draft', () => {
 		const settings = new SettingsStore(memory({ stakeUnit: 500 }));
 		const slip = new SlipStore(memorySlipStorage(), () => settings.stakeOptions);
+		// Ugyanaz a reaction, mint a MainStore-ban.
+		reaction(
+			() => settings.saved.stakeUnit,
+			(unit) => slip.setStake(unit)
+		);
 		expect(slip.stakeOptions).toEqual([250, 500, 1000, 2500]);
 		expect(slip.stake).toBe(500);
+		settings.setStakeUnit(2000);
+		expect(slip.stakeOptions).toEqual([250, 500, 1000, 2500]);
+		expect(slip.stake).toBe(500);
+		settings.save();
+		expect(slip.stakeOptions).toEqual([1000, 2000, 4000, 10000]);
+		expect(slip.stake).toBe(2000);
 	});
 });

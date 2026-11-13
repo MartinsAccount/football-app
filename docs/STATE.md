@@ -6,7 +6,9 @@
 
 M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesül. ALL_DONE M1
 
-**Most: „Floodlight v0.2” redesign** (S25–S30). Terv: `docs/plans/redesign-floodlight-v0.2.md` (a tulajdonos jóváhagyta,
+ALL_DONE Floodlight v0.2
+
+**Kész: „Floodlight v0.2” redesign** (S25–S30). Terv: `docs/plans/redesign-floodlight-v0.2.md` (a tulajdonos jóváhagyta,
 2026-11-13); csomag: `docs/design/floodlight-v0.2/` (DESIGN.md, CHANGES.md „Kész, ha” pontok, screens/, reference/).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
@@ -27,7 +29,17 @@ Minden szeletnél: a terv „Szeletek” pontja + CHANGES.md megfelelő fejezete
 (`?theme=light|dark`) → `docs/plans/screens/<szelet>-<oldal>-<téma>-<szélesség>.png`, összevetés a csomag screens/-ével. Adatot
 nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / modell / ingestion / DB-séma nem változik.
 
-1. **S30 – Beállítások** (CHANGES 5.).
+Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
+tételek).
+
+### Nyitott hiányzó-adat tételek (Floodlight v0.2 után)
+
+1. „Miért?” csipek pp-értékkel: a pillanatkép nem menti a `FactorContribution`-t → csip-sor rejtve.
+2. Tabella-zónák (BL/EK/kiesés): `standings.description` nincs a forrásban → sáv zóna-színezés nélkül.
+3. Sérültlista-lefedettség: nincs strukturált jelző → a chip csak `warnings`/`source` alapján.
+4. Szegmentált kalibráció: a backtest csak piaconként ad kalibrációt → „összesített adat” pill.
+5. API `/predictions` baseline (PRD 9): nincs adat → nem szerepel a sikermutatók közt.
+6. Liga-coverage a Beállításokban: kézi katalógus (`SETTINGS_LEAGUES`), nem a `/leagues` válaszából.
 
 ## Kész
 
@@ -64,6 +76,7 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 | S27a – Tippkártya + adat-állapot | (lásd git log: feat(ui): redesign tip card)                     | `.oe-hero` + `PageIntro/DataState.tsx` (`dataState(snapshot)`: „Mentett adat · 2025. ápr. 12–13.”, „Odds 17 órás”, „Mit jelent?”), EngineBanner törölve; TipCard a referencia sorrendjében (`.oe-decision`, `ProbabilityTile` `--p`/`--m`, `.oe-tip__details` hidden, `.oe-tip__source`); core `formatDateRange`; tabella-zónák nélkül; `frontend/scripts/shots.mjs`                                                                                                                                                                                       |
 | S28 – Kiértékelés                | (lásd git log: feat(ui): evaluation verdict)                    | core `evaluation/goals.ts` (`evaluateGoals` 5 PRD-cél ok/fail/info, ROI < 300 tipp → info, `roiInterval`, `ciScale`, `calibrationDotSize`, `calibrationFlags`, `calibrationError`) + `verdict.ts` (`evaluationVerdict`: tónus §8.3, cím, 2 mondat számokkal; teszt: mostani számok → negative, 2/5); core `formatClv`/`formatSignedDecimal`; oldal `.oe-stack`: fej → `.oe-verdict` → sikermutatók → KPI-k → pontosság → kalibráció (`.oe-chart` + `.oe-calib-row`) → bontás; `EvaluationSections.tsx`; screenshot `docs/plans/screens/s28-*` (+ `-gol25`) |
 | S29 – Arbitrázs                  | (lásd git log: fix(arbitrage): label by rounded payout)         | core `arbitrageStakes` → `staked` + `band` (arb csak Σ<1 és kerekítve `worstPayout ≥ staked`), `roundedBand`; teszt: Monza–Napoli odds → „near”; view: címke/szűrő/számlálók a kerekített sávból (`arbitrageTiles(snap,total)`), `historicalNotice(source)`, `ARBITRAGE_SUBTITLE` chip; `PageHead` `notice` slot (`.oe-pill--warning`), szűrők a fej jobb oldalán; kártya `.oe-tip`; `cardSelected` törölve; screenshot `docs/plans/screens/s29-*`                                                                                                         |
+| S30 – Beállítások                | (lásd git log: feat(ui): settings sections)                     | szekció-menü (`SettingsNav`: asztalon bal oszlop, mobilon görgethető chip-sor, `aria-current` semleges); `missingCoverage` (csak a hiány, `.oe-pill--warning`); piac/iroda/liga jelölőnégyzetes tömör sorok; Megjelenés `.oe-segmented` → `ThemeStore.setPreference`; `SettingsStore` `saved`/`draft`/`dirty`/`save`/`discard`, localStorage csak mentéskor, szelvény a mentettet követi; `SaveBar` + `settingsDiff`; `toggleBtn` törölve; screenshot `s30-*`, `s30-*-mentes`, záró `s30-final-*` (16)                                                     |
 
 ## Polish backlog
 
@@ -82,7 +95,12 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 - Közös keret (S26): a v0.2 `.oe-segmented__btn` 40 px magas (< 44); az Arbitrázs sávszűrőjében még `<small>` hint, a szűrők a fej
   alatt (S29); a Kiértékelés fej alatt még a régi csempe-sor, az ítélet-sáv és a sikermutatók S28; az `oeClasses.ts`
-  `statusDot`/`toggleBtn`/`card` marad (nincs v0.2 megfelelő); a Beállítások-chipek a mentett állapotot mutatják (S30: piszkozat).
+  `statusDot`/`card` marad (nincs v0.2 megfelelő).
+
+- Beállítások (S30): a v0.2 `.oe-segmented__btn` „Nyitó + záró” + `<small>` hint szóköz nélkül fut össze (vendor CSS); az aktív
+  menüpont scroll-alapú (felső harmad), nincs IntersectionObserver; a mobil chip-sor görgetősávja látszik; a fej-chipek és csempék
+  a piszkozatot mutatják; nincs „elhagyod a lapot mentés nélkül?” figyelmeztetés (route-váltáskor a piszkozat a store-ban
+  megmarad).
 
 - Beállítások (S22): a beállítás még nem hat az ajánlásokra/ingestionre (a `/` pillanatképe előre számolt); localStorage, nem a DB
   `setting` tábla; liga-katalógus és `coverage` kézzel (később `/leagues`); csapat-szűrő, ligánkénti piac-felülírás, tét-mód
@@ -114,8 +132,6 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
   figyelmeztetés nincs; a „most” utáni 10 nap oddsa kezdés − 48 h; csak 1X2 és Gól 2,5 (AH nincs); a régi `/legacy/arbitrage`
   (oldalsáv, modál – ui-audit #3/#7/#8 ott maradt) a 8.3-mal törlendő.
 - Headless Edge 500 px alatt nem szűkíti a viewportot: 390-es screenshot iframe-burkolóval (`<iframe width=390>`) készül.
-- Téma (S25): a Beállításokban „Téma: Rendszer / Sötét / Világos” választó még nincs (a ThemeStore.setPreference kész); a fejléc
-  status-pill és a nav S26.
 - `oeClasses.ts` (S25): appsaját Tailwind-osztálylisták; ahol S26–S30 v0.2 osztályt ad (pl. oe-status-pill, oe-kpi), ott cserélni.
 - Régi Tailwind színnevek (bg, surface, accent…) aliasként élnek a `tailwind.config.cjs`-ben; A3 után törölni.
 - `components.css` Google Fonts `@import`-ot húz (külső hálózat); később self-host.
@@ -125,6 +141,12 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **S30 kész, ALL_DONE Floodlight v0.2.** `SettingsStore`: `saved` (localStorage, ezt követi az app, pl. `stakeOptions` és a
+  MainStore tét-reaction) vs. `draft` (űrlap); `save()`/`discard()`/`dirty`/`diff`. A téma nem része a piszkozatnak (`ThemeStore`
+  azonnal). Mentés-sáv screenshot: `shots.mjs ... --click "#ligak li:nth-child(6) input"`. Záró ellenőrzés: nyers hex/rgb grep
+  csak `design/tokens` + vendor `design/components` alatt; 16 `s30-final-*` kép, 0 görgetés, 0 konzolhiba. Következő: ROADMAP
+  következő nyitott szelete; a nyitott hiányzó-adat tételek fent.
 
 - **S29 kész.** Arbitrázs-sáv a UI-ban mindig `arbitrageStakes(odds,total,STAKE_ROUNDING).band` (tét-függő), a pillanatkép
   `o.band` csak sum-alapú (riporthoz). 10 000 Ft-nál 2 arb (Valladolid–Osasuna +16 Ft, Sevilla–Alaves +1 Ft), Monza–Napoli (−2,5

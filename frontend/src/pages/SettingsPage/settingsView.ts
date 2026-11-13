@@ -4,8 +4,10 @@ import {
 	estimateDailyCalls,
 	estimateLeagueCallsPerRound,
 	estimateOddsStorage,
+	formatDecimal,
 	STORAGE_LIMIT_BYTES
 } from '@football/core';
+import type { ThemePreference } from '../../design/tokens/tokens';
 
 // `/settings` nézet-modell (PRD 5.3, ROADMAP S22). Tiszta függvények; a becslés a core `budget/`-ből.
 
@@ -241,5 +243,59 @@ export const settingsWarnings = (s: ISettings, e: ISettingsEstimate): ISettingsW
 	else if (e.seasonsInLimit < 3) out.push({ text: 'A tárhely 3 szezonnál kevesebbre elég.', danger: false });
 	return out;
 };
+
+/**
+ * A liga hiányzó coverage-elemei (CHANGES 5.): csak ezek jelennek meg, warning színnel; ha minden megvan, üres.
+ * Forrás ma a kézi `SETTINGS_LEAGUES` katalógus (lásd TODO a `coverage` mezőn).
+ */
+export const missingCoverage = (l: ISettingsLeague): string[] => {
+	const out: string[] = [];
+	if (!l.coverage.odds) out.push('Odds nincs');
+	if (!l.coverage.injuries) out.push('Sérültek nincs');
+	if (!l.coverage.statistics) out.push('Statisztika nincs');
+	return out;
+};
+
+const MB = 1024 * 1024;
+
+const diffPart = (label: string, before: string, after: string, unit = '') =>
+	`${label}: ${before === after ? after : `${before} → ${after}`}${unit}`;
+
+/** Mentés-sáv szövege: „Napi hívás: 17 → 21 · Tárhely/szezon: 17,5 → 20,1 MB” (mentett → piszkozat becslése). */
+export const settingsDiff = (saved: ISettingsEstimate, draft: ISettingsEstimate): string =>
+	[
+		diffPart('Napi hívás', formatDecimal(saved.dailyWithReserve, 0), formatDecimal(draft.dailyWithReserve, 0)),
+		diffPart('Tárhely/szezon', formatDecimal(saved.storageBytes / MB, 1), formatDecimal(draft.storageBytes / MB, 1), ' MB')
+	].join(' · ');
+
+/** Két beállítás azonos-e (a piszkozat `dirty` jelzőjéhez); a listák sorrendje nem számít. */
+export const sameSettings = (a: ISettings, b: ISettings): boolean => {
+	const norm = (s: ISettings) =>
+		JSON.stringify({
+			...s,
+			leagues: [...s.leagues].sort((x, y) => x - y),
+			markets: [...s.markets].sort(),
+			bookmakers: [...s.bookmakers].sort((x, y) => x - y)
+		});
+	return norm(a) === norm(b);
+};
+
+/** Megjelenés – téma-választó (DESIGN §3.1); a `ThemeStore.setPreference`-t hívja, nem része a piszkozatnak. */
+export const THEME_OPTIONS: readonly { key: ThemePreference; label: string }[] = [
+	{ key: 'system', label: 'Rendszer' },
+	{ key: 'dark', label: 'Sötét' },
+	{ key: 'light', label: 'Világos' }
+];
+
+/** A Beállítások szekciói (asztalon bal menü, mobilon chip-sor; anchor-célok). */
+export const SETTINGS_SECTIONS = [
+	{ id: 'ligak', label: 'Ligák' },
+	{ id: 'piacok', label: 'Piacok és irodák' },
+	{ id: 'tarolas', label: 'Tárolás' },
+	{ id: 'strategia', label: 'Stratégia' },
+	{ id: 'megjelenes', label: 'Megjelenés' }
+] as const;
+
+export type SettingsSectionId = (typeof SETTINGS_SECTIONS)[number]['id'];
 
 export { DAILY_CALL_LIMIT, STORAGE_LIMIT_BYTES };

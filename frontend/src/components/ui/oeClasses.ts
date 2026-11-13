@@ -25,9 +25,6 @@ export const statusDot =
 export const input =
 	'min-h-touch w-full rounded-l border border-border-strong bg-canvas px-sp-5 text-num-s font-bold text-text-primary aria-[invalid=true]:border-negative data-[valid=true]:border-accent';
 
-/** Bekapcsolható gomb (`aria-pressed`) – semleges kiválasztás (DESIGN §1.3). Az `oe-btn` mellé. */
-export const toggleBtn = 'aria-pressed:border-on-bg aria-pressed:bg-on-bg aria-pressed:text-on-fg';
-
 /** Keretes figyelmeztetés (a v0.1 `.oe-warning--box` / `--danger` helyett). Az `oe-warning` mellé. */
 export const warningBox = 'rounded-l border border-tint-warning-border bg-tint-warning px-sp-6 py-sp-5';
 export const dangerBox = 'rounded-l border border-tint-negative-border bg-tint-negative px-sp-6 py-sp-5 text-negative-text';

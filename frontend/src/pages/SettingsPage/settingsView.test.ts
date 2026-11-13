@@ -2,11 +2,14 @@ import { estimateDailyCalls } from '@football/core';
 import {
 	DEFAULT_SETTINGS,
 	estimateSettings,
+	missingCoverage,
 	numberFieldText,
 	parseDecimalInput,
 	parseNumberField,
+	sameSettings,
 	sanitizeSettings,
 	SETTINGS_LEAGUES,
+	settingsDiff,
 	settingsWarnings,
 	stakeOptions
 } from './settingsView';
@@ -64,5 +67,27 @@ describe('settingsView', () => {
 		const w = settingsWarnings(s, estimateSettings(s));
 		expect(w.some((x) => x.danger && x.text.includes('napi 100'))).toBe(true);
 		expect(w.some((x) => x.text.includes('iroda'))).toBe(true);
+	});
+
+	it('lists only the missing coverage items', () => {
+		const full = SETTINGS_LEAGUES.find((l) => l.id === 39)!;
+		expect(missingCoverage(full)).toEqual([]);
+		expect(missingCoverage(SETTINGS_LEAGUES.find((l) => l.id === 271)!)).toEqual(['Sérültek nincs']);
+		expect(missingCoverage({ ...full, coverage: { odds: false, injuries: true, statistics: false } })).toEqual([
+			'Odds nincs',
+			'Statisztika nincs'
+		]);
+	});
+
+	it('describes the saved → draft estimate change', () => {
+		const saved = estimateSettings(DEFAULT_SETTINGS);
+		const est = (daily: number, mb: number) => ({ ...saved, dailyWithReserve: daily, storageBytes: mb * 1024 * 1024 });
+		expect(settingsDiff(est(17, 17.5), est(21.2, 20.08))).toBe('Napi hívás: 17 → 21 · Tárhely/szezon: 17,5 → 20,1 MB');
+		expect(settingsDiff(est(17, 17.5), est(17, 12))).toBe('Napi hívás: 17 · Tárhely/szezon: 17,5 → 12,0 MB');
+	});
+
+	it('compares settings regardless of list order', () => {
+		expect(sameSettings(DEFAULT_SETTINGS, { ...DEFAULT_SETTINGS, leagues: [...DEFAULT_SETTINGS.leagues].reverse() })).toBe(true);
+		expect(sameSettings(DEFAULT_SETTINGS, { ...DEFAULT_SETTINGS, stakeUnit: 2000 })).toBe(false);
 	});
 });
