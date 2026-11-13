@@ -25,6 +25,8 @@ export * from './evaluation/evaluation';
 export * from './evaluation/goals';
 export * from './evaluation/verdict';
 export * from './budget/budget';
+export * from './storage/keyValue';
+export * from './settings/settings';
 export * from './backtest/backtest';
 export * from './recommend/recommend';
 export * from './recommend/snapshot';

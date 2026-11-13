@@ -11,8 +11,12 @@ import {
 	SettingsMarketKey,
 	settingsDiff,
 	settingsWarnings,
+	loadStoredSync,
+	saveStoredSync,
+	settingsCodec,
 	stakeOptions
-} from '../pages/SettingsPage/settingsView';
+} from '@football/core';
+import { webStorage } from '../shared/storage/webStorage';
 
 /** A beállítások tárolója. TODO(polish): DB `setting` tábla a backend-íróval (most localStorage). */
 export interface ISettingsStorage {
@@ -20,20 +24,12 @@ export interface ISettingsStorage {
 	save(settings: ISettings): void;
 }
 
-const STORAGE_KEY = 'oe_settings';
-
+/** localStorage (`oe_settings`) a core `settingsCodec`-kel; az olvasás szinkron (első festés villanás nélkül). */
 export const localSettingsStorage: ISettingsStorage = {
-	load: () => {
-		try {
-			const raw = typeof window === 'undefined' ? null : window.localStorage.getItem(STORAGE_KEY);
-			return raw ? JSON.parse(raw) : null;
-		} catch {
-			return null;
-		}
-	},
+	load: () => loadStoredSync(webStorage, settingsCodec),
 	save: (settings) => {
 		try {
-			if (typeof window !== 'undefined') window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+			saveStoredSync(webStorage, settingsCodec, settings);
 		} catch {
 			// privát ablak / tiltott tároló: a mentett állapot erre a munkamenetre így is él
 		}
