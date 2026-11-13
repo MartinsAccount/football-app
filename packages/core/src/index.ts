@@ -22,6 +22,8 @@ export * from './features/season';
 export * from './features/motivation';
 export * from './features/matchFeatures';
 export * from './evaluation/evaluation';
+export * from './evaluation/goals';
+export * from './evaluation/verdict';
 export * from './budget/budget';
 export * from './backtest/backtest';
 export * from './recommend/recommend';

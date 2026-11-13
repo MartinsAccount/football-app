@@ -163,3 +163,9 @@ export const formatDateRange = (a: Date, b: Date, timeZone: string = DEFAULT_TIM
 	const tail = f.year === t.year ? `${MONTH_SHORT[t.month - 1]} ${t.day}.` : `${t.year}. ${MONTH_SHORT[t.month - 1]} ${t.day}.`;
 	return `${head}. ${EN_DASH} ${tail}`;
 };
+
+/** Előjeles tizedes tört: `+`, valódi `−`, a nullára kerekített érték előjel nélkül. `0.0396` (3) → `+0,040`. */
+export const formatSignedDecimal = (value: number, decimals = 1): string => formatSigned(value, decimals);
+
+/** CLV: előjeles %, 1 tizedessel (DESIGN §7). `0.0109` → `+1,1%`. */
+export const formatClv = (ratio: number): string => `${formatSigned(ratio * 100, 1)}%`;
