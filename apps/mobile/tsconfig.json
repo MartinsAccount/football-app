@@ -1,0 +1,14 @@
+{
+	"extends": "expo/tsconfig.base",
+	"compilerOptions": {
+		"strict": true,
+		"paths": {
+			"@/*": ["./src/*"],
+			"@/assets/*": ["./assets/*"],
+			"@football/core": ["../../packages/core/src/index.ts"],
+			"@football/contract": ["../../packages/contract/src/index.ts"],
+			"@football/theme": ["../../packages/theme/src/index.ts"]
+		}
+	},
+	"include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+}

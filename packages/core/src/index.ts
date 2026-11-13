@@ -27,6 +27,7 @@ export * from './evaluation/goals';
 export * from './evaluation/verdict';
 export * from './budget/budget';
 export * from './storage/keyValue';
+export * from './storage/cachedResponse';
 export * from './settings/settings';
 export * from './theme/theme';
 export * from './backtest/backtest';

@@ -33,7 +33,13 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 **Mobil (ROADMAP 11):**
 
-1. **M6 Expo-váz** (11.6) – `apps/mobile`, Ajánlások képernyő.
+M1–M6 kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
+
+1. **M7 Kiértékelés** – backtest-összesítő + kalibráció (olvasó-API végpont vagy mentett JSON kell → előbb contract-DTO).
+2. **M8 Szelvény** – core `slip/` + `savedSlipsCodec` AsyncStorage-on (`asyncKeyValueStorage`).
+3. **M9 Beállítások** – core `settingsCodec` + téma-preferencia (`themeCodec`), a Kapcsolat-képernyő mellé.
+4. **M10 Arbitrázs** – core `arbitrage/scan` nézet (végpont/snapshot kell).
+5. **M11 Meccs-részlet** – `getOdds(fixtureId)` (odds-history), csapatnevek (DTO-bővítés).
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).
@@ -87,10 +93,12 @@ tételek).
 | M3 – Bearer auth (11.3)          | (lásd git log: feat(server): add bearer token auth)                                       | `packages/server/src/auth.ts`: `authorize(req, config)` (Bearer, sha256-hex Web Crypto, időzítés-biztos összevetés; hash nélkül dev nyitott, production 401; `authorizers` bővítési pont a web-sessionnek), `authConfigFromEnv`, `hashToken`; `createApiHandler({ auth })` → 401 `unauthorized` + `WWW-Authenticate: Bearer`; `toNodeListener` továbbítja a fejléceket; `npm run token -w @football/server`; contract `ApiErrorCode` + `unauthorized`                                                                                                      |
 | M4 – Hordozható állapot (11.4)   | `5554718` (M4a) + `5e8f7c4` (M4b) | core: `storage/keyValue.ts` (async `KeyValueStorage` + `SyncKeyValueStorage`, memória-impl., `loadStored*`/`saveStored*`, codec), `settings/settings.ts` (a volt `settingsView` tiszta része + `settingsCodec`), `theme/theme.ts`, `slip/savedSlip.ts`; web: `shared/storage/webStorage.ts`; kulcsok/formátum változatlan                                                                                                                                                                                                                                  |
 | M5 – `packages/theme` (11.5) | `ff5e4fd` | `@football/theme`: `rnThemes { dark, light }`, `rnTheme(name)`, `tokenPaths` (generált `src/theme.generated.ts`, a `build-tokens.mjs` írja); px/ms → szám, árnyék RN-alakban; `tokens:check` a frontend verify-ban; `tokens.ts` a core-ból re-exportálja a ThemeName/ThemePreference/THEME_STORAGE_KEY-t; screenshot `m5-1440` (web változatlan) |
+| M6 – Expo-váz (11.6) | (lásd git log: feat(mobile): add Expo app skeleton) | `apps/mobile` (Expo SDK 58, expo-router, TS; NEM workspace-tag, saját lockfile; Metro `watchFolders`+`extraNodeModules`, TS `paths`): Meccsek-képernyő (`listFixtures`, `rnTheme` rendszer szerint, core `format*`), Kapcsolat-képernyő (base URL + token `expo-secure-store`), offline: core `storage/cachedResponse.ts` (`loadWithCache`) + AsyncStorage-adapter; `tsc` és `expo export --platform android` zöld |
 | S30 – Beállítások                | (lásd git log: feat(ui): settings sections)                                               | szekció-menü (`SettingsNav`: asztalon bal oszlop, mobilon görgethető chip-sor, `aria-current` semleges); `missingCoverage` (csak a hiány, `.oe-pill--warning`); piac/iroda/liga jelölőnégyzetes tömör sorok; Megjelenés `.oe-segmented` → `ThemeStore.setPreference`; `SettingsStore` `saved`/`draft`/`dirty`/`save`/`discard`, localStorage csak mentéskor, szelvény a mentettet követi; `SaveBar` + `settingsDiff`; `toggleBtn` törölve; screenshot `s30-*`, `s30-*-mentes`, záró `s30-final-*` (16)                                                     |
 
 ## Polish backlog
 
+- M6: a mobil lista csapat-id-t mutat (a `FixtureDto`-ban nincs csapatnév); ajánlás-végpont híján meccslista; Sora/Manrope fontok nincsenek betöltve; a sablon fölösleges natív függőségei (`@expo/ui`, `expo-glass-effect`, `expo-symbols` stb.) bent maradtak; az apps/mobile nincs a gyökér prettier-globban.
 - M4/M5: az `index.html` festés előtti scriptje a `oe-theme` kulcsot literálként tartja (a TS-ben már egy helyen: core).
 - M5: RN-téma: a `font.tracking` em-ben, a line-height szorzó (RN-ben × fontSize kell); a fontok (Sora, Manrope) betöltése az
   Expo-appra vár; a `data-accent` variáns nincs az RN-témában.
@@ -159,6 +167,8 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **M6 Expo-váz kész.** `cd apps/mobile && npm install` (külön, nem workspace; `NODE_OPTIONS=--use-system-ca`, sandboxon kívül, lassú hálózat: ~25 perc). Ellenőrzés: `npx tsc --noEmit` + `npx expo export --platform android` (a `dist/` git-ignored, töröld). Új megosztott csomag mobilon: a `metro.config.js` `shared` listájába + `tsconfig.json` `paths`. A megosztott csomag nem importálhat külső npm-függőséget (a Metro csak az apps/mobile/node_modules-ból old fel). APK + éles API → BLOCKERS. Következő: M7 (11.7+).
 
 - **M5 `packages/theme` kész.** Mobilon: `import { rnTheme } from '@football/theme'` (függőség nélküli, TS-forrás). A forrás
   továbbra is `frontend/src/design/tokens/tokens.json`; token-változás után `npm run tokens -w football-app-web` (különben a
