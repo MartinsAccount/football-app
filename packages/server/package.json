@@ -9,6 +9,7 @@
 	},
 	"scripts": {
 		"dev": "vite-node scripts/dev.ts",
+		"token": "vite-node scripts/token.ts",
 		"test": "vitest",
 		"test:ci": "vitest run",
 		"typecheck": "tsc --noEmit",

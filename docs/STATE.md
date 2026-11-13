@@ -33,10 +33,9 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 **Mobil (ROADMAP 11):**
 
-1. **M3 Bearer auth** (11.3) – `packages/server`, `APP_API_TOKEN_HASH`, token-script.
-2. **M4 Hordozható állapot** (11.4) – Settings/Slip/Theme tiszta logika a core-ba, async `KeyValueStorage`.
-3. **M5 `packages/theme`** (11.5) – RN-téma a tokenekből.
-4. **M6 Expo-váz** (11.6) – `apps/mobile`, Ajánlások képernyő.
+1. **M4 Hordozható állapot** (11.4) – Settings/Slip/Theme tiszta logika a core-ba, async `KeyValueStorage`.
+2. **M5 `packages/theme`** (11.5) – RN-téma a tokenekből.
+3. **M6 Expo-váz** (11.6) – `apps/mobile`, Ajánlások képernyő.
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).
@@ -86,7 +85,8 @@ tételek).
 | S28 – Kiértékelés                | (lásd git log: feat(ui): evaluation verdict)                    | core `evaluation/goals.ts` (`evaluateGoals` 5 PRD-cél ok/fail/info, ROI < 300 tipp → info, `roiInterval`, `ciScale`, `calibrationDotSize`, `calibrationFlags`, `calibrationError`) + `verdict.ts` (`evaluationVerdict`: tónus §8.3, cím, 2 mondat számokkal; teszt: mostani számok → negative, 2/5); core `formatClv`/`formatSignedDecimal`; oldal `.oe-stack`: fej → `.oe-verdict` → sikermutatók → KPI-k → pontosság → kalibráció (`.oe-chart` + `.oe-calib-row`) → bontás; `EvaluationSections.tsx`; screenshot `docs/plans/screens/s28-*` (+ `-gol25`) |
 | S29 – Arbitrázs                  | (lásd git log: fix(arbitrage): label by rounded payout)         | core `arbitrageStakes` → `staked` + `band` (arb csak Σ<1 és kerekítve `worstPayout ≥ staked`), `roundedBand`; teszt: Monza–Napoli odds → „near”; view: címke/szűrő/számlálók a kerekített sávból (`arbitrageTiles(snap,total)`), `historicalNotice(source)`, `ARBITRAGE_SUBTITLE` chip; `PageHead` `notice` slot (`.oe-pill--warning`), szűrők a fej jobb oldalán; kártya `.oe-tip`; `cardSelected` törölve; screenshot `docs/plans/screens/s29-*`                                                                                                         |
 | M1 – PWA (11.1)                  | (lásd git log: feat(pwa): add manifest, service worker)         | `public/manifest.json` (Odds elemző, hu, standalone, canvas #0B1220), ikonok `public/icons/` (SVG forrás → headless Edge PNG 192/512/maskable 512); `public/sw.js` (shell precache + verziózott cache, `/api/*` és `*.json` network-first, navigáció → `index.html` fallback, egyéb azonos originű GET cache-first); `vite.config.ts` `pwaPrecache` plugin tölti a precache-listát/BUILD_ID-t; szabály: `src/pwa/cacheStrategy.ts` (teszt veti össze a sw.js-sel); `OfflineIndicator` az AppShellben; screenshot `docs/plans/screens/m1-*`                 |
-| M2 – contract (11.2)             | (lásd git log: feat(contract): add read-API contract package) | `packages/contract` (`@football/contract`): DTO-k (`FixturesResponse`, `OddsResponse`, `BudgetResponse`, `ApiErrorBody`), `createApiClient({ baseUrl, token?, fetch? })` (`listFixtures`/`getOdds`/`getBudget`), `ApiError` (status 0 = hálózat), `buildFixtureQuery`; nincs DOM-lib a tsconfigban; server `satisfies`-szal köti; szerződés-teszt `packages/server/src/contract.test.ts` |
+| M2 – contract (11.2)             | (lásd git log: feat(contract): add read-API contract package)   | `packages/contract` (`@football/contract`): DTO-k (`FixturesResponse`, `OddsResponse`, `BudgetResponse`, `ApiErrorBody`), `createApiClient({ baseUrl, token?, fetch? })` (`listFixtures`/`getOdds`/`getBudget`), `ApiError` (status 0 = hálózat), `buildFixtureQuery`; nincs DOM-lib a tsconfigban; server `satisfies`-szal köti; szerződés-teszt `packages/server/src/contract.test.ts`                                                                                                                                                                   |
+| M3 – Bearer auth (11.3)          | (lásd git log: feat(server): add bearer token auth)             | `packages/server/src/auth.ts`: `authorize(req, config)` (Bearer, sha256-hex Web Crypto, időzítés-biztos összevetés; hash nélkül dev nyitott, production 401; `authorizers` bővítési pont a web-sessionnek), `authConfigFromEnv`, `hashToken`; `createApiHandler({ auth })` → 401 `unauthorized` + `WWW-Authenticate: Bearer`; `toNodeListener` továbbítja a fejléceket; `npm run token -w @football/server`; contract `ApiErrorCode` + `unauthorized`                                                                                                      |
 | S30 – Beállítások                | (lásd git log: feat(ui): settings sections)                     | szekció-menü (`SettingsNav`: asztalon bal oszlop, mobilon görgethető chip-sor, `aria-current` semleges); `missingCoverage` (csak a hiány, `.oe-pill--warning`); piac/iroda/liga jelölőnégyzetes tömör sorok; Megjelenés `.oe-segmented` → `ThemeStore.setPreference`; `SettingsStore` `saved`/`draft`/`dirty`/`save`/`discard`, localStorage csak mentéskor, szelvény a mentettet követi; `SaveBar` + `settingsDiff`; `toggleBtn` törölve; screenshot `s30-*`, `s30-*-mentes`, záró `s30-final-*` (16)                                                     |
 
 ## Polish backlog
@@ -157,8 +157,13 @@ tételek).
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
-- **M2 contract kész.** `@football/contract` önálló DTO-kat ad (nem függ a db-től); a server `satisfies`-szal köti a válaszait, így
-  séma-eltérésnél a server typecheck bukik. Új végpontnál: DTO + kliensmetódus + `contract.test.ts` eset. A kliens a saját
+- **M3 Bearer auth kész.** `createApiHandler({ auth })` – a belépési pont adja át: `authConfigFromEnv(process.env)` (dev.ts már
+  igen; a jövőbeli Vercel `api/` is így tegye, különben nincs védelem). Hash nélkül: `NODE_ENV=production` → minden 401, egyébként
+  nyitott. Token: `npm run token -w @football/server` (csak kiír). Web-session: új `Authorizer` az `authorizers` listába. CORS/
+  OPTIONS még nincs (a 401 megelőzi a method-ellenőrzést). Következő: M4.
+
+- **M2 contract kész.** `@football/contract` önálló DTO-kat ad (nem függ a db-től); a server `satisfies`-szal köti a válaszait,
+  így séma-eltérésnél a server typecheck bukik. Új végpontnál: DTO + kliensmetódus + `contract.test.ts` eset. A kliens a saját
   `FetchLike` típusát használja (nincs DOM-lib), query-string kézzel (`buildFixtureQuery`). A frontend még nincs átkötve
   (Vite-proxy a legacy :5000-re). M3: a Bearer fejlécet a kliens már küldi; a szerver-oldali ellenőrzés hiányzik. Következő: M3.
 

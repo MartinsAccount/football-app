@@ -1,10 +1,12 @@
 import { SqlBudgetStore } from '@football/api-client';
 import { ApiError, createApiClient, type ApiClient, type FetchLike } from '@football/contract';
 import { openMemoryRepository } from '@football/db';
-import { createApiHandler } from './router';
+import { hashToken } from './auth';
+import { createApiHandler, type ApiHandler } from './router';
 
 /** Szerződés-teszt: a `@football/contract` kliense a valódi handlert hívja (in-memory repo), hálózat nélkül. */
 let api: ApiClient;
+let handler: ApiHandler;
 const seen: string[] = [];
 
 beforeAll(async () => {
@@ -28,7 +30,13 @@ beforeAll(async () => {
 		kind: 'legacy',
 		quotes: [{ bookmakerId: 8, marketId: 1, selection: 'Home', odd: 2.1 }]
 	});
-	const handler = createApiHandler({ repo, budget: new SqlBudgetStore(db), now: () => new Date('2026-11-12T10:00:00Z') });
+	// Production-szerű védelem: csak a 't0k3n' Bearer token hash-e van beállítva.
+	handler = createApiHandler({
+		repo,
+		budget: new SqlBudgetStore(db),
+		now: () => new Date('2026-11-12T10:00:00Z'),
+		auth: { tokenHash: await hashToken('t0k3n'), production: true }
+	});
 	const fetch: FetchLike = (url, init) => {
 		seen.push(init.headers.authorization ?? '');
 		return handler(new Request(url, init));
@@ -64,5 +72,15 @@ describe('contract ↔ server', () => {
 
 	it('sends the bearer token', () => {
 		expect(seen.every((h) => h === 'Bearer t0k3n')).toBe(true);
+	});
+
+	it('without or with a wrong token → 401 unauthorized + WWW-Authenticate', async () => {
+		const fetch: FetchLike = (url, init) => handler(new Request(url, init));
+		for (const token of [undefined, 'rossz']) {
+			const client = createApiClient({ baseUrl: 'http://localhost', token, fetch });
+			await expect(client.getBudget()).rejects.toMatchObject({ status: 401, error: 'unauthorized' });
+		}
+		const res = await handler(new Request('http://localhost/api/budget'));
+		expect(res.headers.get('www-authenticate')).toBe('Bearer');
 	});
 });

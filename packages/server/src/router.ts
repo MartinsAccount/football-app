@@ -1,5 +1,6 @@
 import { utcDay, type BudgetStore } from '@football/api-client';
 import type { FixtureFilter, Repository } from '@football/db';
+import { authorize, type AuthConfig } from './auth';
 import type { ApiErrorBody, ApiErrorCode, BudgetResponse, FixturesResponse, OddsResponse } from '@football/contract';
 
 /**
@@ -11,6 +12,8 @@ export interface ApiDeps {
 	repo: Pick<Repository, 'listFixtures' | 'getFixture' | 'getLatestOdds'>;
 	budget: Pick<BudgetStore, 'usage'>;
 	now?: () => Date;
+	/** Hozzáférés-védelem (ADR-0005). Hiányában nincs ellenőrzés – a belépési pontok `authConfigFromEnv`-vel adják át. */
+	auth?: AuthConfig;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -24,7 +27,11 @@ const json = (status: number, body: unknown): Response =>
 		headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
 	});
 
-const fail = (status: number, error: ApiErrorCode, message: string) => json(status, { error, message } satisfies ApiErrorBody);
+const fail = (status: number, error: ApiErrorCode, message: string, headers: Record<string, string> = {}) => {
+	const res = json(status, { error, message } satisfies ApiErrorBody);
+	for (const [k, v] of Object.entries(headers)) res.headers.set(k, v);
+	return res;
+};
 
 class BadRequest extends Error {}
 
@@ -78,6 +85,10 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 	return async (req) => {
 		const url = new URL(req.url);
 		const path = url.pathname.replace(/\/+$/, '');
+		if (deps.auth) {
+			const auth = await authorize(req, deps.auth);
+			if (!auth.ok) return fail(401, 'unauthorized', auth.message, { 'www-authenticate': 'Bearer' });
+		}
 		if (req.method !== 'GET') return fail(405, 'method', 'Csak GET engedélyezett');
 		try {
 			if (path === '/api/fixtures') {

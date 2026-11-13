@@ -80,7 +80,7 @@ export interface BudgetResponse {
 }
 
 /** Hibakódok, amelyeket a server az `{ error, message }` törzsben ad. */
-export type ApiErrorCode = 'bad-request' | 'not-found' | 'method' | 'internal';
+export type ApiErrorCode = 'bad-request' | 'unauthorized' | 'not-found' | 'method' | 'internal';
 
 /** Minden nem-2xx válasz törzse. */
 export interface ApiErrorBody {
