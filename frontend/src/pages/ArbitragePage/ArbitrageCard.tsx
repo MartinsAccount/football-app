@@ -1,7 +1,6 @@
 import React, { CSSProperties, PureComponent } from 'react';
 import { v } from '../../design/tokens/tokens';
 import { IArbRow } from './arbitrageView';
-import { card, cardSelected, cx } from '../../components/ui/oeClasses';
 
 const tableStyle: CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: v('font.size.small') };
 const cell: CSSProperties = {
@@ -14,6 +13,8 @@ const cell: CSSProperties = {
 const cellFirst: CSSProperties = { ...cell, textAlign: 'left', paddingLeft: 0, whiteSpace: 'normal' };
 const headCell: CSSProperties = { ...cell, color: v('color.text.muted'), fontWeight: v('font.weight.semibold') };
 const headFirst: CSSProperties = { ...headCell, textAlign: 'left', paddingLeft: 0 };
+/** A `.oe-tip + .oe-tip` lista-margó rácsban nem kell (a rács `gap`-je ad térközt). */
+const articleStyle: CSSProperties = { marginTop: 0, padding: v('space.9'), gap: v('space.7') };
 const statsStyle: CSSProperties = {
 	display: 'flex',
 	flexWrap: 'wrap',
@@ -27,21 +28,20 @@ interface IArbitrageCardProps {
 }
 
 /**
- * Egy meccs egy piaca (DESIGN §7 kártya): Σ 1/odds, hozam és a lábak a tét-elosztással. A régi modál helyett minden
- * adat a kártyán látszik (ui-audit #7: nincs backdrop nélküli modál).
+ * Egy meccs egy piaca (`.oe-tip` kártya, S29; kiemelés csak a kerekítve is nyereséges `arb` sávnál): Σ 1/odds, hozam
+ * és a lábak a tét-elosztással. A régi modál helyett minden adat a kártyán látszik (ui-audit #7: nincs backdrop nélküli modál).
  */
 class ArbitrageCard extends PureComponent<IArbitrageCardProps> {
 	render() {
 		const { row, totalStake } = this.props;
-		const tone = row.positive
-			? v('color.accent.text')
-			: row.band === 'near'
-			? v('color.signal.warning-text')
-			: v('color.text.muted');
+		// Accent csak a kerekítve is nyereséges arbitrázsnak; a kerekítés miatt „Közeli” elméleti +hozama figyelmeztető szín.
+		const tone =
+			row.band === 'arb' ? v('color.accent.text') : row.band === 'near' ? v('color.signal.warning-text') : v('color.text.muted');
 		const titleId = `arb-${row.key}`;
 		return (
 			<article
-				className={cx(card, cardSelected)}
+				className="oe-tip"
+				style={articleStyle}
 				aria-labelledby={titleId}
 				data-selected={row.band === 'arb' ? 'true' : undefined}
 			>

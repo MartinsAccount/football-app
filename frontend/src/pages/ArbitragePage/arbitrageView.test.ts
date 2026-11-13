@@ -6,6 +6,7 @@ import {
 	arbitrageTiles,
 	defaultFilter,
 	formatMarginPct,
+	historicalNotice,
 	parseTotalStake
 } from './arbitrageView';
 
@@ -60,6 +61,18 @@ const snap: ArbitrageSnapshot = {
 				scanMarket('h2h', H2H, [q('A', 'Home', 2), q('A', 'Draw', 3), q('A', 'Away', 3)]), // Σ ≈ 1,167 távoli
 				scanMarket('ou25', ['Over', 'Under'], [q('A', 'Over', 2)]) // nincs lefedés
 			]
+		},
+		{
+			fixtureId: 3,
+			league: 'L',
+			kickoff: '2025-04-13T16:00:00.000Z',
+			home: 'H3',
+			away: 'A3',
+			oddsAt: 'x',
+			opportunities: [
+				// Σ ≈ 0,99973 < 1, de 10 Ft-os tétekkel a legrosszabb kifizetés < összes tét (Monza–Napoli eset) → „Közeli”
+				scanMarket('h2h', H2H, [q('C', 'Home', 16.5), q('C', 'Draw', 6.1), q('C', 'Away', 1.29)])
+			]
 		}
 	]
 };
@@ -88,11 +101,17 @@ describe('arbitrageRows', () => {
 	});
 	it('közeli: arb + közeli, Σ szerint növekvő', () => {
 		const rows = arbitrageRows(snap, { band: 'near', market: 'all', bookmaker: 'all' }, 10000);
-		expect(rows.map((r) => r.key)).toEqual(['1-h2h', '1-ou25']);
-		expect(rows[1].positive).toBe(false);
+		expect(rows.map((r) => r.key)).toEqual(['1-h2h', '3-h2h', '1-ou25']);
+		expect(rows[2].positive).toBe(false);
+	});
+	it('Σ < 1, de a kerekítés után negatív kifizetés → „Közeli” címke, az arb-szűrőben nincs', () => {
+		const rows = arbitrageRows(snap, { band: 'near', market: 'all', bookmaker: 'C' }, 10000);
+		expect(rows.map((r) => [r.key, r.band, r.bandLabel, r.profitPositive])).toEqual([['3-h2h', 'near', 'Közeli', false]]);
+		expect(rows[0].profit.startsWith('−')).toBe(true);
+		expect(arbitrageRows(snap, { band: 'arb', market: 'all', bookmaker: 'C' }, 10000)).toEqual([]);
 	});
 	it('mind: lefedés nélküli piac kimarad; piac- és irodaszűrő', () => {
-		expect(arbitrageRows(snap, { band: 'all', market: 'all', bookmaker: 'all' }, 10000)).toHaveLength(3);
+		expect(arbitrageRows(snap, { band: 'all', market: 'all', bookmaker: 'all' }, 10000)).toHaveLength(4);
 		expect(arbitrageRows(snap, { band: 'all', market: 'ou25', bookmaker: 'all' }, 10000).map((r) => r.key)).toEqual(['1-ou25']);
 		expect(arbitrageRows(snap, { band: 'all', market: 'all', bookmaker: 'B' }, 10000).map((r) => r.key)).toEqual([
 			'1-h2h',
@@ -104,7 +123,7 @@ describe('arbitrageRows', () => {
 describe('arbitrageTiles', () => {
 	it('darabszámok és legjobb hozam', () => {
 		const t = arbitrageTiles(snap);
-		expect(t.map((x) => x.value).slice(0, 3)).toEqual(['2', '1', '1']);
+		expect(t.map((x) => x.value).slice(0, 3)).toEqual(['3', '1', '2']);
 		expect(t[3].positive).toBe(true);
 	});
 });
@@ -120,10 +139,23 @@ describe('parseTotalStake', () => {
 describe('arbitrageHeadChips', () => {
 	it('forrás és darabszámok a pillanatképből', () => {
 		expect(arbitrageHeadChips(snap)).toEqual([
+			'Irodák közötti árkülönbségek',
 			'teszt',
 			`${snap.fixtures.length} meccs`,
 			'2 piac',
 			`${snap.bookmakers.length} iroda`
 		]);
+	});
+});
+
+describe('historicalNotice', () => {
+	it('szezon és „nyitó” a forrásmezőből, beégetés nélkül', () => {
+		expect(historicalNotice('football-data CSV (2024/25, nyitó odds)')).toBe(
+			'Történeti adat: 2024/25 nyitó oddsok – nem megtehető fogadás'
+		);
+		expect(historicalNotice('football-data CSV (2023/24, záró odds)')).toBe(
+			'Történeti adat: 2023/24 záró oddsok – nem megtehető fogadás'
+		);
+		expect(historicalNotice('teszt')).toBe('Történeti adat – nem megtehető fogadás');
 	});
 });

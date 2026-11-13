@@ -27,8 +27,7 @@ Minden szeletnél: a terv „Szeletek” pontja + CHANGES.md megfelelő fejezete
 (`?theme=light|dark`) → `docs/plans/screens/<szelet>-<oldal>-<téma>-<szélesség>.png`, összevetés a csomag screens/-ével. Adatot
 nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / modell / ingestion / DB-séma nem változik.
 
-1. **S29 – Arbitrázs** (CHANGES 4.; core kerekítés-címke teszttel).
-2. **S30 – Beállítások** (CHANGES 5.).
+1. **S30 – Beállítások** (CHANGES 5.).
 
 ## Kész
 
@@ -64,6 +63,7 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 | S27b – Szelvény + presetek       | (lásd git log: feat(ui): slip panel with presets)               | core `slip/presets.ts` §8.2 (Szingli/Dupla/Hármas, „Ajánlott” csak low/medium szingli), `slip/oneIn.ts` (`hungarianOrdinal`, `oneInText`; „Kész, ha” tesztek); presetek az üres `.oe-slip`-ben (`SlipPresets` a `SlipPanel`-en belül, `presetTips` prop); „Szelvény ürítése” (`SlipStore.clear`); BottomSheet törölve, SlipBar → `#szelveny`; `shots.mjs --click`                                                                                                                                                                                          |
 | S27a – Tippkártya + adat-állapot | (lásd git log: feat(ui): redesign tip card)                     | `.oe-hero` + `PageIntro/DataState.tsx` (`dataState(snapshot)`: „Mentett adat · 2025. ápr. 12–13.”, „Odds 17 órás”, „Mit jelent?”), EngineBanner törölve; TipCard a referencia sorrendjében (`.oe-decision`, `ProbabilityTile` `--p`/`--m`, `.oe-tip__details` hidden, `.oe-tip__source`); core `formatDateRange`; tabella-zónák nélkül; `frontend/scripts/shots.mjs`                                                                                                                                                                                       |
 | S28 – Kiértékelés                | (lásd git log: feat(ui): evaluation verdict)                    | core `evaluation/goals.ts` (`evaluateGoals` 5 PRD-cél ok/fail/info, ROI < 300 tipp → info, `roiInterval`, `ciScale`, `calibrationDotSize`, `calibrationFlags`, `calibrationError`) + `verdict.ts` (`evaluationVerdict`: tónus §8.3, cím, 2 mondat számokkal; teszt: mostani számok → negative, 2/5); core `formatClv`/`formatSignedDecimal`; oldal `.oe-stack`: fej → `.oe-verdict` → sikermutatók → KPI-k → pontosság → kalibráció (`.oe-chart` + `.oe-calib-row`) → bontás; `EvaluationSections.tsx`; screenshot `docs/plans/screens/s28-*` (+ `-gol25`) |
+| S29 – Arbitrázs                  | (lásd git log: fix(arbitrage): label by rounded payout)         | core `arbitrageStakes` → `staked` + `band` (arb csak Σ<1 és kerekítve `worstPayout ≥ staked`), `roundedBand`; teszt: Monza–Napoli odds → „near”; view: címke/szűrő/számlálók a kerekített sávból (`arbitrageTiles(snap,total)`), `historicalNotice(source)`, `ARBITRAGE_SUBTITLE` chip; `PageHead` `notice` slot (`.oe-pill--warning`), szűrők a fej jobb oldalán; kártya `.oe-tip`; `cardSelected` törölve; screenshot `docs/plans/screens/s29-*`                                                                                                         |
 
 ## Polish backlog
 
@@ -108,6 +108,8 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
   4 blokk 3+1 elrendezésű (auto-fit 300 px); a tabella-sorban a pont/gólkül. is félkövér (referenciában csak a név); Hiányzók
   blokk.
 - Nav-link 36 px magas (a referencia szerint), a DESIGN érintési célja 44 px; 390-en a nav 2 sorba törik → mobil overflow-menü?
+- Arbitrázs (S29): a sáv-szegmens súgója csak `title` (a `<small>` hint kikerült); a sáv-szűrő 40 px magas (vendor); a „Legjobb
+  hozam” csempe elméleti (kerekítés nélküli) érték; a kártya `.oe-tip` padding inline szűkítve (space-9).
 - Arbitrázs (S23): a pillanatkép CSV-ből, nem a DB `odds_snapshot`-ból (8.1/8.3); a beállított ligák/irodák nem szűrnek; odds-kor
   figyelmeztetés nincs; a „most” utáni 10 nap oddsa kezdés − 48 h; csak 1X2 és Gól 2,5 (AH nincs); a régi `/legacy/arbitrage`
   (oldalsáv, modál – ui-audit #3/#7/#8 ott maradt) a 8.3-mal törlendő.
@@ -123,6 +125,10 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **S29 kész.** Arbitrázs-sáv a UI-ban mindig `arbitrageStakes(odds,total,STAKE_ROUNDING).band` (tét-függő), a pillanatkép
+  `o.band` csak sum-alapú (riporthoz). 10 000 Ft-nál 2 arb (Valladolid–Osasuna +16 Ft, Sevilla–Alaves +1 Ft), Monza–Napoli (−2,5
+  Ft) „Közeli”. `PageHead` kapott `notice` slotot (S30 a Beállításokban használhatja). Következő: S30.
 
 - **S28 kész.** Ítélet és célok: `evaluationVerdict(cmp, report.calibration[market])` (core) →
   `{tone,title,text,goals,met,total}`; a view (`evaluationView.ts`) csak formáz: `goalRows`, `kpis`, `scoreRows`,

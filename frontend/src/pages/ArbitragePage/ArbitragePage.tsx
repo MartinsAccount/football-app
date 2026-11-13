@@ -12,6 +12,7 @@ import {
 	BAND_OPTIONS,
 	DEFAULT_TOTAL_STAKE,
 	defaultFilter,
+	historicalNotice,
 	IArbFilter,
 	MIN_TOTAL_STAKE,
 	parseTotalStake,
@@ -28,26 +29,34 @@ interface IArbitragePageState {
 
 const PAGE_SIZE = 12;
 
-const filterStyle: CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: v('space.6'), alignItems: 'flex-end' };
-const fieldStyle: CSSProperties = { minWidth: `min(100%, calc(${v('size.aside-basis')} * 2 / 3))` };
+const selectStyle: CSSProperties = { minWidth: `min(100%, calc(${v('size.aside-basis')} * 2 / 3))` };
+const headStyle: CSSProperties = { marginBottom: v('space.10') };
 const tilesStyle: CSSProperties = {
 	display: 'grid',
 	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.aside-basis')} * 3 / 4)), 1fr))`,
 	gap: v('space.6'),
-	marginBottom: v('space.10')
+	marginBottom: v('space.8')
 };
-const sectionStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: v('space.7'), marginBlock: v('space.14') };
+const stakeRowStyle: CSSProperties = {
+	display: 'flex',
+	flexWrap: 'wrap',
+	gap: `${v('space.4')} ${v('space.8')}`,
+	alignItems: 'flex-end'
+};
+const stakeFieldStyle: CSSProperties = { width: `min(100%, calc(${v('size.aside-basis')} * 2 / 3))` };
+const hintStyle: CSSProperties = { flex: `1 1 ${v('size.aside-basis')}`, margin: 0 };
+const sectionStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: v('space.7'), marginBlock: v('space.12') };
 
 /**
- * `/arbitrage` – Arbitrázs (PRD 5.8, ROADMAP 8.1/S23): irodák közti arbitrázs a mentett odds-pillanatképből
- * (`data/arbitrage/arbitrage-v0.json`, `npm run arbitrage -w @football/db`; 0 külső hívás). A régi oldal (élő API-pásztázás,
- * localStorage-cache, oldalsáv + modál) route nélkül, `LegacyArbitragePage.tsx`-ként marad, amíg a 8.3 ki nem vezeti.
+ * `/arbitrage` – Arbitrázs (PRD 5.8, ROADMAP 8.1/S23, S29 fej): irodák közti árkülönbségek a mentett odds-pillanatképből
+ * (`data/arbitrage/arbitrage-v0.json`, `npm run arbitrage -w @football/db`; 0 külső hívás). A fejben alcím-chip, történeti-adat
+ * jelzés és a szűrők (sáv, piac, iroda); a sáv a kerekített tétekkel számolt kifizetésből jön (core `arbitrageStakes`).
  * TODO(polish): a beállított ligák/irodák szűrése (SettingsStore), odds-kor figyelmeztetés, élő DB-snapshot (8.3).
  */
 class ArbitragePage extends Component<{}, IArbitragePageState> {
 	snapshot = reviveArbitrageSnapshot(snapshotJson);
 	state: IArbitragePageState = {
-		filter: defaultFilter(this.snapshot),
+		filter: defaultFilter(this.snapshot, DEFAULT_TOTAL_STAKE),
 		stakeText: String(DEFAULT_TOTAL_STAKE),
 		totalStake: DEFAULT_TOTAL_STAKE,
 		limit: PAGE_SIZE
@@ -62,6 +71,61 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 		this.setState((s) => ({ stakeText: text, totalStake: parsed ?? s.totalStake }));
 	}
 
+	private renderFilters() {
+		const { snapshot } = this;
+		const { filter } = this.state;
+		return (
+			<>
+				<div className="oe-segmented" role="group" aria-label="Sáv">
+					{BAND_OPTIONS.map((b) => (
+						<button
+							key={b.key}
+							type="button"
+							className="oe-segmented__btn"
+							title={b.hint}
+							aria-pressed={b.key === filter.band}
+							onClick={() => this.setFilter({ band: b.key })}
+						>
+							{b.label}
+						</button>
+					))}
+				</div>
+				<label className="oe-field">
+					Piac
+					<select
+						className="oe-select w-full min-w-0"
+						style={selectStyle}
+						value={filter.market}
+						onChange={(e) => this.setFilter({ market: e.target.value })}
+					>
+						<option value="all">Minden piac</option>
+						{snapshot.markets.map((m) => (
+							<option key={m.key} value={m.key}>
+								{m.label}
+							</option>
+						))}
+					</select>
+				</label>
+				<label className="oe-field">
+					Iroda
+					<select
+						className="oe-select w-full min-w-0"
+						style={selectStyle}
+						value={filter.bookmaker}
+						onChange={(e) => this.setFilter({ bookmaker: e.target.value })}
+					>
+						<option value="all">Minden iroda</option>
+						{snapshot.bookmakers.map((b) => (
+							<option key={b} value={b}>
+								{b}
+							</option>
+						))}
+					</select>
+				</label>
+			</>
+		);
+	}
+
 	render() {
 		const { snapshot } = this;
 		const { filter, stakeText, totalStake, limit } = this.state;
@@ -71,10 +135,17 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 
 		return (
 			<>
-				<PageHead title="Arbitrázs" chips={arbitrageHeadChips(snapshot)} />
+				<div style={headStyle}>
+					<PageHead
+						title="Arbitrázs"
+						chips={arbitrageHeadChips(snapshot)}
+						notice={<span className="oe-pill oe-pill--warning">{historicalNotice(snapshot.source)}</span>}
+						filters={this.renderFilters()}
+					/>
+				</div>
 
 				<div style={tilesStyle}>
-					{arbitrageTiles(snapshot).map((t) => (
+					{arbitrageTiles(snapshot, totalStake).map((t) => (
 						<div key={t.label} className="oe-tile">
 							<div className="oe-tile__label">{t.label}</div>
 							<div className="oe-tile__value" style={{ color: t.positive ? v('color.accent.text') : undefined }}>
@@ -85,52 +156,8 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 					))}
 				</div>
 
-				<div style={filterStyle}>
-					<div className="oe-segmented" role="group" aria-label="Sáv">
-						{BAND_OPTIONS.map((b) => (
-							<button
-								key={b.key}
-								type="button"
-								className="oe-segmented__btn"
-								aria-pressed={b.key === filter.band}
-								onClick={() => this.setFilter({ band: b.key })}
-							>
-								{b.label}
-								<small>{b.hint}</small>
-							</button>
-						))}
-					</div>
-					<label className="oe-field" style={fieldStyle}>
-						Piac
-						<select
-							className="oe-select w-full min-w-0"
-							value={filter.market}
-							onChange={(e) => this.setFilter({ market: e.target.value })}
-						>
-							<option value="all">Minden piac</option>
-							{snapshot.markets.map((m) => (
-								<option key={m.key} value={m.key}>
-									{m.label}
-								</option>
-							))}
-						</select>
-					</label>
-					<label className="oe-field" style={fieldStyle}>
-						Iroda
-						<select
-							className="oe-select w-full min-w-0"
-							value={filter.bookmaker}
-							onChange={(e) => this.setFilter({ bookmaker: e.target.value })}
-						>
-							<option value="all">Minden iroda</option>
-							{snapshot.bookmakers.map((b) => (
-								<option key={b} value={b}>
-									{b}
-								</option>
-							))}
-						</select>
-					</label>
-					<label className="oe-field" style={fieldStyle}>
+				<div style={stakeRowStyle}>
+					<label className="oe-field" style={stakeFieldStyle}>
 						Összes tét (Ft)
 						<input
 							className={input}
@@ -141,12 +168,12 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 							onChange={(e) => this.changeStake(e.target.value)}
 						/>
 					</label>
+					<p className="oe-muted text-small" id="arb-stake-hint" style={hintStyle}>
+						Kimenetelenként a legjobb odds {snapshot.bookmakers.length} irodából. A tétek {formatFt(STAKE_ROUNDING)}-ra kerekítve;
+						„Arbitrázs” csak az, ahol a kerekített tétekkel a legrosszabb kimenet is legalább a teljes tétet fizeti
+						{stakeInvalid ? ` (legalább ${formatFt(MIN_TOTAL_STAKE)}; most ${formatFt(totalStake)}-tal számolunk)` : ''}.
+					</p>
 				</div>
-				<p className="oe-muted text-small" id="arb-stake-hint" style={{ marginBlock: v('space.4') }}>
-					Forrás: {snapshot.source}, {snapshot.bookmakers.length} iroda, kimenetelenként a legjobb odds. A tétek{' '}
-					{formatFt(STAKE_ROUNDING)}-ra kerekítve, hogy minden kimenet közel ugyanannyit fizessen
-					{stakeInvalid ? ` (legalább ${formatFt(MIN_TOTAL_STAKE)}; most ${formatFt(totalStake)}-tal számolunk)` : ''}.
-				</p>
 
 				<section style={sectionStyle} aria-labelledby="arb-list">
 					<h2 className="oe-h2" id="arb-list">

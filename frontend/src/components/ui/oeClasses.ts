@@ -10,9 +10,6 @@ export const cx = (...names: (string | false | null | undefined)[]): string => n
 /** Általános kártya (a v0.1 `.oe-card` helyett, ahol nem tippkártya). */
 export const card = 'flex flex-col gap-sp-7 rounded-2xl border border-border-default bg-surface p-sp-9 shadow-card';
 
-/** Kiemelt kártya `data-selected="true"` esetén (mint a `.oe-tip[data-selected]`). */
-export const cardSelected = 'data-[selected=true]:border-accent data-[selected=true]:bg-selected';
-
 /** Kártyarács (a v0.1 `.oe-card-grid` helyett). */
 export const cardGrid = 'grid gap-sp-6 grid-cols-[repeat(auto-fill,minmax(min(100%,var(--size-aside-basis)),1fr))]';
 

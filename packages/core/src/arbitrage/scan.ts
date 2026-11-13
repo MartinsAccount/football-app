@@ -26,7 +26,7 @@ export interface ArbitrageOpportunity {
 	legs: ArbitrageLeg[];
 	/** `Σ 1/odds_max`; `Infinity`, ha valamelyik kimenetelre nincs odds. */
 	sum: number;
-	/** Garantált hozam a teljes tétre: `1/sum − 1` (negatív = veszteség). */
+	/** Elméleti hozam a teljes tétre (kerekítés nélkül): `1/sum − 1` (negatív = veszteség). */
 	margin: number;
 	/** Hány különböző iroda adott oddsot a piacra. */
 	bookmakerCount: number;
@@ -47,22 +47,43 @@ export function arbitrageSum(odds: number[]): number {
 	return odds.reduce((acc, o) => acc + 1 / o, 0);
 }
 
+export interface ArbitrageStakeSplit {
+	stakes: number[];
+	/** Kerekítés nélküli egyenlő kifizetés: `teljes / Σ`. */
+	payout: number;
+	/** `worstPayout − staked` (a kerekített tétekkel). */
+	profit: number;
+	/** A legrosszabb kimenet kifizetése a (kerekített) tétekkel. */
+	worstPayout: number;
+	/** A ténylegesen feltett összeg: a (kerekített) tétek összege. */
+	staked: number;
+	/** A kerekített tétekkel számolt sáv (lásd `roundedBand`). */
+	band: ArbitrageBand;
+}
+
 /**
  * Tét-elosztás egyenlő kifizetésre: `tét_i = teljes × (1/odds_i) / Σ`. A kifizetés minden kimenetelnél `teljes / Σ`.
- * `round` (pl. 100 Ft) megadásakor a tétek kerekítve, a kifizetés és a profit a legrosszabb kimenetelre számolva.
+ * `round` (pl. 10 Ft) megadásakor a tétek kerekítve, a kifizetés és a profit a legrosszabb kimenetelre számolva.
+ * `band`: „arb” csak akkor, ha `Σ < 1` és a kerekített tétekkel is `worstPayout ≥ staked`; ha a kerekítés viszi el a
+ * hozamot, „near” (S29 hibajavítás). `Σ ≥ 1` esetén a sum-alapú `arbitrageBand`.
  */
-export function arbitrageStakes(
-	odds: number[],
-	total: number,
-	round = 0
-): { stakes: number[]; payout: number; profit: number; worstPayout: number } {
+export function arbitrageStakes(odds: number[], total: number, round = 0): ArbitrageStakeSplit {
 	const sum = arbitrageSum(odds);
-	if (!Number.isFinite(sum) || !(total > 0)) return { stakes: odds.map(() => 0), payout: 0, profit: 0, worstPayout: 0 };
+	if (!Number.isFinite(sum) || !(total > 0))
+		return { stakes: odds.map(() => 0), payout: 0, profit: 0, worstPayout: 0, staked: 0, band: arbitrageBand(sum) };
 	const raw = odds.map((o) => (total * (1 / o)) / sum);
 	const stakes = round > 0 ? raw.map((s) => Math.round(s / round) * round) : raw;
 	const staked = stakes.reduce((a, s) => a + s, 0);
 	const worstPayout = Math.min(...stakes.map((s, i) => s * odds[i]));
-	return { stakes, payout: total / sum, profit: worstPayout - staked, worstPayout };
+	const sumBand = arbitrageBand(sum);
+	// 1e-9 Ft tűrés a lebegőpontos zaj ellen (kerekítés nélkül worstPayout ≈ staked / Σ).
+	const band: ArbitrageBand = sumBand === 'arb' && worstPayout + 1e-9 < staked ? 'near' : sumBand;
+	return { stakes, payout: total / sum, profit: worstPayout - staked, worstPayout, staked, band };
+}
+
+/** A kerekített (`round` Ft) tétekkel számolt sáv: `arbitrageStakes(odds, total, round).band`. */
+export function roundedBand(odds: number[], total: number, round: number): ArbitrageBand {
+	return arbitrageStakes(odds, total, round).band;
 }
 
 /**

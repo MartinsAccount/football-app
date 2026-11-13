@@ -40,7 +40,7 @@ const emptyOutcomes = (names: string[]): IHighestOdds[] => names.map((name) => (
 
 /**
  * Egy meccs összes irodájából kimenetelenként kiválasztja a legmagasabb oddsot, és kiszámolja az
- * arbitrázs-arányt: `Σ 1/odd_max` (3 tizedesre kerekítve). `< 1` → garantált profit.
+ * arbitrázs-arányt: `Σ 1/odd_max` (3 tizedesre kerekítve). `< 1` → elméleti profit (kerekítés és limitek nélkül).
  *
  * - Ha egy kimenetelre egyetlen iroda sem ad oddsot, az odd 0 marad, így az arány `Infinity`
  *   (= nincs arbitrázs).

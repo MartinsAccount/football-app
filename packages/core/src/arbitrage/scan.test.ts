@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { BETS_TYPES } from '../constants/betTypes';
 import type { Bookmaker } from '../odds/types';
 import { analyzeBookmakers } from './analyzeBookmakers';
-import { arbitrageBand, arbitrageStakes, arbitrageSum, reviveArbitrageSnapshot, scanMarket, type ArbitrageQuote } from './scan';
+import {
+	arbitrageBand,
+	arbitrageStakes,
+	arbitrageSum,
+	reviveArbitrageSnapshot,
+	roundedBand,
+	scanMarket,
+	type ArbitrageQuote
+} from './scan';
 
 const H2H = ['Home', 'Draw', 'Away'];
 const q = (bookmaker: string, outcome: string, odds: number): ArbitrageQuote => ({ bookmaker, outcome, odds });
@@ -48,6 +56,30 @@ describe('arbitrageStakes', () => {
 	it('nincs teljes lefedés vagy tét → nullák', () => {
 		expect(arbitrageStakes([2, 0], 1000).stakes).toEqual([0, 0]);
 		expect(arbitrageStakes([2, 2], 0).payout).toBe(0);
+	});
+});
+
+describe('roundedBand (S29: címke a kerekített kifizetésből)', () => {
+	it('Σ < 1, de a kerekítés után negatív kifizetés → nem „arb”, hanem „near”', () => {
+		const odds = [16.5, 6.1, 1.29]; // Σ ≈ 0,99973 (Monza–Napoli, nyitó)
+		expect(arbitrageSum(odds)).toBeLessThan(1);
+		const r = arbitrageStakes(odds, 10000, 10);
+		expect(r.worstPayout).toBeLessThan(r.staked);
+		expect(r.band).toBe('near');
+		expect(roundedBand(odds, 10000, 10)).toBe('near');
+	});
+	it('Σ < 1 és a kerekített tétekkel is nyereség → „arb”', () => {
+		const odds = [2.6, 3.9, 3.5]; // Σ ≈ 0,927
+		const r = arbitrageStakes(odds, 10000, 10);
+		expect(r.staked).toBe(r.stakes.reduce((a, s) => a + s, 0));
+		expect(r.worstPayout).toBeGreaterThanOrEqual(r.staked);
+		expect(r.band).toBe('arb');
+	});
+	it('kerekítés nélkül a sum-alapú sáv marad', () => {
+		expect(roundedBand([16.5, 6.1, 1.29], 10000, 0)).toBe('arb');
+		expect(roundedBand([2, 1.97], 10000, 10)).toBe('near');
+		expect(roundedBand([2, 3, 3], 10000, 10)).toBe('far');
+		expect(roundedBand([2, 0], 10000, 10)).toBe('far');
 	});
 });
 

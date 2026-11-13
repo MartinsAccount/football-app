@@ -1,5 +1,6 @@
 // `/arbitrage` nézet-modell (S23): tiszta függvények az arbitrázs-pillanatképből (core `ArbitrageSnapshot`).
-// A számolás a core-ból jön (`arbitrageStakes`), itt csak szűrés, rendezés és magyar szöveg.
+// A számolás a core-ból jön (`arbitrageStakes`), itt csak szűrés, rendezés és magyar szöveg. S29: a sáv (címke, szűrő,
+// számlálók) a kerekített tétekkel számolt `arbitrageStakes(...).band` – „Arbitrázs” csak, ha a legrosszabb kifizetés ≥ összes tét.
 import {
 	arbitrageStakes,
 	formatDecimal,
@@ -21,9 +22,9 @@ export interface IArbFilter {
 }
 
 export const BAND_OPTIONS: { key: IArbFilter['band']; label: string; hint: string }[] = [
-	{ key: 'arb', label: 'Arbitrázs', hint: 'Σ < 1' },
-	{ key: 'near', label: 'Közeli', hint: 'Σ < 1,02' },
-	{ key: 'all', label: 'Mind', hint: 'minden piac' }
+	{ key: 'arb', label: 'Arbitrázs', hint: 'Σ 1/odds < 1, és a kerekített tétekkel sem veszít' },
+	{ key: 'near', label: 'Közeli', hint: 'Σ 1/odds < 1,02' },
+	{ key: 'all', label: 'Mind', hint: 'minden teljesen lefedett piac' }
 ];
 
 export const BAND_LABEL: Record<ArbitrageBand, string> = { arb: 'Arbitrázs', near: 'Közeli', far: 'Nincs' };
@@ -40,9 +41,25 @@ export const formatMarginPct = (ratio: number): string => {
 	return `${sign}${formatDecimal(Math.abs(pct), 2)}%`;
 };
 
-/** Alapszűrő: ha van arbitrázs, azt mutatja, különben a közelieket. */
-export const defaultFilter = (snap: ArbitrageSnapshot): IArbFilter => ({
-	band: snap.fixtures.some((f) => f.opportunities.some((o) => o.band === 'arb')) ? 'arb' : 'near',
+/** Teljesen lefedett piacok a kerekített sávval (`totalStake` Ft, `STAKE_ROUNDING`-ra kerekítve). */
+const roundedOpportunities = (snap: ArbitrageSnapshot, totalStake: number) =>
+	snap.fixtures.flatMap((f) =>
+		f.opportunities
+			.filter((o) => o.legs.length > 0 && Number.isFinite(o.sum))
+			.map((o) => ({
+				f,
+				o,
+				split: arbitrageStakes(
+					o.legs.map((l) => l.odds),
+					totalStake,
+					STAKE_ROUNDING
+				)
+			}))
+	);
+
+/** Alapszűrő: ha van (kerekítve is) arbitrázs, azt mutatja, különben a közelieket. */
+export const defaultFilter = (snap: ArbitrageSnapshot, totalStake = DEFAULT_TOTAL_STAKE): IArbFilter => ({
+	band: roundedOpportunities(snap, totalStake).some((x) => x.split.band === 'arb') ? 'arb' : 'near',
 	market: 'all',
 	bookmaker: 'all'
 });
@@ -80,20 +97,13 @@ const inBand = (band: ArbitrageBand, filter: IArbFilter['band']) =>
 export const arbitrageRows = (snap: ArbitrageSnapshot, filter: IArbFilter, totalStake: number): IArbRow[] => {
 	const now = new Date(snap.now);
 	const marketOf = new Map(snap.markets.map((m) => [m.key, m]));
-	return snap.fixtures
-		.flatMap((f) =>
-			f.opportunities
-				.filter((o) => o.legs.length > 0 && Number.isFinite(o.sum))
-				.filter((o) => inBand(o.band, filter.band))
-				.filter((o) => filter.market === 'all' || o.market === filter.market)
-				.filter((o) => filter.bookmaker === 'all' || o.legs.some((l) => l.bookmaker === filter.bookmaker))
-				.map((o) => ({ f, o }))
-		)
+	return roundedOpportunities(snap, totalStake)
+		.filter(({ split }) => inBand(split.band, filter.band))
+		.filter(({ o }) => filter.market === 'all' || o.market === filter.market)
+		.filter(({ o }) => filter.bookmaker === 'all' || o.legs.some((l) => l.bookmaker === filter.bookmaker))
 		.sort((a, b) => a.o.sum - b.o.sum || a.f.kickoff.localeCompare(b.f.kickoff))
-		.map(({ f, o }) => {
+		.map(({ f, o, split }) => {
 			const market = marketOf.get(o.market);
-			const odds = o.legs.map((l) => l.odds);
-			const split = arbitrageStakes(odds, totalStake, STAKE_ROUNDING);
 			const label = (key: string) => market?.outcomes.find((x) => x.key === key)?.label ?? key;
 			return {
 				key: `${f.fixtureId}-${o.market}`,
@@ -101,12 +111,12 @@ export const arbitrageRows = (snap: ArbitrageSnapshot, filter: IArbFilter, total
 				league: f.league,
 				kickoff: formatKickoff(new Date(f.kickoff), now),
 				market: market?.label ?? o.market,
-				band: o.band,
-				bandLabel: BAND_LABEL[o.band],
+				band: split.band,
+				bandLabel: BAND_LABEL[split.band],
 				sum: formatDecimal(o.sum, 4),
 				margin: formatMarginPct(o.margin),
 				positive: o.margin > 0,
-				profitPositive: split.profit > 0,
+				profitPositive: split.profit >= 0,
 				bookmakerCount: o.bookmakerCount,
 				legs: o.legs.map((l, i) => ({
 					outcome: label(l.outcome),
@@ -127,19 +137,20 @@ export interface IArbTile {
 	positive?: boolean;
 }
 
-export const arbitrageTiles = (snap: ArbitrageSnapshot): IArbTile[] => {
-	const opps = snap.fixtures.flatMap((f) => f.opportunities).filter((o) => Number.isFinite(o.sum));
-	const arbs = opps.filter((o) => o.band === 'arb');
-	const near = opps.filter((o) => o.band === 'near');
-	const best = opps.reduce<number | null>((acc, o) => (acc === null || o.margin > acc ? o.margin : acc), null);
+/** Összesítő csempék; a számlálók a kerekített sávból (`totalStake` mellett). */
+export const arbitrageTiles = (snap: ArbitrageSnapshot, totalStake = DEFAULT_TOTAL_STAKE): IArbTile[] => {
+	const opps = roundedOpportunities(snap, totalStake);
+	const arbs = opps.filter((x) => x.split.band === 'arb');
+	const near = opps.filter((x) => x.split.band === 'near');
+	const best = opps.reduce<number | null>((acc, { o }) => (acc === null || o.margin > acc ? o.margin : acc), null);
 	return [
 		{ label: 'Meccsek', value: String(snap.fixtures.length), foot: `${opps.length} piac teljes lefedéssel` },
-		{ label: 'Arbitrázs', value: String(arbs.length), foot: 'Σ 1/odds < 1: garantált hozam', positive: arbs.length > 0 },
-		{ label: 'Közeli', value: String(near.length), foot: 'Σ 1/odds 1 és 1,02 között' },
+		{ label: 'Arbitrázs', value: String(arbs.length), foot: 'a kerekített tétekkel sem veszít', positive: arbs.length > 0 },
+		{ label: 'Közeli', value: String(near.length), foot: 'Σ 1/odds < 1,02, vagy a kerekítés viszi el' },
 		{
 			label: 'Legjobb hozam',
 			value: best === null ? '–' : formatMarginPct(best),
-			foot: 'a teljes tétre, irodák közt',
+			foot: 'elméleti, kerekítés nélkül',
 			positive: best !== null && best > 0
 		}
 	];
@@ -151,8 +162,23 @@ export const parseTotalStake = (text: string): number | null => {
 	return Number.isFinite(n) && n >= MIN_TOTAL_STAKE ? Math.round(n) : null;
 };
 
-/** Kompakt oldalfej meta-chipjei (CHANGES 1.): forrás, meccs-, piac- és irodaszám a pillanatképből. */
+/** Az oldal alcíme (DESIGN §9 mikrocopy). */
+export const ARBITRAGE_SUBTITLE = 'Irodák közötti árkülönbségek';
+
+/**
+ * Történeti-adat jelzés (CHANGES 4.) a pillanatkép `source` mezőjéből: a szezon (`2024/25`) és a „nyitó”/„záró” szó onnan
+ * jön; ha nincs benne, kimarad. Pl. „Történeti adat: 2024/25 nyitó oddsok – nem megtehető fogadás”.
+ */
+export const historicalNotice = (source: string): string => {
+	const season = source.match(/\b(\d{4}\/\d{2,4})\b/)?.[1];
+	const kind = /nyitó/i.test(source) ? 'nyitó' : /záró/i.test(source) ? 'záró' : null;
+	const what = [season, kind].filter(Boolean).join(' ');
+	return `Történeti adat${what ? `: ${what} oddsok` : ''} – nem megtehető fogadás`;
+};
+
+/** Kompakt oldalfej meta-chipjei (CHANGES 1.): alcím, forrás, meccs-, piac- és irodaszám a pillanatképből. */
 export const arbitrageHeadChips = (snap: ArbitrageSnapshot): string[] => [
+	ARBITRAGE_SUBTITLE,
 	snap.source,
 	`${snap.fixtures.length} meccs`,
 	`${snap.markets.length} piac`,
