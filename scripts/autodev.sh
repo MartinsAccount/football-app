@@ -14,6 +14,12 @@ mkdir -p .autodev
 # Ha be van állítva, a futások API-számlára mennek, nem az előfizetésed keretére.
 unset ANTHROPIC_API_KEY
 
+# Leállás: a STATE.md „## Aktuális fázis” fejezete utáni, PONTOSAN „ALL_DONE” sor (szóköz/CR nélkül nézve).
+# A régi „ALL_DONE M1”-típusú sorok nem számítanak.
+all_done() {
+  awk '/^## Aktuális fázis/{f=1;next} f{sub(/\r$/,"");gsub(/^[ \t]+|[ \t]+$/,"")} f&&$0=="ALL_DONE"{found=1} END{exit !found}' docs/STATE.md
+}
+
 weekly_used_pct() {
   [ -x "$WEEKLY_PCT_CMD" ] || return 1
   local v
@@ -35,7 +41,7 @@ fi
 
 for i in $(seq 1 "$MAX_ITER"); do
   [ -f STOP ] && { echo "STOP fájl, kilépés."; rm -f STOP; break; }
-  grep -qx "ALL_DONE" docs/STATE.md && { echo "Minden szelet kész."; break; }
+  all_done && { echo "Minden szelet kész."; break; }
 
   if pct="$(weekly_used_pct)"; then
     echo "Heti felhasználás: $pct% / $WEEKLY_MAX_PCT%"

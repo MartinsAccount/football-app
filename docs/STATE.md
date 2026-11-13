@@ -4,16 +4,35 @@
 
 ## Aktuális fázis
 
-**Mobil-előkészítés** (ROADMAP 11, ADR-0010, terv: `docs/plans/mobile.md`): M1–M6.
+**Supabase-bekötés** (ROADMAP 1.4–1.8, `architecture.md`), utána **Mobil** M7+ (ROADMAP 11, ADR-0010, `docs/plans/mobile.md`).
+Ha a szeletlista kiürült, vagy csak blokkolt elem maradt, ide (e fejezet alá) külön sorba: ALL_DONE
 
-M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesül. ALL_DONE M1
+M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesült (lezárva).
 
-ALL_DONE Floodlight v0.2
+Floodlight v0.2 redesign: lezárva.
 
 **Kész: „Floodlight v0.2” redesign** (S25–S30). Terv: `docs/plans/redesign-floodlight-v0.2.md` (a tulajdonos jóváhagyta,
 2026-11-13); csomag: `docs/design/floodlight-v0.2/` (DESIGN.md, CHANGES.md „Kész, ha” pontok, screens/, reference/).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
+
+**Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
+`.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
+
+1. **SB1 Import Supabase-be** – `import:legacy`, `import:history`, `import:odds-csv` célja választható (`--pg` /
+   `DATABASE_URL` → `openPg`, különben PGlite): közös `openTarget()` a `packages/db`-ben, a `SqlRepository` a `PgExecutor`-on.
+   Ellenőrzés: futtatás a Supabase-en, sorszámok egyeznek a PGlite-futással, 2. futás 0 írás; a unit-teszt PGlite-on marad.
+2. **SB2 Server Postgres-adapter** – `packages/server/scripts/dev.ts`: `DATABASE_URL` esetén `openPg` + `SqlRepository`,
+   különben PGlite; a `/api/fixtures`, `/api/odds/:id`, `/api/budget` a valódi DB-ből. Ellenőrzés: dev szerver + curl :5100
+   (2022–2024 meccsek jönnek), pg-integrációs teszt `skipIf(!DATABASE_URL)`.
+3. **SB3 Frontend /odds → olvasó API** (ROADMAP 1.8) – az `OddsService`/`OddsStore` a `@football/contract` `createApiClient`-en
+   át olvas (Vite-proxy az új végpontokra :5100; a legacy :5000 csak az arbitrázsnak marad). Ellenőrzés: a hálózati naplóban
+   nincs külső API-hívás; screenshot 1440 + 390.
+4. **SB4 Snapshot-végpontok** – `/api/recommendations`, `/api/backtest`, `/api/arbitrage` (ma a frontend a
+   `data/{recommendations,backtest,arbitrage}/*-v0.json`-t importálja): contract-DTO + kliensmetódus + server handler (forrás:
+   a mentett JSON, később DB-tábla) + tesztek. Ez adja a mobil M7/M10 adatforrását is.
+5. **SB5 Frontend snapshot-oldalak → olvasó API** – Ajánlások, Kiértékelés, Arbitrázs a `createApiClient`-ből tölt (betöltés- és
+   hibaállapot tokenekkel), a JSON-import kikerül a bundle-ből. Ellenőrzés: tesztek + screenshot 1440 + 390.
 
 <!-- Javasolt nagy sorrend, ha a ROADMAP.md mást mond, az az irányadó:
 A. Design (frontend/src/design/DESIGN.md): A1 tokenek bekötése + format.ts (core) → A2 komponensek → A3 oldalak
@@ -192,7 +211,7 @@ tételek).
   módosítsd (a teszt elbukik, ha eltérnek). Ellenőrzés: `npm run build` + `vite preview` + CDP-script (offline emulációval): 0
   konzolhiba, offline reload a cache-ből megy és mutatja a jelzőt. Következő: M2 `packages/contract`.
 
-- **S30 kész, ALL_DONE Floodlight v0.2.** `SettingsStore`: `saved` (localStorage, ezt követi az app, pl. `stakeOptions` és a
+- **S30 kész, Floodlight v0.2 lezárva.** `SettingsStore`: `saved` (localStorage, ezt követi az app, pl. `stakeOptions` és a
   MainStore tét-reaction) vs. `draft` (űrlap); `save()`/`discard()`/`dirty`/`diff`. A téma nem része a piszkozatnak (`ThemeStore`
   azonnal). Mentés-sáv screenshot: `shots.mjs ... --click "#ligak li:nth-child(6) input"`. Záró ellenőrzés: nyers hex/rgb grep
   csak `design/tokens` + vendor `design/components` alatt; 16 `s30-final-*` kép, 0 görgetés, 0 konzolhiba. Következő: ROADMAP
@@ -239,7 +258,7 @@ tételek).
 - Arbitrázs (S23): `/arbitrage` = `pages/ArbitragePage/ArbitragePage.tsx` (komponens-state szűrő), `ArbitrageCard`,
   `arbitrageView.ts` (tiszta, teszt mellette); adat `reviveArbitrageSnapshot(json)` (JSON `Infinity` → `null`). Régi oldal:
   `LegacyArbitragePage.tsx` a `/legacy/arbitrage`-on. ui-audit #1–3/#7/#8 az új oldalon nem áll fenn (gombok + aria, stabil
-  kulcsok, nincs oldalsáv/modál). S24: minden route screenshot (`%TEMP%/s23/shot.mjs <url> <out>`), GOAL-M1 lista → `ALL_DONE M1`.
+  kulcsok, nincs oldalsáv/modál). S24: minden route screenshot (`%TEMP%/s23/shot.mjs <url> <out>`), GOAL-M1 lista → M1 lezárva.
 
 - Beállítások (S22): `MainStore.SettingsStore` (`settings`, `estimate`, `warnings`, `stakeOptions`, `toggle*`, `setNumber`); a
   SlipStore 2. konstruktor-paramétere a tét-lépcső getter, a MainStore `reaction`-nel állítja a tétet egységváltáskor. Screenshot:
