@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { formatEv, formatOdds } from '@football/core';
 import { slipToggleText } from './tipView';
+import { cx, statLabel, statValue, statValueEv } from '../ui/oeClasses';
 
 interface ITipActionsProps {
 	odds: number;
@@ -18,21 +19,21 @@ class TipActions extends Component<ITipActionsProps> {
 		const { odds, minOdds, ev, selected, blockedReason, onToggleSlip } = this.props;
 		const blocked = !selected && !!blockedReason;
 		return (
-			<div className="oe-card__actions">
+			<div className="flex flex-wrap items-center gap-sp-8 [&>:last-child]:ml-auto">
 				<div>
-					<div className="oe-stat__label">odds</div>
-					<div className="oe-stat__value">{formatOdds(odds)}</div>
+					<div className={statLabel}>odds</div>
+					<div className={statValue}>{formatOdds(odds)}</div>
 				</div>
 				<div>
-					<div className="oe-stat__label">Tippmix min.</div>
-					<div className="oe-stat__value">{formatOdds(minOdds)}</div>
+					<div className={statLabel}>Tippmix min.</div>
+					<div className={statValue}>{formatOdds(minOdds)}</div>
 				</div>
 				<div>
-					<div className="oe-stat__label">EV</div>
-					<div className="oe-stat__value oe-stat__value--ev">{formatEv(ev)}</div>
+					<div className={statLabel}>EV</div>
+					<div className={cx(statValue, statValueEv)}>{formatEv(ev)}</div>
 				</div>
 				<button
-					className="oe-btn oe-btn--toggle"
+					className="oe-btn oe-btn--add"
 					type="button"
 					aria-pressed={selected}
 					disabled={blocked}

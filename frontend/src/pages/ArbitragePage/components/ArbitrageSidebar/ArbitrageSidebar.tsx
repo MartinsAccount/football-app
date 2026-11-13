@@ -24,10 +24,10 @@ class ArbitrageSidebar extends Component<IArbitrageSidebarProps> {
 				type="button"
 				aria-expanded={open}
 				onClick={() => ArbitrageStore.toggleFilterBlock(key)}
-				className="appearance-none border-0 bg-transparent cursor-pointer w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-text hover:text-accent transition-colors"
+				className="appearance-none border-0 bg-transparent cursor-pointer w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-text hover:text-accent-text transition-colors"
 			>
 				<span>{label}</span>
-				<span className={`flex text-accent transition-transform ${open ? 'rotate-90' : ''}`}>
+				<span className={`flex text-accent-text transition-transform ${open ? 'rotate-90' : ''}`}>
 					<ArrowRightSvg />
 				</span>
 			</button>

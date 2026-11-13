@@ -1,4 +1,5 @@
 import React, { Component, createRef, ReactNode } from 'react';
+import { sheet, sheetBackdrop, sheetHandle, sheetTop } from '../ui/oeClasses';
 
 interface IBottomSheetProps {
 	open: boolean;
@@ -8,7 +9,7 @@ interface IBottomSheetProps {
 }
 
 /**
- * DESIGN §7.9 – mobil alsó lap (`.oe-sheet`) háttérrel. Bezárás: ✕, háttérre kattintás, Esc.
+ * DESIGN §7.9 – mobil alsó lap (Tailwind, `oeClasses.sheet`) háttérrel. Bezárás: ✕, háttérre kattintás, Esc.
  * Nyitáskor a fókusz a lapra kerül, bezáráskor vissza oda, ahol előtte volt.
  */
 class BottomSheet extends Component<IBottomSheetProps> {
@@ -49,10 +50,10 @@ class BottomSheet extends Component<IBottomSheetProps> {
 		if (!open) return null;
 		return (
 			<>
-				<div className="oe-sheet-backdrop" onClick={onClose} aria-hidden="true" />
-				<div className="oe-sheet" role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} ref={this.sheetRef}>
-					<div className="oe-sheet__handle" aria-hidden="true" />
-					<div className="oe-sheet__top">
+				<div className={sheetBackdrop} onClick={onClose} aria-hidden="true" />
+				<div className={sheet} role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} ref={this.sheetRef}>
+					<div className={sheetHandle} aria-hidden="true" />
+					<div className={sheetTop}>
 						<button className="oe-btn oe-btn--icon" type="button" aria-label="Bezárás" onClick={onClose}>
 							✕
 						</button>

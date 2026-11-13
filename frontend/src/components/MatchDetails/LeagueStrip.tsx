@@ -43,7 +43,7 @@ class LeagueStrip extends Component<ILeagueStripProps> {
 						<span key={i} className={STRIP_CELL_CLASS[zone]} />
 					))}
 				</div>
-				<div className="oe-details__legend flex flex-wrap" style={legendStyle}>
+				<div className="oe-legend flex flex-wrap" style={legendStyle}>
 					<span>1.–{leagueSize}. hely</span>
 					<span>
 						<Swatch token="color.zone.champions" /> BL

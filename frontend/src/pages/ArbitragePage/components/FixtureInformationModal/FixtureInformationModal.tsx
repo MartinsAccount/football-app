@@ -59,7 +59,7 @@ class FixtureInformationModal extends Component<IFixtureInformationModalProps> {
 									<tr key={index} className="border-b border-border-subtle last:border-0">
 										<td className="px-4 py-2 text-text">{bookmaker?.bookmaker}</td>
 										<td className="px-4 py-2 text-text-muted">{bookmaker?.name}</td>
-										<td className="px-4 py-2 text-accent tabular-nums">{bookmaker?.odd}</td>
+										<td className="px-4 py-2 text-accent-text tabular-nums">{bookmaker?.odd}</td>
 									</tr>
 								))}
 							</tbody>

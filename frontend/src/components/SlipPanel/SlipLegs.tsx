@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatKickoff, formatOdds, formatPairing } from '@football/core';
 import { ITip } from '../TipCard/tipView';
+import { statLabel, statValue } from '../ui/oeClasses';
 
 interface ISlipLegsProps {
 	tips: ITip[];
@@ -22,8 +23,8 @@ const SlipLegs = ({ tips, odds, now, onRemove }: ISlipLegsProps) => (
 					</div>
 				</div>
 				<div className="text-right">
-					<div className="oe-stat__value">{formatOdds(odds[i])}</div>
-					<div className="oe-stat__label">min. {formatOdds(tip.minOdds)}</div>
+					<div className={statValue}>{formatOdds(odds[i])}</div>
+					<div className={statLabel}>min. {formatOdds(tip.minOdds)}</div>
 				</div>
 				<button
 					className="oe-btn oe-btn--icon"

@@ -26,6 +26,19 @@ module.exports = {
 				neutral: c('signal-neutral'),
 				'data-model': c('data-model'),
 				'data-market': c('data-market'),
+				'accent-text': c('accent-text'),
+				'accent-on': c('accent-on'),
+				'on-bg': c('on-bg'),
+				'on-fg': c('on-fg'),
+				overlay: c('overlay'),
+				'negative-text': c('signal-negative-text'),
+				'warning-text': c('signal-warning-text'),
+				'tint-positive': c('tint-positive-bg'),
+				'tint-positive-border': c('tint-positive-border'),
+				'tint-warning': c('tint-warning-bg'),
+				'tint-warning-border': c('tint-warning-border'),
+				'tint-negative': c('tint-negative-bg'),
+				'tint-negative-border': c('tint-negative-border'),
 				// Régi (pre-Floodlight) nevek, most tokenre kötve – a meglévő komponensek így változatlanul futnak.
 				// TODO(polish): az A3 oldal-átírásoknál a Floodlight nevekre cserélni, utána ezeket törölni.
 				bg: c('bg-canvas'),
@@ -53,13 +66,14 @@ module.exports = {
 				body: 'var(--font-size-body)',
 				lead: 'var(--font-size-lead)',
 				h3: 'var(--font-size-h3)',
-				h2: 'var(--font-size-h2)',
+				match: 'var(--font-size-match)',
+				page: 'var(--font-size-page)',
 				'h1-mobile': 'var(--font-size-h1-mobile)',
 				h1: 'var(--font-size-h1)',
-				display: 'var(--font-size-display)',
 				'num-s': 'var(--font-size-num-s)',
 				'num-m': 'var(--font-size-num-m)',
-				'num-l': 'var(--font-size-num-l)'
+				'num-l': 'var(--font-size-num-l)',
+				'num-xl': 'var(--font-size-num-xl)'
 			},
 			borderRadius: {
 				xs: 'var(--radius-xs)',
@@ -69,8 +83,23 @@ module.exports = {
 				xl: 'var(--radius-xl)',
 				'2xl': 'var(--radius-2xl)',
 				'3xl': 'var(--radius-3xl)',
-				sheet: 'var(--radius-sheet)',
+				'4xl': 'var(--radius-4xl)',
 				pill: 'var(--radius-pill)'
+			},
+			// Térköz: a Tailwind numerikus skálája megmarad (meglévő osztályok); a tokenek `sp-N` és méret-nevekkel érhetők el.
+			spacing: {
+				...Object.fromEntries(
+					[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 28].map((n) => [`sp-${n}`, `var(--space-${n})`])
+				),
+				touch: 'var(--size-touch)',
+				control: 'var(--size-control)',
+				cta: 'var(--size-cta)',
+				bar: 'var(--size-bar)',
+				'bar-lg': 'var(--size-bar-lg)',
+				pill: 'var(--size-pill)'
+			},
+			boxShadow: {
+				card: 'var(--shadow-card)'
 			},
 			maxWidth: {
 				container: 'var(--size-container)'

@@ -3,6 +3,7 @@ import { formatPairing } from '@football/core';
 import { ITransferRow } from '../../stores/SlipStore';
 import { v } from '../../design/tokens/tokens';
 import { TRANSFER_STATUS_TEXT, transferFieldLabel } from './slipView';
+import { cx, dangerBox, dangerText, input } from '../ui/oeClasses';
 
 const rowStyle: CSSProperties = { gap: v('space.4'), paddingBlock: v('space.6'), borderTop: `1px solid ${v('color.bg.track')}` };
 const fieldRowStyle: CSSProperties = { gap: v('space.6') };
@@ -48,7 +49,7 @@ const TippmixTransfer = ({ rows, canSave, onInput, onSave, onClose, idPrefix = '
 							<label className="oe-field flex-1 min-w-0">
 								{transferFieldLabel(tip.minOdds)}
 								<input
-									className="oe-input"
+									className={input}
 									inputMode="decimal"
 									autoComplete="off"
 									value={input}
@@ -58,7 +59,7 @@ const TippmixTransfer = ({ rows, canSave, onInput, onSave, onClose, idPrefix = '
 								/>
 							</label>
 							<span
-								className={status === 'below' ? 'oe-warning oe-warning--danger shrink-0' : 'oe-muted text-caption shrink-0'}
+								className={status === 'below' ? cx('oe-warning shrink-0', dangerText) : 'oe-muted text-caption shrink-0'}
 								aria-live="polite"
 							>
 								{TRANSFER_STATUS_TEXT[status]}
@@ -68,13 +69,13 @@ const TippmixTransfer = ({ rows, canSave, onInput, onSave, onClose, idPrefix = '
 				))}
 			</ol>
 			{below.length > 0 && (
-				<div className="oe-warning oe-warning--box oe-warning--danger" role="alert">
+				<div className={cx('oe-warning', dangerBox)} role="alert">
 					✗ {below.map((r) => formatPairing(r.tip.home.name, r.tip.away.name)).join(', ')}: a minimum alatt – hagyd ki, vagy
 					cseréld egy másik tippre a listából.
 					{/* TODO(polish): konkrét cserejavaslat (a lista következő, nem ütköző tippje). */}
 				</div>
 			)}
-			<button className="oe-btn oe-btn--light oe-btn--cta" type="button" disabled={!canSave} onClick={onSave}>
+			<button className="oe-btn oe-btn--neutral oe-btn--cta" type="button" disabled={!canSave} onClick={onSave}>
 				Megtettem – szelvény mentése
 			</button>
 			{!canSave && <div className="oe-muted text-caption">Mentéshez írd be minden tipp Tippmix-oddsát.</div>}

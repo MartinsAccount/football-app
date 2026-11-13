@@ -13,6 +13,7 @@ import {
 import { ITip } from '../TipCard/tipView';
 import { SlipStore } from '../../stores/SlipStore';
 import { PRESET_REASON, riskText } from '../SlipPanel/slipView';
+import { cx, presetGrid, statLabel, statusDot, statValue, statValueEv } from '../ui/oeClasses';
 
 interface ISlipPresetsProps {
 	tips: ITip[];
@@ -46,9 +47,9 @@ class SlipPresets extends Component<ISlipPresetsProps> {
 				aria-pressed={active}
 				onClick={() => this.apply(preset)}
 			>
-				<span className="oe-preset__head">
+				<span className="oe-preset__top">
 					<span className="oe-badge">{slipTypeName(summary.legCount)}</span>
-					{preset.recommended && <span className="oe-badge oe-badge--accent">Ajánlott</span>}
+					{preset.recommended && <span className="oe-tag oe-tag--accent">Ajánlott</span>}
 				</span>
 				<span className="text-small">{PRESET_REASON[preset.kind]}</span>
 				<span className="flex flex-col oe-muted text-caption">
@@ -58,27 +59,25 @@ class SlipPresets extends Component<ISlipPresetsProps> {
 						</span>
 					))}
 				</span>
-				<span className="oe-preset__stats">
+				<span className="oe-preset__metrics">
 					<span>
-						<span className="oe-stat__label block">Eredő odds</span>
-						<span className="oe-stat__value">{formatOdds(summary.combinedOdds)}</span>
+						<span className={cx(statLabel, 'block')}>Eredő odds</span>
+						<span className={statValue}>{formatOdds(summary.combinedOdds)}</span>
 					</span>
 					<span>
-						<span className="oe-stat__label block">Esély</span>
-						<span className="oe-stat__value">{formatPercent(summary.probability)}</span>
+						<span className={cx(statLabel, 'block')}>Esély</span>
+						<span className={statValue}>{formatPercent(summary.probability)}</span>
 					</span>
 					<span>
-						<span className="oe-stat__label block">EV</span>
-						<span className={summary.ev > 0 ? 'oe-stat__value oe-stat__value--ev' : 'oe-stat__value'}>
-							{formatEv(summary.ev)}
-						</span>
+						<span className={cx(statLabel, 'block')}>EV</span>
+						<span className={cx(statValue, summary.ev > 0 && statValueEv)}>{formatEv(summary.ev)}</span>
 					</span>
 				</span>
 				<span className="text-small">
 					{formatFt(store.stake)} tét → {formatFt(summary.payout)}
 				</span>
 				<span className="oe-muted text-caption">{riskText(summary.probability, summary.risk)}</span>
-				{active && <span className="oe-status">A szelvényeden</span>}
+				{active && <span className={statusDot}>A szelvényeden</span>}
 			</button>
 		);
 	}
@@ -94,7 +93,7 @@ class SlipPresets extends Component<ISlipPresetsProps> {
 					</h2>
 					<span className="oe-muted text-small">a motor javaslata, utána szerkeszthető</span>
 				</div>
-				<div className="oe-presets">{presets.map((p) => this.renderPreset(p))}</div>
+				<div className={presetGrid}>{presets.map((p) => this.renderPreset(p))}</div>
 			</section>
 		);
 	}

@@ -18,7 +18,7 @@ const TICKS = [0, 0.25, 0.5, 0.75, 1];
 const sx = (p: number) => PAD + p * PLOT;
 const sy = (p: number) => SIZE - PAD - p * PLOT;
 
-const svgStyle: CSSProperties = { width: '100%', maxWidth: v('size.card-min'), height: 'auto', display: 'block' };
+const svgStyle: CSSProperties = { width: '100%', maxWidth: v('size.chart'), height: 'auto', display: 'block' };
 const tickStyle: CSSProperties = { fontSize: v('font.size.micro'), fill: v('color.text.muted') };
 
 /**

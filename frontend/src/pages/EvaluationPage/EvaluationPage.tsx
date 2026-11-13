@@ -25,13 +25,13 @@ interface IEvaluationPageState {
 }
 
 const toneColor = (tone: Tone): string | undefined =>
-	tone === 'positive' ? v('color.accent.default') : tone === 'negative' ? v('color.signal.negative') : undefined;
+	tone === 'positive' ? v('color.accent.text') : tone === 'negative' ? v('color.signal.negative-text') : undefined;
 
 const sectionStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: v('space.7'), marginTop: v('space.14') };
 const filterStyle: CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: v('space.6'), alignItems: 'flex-end' };
 const tilesStyle: CSSProperties = {
 	display: 'grid',
-	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.card-min')} * 3 / 4)), 1fr))`,
+	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.aside-basis')} * 3 / 4)), 1fr))`,
 	gap: v('space.6')
 };
 const panelStyle: CSSProperties = {
@@ -62,7 +62,7 @@ const tdStyle: CSSProperties = {
 const tdFirst: CSSProperties = { ...tdStyle, textAlign: 'left', fontVariantNumeric: 'normal' };
 const calibGridStyle: CSSProperties = {
 	display: 'grid',
-	gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${v('size.card-min')}), 1fr))`,
+	gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${v('size.aside-basis')}), 1fr))`,
 	gap: v('space.10'),
 	alignItems: 'start'
 };
@@ -140,9 +140,13 @@ class EvaluationPage extends Component<{}, IEvaluationPageState> {
 							</button>
 						))}
 					</div>
-					<label className="oe-field" style={{ minWidth: `min(100%, ${v('size.card-min')})` }}>
+					<label className="oe-field" style={{ minWidth: `min(100%, ${v('size.aside-basis')})` }}>
 						Szegmens
-						<select className="oe-input" value={segment} onChange={(e) => this.setState({ segment: e.target.value })}>
+						<select
+							className="oe-select w-full min-w-0"
+							value={segment}
+							onChange={(e) => this.setState({ segment: e.target.value })}
+						>
 							{groups.map((g) => (
 								<optgroup key={g} label={g}>
 									{options
@@ -165,8 +169,8 @@ class EvaluationPage extends Component<{}, IEvaluationPageState> {
 					<div style={tilesStyle}>
 						{betTiles(cmp.bets).map((t) => (
 							<div key={t.label} className="oe-tile">
-								<div className="oe-stat__label">{t.label}</div>
-								<div className="oe-stat__value" style={{ color: toneColor(t.tone) }}>
+								<div className="oe-tile__label">{t.label}</div>
+								<div className="oe-tile__value" style={{ color: toneColor(t.tone) }}>
 									{t.value}
 								</div>
 								<div className="oe-tile__foot">{t.foot}</div>

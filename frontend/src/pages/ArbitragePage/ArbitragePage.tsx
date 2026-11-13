@@ -16,6 +16,7 @@ import {
 	parseTotalStake,
 	STAKE_ROUNDING
 } from './arbitrageView';
+import { cardGrid, input } from '../../components/ui/oeClasses';
 
 interface IArbitragePageState {
 	filter: IArbFilter;
@@ -27,10 +28,10 @@ interface IArbitragePageState {
 const PAGE_SIZE = 12;
 
 const filterStyle: CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: v('space.6'), alignItems: 'flex-end' };
-const fieldStyle: CSSProperties = { minWidth: `min(100%, calc(${v('size.card-min')} * 2 / 3))` };
+const fieldStyle: CSSProperties = { minWidth: `min(100%, calc(${v('size.aside-basis')} * 2 / 3))` };
 const tilesStyle: CSSProperties = {
 	display: 'grid',
-	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.card-min')} * 3 / 4)), 1fr))`,
+	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.aside-basis')} * 3 / 4)), 1fr))`,
 	gap: v('space.6'),
 	marginBottom: v('space.10')
 };
@@ -75,8 +76,8 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 				<div style={tilesStyle}>
 					{arbitrageTiles(snapshot).map((t) => (
 						<div key={t.label} className="oe-tile">
-							<div className="oe-stat__label">{t.label}</div>
-							<div className="oe-stat__value" style={{ color: t.positive ? v('color.accent.default') : undefined }}>
+							<div className="oe-tile__label">{t.label}</div>
+							<div className="oe-tile__value" style={{ color: t.positive ? v('color.accent.text') : undefined }}>
 								{t.value}
 							</div>
 							<div className="oe-tile__foot">{t.foot}</div>
@@ -101,7 +102,11 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 					</div>
 					<label className="oe-field" style={fieldStyle}>
 						Piac
-						<select className="oe-input" value={filter.market} onChange={(e) => this.setFilter({ market: e.target.value })}>
+						<select
+							className="oe-select w-full min-w-0"
+							value={filter.market}
+							onChange={(e) => this.setFilter({ market: e.target.value })}
+						>
 							<option value="all">Minden piac</option>
 							{snapshot.markets.map((m) => (
 								<option key={m.key} value={m.key}>
@@ -112,7 +117,11 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 					</label>
 					<label className="oe-field" style={fieldStyle}>
 						Iroda
-						<select className="oe-input" value={filter.bookmaker} onChange={(e) => this.setFilter({ bookmaker: e.target.value })}>
+						<select
+							className="oe-select w-full min-w-0"
+							value={filter.bookmaker}
+							onChange={(e) => this.setFilter({ bookmaker: e.target.value })}
+						>
 							<option value="all">Minden iroda</option>
 							{snapshot.bookmakers.map((b) => (
 								<option key={b} value={b}>
@@ -124,7 +133,7 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 					<label className="oe-field" style={fieldStyle}>
 						Összes tét (Ft)
 						<input
-							className="oe-input"
+							className={input}
 							inputMode="numeric"
 							value={stakeText}
 							aria-invalid={stakeInvalid ? true : undefined}
@@ -149,7 +158,7 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 							text="Próbáld a „Közeli” vagy a „Mind” sávot, vagy töröld a piac- és irodaszűrőt."
 						/>
 					) : (
-						<div className="oe-card-grid">
+						<div className={cardGrid}>
 							{shown.map((r) => (
 								<ArbitrageCard key={r.key} row={r} totalStake={formatFt(totalStake)} />
 							))}

@@ -71,7 +71,7 @@ class ArbitrageContent extends Component<IArbitrageContentProps> {
 									}`}
 								>
 									<div className="flex-1 text-text">{data.betType}</div>
-									<div className="flex-1 text-accent tabular-nums">{data.arbitrage}</div>
+									<div className="flex-1 text-accent-text tabular-nums">{data.arbitrage}</div>
 									<div className="flex-[4] flex gap-2">
 										{[...Array(3)].map((_, i) => {
 											const bm = i < data.bookmakers.length ? data.bookmakers[i] : null;

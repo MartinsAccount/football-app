@@ -27,7 +27,7 @@ class MatchDetails extends Component<IMatchDetailsProps> {
 					<RecentList team={tip.home} />
 					<RecentList team={tip.away} />
 				</div>
-				<div className="oe-details__legend" style={legendStyle}>
+				<div className="oe-legend" style={legendStyle}>
 					Gy = győzelem · D = döntetlen · V = vereség · „vs” = otthon, „@” = idegenben
 				</div>
 			</>

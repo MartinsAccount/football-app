@@ -158,7 +158,7 @@ jelölje, ne akadj el rajtuk.
 - Szín, térköz, betű, rádiusz csak tokenből: CSS-ben `var(--…)`, TS-ben `v('…')` a
   `design/tokens/tokens.ts`-ből. Nyers hex/px tilos a komponensekben.
 - A `tokens.css` és `tokens.ts` generált fájl; a forrás a `tokens.json`.
-- Kinézet-referencia: `design/components/components.html` és `components.css` (oe-* osztályok).
+- Kinézet-referencia: `design/reference/*.html` (ma, kiertekeles; `?theme=light|dark`) és `design/components/components.css` (oe-* osztályok, vendor-fájl: ne szerkeszd). ADR-0009: Tailwind + Floodlight CSS.
 - Számformázás magyarul (tizedesvessző, ezres szóköz), közös `format.ts`-ből.
 - UI-változás után screenshot 1440 és 390 px szélességen; vízszintes görgetés nem lehet.
 

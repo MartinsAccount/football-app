@@ -1,6 +1,7 @@
 import React, { CSSProperties, PureComponent } from 'react';
 import { v } from '../../design/tokens/tokens';
 import { IArbRow } from './arbitrageView';
+import { card, cardSelected, cx } from '../../components/ui/oeClasses';
 
 const tableStyle: CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: v('font.size.small') };
 const cell: CSSProperties = {
@@ -33,27 +34,31 @@ class ArbitrageCard extends PureComponent<IArbitrageCardProps> {
 	render() {
 		const { row, totalStake } = this.props;
 		const tone = row.positive
-			? v('color.accent.default')
+			? v('color.accent.text')
 			: row.band === 'near'
-			? v('color.signal.warning')
+			? v('color.signal.warning-text')
 			: v('color.text.muted');
 		const titleId = `arb-${row.key}`;
 		return (
-			<article className="oe-card" aria-labelledby={titleId} data-selected={row.band === 'arb' ? 'true' : undefined}>
-				<div className="oe-card__meta">
+			<article
+				className={cx(card, cardSelected)}
+				aria-labelledby={titleId}
+				data-selected={row.band === 'arb' ? 'true' : undefined}
+			>
+				<div className="oe-tip__meta flex flex-wrap justify-between gap-sp-4">
 					<span>{row.league}</span>
 					<span>{row.kickoff}</span>
 				</div>
 				<div>
-					<h3 className="oe-card__title" id={titleId}>
+					<h3 className="oe-tip__title" id={titleId}>
 						{row.pairing}
 					</h3>
-					<div className="oe-card__market">
+					<div className="oe-tip__market">
 						{row.market} · {row.bookmakerCount} iroda
 					</div>
 				</div>
 				<div style={statsStyle}>
-					<span className={row.band === 'arb' ? 'oe-badge oe-badge--accent' : 'oe-badge'}>{row.bandLabel}</span>
+					<span className={row.band === 'arb' ? 'oe-tag oe-tag--accent' : 'oe-tag'}>{row.bandLabel}</span>
 					<span className="oe-num">
 						Σ 1/odds <strong>{row.sum}</strong>
 					</span>
@@ -92,11 +97,11 @@ class ArbitrageCard extends PureComponent<IArbitrageCardProps> {
 						))}
 					</tbody>
 				</table>
-				<div className="oe-card__meta">
+				<div className="oe-tip__meta flex flex-wrap justify-between gap-sp-4">
 					<span>Kifizetés (legrosszabb kimenet): {row.payout}</span>
 					<span
 						style={{
-							color: row.profitPositive ? v('color.accent.default') : v('color.signal.negative'),
+							color: row.profitPositive ? v('color.accent.text') : v('color.signal.negative-text'),
 							fontWeight: v('font.weight.bold')
 						}}
 					>

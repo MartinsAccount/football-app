@@ -32,7 +32,7 @@ class RowItem extends Component<IRowItemProps> {
 							key={item.name}
 							onClick={() => ArbitrageStore.setSelectedItem(item)}
 							className={`px-3 py-3 text-center cursor-pointer tabular-nums transition-colors hover:underline ${
-								good ? 'bg-accent/15 text-accent font-semibold' : 'text-text-muted'
+								good ? 'bg-accent/15 text-accent-text font-semibold' : 'text-text-muted'
 							}`}
 						>
 							{!item.arbitrage ? '–' : item.arbitrage}

@@ -47,7 +47,7 @@ class RowItem extends Component<IRowItemProps> {
 				<td className="px-5 py-3 text-text">{data.title}</td>
 				<td className="px-3 py-3 text-center tabular-nums text-positive">{gy}</td>
 				<td className="px-3 py-3 text-center tabular-nums text-text-muted">{d}</td>
-				<td className="px-3 py-3 text-center tabular-nums text-negative">{v}</td>
+				<td className="px-3 py-3 text-center tabular-nums text-negative-text">{v}</td>
 				<td className="px-5 py-3">
 					<div className="flex justify-end">
 						<Bar percent={percent} />

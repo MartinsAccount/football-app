@@ -29,7 +29,7 @@ class Modal extends Component<IModalProps> {
 							<tr key={index} className="border-b border-border-subtle last:border-0">
 								<td className="px-4 py-2 text-text">{item?.bookmaker}</td>
 								<td className="px-4 py-2 text-text-muted">{item?.name}</td>
-								<td className="px-4 py-2 text-accent tabular-nums">{item?.odd}</td>
+								<td className="px-4 py-2 text-accent-text tabular-nums">{item?.odd}</td>
 							</tr>
 						))}
 					</tbody>

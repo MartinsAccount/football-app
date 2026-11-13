@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import { MainStore } from '../../stores/MainStore';
 import { isFixtureMode } from '../../services/dataMode';
+import { cx, statusDot } from '../ui/oeClasses';
+import ThemeToggle from './ThemeToggle';
 
 interface IAppHeaderProps {
 	MainStore?: MainStore;
@@ -44,9 +46,13 @@ class AppHeader extends Component<IAppHeaderProps> {
 						</NavLink>
 					))}
 				</nav>
-				<span className="oe-status ml-auto" data-state={fixture ? 'stale' : 'fresh'}>
-					{fixture ? 'Mentett adat' : 'Élő adat'} · {MainStore.fetchNumber}/{DAILY_CALL_LIMIT} hívás
-				</span>
+				{/* TODO(polish): S26 – .oe-status-pill a referencia szerint. */}
+				<div className="oe-header__end">
+					<span className={cx(statusDot, fixture && 'before:bg-warning')}>
+						{fixture ? 'Mentett adat' : 'Élő adat'} · {MainStore.fetchNumber}/{DAILY_CALL_LIMIT} hívás
+					</span>
+					<ThemeToggle store={MainStore.ThemeStore} />
+				</div>
 			</header>
 		);
 	}

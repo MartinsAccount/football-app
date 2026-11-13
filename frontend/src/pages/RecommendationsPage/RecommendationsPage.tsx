@@ -65,7 +65,7 @@ class RecommendationsPage extends Component<IRecommendationsPageProps, IRecommen
 				{day.tips.length === 0 ? (
 					<p className="oe-muted m-0">Erre a napra nincs a szabályoknak megfelelő tipp.</p>
 				) : (
-					<div className="oe-card-grid">
+					<div>
 						{day.tips.map((tip) => (
 							<TipCard
 								key={tip.id}

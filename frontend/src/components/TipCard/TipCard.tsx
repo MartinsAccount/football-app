@@ -33,16 +33,16 @@ class TipCard extends Component<ITipCardProps> {
 		const { tip, selected, expanded, blockedReason, now, children } = this.props;
 		const detailsId = `tip-details-${tip.id}`;
 		return (
-			<article className="oe-card min-w-0" data-selected={selected} data-expanded={expanded}>
-				<div className="oe-card__meta">
+			<article className="oe-tip min-w-0" data-selected={selected} data-expanded={expanded}>
+				<div className="oe-tip__meta flex justify-between gap-sp-4">
 					<span className="truncate">
 						{tip.league} · {formatKickoff(tip.kickoff, now)}
 					</span>
 					<span className="shrink-0">{confidenceText(tip.confidence)}</span>
 				</div>
 				<div className="min-w-0">
-					<h3 className="oe-card__title truncate">{formatPairing(tip.home.name, tip.away.name)}</h3>
-					<div className="oe-card__market">{tip.tippmixLabel}</div>
+					<h3 className="oe-tip__title truncate">{formatPairing(tip.home.name, tip.away.name)}</h3>
+					<div className="oe-tip__market">{tip.tippmixLabel}</div>
 				</div>
 				<TeamForm home={tip.home} away={tip.away} />
 				<ProbabilityBars pModel={tip.pModel} pMarket={tip.pMarket} />

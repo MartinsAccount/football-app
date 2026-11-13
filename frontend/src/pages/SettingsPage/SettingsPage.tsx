@@ -15,6 +15,7 @@ import {
 	SETTINGS_MARKETS,
 	STAKE_UNITS
 } from './settingsView';
+import { cx, dangerBox, input, toggleBtn, warningBox } from '../../components/ui/oeClasses';
 
 interface ISettingsPageProps {
 	MainStore?: MainStore;
@@ -37,12 +38,12 @@ const MB = 1024 * 1024;
 const sectionStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: v('space.7'), marginTop: v('space.14') };
 const tilesStyle: CSSProperties = {
 	display: 'grid',
-	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.card-min')} * 3 / 4)), 1fr))`,
+	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.aside-basis')} * 3 / 4)), 1fr))`,
 	gap: v('space.6')
 };
 const listStyle: CSSProperties = {
 	display: 'grid',
-	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${v('size.card-min')}), 1fr))`,
+	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${v('size.aside-basis')}), 1fr))`,
 	gap: v('space.4'),
 	margin: 0,
 	padding: 0,
@@ -79,11 +80,11 @@ const rowNumStyle: CSSProperties = {
 const togglesStyle: CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: v('space.4') };
 const formGridStyle: CSSProperties = {
 	display: 'grid',
-	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.card-min')} * 3 / 4)), 1fr))`,
+	gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, calc(${v('size.aside-basis')} * 3 / 4)), 1fr))`,
 	gap: v('space.7')
 };
 const fieldHintStyle: CSSProperties = { fontSize: v('font.size.micro'), color: v('color.text.muted') };
-const errorStyle: CSSProperties = { ...fieldHintStyle, color: v('color.signal.negative') };
+const errorStyle: CSSProperties = { ...fieldHintStyle, color: v('color.signal.negative-text') };
 
 const Check = ({
 	checked,
@@ -196,8 +197,8 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 					<div style={tilesStyle}>
 						{tiles.map((t) => (
 							<div key={t.label} className="oe-tile">
-								<div className="oe-stat__label">{t.label}</div>
-								<div className="oe-stat__value" style={t.danger ? { color: v('color.signal.negative') } : undefined}>
+								<div className="oe-tile__label">{t.label}</div>
+								<div className="oe-tile__value" style={t.danger ? { color: v('color.signal.negative-text') } : undefined}>
 									{t.value}
 								</div>
 								<div className="oe-tile__foot">{t.foot}</div>
@@ -205,7 +206,7 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 						))}
 					</div>
 					{warnings.map((w) => (
-						<div key={w.text} role="status" className={`oe-warning oe-warning--box${w.danger ? ' oe-warning--danger' : ''}`}>
+						<div key={w.text} role="status" className={cx('oe-warning', w.danger ? dangerBox : warningBox)}>
 							{w.text}
 						</div>
 					))}
@@ -244,7 +245,7 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 							<button
 								key={m.key}
 								type="button"
-								className="oe-btn oe-btn--toggle"
+								className={cx('oe-btn', toggleBtn)}
 								aria-pressed={s.markets.includes(m.key)}
 								onClick={() => this.store.toggleMarket(m.key)}
 							>
@@ -266,7 +267,7 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 							<button
 								key={b.id}
 								type="button"
-								className="oe-btn oe-btn--toggle"
+								className={cx('oe-btn', toggleBtn)}
 								aria-pressed={s.bookmakers.includes(b.id)}
 								onClick={() => this.store.toggleBookmaker(b.id)}
 							>
@@ -305,7 +306,7 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 							<label key={field} className="oe-field">
 								{label}
 								<input
-									className="oe-input"
+									className={input}
 									inputMode="decimal"
 									value={drafts[field]}
 									aria-invalid={invalid[field] ? true : undefined}

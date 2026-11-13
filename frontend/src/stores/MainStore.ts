@@ -5,6 +5,7 @@ import { OddsStore } from '../pages/OddsPage/stores/OddsStore';
 import { FetchService } from '../services/FetchService';
 import { SettingsStore } from './SettingsStore';
 import { SlipStore } from './SlipStore';
+import { ThemeStore } from './ThemeStore';
 
 export class MainStore {
 	public OddsStore: OddsStore;
@@ -12,6 +13,7 @@ export class MainStore {
 	public FixtureStore: FixtureStore;
 	public SlipStore: SlipStore;
 	public SettingsStore: SettingsStore;
+	public ThemeStore: ThemeStore;
 
 	public FetchService: FetchService;
 
@@ -29,6 +31,7 @@ export class MainStore {
 		this.OddsStore = new OddsStore(this);
 		this.ArbitrageStore = new ArbitrageStore(this);
 		this.FixtureStore = new FixtureStore(this);
+		this.ThemeStore = new ThemeStore();
 		this.SettingsStore = new SettingsStore();
 		this.SlipStore = new SlipStore(undefined, () => this.SettingsStore.stakeOptions);
 		// Alapegység-váltáskor a tét az új egységre áll (a régi lépcső eleme már nem választható).

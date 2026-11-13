@@ -58,7 +58,7 @@ describe('SlipPanel', () => {
 	it('adds the mobile slip bar and opens the bottom sheet with the same content', () => {
 		const store = new SlipStore(memorySlipStorage());
 		let html = renderToStaticMarkup(<SlipPanel store={store} now={now} />);
-		expect(html).not.toContain('oe-slipbar');
+		expect(html).not.toContain('Szelvény összesítő');
 		store.toggle(a);
 		store.toggle(b);
 		html = renderToStaticMarkup(<SlipPanel store={store} now={now} />);
@@ -68,7 +68,7 @@ describe('SlipPanel', () => {
 		store.openTransfer();
 		html = renderToStaticMarkup(<SlipPanel store={store} now={now} />);
 		expect(html).toContain('role="dialog"');
-		expect(html).not.toContain('class="oe-slipbar"');
+		expect(html).not.toContain('aria-label="Szelvény összesítő"');
 		expect(html).toContain('id="slip-tippmix-transfer-title"');
 		expect(html).toContain('id="sheet-tippmix-transfer-title"');
 	});

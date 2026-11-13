@@ -11,6 +11,7 @@ import SlipBar from './SlipBar';
 import BottomSheet from './BottomSheet';
 import { v } from '../../design/tokens/tokens';
 import { singlesNote, slipHeadText } from './slipView';
+import { cx, desktopOnly, note, slipBarSpacer, statusDot } from '../ui/oeClasses';
 
 const emptyStyle: CSSProperties = { paddingTop: v('space.8'), gap: v('space.3') };
 
@@ -40,7 +41,7 @@ class SlipPanel extends Component<ISlipPanelProps> {
 					<strong>Még üres a szelvény</strong>
 					<p className="oe-muted text-small m-0">Adj hozzá tippeket a listából, vagy kérd a motor javaslatát.</p>
 					{store.lastSavedId && (
-						<p className="oe-status m-0" role="status">
+						<p className={cx(statusDot, 'm-0')} role="status">
 							Szelvény mentve ({store.saved.length} mentett szelvény).
 						</p>
 					)}
@@ -58,7 +59,7 @@ class SlipPanel extends Component<ISlipPanelProps> {
 					<span className="oe-muted">Lehetséges nyeremény</span>
 					<strong>{formatFt(summary.payout)}</strong>
 				</div>
-				{note && <div className="oe-slip__note">{note}</div>}
+				{note && <div className={note}>{note}</div>}
 				{store.transferOpen ? (
 					<TippmixTransfer
 						rows={store.transferRows}
@@ -96,10 +97,10 @@ class SlipPanel extends Component<ISlipPanelProps> {
 		const { summary, sheetOpen } = store;
 		return (
 			<>
-				<aside className="oe-split__aside oe-slip oe-slip--desktop" aria-label="Szelvény">
+				<aside className={cx('oe-split__aside oe-slip', desktopOnly)} aria-label="Szelvény">
 					{this.renderContent('slip')}
 				</aside>
-				{summary && <div className="oe-slipbar-spacer" aria-hidden="true" />}
+				{summary && <div className={slipBarSpacer} aria-hidden="true" />}
 				{summary && !sheetOpen && <SlipBar summary={summary} onOpen={this.openSheet} />}
 				<BottomSheet open={sheetOpen} label="Szelvény" onClose={this.closeSheet}>
 					<div className="oe-slip">{this.renderContent('sheet')}</div>

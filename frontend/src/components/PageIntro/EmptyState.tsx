@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { card } from '../ui/oeClasses';
 
 interface IEmptyStateProps {
 	title: string;
@@ -10,7 +11,7 @@ class EmptyState extends Component<IEmptyStateProps> {
 	render() {
 		const { title, text } = this.props;
 		return (
-			<div className="oe-card" role="status">
+			<div className={card} role="status">
 				<h2 className="oe-h2">{title}</h2>
 				<p className="oe-muted m-0">{text}</p>
 			</div>

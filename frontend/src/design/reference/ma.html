@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ma – referencia</title>
+<!-- Téma beállítása festés ELŐTT (nincs villanás). Sorrend: ?theme= → localStorage → rendszer. -->
+<script>
+  (function () {
+    var k = 'oe-theme', q = new URLSearchParams(location.search).get('theme'), p = null;
+    try { p = localStorage.getItem(k); } catch (e) {}
+    var pick = q || p;
+    var t = pick === 'light' || pick === 'dark' ? pick : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../components/components.css">
+</head>
+<body>
+
+<header class="oe-header">
+  <a class="oe-brand" href="#">
+    <svg width="28" height="28" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="13" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 2 V28 M2 15 H28" stroke="currentColor" stroke-width="1.2" opacity=".5"/><circle cx="15" cy="15" r="4" fill="currentColor"/></svg>
+    <span style="color:var(--color-text-primary)">Odds elemző</span>
+  </a>
+  <nav class="oe-nav" aria-label="Fő navigáció">
+    <a class="oe-nav__link" href="ma.html" aria-current="page">Ma</a>
+    <a class="oe-nav__link" href="kiertekeles.html">Kiértékelés</a>
+    <a class="oe-nav__link" href="#">Arbitrázs</a>
+    <a class="oe-nav__link" href="#">Beállítások</a>
+  </nav>
+  <div class="oe-header__end">
+    <span class="oe-status-pill" data-state="saved">Mentett adat · 0/100 hívás</span>
+    <button class="oe-theme-toggle" type="button" data-theme-toggle aria-label="Téma váltása">
+      <svg class="oe-icon-sun" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="oe-icon-moon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="oe-container">
+  <section class="oe-hero">
+    <div class="oe-hero__date">Szombat, április 12.</div>
+    <h1 class="oe-h1">Rakd össze a mai szelvényt.<br><span>40 meccsből 2 érték-tipp.</span></h1>
+    <div class="oe-chips">
+      <span class="oe-pill oe-pill--warning">Mentett adat · 2025. ápr. 12–13.</span>
+      <span class="oe-pill">Odds 17 órás</span>
+      <span class="oe-pill">Sérültlista nincs a forrásban</span>
+      <button class="oe-linkbtn" type="button" aria-expanded="false" aria-controls="datastate" data-disclosure>Mit jelent?</button>
+    </div>
+    <div class="oe-datastate__detail" id="datastate" hidden>Az ingyenes API-csomag nem ad idei szezont, ezért a lista egy 2025. áprilisi hétvége mentett adataiból készült (modell: elo-poisson@0.1.0). Sérültlista és 5 iroda nincs a forrásban, ezért a tipp a modell és a piac kombinált becslése.</div>
+  </section>
+
+  <div class="oe-split">
+    <main class="oe-split__main">
+
+      <section aria-labelledby="h-ma">
+        <div class="oe-section-head"><h2 class="oe-h2" id="h-ma">Ma</h2><span class="oe-section-sub">1 tipp</span></div>
+
+        <article class="oe-tip" data-tip="1" data-selected="false">
+          <div class="oe-tip__head">
+            <div>
+              <div class="oe-tip__meta">Bundesliga · ma 15:30 · bizonyosság: alacsony</div>
+              <h3 class="oe-tip__title">Bochum – Augsburg</h3>
+              <div class="oe-tip__market">Végeredmény <span class="oe-badge">2 · vendég</span></div>
+            </div>
+            <div class="oe-tip__ev"><div class="oe-tip__ev-label">várható érték</div><div class="oe-tip__ev-value">+7%</div></div>
+          </div>
+          <div class="oe-decision">
+            <div class="oe-tile"><div class="oe-tile__label">Legjobb odds</div><div class="oe-tile__value">3,00</div><div class="oe-tile__foot">Pinnacle · P 16:00</div></div>
+            <div class="oe-tile"><div class="oe-tile__label">Tippmixen legalább</div><div class="oe-tile__value">2,94</div><div class="oe-tile__foot">ennél rosszabbra ne</div></div>
+            <div class="oe-tile"><div class="oe-tile__label">Esély · szerintünk / irodák</div><div class="oe-tile__value">36%<small>/ 33%</small></div>
+              <div class="oe-pbar" style="--p:36%; --m:33%" role="img" aria-label="Szerintünk 36%, irodák szerint 33%"><div class="oe-pbar__fill"></div><div class="oe-pbar__marker"></div></div></div>
+          </div>
+          <div>
+            <div class="oe-label">Miért?</div>
+            <div class="oe-why__chips">
+              <span class="oe-why__chip"><strong>+12 pp</strong>vendég Elo-előny (128 pont)</span>
+              <span class="oe-why__chip" data-tone="negative"><strong>−4 pp</strong>hazai pálya</span>
+            </div>
+          </div>
+          <div class="oe-teams">
+            <div><div class="oe-team__name"><strong>17.</strong> Bochum · utolsó 5</div>
+              <ol class="oe-form" aria-label="Bochum utolsó 5: V Gy V V V"><li class="oe-chip oe-chip--loss" title="V @ Mainz 0–2">V</li><li class="oe-chip oe-chip--win" title="Gy vs Gladbach 1–0">Gy</li><li class="oe-chip oe-chip--loss">V</li><li class="oe-chip oe-chip--loss">V</li><li class="oe-chip oe-chip--loss">V</li></ol></div>
+            <div><div class="oe-team__name"><strong>11.</strong> Augsburg · utolsó 5</div>
+              <ol class="oe-form" aria-label="Augsburg utolsó 5: D Gy Gy D V"><li class="oe-chip oe-chip--draw">D</li><li class="oe-chip oe-chip--win">Gy</li><li class="oe-chip oe-chip--win">Gy</li><li class="oe-chip oe-chip--draw">D</li><li class="oe-chip oe-chip--loss">V</li></ol></div>
+          </div>
+          <div class="oe-warning">⚠ Az odds 17 órás</div>
+          <div class="oe-tip__actions">
+            <button class="oe-btn oe-btn--add" type="button" aria-pressed="false" data-add="1">+ Szelvényre</button>
+            <button class="oe-disclosure" type="button" aria-expanded="true" aria-controls="det-1" data-disclosure data-open-label="Részletek elrejtése" data-closed-label="Indoklás, tabella, egymás ellen">
+              <span>Részletek elrejtése</span><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5 L7 9 L11 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="oe-tip__details" id="det-1">
+            <div>
+              <h4 class="oe-label">A modell indoklása</h4>
+              <ul class="oe-reasons">
+                <li>A vendég csapat 128 Elo-ponttal erősebb (+12 pp a vendég győzelmére).</li>
+                <li>Hazai pálya: +4 pp a hazai győzelemre.</li>
+                <li>Gólszegény csapatok: −11 pp a 2,5 gól fölöttire (a gólpiacra hat).</li>
+                <li>A modell 44%-ot mond; a piaci valószínűséggel kombinálva 36%.</li>
+              </ul>
+            </div>
+            <div class="oe-details">
+              <div>
+                <h4 class="oe-label">Tabella · Bundesliga</h4>
+                <div class="oe-strip" role="img" aria-label="Bochum 17., Augsburg 11. a 18-ból">
+                  <span class="oe-strip__cell oe-strip__cell--cl"></span><span class="oe-strip__cell oe-strip__cell--cl"></span><span class="oe-strip__cell oe-strip__cell--cl"></span><span class="oe-strip__cell oe-strip__cell--cl"></span><span class="oe-strip__cell oe-strip__cell--eu"></span><span class="oe-strip__cell oe-strip__cell--eu"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell oe-strip__cell--away"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell"></span><span class="oe-strip__cell oe-strip__cell--home"></span><span class="oe-strip__cell oe-strip__cell--rel"></span>
+                </div>
+                <div class="oe-legend"><span>1.–18. hely</span><span><i class="oe-swatch" style="background:var(--color-zone-champions)"></i>BL</span><span><i class="oe-swatch" style="background:var(--color-zone-europe)"></i>európai kupa</span><span><i class="oe-swatch" style="background:var(--color-zone-relegation)"></i>kiesés</span></div>
+                <div class="oe-standing"><i class="oe-swatch" style="background:var(--color-zone-home);width:10px;height:10px"></i><strong>17. Bochum</strong> · 20 pont · −28<small>Tét: kiesés elleni harc</small></div>
+                <div class="oe-standing"><i class="oe-swatch" style="background:var(--color-zone-away);width:10px;height:10px"></i><strong>11. Augsburg</strong> · 39 pont · −8<small>Tét: semleges, középmezőny</small></div>
+              </div>
+              <div>
+                <h4 class="oe-label">Egymás ellen · utolsó 5</h4>
+                <div class="oe-row oe-row--h2h"><span class="oe-muted">2024.11</span><span class="oe-row__ellipsis">Augsburg – Bochum</span><span class="oe-row__score">1–0</span><span class="oe-chip oe-chip--loss">V</span></div>
+                <div class="oe-row oe-row--h2h"><span class="oe-muted">2024.04</span><span class="oe-row__ellipsis">Bochum – Augsburg</span><span class="oe-row__score">1–1</span><span class="oe-chip oe-chip--draw">D</span></div>
+                <div class="oe-row oe-row--h2h"><span class="oe-muted">2023.12</span><span class="oe-row__ellipsis">Augsburg – Bochum</span><span class="oe-row__score">2–3</span><span class="oe-chip oe-chip--win">Gy</span></div>
+                <div class="oe-row oe-row--h2h"><span class="oe-muted">2023.04</span><span class="oe-row__ellipsis">Bochum – Augsburg</span><span class="oe-row__score">2–0</span><span class="oe-chip oe-chip--win">Gy</span></div>
+                <div class="oe-row oe-row--h2h"><span class="oe-muted">2022.10</span><span class="oe-row__ellipsis">Augsburg – Bochum</span><span class="oe-row__score">2–1</span><span class="oe-chip oe-chip--loss">V</span></div>
+                <div class="oe-summary">Bochum szemszögéből: 2 Gy · 1 D · 2 V · átl. 2,6 gól/meccs</div>
+              </div>
+              <div>
+                <h4 class="oe-label">Bochum · utolsó 5</h4>
+                <div class="oe-row"><span class="oe-chip oe-chip--loss">V</span><span><span class="oe-muted">@</span> Freiburg</span><span class="oe-row__score">0–2</span></div>
+                <div class="oe-row"><span class="oe-chip oe-chip--loss">V</span><span><span class="oe-muted">vs</span> Bremen</span><span class="oe-row__score">1–2</span></div>
+                <div class="oe-row"><span class="oe-chip oe-chip--loss">V</span><span><span class="oe-muted">@</span> Leipzig</span><span class="oe-row__score">0–3</span></div>
+                <div class="oe-row"><span class="oe-chip oe-chip--win">Gy</span><span><span class="oe-muted">vs</span> Gladbach</span><span class="oe-row__score">1–0</span></div>
+                <div class="oe-row"><span class="oe-chip oe-chip--loss">V</span><span><span class="oe-muted">@</span> Mainz</span><span class="oe-row__score">0–2</span></div>
+              </div>
+              <div>
+                <h4 class="oe-label">Augsburg · utolsó 5</h4>
+                <div class="oe-row"><span class="oe-chip oe-chip--loss">V</span><span><span class="oe-muted">vs</span> Dortmund</span><span class="oe-row__score">1–3</span></div>
+                <div class="oe-row"><span class="oe-chip oe-chip--draw">D</span><span><span class="oe-muted">@</span> Hoffenheim</span><span class="oe-row__score">0–0</span></div>
+                <div class="oe-row"><span class="oe-chip oe-chip--win">Gy</span><span><span class="oe-muted">vs</span> Wolfsburg</span><span class="oe-row__score">1–0</span></div>
+                <div class="oe-row"><span class="oe-chip oe-chip--win">Gy</span><span><span class="oe-muted">@</span> Holstein Kiel</span><span class="oe-row__score">2–1</span></div>
+                <div class="oe-row"><span class="oe-chip oe-chip--draw">D</span><span><span class="oe-muted">vs</span> Stuttgart</span><span class="oe-row__score">1–1</span></div>
+              </div>
+            </div>
+            <div class="oe-tip__source">Forrás: Pinnacle · P 16:00 · tét 1 egység · elo-poisson@0.1.0</div>
+          </div>
+        </article>
+      </section>
+
+      <section aria-labelledby="h-holnap">
+        <div class="oe-section-head"><h2 class="oe-h2" id="h-holnap">Holnap</h2><span class="oe-section-sub">vasárnap · 1 tipp</span></div>
+        <article class="oe-tip" data-tip="2" data-selected="false">
+          <div class="oe-tip__head">
+            <div>
+              <div class="oe-tip__meta">Premier League · V 17:30 · bizonyosság: alacsony</div>
+              <h3 class="oe-tip__title">Wolves – Tottenham</h3>
+              <div class="oe-tip__market">Végeredmény <span class="oe-badge">2 · vendég</span></div>
+            </div>
+            <div class="oe-tip__ev"><div class="oe-tip__ev-label">várható érték</div><div class="oe-tip__ev-value">+6%</div></div>
+          </div>
+          <div class="oe-decision">
+            <div class="oe-tile"><div class="oe-tile__label">Legjobb odds</div><div class="oe-tile__value">3,23</div><div class="oe-tile__foot">Bet365 · P 16:00</div></div>
+            <div class="oe-tile"><div class="oe-tile__label">Tippmixen legalább</div><div class="oe-tile__value">3,21</div><div class="oe-tile__foot">ennél rosszabbra ne</div></div>
+            <div class="oe-tile"><div class="oe-tile__label">Esély · szerintünk / irodák</div><div class="oe-tile__value">33%<small>/ 30%</small></div>
+              <div class="oe-pbar" style="--p:33%; --m:30%" role="img" aria-label="Szerintünk 33%, irodák szerint 30%"><div class="oe-pbar__fill"></div><div class="oe-pbar__marker"></div></div></div>
+          </div>
+          <div>
+            <div class="oe-label">Miért?</div>
+            <div class="oe-why__chips">
+              <span class="oe-why__chip"><strong>+5 pp</strong>vendég jobb gólkülönbség</span>
+              <span class="oe-why__chip"><strong>+2 pp</strong>hazai gyenge forma</span>
+              <span class="oe-why__chip" data-tone="negative"><strong>−4 pp</strong>hazai pálya</span>
+            </div>
+          </div>
+          <div class="oe-teams">
+            <div><div class="oe-team__name"><strong>16.</strong> Wolves · utolsó 5</div><ol class="oe-form"><li class="oe-chip oe-chip--win">Gy</li><li class="oe-chip oe-chip--loss">V</li><li class="oe-chip oe-chip--loss">V</li><li class="oe-chip oe-chip--draw">D</li><li class="oe-chip oe-chip--loss">V</li></ol></div>
+            <div><div class="oe-team__name"><strong>15.</strong> Tottenham · utolsó 5</div><ol class="oe-form"><li class="oe-chip oe-chip--win">Gy</li><li class="oe-chip oe-chip--loss">V</li><li class="oe-chip oe-chip--draw">D</li><li class="oe-chip oe-chip--win">Gy</li><li class="oe-chip oe-chip--loss">V</li></ol></div>
+          </div>
+          <div class="oe-warning">⚠ Az odds 17 órás</div>
+          <div class="oe-tip__actions">
+            <button class="oe-btn oe-btn--add" type="button" aria-pressed="false" data-add="2">+ Szelvényre</button>
+            <button class="oe-disclosure" type="button" aria-expanded="false" data-closed-label="Indoklás, tabella, egymás ellen"><span>Indoklás, tabella, egymás ellen</span><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5 L7 9 L11 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <aside class="oe-split__aside">
+      <section class="oe-slip" aria-labelledby="h-slip">
+        <div class="oe-slip__head"><h2 class="oe-h2" id="h-slip">Szelvényem</h2><span class="oe-section-sub" id="slip-kind">nincs tipp</span></div>
+        <div class="oe-slip__body" id="slip-body"></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script>
+  // ── Csak a referenciaoldal működéséhez. Az appban ez MobX store + komponens. ──
+  const TIPS = {
+    1: { match: 'Bochum – Augsburg', pick: 'Végeredmény · 2', when: 'ma 15:30', o: 3.00, min: 2.94, p: 0.357 },
+    2: { match: 'Wolves – Tottenham', pick: 'Végeredmény · 2', when: 'V 17:30', o: 3.23, min: 3.21, p: 0.327 }
+  };
+  const PRESETS = [
+    { ids: [1], name: 'Szingli · Bochum – Augsburg', rec: true },
+    { ids: [1, 2], name: 'Dupla kötés · mindkét tipp', rec: false }
+  ];
+  let sel = [], stake = 1000;
+  const f2 = (n) => n.toFixed(2).replace('.', ',');
+  const pc = (n) => Math.round(n * 100) + '%';
+  const ft = (n) => new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 0, useGrouping: 'always' }).format(Math.round(n)).replace(/\s/g, '\u00a0') + '\u00a0Ft';
+  const ORD = { 2: 'második', 3: 'harmadik', 4: 'negyedik', 5: 'ötödik', 6: 'hatodik', 7: 'hetedik', 8: 'nyolcadik', 9: 'kilencedik', 10: 'tizedik' };
+  const risk = (p) => {
+    const n = Math.max(2, Math.round(1 / p));
+    const nth = 'kb. minden ' + (ORD[n] || n + '.') + ' ilyen szelvény nyer.';
+    if (p >= 0.35) return { level: 'low', txt: 'Alacsony kockázat: ' + nth };
+    if (p >= 0.15) return { level: 'medium', txt: 'Közepes kockázat: ' + nth };
+    return { level: 'high', txt: 'Magas kockázat: ' + nth };
+  };
+  const combo = (ids) => {
+    const legs = ids.map((i) => TIPS[i]);
+    const o = legs.reduce((a, l) => a * l.o, 1), p = legs.reduce((a, l) => a * l.p, 1), mn = legs.reduce((a, l) => a * l.min, 1);
+    return { legs, o, p, mn, ev: p * o - 1 };
+  };
+  const KINDS = ['nincs tipp', 'Szingli', 'Dupla kötés', 'Hármas kötés'];
+
+  function render() {
+    document.getElementById('slip-kind').textContent = sel.length ? KINDS[sel.length] + ' · ' + sel.length + ' tipp' : 'nincs tipp';
+    document.querySelectorAll('[data-add]').forEach((b) => {
+      const on = sel.includes(+b.dataset.add);
+      b.setAttribute('aria-pressed', on);
+      b.textContent = on ? '✓ Szelvényen' : '+ Szelvényre';
+      b.closest('.oe-tip').dataset.selected = on;
+    });
+    const body = document.getElementById('slip-body');
+    if (!sel.length) {
+      body.innerHTML = '<p class="oe-slip__hint">Még üres. Válassz a motor javaslatai közül, vagy adj hozzá tippet a listából.</p><div class="oe-label">Kész szelvények</div>' +
+        PRESETS.map((pr, i) => {
+          const m = combo(pr.ids), r = risk(m.p);
+          return '<button class="oe-preset" type="button" data-preset="' + i + '" data-recommended="' + pr.rec + '">' +
+            '<span class="oe-preset__top">' + pr.name + (pr.rec ? '<span class="oe-tag oe-tag--accent">Ajánlott</span>' : '') + '</span>' +
+            '<span class="oe-preset__legs">' + m.legs.map((l) => l.match + ' · ' + l.pick).join('\n') + '</span>' +
+            '<span class="oe-preset__metrics"><span><small>odds</small>' + f2(m.o) + '</span><span><small>esély</small>' + pc(m.p) + '</span><span style="color:var(--color-accent-text)"><small>EV</small>+' + Math.round(m.ev * 100) + '%</span></span>' +
+            '<span class="oe-risk-dot" data-level="' + r.level + '">' + r.txt + '</span></button>';
+        }).join('');
+      return;
+    }
+    const m = combo(sel), r = risk(m.p);
+    body.innerHTML = '<ol class="oe-slip__legs">' + sel.map((id) => {
+      const l = TIPS[id];
+      return '<li class="oe-slip__leg"><div><strong style="font-size:14px">' + l.match + '</strong><div class="oe-tile__foot">' + l.pick + ' · ' + l.when + '</div></div>' +
+        '<div style="text-align:right"><strong>' + f2(l.o) + '</strong><div class="oe-tile__foot">min. ' + f2(l.min) + '</div></div>' +
+        '<button class="oe-btn oe-btn--icon" type="button" data-remove="' + id + '" aria-label="Tipp levétele a szelvényről">✕</button></li>';
+    }).join('') + '</ol>' +
+      '<div class="oe-slip__totals"><div class="oe-tile"><div class="oe-tile__label">Eredő odds</div><div class="oe-tile__value">' + f2(m.o) + '</div><div class="oe-tile__foot">Tippmixen min. ' + f2(m.mn) + '</div></div>' +
+      '<div class="oe-tile"><div class="oe-tile__label">Várható érték</div><div class="oe-tile__value oe-tile__value--accent">+' + Math.round(m.ev * 100) + '%</div><div class="oe-tile__foot">modell szerint</div></div></div>' +
+      '<div><div style="display:flex;justify-content:space-between;font-size:13px"><span class="oe-muted">Találati esély</span><strong>' + pc(m.p) + '</strong></div>' +
+      '<div class="oe-risk__track"><div class="oe-risk__fill" data-level="' + r.level + '" style="--p:' + Math.max(2, Math.round(m.p * 100)) + '%"></div></div><div class="oe-tile__foot" style="margin-top:6px">' + r.txt + '</div></div>' +
+      '<div><div class="oe-muted" style="font-size:13px;margin-bottom:8px">Tét</div><div class="oe-stake" role="group" aria-label="Tét">' +
+      [500, 1000, 2000, 5000].map((v) => '<button class="oe-btn" type="button" data-stake="' + v + '" aria-pressed="' + (v === stake) + '">' + ft(v) + '</button>').join('') + '</div></div>' +
+      '<div class="oe-slip__payout"><span class="oe-muted">Lehetséges nyeremény</span><strong>' + ft(stake * m.o) + '</strong></div>' +
+      '<button class="oe-btn oe-btn--primary oe-btn--cta" type="button">Tippmixre viszem</button>' +
+      '<button class="oe-linkbtn oe-linkbtn--muted" type="button" data-clear>Szelvény ürítése</button>';
+  }
+
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('button');
+    if (!t) return;
+    if (t.dataset.add) { const id = +t.dataset.add; sel = sel.includes(id) ? sel.filter((x) => x !== id) : sel.concat(id); render(); }
+    if (t.dataset.preset) { sel = PRESETS[+t.dataset.preset].ids.slice(); render(); }
+    if (t.dataset.remove) { sel = sel.filter((x) => x !== +t.dataset.remove); render(); }
+    if (t.dataset.stake) { stake = +t.dataset.stake; render(); }
+    if ('clear' in t.dataset) { sel = []; render(); }
+    if ('disclosure' in t.dataset || t.classList.contains('oe-disclosure')) {
+      const open = t.getAttribute('aria-expanded') !== 'true';
+      t.setAttribute('aria-expanded', open);
+      const target = document.getElementById(t.getAttribute('aria-controls'));
+      if (target) target.hidden = !open;
+      const label = open ? t.dataset.openLabel : t.dataset.closedLabel;
+      if (label && t.querySelector('span')) t.querySelector('span').textContent = label;
+      if (!t.dataset.openLabel && !t.dataset.closedLabel) t.textContent = open ? 'Bezárás' : 'Mit jelent?';
+    }
+    if ('themeToggle' in t.dataset) {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('oe-theme', next); } catch (err) {}
+    }
+  });
+  render();
+</script>
+</body>
+</html>
