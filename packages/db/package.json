@@ -16,7 +16,8 @@
 		"import:history": "vite-node scripts/import-history.ts",
 		"import:odds-csv": "vite-node scripts/import-odds-csv.ts",
 		"backtest": "vite-node scripts/backtest.ts",
-		"recommendations": "vite-node scripts/recommendations.ts"
+		"recommendations": "vite-node scripts/recommendations.ts",
+		"arbitrage": "vite-node scripts/arbitrage.ts"
 	},
 	"devDependencies": {
 		"@types/node": "^22.20.5"

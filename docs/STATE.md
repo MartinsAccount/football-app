@@ -4,7 +4,7 @@
 
 ## Aktuális fázis
 
-M1 (docs/GOAL-M1.md): S01–S22 kész, következik S23 (`/arbitrage`).
+M1 (docs/GOAL-M1.md): S01–S23 kész, következik S24 (M1 zárás).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 
@@ -20,8 +20,7 @@ H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
 
-1. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
-2. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
+1. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
    `ALL_DONE M1`.
 
 ## Kész
@@ -51,6 +50,7 @@ I. Arbitrázs átköltöztetése az új backendre
 | S20 – Mobil szelvény + presetek | (lásd git log: feat(ui): add mobile slip and SlipPresets)       | core `slip/presets.ts` (`presetCandidates`, `buildSlipPresets`: Szingli/Dupla/Hármas, „Ajánlott” = max EV nem magas kockázattal); `SlipStore.applyPreset`/`hasExactly`/`openSheet`; `SlipPresets`, `SlipBar`, `BottomSheet` (Esc, háttér, ✕, fókusz vissza); < 640 px: `.oe-slip--desktop` rejtve; screenshot 1440/390 (sáv + lap)                                            |
 | S21 – `/evaluation` dashboard   | (lásd git log: feat(ui): evaluation dashboard)                  | `pages/EvaluationPage/`: `evaluationView.ts` (szegmens-opciók, `betTiles` ROI ±1,96 SE, `scoreRows` modell/nyitó/záró, `verdict`, `segmentRows`, `calibrationPoints`/`calibrationError`), `CalibrationChart` (SVG, tokenekkel); szűrő: piac (1X2/Gól 2,5) + szegmens (szezon/liga, a bontás-sorra kattintva is); forrás `data/backtest/backtest-v0.json`; screenshot 1440/390 |
 | S22 – `/settings`               | (lásd git log: feat(ui): settings page)                         | `pages/SettingsPage/settingsView.ts` (katalógus: 9 liga, 3 piac, 8 iroda; `sanitizeSettings`, `estimateSettings` a core `budget/`-ből, `settingsWarnings`, `stakeOptions`); `stores/SettingsStore.ts` (localStorage `oe_settings`); a SlipStore tét-lépcsője az alapegységből; screenshot 1440/390                                                                            |
+| S23 – `/arbitrage`              | (lásd git log: feat(ui): arbitrage page)                        | core `arbitrage/scan.ts` (`scanMarket`, `arbitrageSum`, `arbitrageStakes`, `arbitrageBand`, `ArbitrageSnapshot`; egyezik a régi `analyzeBookmakers`-szel); `npm run arbitrage -w @football/db` → `data/arbitrage/arbitrage-v0.json` (88 meccs, 3 arb, 70 közeli); kártyák, sáv/piac/iroda szűrő, tét-elosztás 10 Ft-ra; régi oldal `/legacy/arbitrage`; screenshot 1440/390   |
 
 ## Polish backlog
 
@@ -78,7 +78,9 @@ I. Arbitrázs átköltöztetése az új backendre
   4 blokk 3+1 elrendezésű (auto-fit 300 px); a tabella-sorban a pont/gólkül. is félkövér (referenciában csak a név); Hiányzók
   blokk.
 - Nav-link 36 px magas (a referencia szerint), a DESIGN érintési célja 44 px; 390-en a nav 2 sorba törik → mobil overflow-menü?
-- `/arbitrage` 390-en: a 256 px-es oldalsáv mellett a tartalom összenyomódik (S23).
+- Arbitrázs (S23): a pillanatkép CSV-ből, nem a DB `odds_snapshot`-ból (8.1/8.3); a beállított ligák/irodák nem szűrnek; odds-kor
+  figyelmeztetés nincs; a „most” utáni 10 nap oddsa kezdés − 48 h; csak 1X2 és Gól 2,5 (AH nincs); a régi `/legacy/arbitrage`
+  (oldalsáv, modál – ui-audit #3/#7/#8 ott maradt) a 8.3-mal törlendő.
 - Headless Edge 500 px alatt nem szűkíti a viewportot: 390-es screenshot iframe-burkolóval (`<iframe width=390>`) készül.
 - Régi Tailwind színnevek (bg, surface, accent…) aliasként élnek a `tailwind.config.cjs`-ben; A3 után törölni.
 - `components.css` Google Fonts `@import`-ot húz (külső hálózat); később self-host.
@@ -88,6 +90,11 @@ I. Arbitrázs átköltöztetése az új backendre
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- Arbitrázs (S23): `/arbitrage` = `pages/ArbitragePage/ArbitragePage.tsx` (komponens-state szűrő), `ArbitrageCard`,
+  `arbitrageView.ts` (tiszta, teszt mellette); adat `reviveArbitrageSnapshot(json)` (JSON `Infinity` → `null`). Régi oldal:
+  `LegacyArbitragePage.tsx` a `/legacy/arbitrage`-on. ui-audit #1–3/#7/#8 az új oldalon nem áll fenn (gombok + aria, stabil
+  kulcsok, nincs oldalsáv/modál). S24: minden route screenshot (`%TEMP%/s23/shot.mjs <url> <out>`), GOAL-M1 lista → `ALL_DONE M1`.
 
 - Beállítások (S22): `MainStore.SettingsStore` (`settings`, `estimate`, `warnings`, `stakeOptions`, `toggle*`, `setNumber`); a
   SlipStore 2. konstruktor-paramétere a tét-lépcső getter, a MainStore `reaction`-nel állítja a tétet egységváltáskor. Screenshot:

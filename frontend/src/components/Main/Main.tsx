@@ -7,6 +7,7 @@ import SettingsPage from '../../pages/SettingsPage/SettingsPage';
 import OddsPage from '../../pages/OddsPage/OddsPage';
 import FixturePage from '../../pages/FixturePage/FixturePage';
 import ArbitragePage from '../../pages/ArbitragePage/ArbitragePage';
+import LegacyArbitragePage from '../../pages/ArbitragePage/LegacyArbitragePage';
 
 // Route-ok a PRD 5.8 szerint. A régi /odds és /fixtures a Ma oldalra irányít (az odds-mozgás és a
 // meccs-statisztika a TipCard MatchDetails részébe olvad, ROADMAP H); a régi nézetek addig a
@@ -28,6 +29,9 @@ class Main extends Component {
 						</Route>
 						<Route path="/arbitrage">
 							<ArbitragePage />
+						</Route>
+						<Route path="/legacy/arbitrage">
+							<LegacyArbitragePage />
 						</Route>
 						<Route path="/legacy/odds">
 							<OddsPage />
