@@ -221,7 +221,7 @@
 
 - [x] **11.1 PWA:** `de2f1f4` — manifest, ikonok, service worker (app-shell + `/api` network-first cache → offline olvasás), offline-jelző.
 - [x] **11.2 `packages/contract`:** `615fa4e` — API DTO-típusok + platformfüggetlen kliens (`createApiClient`, `ApiError`), szerződés-teszt a handlerrel.
-- [ ] **11.3 Bearer auth** a `packages/server`-ben (`APP_API_TOKEN_HASH`) + token-generáló script.
+- [x] **11.3 Bearer auth:** `12abc7a` — `authorize` (sha256-hash, időzítés-biztos, dev nyitott / production fail-closed), 401 + `WWW-Authenticate`, `npm run token -w @football/server`.
 - [ ] **11.4 Hordozható állapot:** Settings/Slip/Theme tiszta logikája a core-ba, async `KeyValueStorage`.
 - [ ] **11.5 `packages/theme`:** RN-téma a `tokens.json`-ból.
 - [ ] **11.6 Expo-váz `apps/mobile`:** egy képernyő (Ajánlások) a contract-kliensen, offline cache.
