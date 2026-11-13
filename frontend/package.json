@@ -21,6 +21,7 @@
 	},
 	"scripts": {
 		"tokens": "node src/design/tokens/build-tokens.mjs",
+		"tokens:check": "node src/design/tokens/build-tokens.mjs --check",
 		"predev": "npm run tokens",
 		"prestart": "npm run tokens",
 		"prebuild": "npm run tokens",
@@ -31,7 +32,7 @@
 		"test": "vitest",
 		"test:ci": "vitest run",
 		"typecheck": "tsc --noEmit",
-		"verify": "npm run typecheck && npm run test:ci && npm run build"
+		"verify": "npm run tokens:check && npm run typecheck && npm run test:ci && npm run build"
 	},
 	"devDependencies": {
 		"@vitejs/plugin-react": "^4.3.4",

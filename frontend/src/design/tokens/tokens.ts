@@ -1,9 +1,8 @@
 // GENERÁLT FÁJL – ne szerkeszd kézzel. Forrás: tokens.json + tokens.light.json, generátor: build-tokens.mjs
 
-export type ThemeName = 'dark' | 'light';
-export type ThemePreference = ThemeName | 'system';
-/** localStorage kulcs a kézi témaválasztáshoz. Hiányában a rendszerbeállítás érvényes. */
-export const THEME_STORAGE_KEY = 'oe-theme';
+// A téma-nevek és a tárolási kulcs egyetlen forrása a core (theme/theme.ts); itt csak re-export.
+export type { ThemeName, ThemePreference } from '@football/core';
+export { THEME_STORAGE_KEY } from '@football/core';
 
 /** Feloldott nyers értékek témánként (chart-könyvtárakhoz, canvas/SVG rajzhoz). */
 export const themes = {

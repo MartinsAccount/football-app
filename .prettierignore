@@ -4,3 +4,4 @@ dist
 **/*.json
 # Design kit: generated tokens + vendored kit formatting
 frontend/src/design/
+packages/theme/src/theme.generated.ts
