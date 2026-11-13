@@ -220,7 +220,7 @@
 > Döntés: ADR-0010, auth: ADR-0005, terv: [`plans/mobile.md`](plans/mobile.md). Saját telepítés (APK / PWA), push nem kell.
 
 - [x] **11.1 PWA:** `de2f1f4` — manifest, ikonok, service worker (app-shell + `/api` network-first cache → offline olvasás), offline-jelző.
-- [ ] **11.2 `packages/contract`:** API DTO-típusok + platformfüggetlen kliens.
+- [x] **11.2 `packages/contract`:** HASH_TBD — API DTO-típusok + platformfüggetlen kliens (`createApiClient`, `ApiError`), szerződés-teszt a handlerrel.
 - [ ] **11.3 Bearer auth** a `packages/server`-ben (`APP_API_TOKEN_HASH`) + token-generáló script.
 - [ ] **11.4 Hordozható állapot:** Settings/Slip/Theme tiszta logikája a core-ba, async `KeyValueStorage`.
 - [ ] **11.5 `packages/theme`:** RN-téma a `tokens.json`-ból.

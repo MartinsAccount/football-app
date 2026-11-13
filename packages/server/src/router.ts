@@ -1,5 +1,6 @@
 import { utcDay, type BudgetStore } from '@football/api-client';
 import type { FixtureFilter, Repository } from '@football/db';
+import type { ApiErrorBody, ApiErrorCode, BudgetResponse, FixturesResponse, OddsResponse } from '@football/contract';
 
 /**
  * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
@@ -23,7 +24,7 @@ const json = (status: number, body: unknown): Response =>
 		headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }
 	});
 
-const fail = (status: number, error: string, message: string) => json(status, { error, message });
+const fail = (status: number, error: ApiErrorCode, message: string) => json(status, { error, message } satisfies ApiErrorBody);
 
 class BadRequest extends Error {}
 
@@ -83,7 +84,12 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				const { filter, limit, offset } = parseFixtureQuery(url.searchParams);
 				// TODO(polish): LIMIT/OFFSET SQL-ben, ha a lista nagy lesz (most a repo a teljes szűrt listát adja).
 				const all = await deps.repo.listFixtures(filter);
-				return json(200, { total: all.length, limit, offset, fixtures: all.slice(offset, offset + limit) });
+				return json(200, {
+					total: all.length,
+					limit,
+					offset,
+					fixtures: all.slice(offset, offset + limit)
+				} satisfies FixturesResponse);
 			}
 
 			const odds = /^\/api\/odds\/([^/]+)$/.exec(path);
@@ -92,13 +98,13 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				const fixtureId = Number(odds[1]);
 				const fixture = await deps.repo.getFixture(fixtureId);
 				if (!fixture) return fail(404, 'not-found', `Nincs ilyen meccs: ${fixtureId}`);
-				return json(200, { fixtureId, snapshot: await deps.repo.getLatestOdds(fixtureId) });
+				return json(200, { fixtureId, snapshot: await deps.repo.getLatestOdds(fixtureId) } satisfies OddsResponse);
 			}
 
 			if (path === '/api/budget') {
 				const day = utcDay(now());
 				const u = await deps.budget.usage(day);
-				return json(200, { day, ...u, remaining: remainingCalls(u) });
+				return json(200, { day, ...u, remaining: remainingCalls(u) } satisfies BudgetResponse);
 			}
 
 			return fail(404, 'not-found', `Ismeretlen végpont: ${path}`);

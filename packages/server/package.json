@@ -16,6 +16,7 @@
 	},
 	"dependencies": {
 		"@football/api-client": "0.1.0",
+		"@football/contract": "0.1.0",
 		"@football/db": "0.1.0"
 	},
 	"devDependencies": {

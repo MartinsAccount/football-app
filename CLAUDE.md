@@ -15,6 +15,7 @@ packages/core/   @football/core — pure domain logic, no I/O (odds & bet types,
 packages/db/     @football/db — Postgres migrations (migrations/*.sql) + runner, PGlite-tested; later repositories/adapters.
 packages/api-client/ @football/api-client — the single API-Football client (server-only): budget guard, serialized calls, errors, paging, call log, mock mode.
 packages/server/ @football/server — read API (/api/fixtures, /api/odds/:id, /api/budget) as Web Request→Response handlers over @football/db; local: npm run dev -w @football/server (:5100).
+packages/contract/ @football/contract — read-API DTO types + error format + platform-independent createApiClient (fetch only; no DOM/Node/storage, runs on React Native). Server responses `satisfies` these types.
 frontend/        Vite + React 17 + MobX v5 SPA (football-app-web). Imports domain logic from @football/core.
 backend/         legacy Express JSON store (football-app-legacy-api) — replaced by Vercel api/ + Supabase in ROADMAP §1
 docs/            PRD, ROADMAP, architecture, api/, analysis/, adr/, plans/, fe/
