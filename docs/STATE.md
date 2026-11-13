@@ -4,6 +4,8 @@
 
 ## Aktuális fázis
 
+**Mobil-előkészítés** (ROADMAP 11, ADR-0010, terv: `docs/plans/mobile.md`): M1–M6.
+
 M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesül. ALL_DONE M1
 
 ALL_DONE Floodlight v0.2
@@ -28,6 +30,15 @@ I. Arbitrázs átköltöztetése az új backendre
 Minden szeletnél: a terv „Szeletek” pontja + CHANGES.md megfelelő fejezete. Screenshot: sötét + világos × 1440 + 390
 (`?theme=light|dark`) → `docs/plans/screens/<szelet>-<oldal>-<téma>-<szélesség>.png`, összevetés a csomag screens/-ével. Adatot
 nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / modell / ingestion / DB-séma nem változik.
+
+**Mobil (ROADMAP 11):**
+
+1. **M1 PWA** (11.1) – manifest, ikonok, `public/sw.js`, offline-jelző.
+2. **M2 `packages/contract`** (11.2) – DTO-típusok + `createApiClient`.
+3. **M3 Bearer auth** (11.3) – `packages/server`, `APP_API_TOKEN_HASH`, token-script.
+4. **M4 Hordozható állapot** (11.4) – Settings/Slip/Theme tiszta logika a core-ba, async `KeyValueStorage`.
+5. **M5 `packages/theme`** (11.5) – RN-téma a tokenekből.
+6. **M6 Expo-váz** (11.6) – `apps/mobile`, Ajánlások képernyő.
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).

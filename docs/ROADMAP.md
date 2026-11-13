@@ -215,6 +215,18 @@
 - [ ] **10.3 Ingestion-jobok átkötése:** `fixtures_window`, `results`, `standings` forrása ligánként konfigurálható
       (`followed_league.source`). _Ellenőrzés:_ mock: ugyanaz a meccs két forrásból nem duplikálódik.
 
+## 11. Mobil (Android): PWA most, Expo később
+
+> Döntés: ADR-0010, auth: ADR-0005, terv: [`plans/mobile.md`](plans/mobile.md). Saját telepítés (APK / PWA), push nem kell.
+
+- [ ] **11.1 PWA:** manifest, ikonok, service worker (app-shell + `/api` network-first cache → offline olvasás), offline-jelző.
+- [ ] **11.2 `packages/contract`:** API DTO-típusok + platformfüggetlen kliens.
+- [ ] **11.3 Bearer auth** a `packages/server`-ben (`APP_API_TOKEN_HASH`) + token-generáló script.
+- [ ] **11.4 Hordozható állapot:** Settings/Slip/Theme tiszta logikája a core-ba, async `KeyValueStorage`.
+- [ ] **11.5 `packages/theme`:** RN-téma a `tokens.json`-ból.
+- [ ] **11.6 Expo-váz `apps/mobile`:** egy képernyő (Ajánlások) a contract-kliensen, offline cache.
+- [ ] **11.7+ Expo-képernyők** fokozatosan (Kiértékelés, Szelvény, Beállítások, Arbitrázs); APK-build (EAS).
+
 ## Parkoló (nem-célok, újranyitható)
 
 Automatikus fogadásleadás · élő (in-play) odds · push / e-mail értesítés · más sportágak (kosárlabda, baseball) · több felhasználó

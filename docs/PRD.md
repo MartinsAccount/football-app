@@ -223,7 +223,8 @@ fontossági sorrendet tartja (a kezdés előtti odds-snapshot megelőzi a backfi
 - Élő (in-play) odds és élő eredménykövetés, push értesítés (egy napi e-mail vagy
   értesítés később újranyitható).
 - Más sportágak (kosárlabda, baseball: a régi kódban lévő URL-ek kivezethetők).
-- Mobil-first UI (a cél: mobilon olvasható legyen).
+- ~~Mobil-first UI~~ — **újranyitva 2026-11-13** (ADR-0010): telepíthető PWA + később Expo Android-app, teljes
+  funkcióval. A push értesítés továbbra is nem-cél.
 - Gépi tanulási „fekete doboz” modell, amely nem ad indoklást. **Megmagyarázhatóság
   nélküli modell nem kerül élesbe.**
 - Fizetős adatforrás. *Kivétel:* ha a szezon-hozzáférés mérése (ROADMAP 0.0)
