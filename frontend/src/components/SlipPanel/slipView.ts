@@ -1,26 +1,25 @@
 import {
 	formatFt,
 	formatOdds,
+	formatPairing,
 	formatPercent,
+	oneInText,
 	RiskLevel,
-	SlipPresetKind,
+	SlipPreset,
 	SlipSummary,
 	slipTypeName,
 	TransferStatus
 } from '@football/core';
+import { ITip } from '../TipCard/tipView';
 
 const RISK_LABEL: Record<RiskLevel, string> = { low: 'Alacsony', medium: 'Közepes', high: 'Magas' };
-const ORDINAL = ['', '', 'második', 'harmadik', 'negyedik', 'ötödik', 'hatodik', 'hetedik', 'nyolcadik', 'kilencedik', 'tizedik'];
 
 /** Szelvény-fej: „Dupla kötés · 2 tipp”. */
 export const slipHeadText = (legCount: number): string => `${slipTypeName(legCount)} · ${legCount} tipp`;
 
-/** Egymondatos kockázat-magyarázat (DESIGN §7.6): „Alacsony kockázat: kb. minden harmadik ilyen szelvény nyer.” */
-export const riskText = (probability: number, level: RiskLevel): string => {
-	const n = Math.round(1 / Math.max(probability, 1e-6));
-	const freq = n <= 1 ? 'a legtöbb ilyen szelvény nyer' : `kb. minden ${ORDINAL[n] ?? `${n}.`} ilyen szelvény nyer`;
-	return `${RISK_LABEL[level]} kockázat: ${freq}.`;
-};
+/** Egymondatos kockázat-magyarázat (DESIGN §8.1): „Alacsony kockázat: kb. minden harmadik ilyen szelvény nyer.” */
+export const riskText = (probability: number, level: RiskLevel): string =>
+	`${RISK_LABEL[level]} kockázat: ${oneInText(probability)}.`;
 
 /** Szingli-összevetés (DESIGN §7.6); egy lábnál nincs mit összevetni. */
 export const singlesNote = (summary: SlipSummary, stake: number): string | null => {
@@ -47,9 +46,13 @@ export const slipBarText = (summary: SlipSummary): { title: string; detail: stri
 	detail: `odds ${formatOdds(summary.combinedOdds)} · esély ${formatPercent(summary.probability)}`
 });
 
-/** Kész szelvény egymondatos indoklása (DESIGN §7.8). */
-export const PRESET_REASON: Record<SlipPresetKind, string> = {
-	single: 'A legnagyobb értékű tipp önmagában: a legnagyobb esély, kis szorzó.',
-	double: 'A két legjobb tipp kötésben: nagyobb szorzó, még vállalható esély.',
-	treble: 'A három legjobb tipp: nagy szorzó, de ritkán jön be.'
+/**
+ * Kész szelvény neve (referencia `ma.html`): „Szingli · Bochum – Augsburg”, „Dupla kötés · mindkét tipp”,
+ * „Dupla kötés · a 2 legjobb tipp”. `total` = a különböző meccsekről választható érték-tippek száma.
+ */
+export const presetTitle = (preset: SlipPreset, legs: readonly ITip[], total: number): string => {
+	const n = preset.legIds.length;
+	if (n === 1 && legs[0]) return `Szingli · ${formatPairing(legs[0].home.name, legs[0].away.name)}`;
+	const scope = n === total ? (n === 2 ? 'mindkét tipp' : `mind a ${n} tipp`) : `a ${n} legjobb tipp`;
+	return `${slipTypeName(n)} · ${scope}`;
 };

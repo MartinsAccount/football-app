@@ -81,7 +81,6 @@ export class SlipStore {
 	@observable inputs = observable.map<string, string>();
 	@observable transferOpen = false;
 	/** Mobilon (< 640 px) nyitva van-e az alsó lap. */
-	@observable sheetOpen = false;
 	@observable.shallow saved: ISavedSlip[];
 	/** Az utoljára mentett szelvény azonosítója (visszajelzéshez). */
 	@observable lastSavedId: string | null = null;
@@ -156,13 +155,11 @@ export class SlipStore {
 	hasExactly = (tipIds: readonly string[]): boolean =>
 		tipIds.length === this.tips.length && tipIds.every((id) => this.isSelected(id));
 
-	/** Mobil alsó lap (DESIGN §7.9). */
-	@action openSheet() {
-		this.sheetOpen = true;
-	}
-
-	@action closeSheet() {
-		this.sheetOpen = false;
+	/** „Szelvény ürítése” (DESIGN v0.2 §6): minden láb és beírt odds le; a panel a presetekhez tér vissza. */
+	@action clear() {
+		this.tips = [];
+		this.inputs.clear();
+		this.transferOpen = false;
 	}
 
 	@action setStake(stake: number) {

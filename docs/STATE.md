@@ -27,10 +27,9 @@ Minden szeletnél: a terv „Szeletek” pontja + CHANGES.md megfelelő fejezete
 (`?theme=light|dark`) → `docs/plans/screens/<szelet>-<oldal>-<téma>-<szélesség>.png`, összevetés a csomag screens/-ével. Adatot
 nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / modell / ingestion / DB-séma nem változik.
 
-1. **S27b – Ma: szelvény + presetek** (CHANGES 2.2, 2.3; core preset/„minden N-edik” tesztekkel).
-2. **S28 – Kiértékelés** (CHANGES 3.; core goals/verdict tesztekkel).
-3. **S29 – Arbitrázs** (CHANGES 4.; core kerekítés-címke teszttel).
-4. **S30 – Beállítások** (CHANGES 5.).
+1. **S28 – Kiértékelés** (CHANGES 3.; core goals/verdict tesztekkel).
+2. **S29 – Arbitrázs** (CHANGES 4.; core kerekítés-címke teszttel).
+3. **S30 – Beállítások** (CHANGES 5.).
 
 ## Kész
 
@@ -63,9 +62,14 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 | S24 – M1 zárás                   | (lásd git log: chore(m1): close M1)                             | ui-audit P0/P1: a régi `/legacy/*` nézetek kikerültek a routingból (→ `/`), így #1–8 sehol nem áll fenn; screenshot 1440/390 minden route-ról (`/`, `/evaluation`, `/settings`, `/arbitrage`, `/odds`→`/`): scrollWidth ≤ viewport, 0 konzolhiba; `npm run verify` zöld                                                                                                       |
 | S25 – Tokenek és téma            | (lásd git log: feat(design): adopt Floodlight v0.2 tokens)      | v0.2 tokens(+light)/components.css (vendor)/DESIGN.md/reference; inline téma-script; `stores/ThemeStore.ts` (system/dark/light, `oe-theme`) + `AppShell/ThemeToggle`; kieső oe-_ → v0.2 osztály vagy `components/ui/oeClasses.ts` (Tailwind, tokenből); ADR-0009; screenshot 16 db `docs/plans/screens/s25-_`                                                                 |
 | S26 – Közös keret                | (lásd git log: feat(ui): common header)                         | `.oe-status-pill[data-state]` (saved/live), nav ≥ 44 px; `PageIntro/PageHead.tsx` (`.oe-page-head`, meta-chipek, `filters` slot) a Kiértékelés/Arbitrázs/Beállítások oldalon; `evaluationHeadChips`, `arbitrageHeadChips`; liga-checkbox semleges; screenshot 16 db `docs/plans/screens/s26-*`                                                                                |
+| S27b – Szelvény + presetek       | (lásd git log: feat(ui): slip panel with presets)               | core `slip/presets.ts` §8.2 (Szingli/Dupla/Hármas, „Ajánlott” csak low/medium szingli), `slip/oneIn.ts` (`hungarianOrdinal`, `oneInText`; „Kész, ha” tesztek); presetek az üres `.oe-slip`-ben (`SlipPresets` a `SlipPanel`-en belül, `presetTips` prop); „Szelvény ürítése” (`SlipStore.clear`); BottomSheet törölve, SlipBar → `#szelveny`; `shots.mjs --click`             |
 | S27a – Tippkártya + adat-állapot | (lásd git log: feat(ui): redesign tip card)                     | `.oe-hero` + `PageIntro/DataState.tsx` (`dataState(snapshot)`: „Mentett adat · 2025. ápr. 12–13.”, „Odds 17 órás”, „Mit jelent?”), EngineBanner törölve; TipCard a referencia sorrendjében (`.oe-decision`, `ProbabilityTile` `--p`/`--m`, `.oe-tip__details` hidden, `.oe-tip__source`); core `formatDateRange`; tabella-zónák nélkül; `frontend/scripts/shots.mjs`          |
 
 ## Polish backlog
+
+- Szelvény (S27b): a Hármas preset a §8.2-ben nem szerepel (DECISIONS: felülvizsgálandó); a SlipBar a referenciában nincs; a
+  szingli-összevetés megjegyzés a referenciában nincs, de maradt; a sticky panel magasabb lehet a viewportnál (hosszú
+  Tippmix-űrlap) → max-height + belső görgetés?
 
 - Tippkártya (S27a): „Miért?” csipek rejtve (a pillanatkép nem menti a `FactorContribution`-t → generátor bővítése); „Sérültlista
   nincs a forrásban” chip csak `warnings`-ból (nincs lefedettség-mező); 390-en a nagy EV a cím alá, balra törik (referencia?); a
@@ -114,6 +118,10 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **S27b kész.** `<SlipPanel store now presetTips />` – üresen hint + `SlipPresets` (`.oe-preset`), kitöltve a referencia
+  sorrendje + „Szelvény ürítése”. Mobilon nincs BottomSheet: a panel a lista alatt, a SlipBar horgony. Kitöltött screenshot:
+  `shots.mjs ... --click ".oe-preset"` (→ `docs/plans/screens/s27b-ma-dark-{1440,390}-kitoltve.png`). Következő: S28.
 
 - **S27a kész.** Ma fej: `<PageIntro title subtitle date><DataState {...dataState(snapshot)} /></PageIntro>` (`.oe-hero`).
   TipCard: `TipActions` = SlipToggle + `Disclosure` (két egyenrangú gomb), részletek mindig renderelve `hidden`-nel. Szelvényhez

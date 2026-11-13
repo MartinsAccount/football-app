@@ -1,4 +1,4 @@
-// Motor kész szelvényei (DESIGN.md §7.8, D2): a tippekből szingli / dupla / hármas kötés javaslat.
+// Motor kész szelvényei (DESIGN.md v0.2 §8.2): a tippekből szingli / dupla (/ hármas) kötés javaslat, legfeljebb 3.
 // Egy meccs = egy tipp (meccsenként a legnagyobb EV-jű marad); a lábak EV szerint csökkenő sorrendben.
 
 import { SlipLeg, SlipSummary, summarizeSlip } from './slip';
@@ -17,7 +17,7 @@ export interface SlipPreset {
 	kind: SlipPresetKind;
 	legIds: string[];
 	summary: SlipSummary;
-	/** A javasolt szelvény: a legnagyobb EV-jű nem magas kockázatú (ha ilyen nincs: a szingli). */
+	/** „Ajánlott” (§8.2): csak a szingli, ha a kockázata low/medium. */
 	recommended: boolean;
 }
 
@@ -39,7 +39,9 @@ export const presetCandidates = <T extends PresetCandidate>(tips: readonly T[]):
 };
 
 /**
- * Kész szelvények a tippekből: Szingli (a legjobb tipp), Dupla és Hármas kötés (a 2 / 3 legjobb), ha van elég meccs.
+ * Kész szelvények (§8.2): Szingli = a legnagyobb EV-jű tipp; Dupla = a két legjobb EV-jű, különböző meccsekről; Hármas = a
+ * három legjobb (a „max. 3” keretbe fér, DECISIONS 2026-11-13). Egy tippnél csak a szingli. „Ajánlott” csak a szingli lehet,
+ * ha a kockázata low/medium.
  * TODO(polish): „Szingli csomag” és „Rendszer 2/3” – ezekhez a szelvény-modellnek több tételt kell tudnia (S20 döntés).
  */
 export const buildSlipPresets = (tips: readonly PresetCandidate[], stake: number): SlipPreset[] => {
@@ -51,11 +53,7 @@ export const buildSlipPresets = (tips: readonly PresetCandidate[], stake: number
 		const summary = summarizeSlip(legs, stake);
 		if (summary) presets.push({ id: kind, kind, legIds: legs.map((l) => l.id), summary, recommended: false });
 	}
-	const pool = presets.filter((p) => p.summary.risk !== 'high');
-	const pick = (pool.length ? pool : presets.slice(0, 1)).reduce<SlipPreset | undefined>(
-		(best, p) => (!best || p.summary.ev > best.summary.ev ? p : best),
-		undefined
-	);
-	if (pick) pick.recommended = true;
+	const single = presets[0];
+	if (single && single.summary.risk !== 'high') single.recommended = true;
 	return presets;
 };

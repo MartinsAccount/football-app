@@ -8,19 +8,17 @@ const now = new Date('2026-11-12T08:00:00Z');
 const tips = sampleTips(now);
 
 describe('SlipPresets', () => {
-	it('renders the engine presets with one recommended and marks the applied one', () => {
+	it('renders the §8.2 presets: label, names, at most one „Ajánlott”, metrics and risk dot', () => {
 		const store = new SlipStore(memorySlipStorage());
-		let html = renderToStaticMarkup(<SlipPresets tips={tips} store={store} />);
+		const html = renderToStaticMarkup(<SlipPresets tips={tips} store={store} />);
 		expect(html).toContain('Kész szelvények');
-		expect(html).toContain('Szingli');
-		expect(html).toContain('Dupla kötés');
-		expect(html.match(/Ajánlott/g)).toHaveLength(1);
-		expect(html).not.toContain('A szelvényeden');
-
-		const best = [...tips].filter((t) => t.ev > 0).sort((x, y) => y.ev - x.ev)[0];
-		store.applyPreset([best]);
-		html = renderToStaticMarkup(<SlipPresets tips={tips} store={store} />);
-		expect(html).toContain('A szelvényeden');
+		expect(html).toContain('Szingli · ');
+		expect(html).toContain('Dupla kötés · ');
+		expect((html.match(/class="oe-preset"/g) ?? []).length).toBeLessThanOrEqual(3);
+		expect((html.match(/Ajánlott/g) ?? []).length).toBeLessThanOrEqual(1);
+		expect(html).toContain('oe-preset__legs');
+		expect(html).toMatch(/oe-risk-dot" data-level="(low|medium|high)"/);
+		expect(html).toContain('ilyen szelvény nyer.');
 	});
 
 	it('renders nothing without positive-EV tips', () => {

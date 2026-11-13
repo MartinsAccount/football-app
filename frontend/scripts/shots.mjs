@@ -8,6 +8,8 @@
 // - Edge `--remote-debugging-port` (alap 9333), `deviceScaleFactor: 1`, 600 px alatt mobil emuláció (valódi 390-es viewport).
 // - Oldalanként kiírja: scrollWidth vs. viewport (vízszintes görgetés), a 44 px-nél alacsonyabb fejléc-elemeket és a
 //   konzolhibákat. Kilépési kód 1, ha bármelyik oldalon görget vagy hibát dob.
+// - `--click "<css>"`: betöltés után az első illeszkedő elemre kattint (pl. `.oe-preset` → kitöltött szelvény); ha nincs
+//   ilyen elem, hibának számít.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
@@ -29,6 +31,7 @@ const { values: opt } = parseArgs({
 		base: { type: 'string', default: 'http://localhost:3126' },
 		cdpPort: { type: 'string', default: '9333' },
 		wait: { type: 'string', default: '2500' },
+		click: { type: 'string', default: '' },
 		edge: { type: 'string', default: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' }
 	}
 });
@@ -112,6 +115,14 @@ for (const { name, route } of pages)
 			const sep = route.includes('?') ? '&' : '?';
 			await send('Page.navigate', { url: `${opt.base}${route}${sep}theme=${theme}` });
 			await sleep(Number(opt.wait));
+			if (opt.click) {
+				const expression = `(() => { const el = document.querySelector(${JSON.stringify(
+					opt.click
+				)}); el?.click(); return !!el; })()`;
+				const clicked = (await send('Runtime.evaluate', { expression, returnByValue: true })).result.result.value;
+				if (!clicked) errors.push(`--click: nincs ilyen elem: ${opt.click}`);
+				await sleep(400);
+			}
 			const m = JSON.parse((await send('Runtime.evaluate', { expression: MEASURE, returnByValue: true })).result.result.value);
 			await send('Emulation.setDeviceMetricsOverride', metrics(Math.min(m.h, 6000)));
 			await sleep(300);

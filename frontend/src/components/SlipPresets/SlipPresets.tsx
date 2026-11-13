@@ -1,19 +1,9 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
-import {
-	buildSlipPresets,
-	formatEv,
-	formatFt,
-	formatOdds,
-	formatPairing,
-	formatPercent,
-	SlipPreset,
-	slipTypeName
-} from '@football/core';
+import { buildSlipPresets, formatEv, formatOdds, formatPairing, formatPercent, SlipPreset } from '@football/core';
 import { ITip } from '../TipCard/tipView';
 import { SlipStore } from '../../stores/SlipStore';
-import { PRESET_REASON, riskText } from '../SlipPanel/slipView';
-import { cx, presetGrid, statLabel, statusDot, statValue, statValueEv } from '../ui/oeClasses';
+import { presetTitle, riskText } from '../SlipPanel/slipView';
 
 interface ISlipPresetsProps {
 	tips: ITip[];
@@ -21,80 +11,63 @@ interface ISlipPresetsProps {
 }
 
 /**
- * DESIGN §7.8 (D2) – a motor kész szelvényei: típus, indoklás, lábak, eredő odds, esély, EV, tét → nyeremény, kockázat,
- * „Ajánlott” jelölés. Kiválasztásra a SlipPanel ezzel töltődik fel, utána szabadon szerkeszthető. A képletek a magból jönnek.
+ * DESIGN v0.2 §6 „Ma – szelvény” üres állapota: „KÉSZ SZELVÉNYEK” + `.oe-preset` gombok (név, „Ajánlott”, lábak,
+ * odds/esély/EV, kockázat-pötty). A presetet a mag számolja (§8.2), a komponens csak megjelenít. Kattintás → `applyPreset`.
  */
 @observer
 class SlipPresets extends Component<ISlipPresetsProps> {
-	apply = (preset: SlipPreset) => {
-		const { tips, store } = this.props;
-		store.applyPreset(preset.legIds.map((id) => tips.find((t) => t.id === id)).filter((t): t is ITip => !!t));
-		// Mobilon a betöltött szelvényt rögtön meg is mutatjuk (asztalon a lap rejtett, az oldalsáv látszik).
-		if (typeof window !== 'undefined' && window.matchMedia?.('(max-width: 639.98px)').matches) store.openSheet();
-	};
+	legsOf = (preset: SlipPreset): ITip[] =>
+		preset.legIds.map((id) => this.props.tips.find((t) => t.id === id)).filter((t): t is ITip => !!t);
 
-	renderPreset(preset: SlipPreset) {
-		const { tips, store } = this.props;
+	renderPreset(preset: SlipPreset, total: number) {
 		const { summary } = preset;
-		const legs = preset.legIds.map((id) => tips.find((t) => t.id === id)).filter((t): t is ITip => !!t);
-		const active = store.hasExactly(preset.legIds);
+		const legs = this.legsOf(preset);
 		return (
 			<button
 				key={preset.id}
 				type="button"
 				className="oe-preset"
-				data-recommended={preset.recommended || undefined}
-				aria-pressed={active}
-				onClick={() => this.apply(preset)}
+				data-recommended={preset.recommended}
+				onClick={() => this.props.store.applyPreset(legs)}
 			>
 				<span className="oe-preset__top">
-					<span className="oe-badge">{slipTypeName(summary.legCount)}</span>
+					{presetTitle(preset, legs, total)}
 					{preset.recommended && <span className="oe-tag oe-tag--accent">Ajánlott</span>}
 				</span>
-				<span className="text-small">{PRESET_REASON[preset.kind]}</span>
-				<span className="flex flex-col oe-muted text-caption">
-					{legs.map((tip) => (
-						<span key={tip.id} className="truncate">
-							{formatPairing(tip.home.name, tip.away.name)} · {tip.tippmixLabel}
-						</span>
-					))}
+				<span className="oe-preset__legs">
+					{legs.map((tip) => `${formatPairing(tip.home.name, tip.away.name)} · ${tip.tippmixLabel}`).join('\n')}
 				</span>
 				<span className="oe-preset__metrics">
 					<span>
-						<span className={cx(statLabel, 'block')}>Eredő odds</span>
-						<span className={statValue}>{formatOdds(summary.combinedOdds)}</span>
+						<small>odds</small>
+						{formatOdds(summary.combinedOdds)}
 					</span>
 					<span>
-						<span className={cx(statLabel, 'block')}>Esély</span>
-						<span className={statValue}>{formatPercent(summary.probability)}</span>
+						<small>esély</small>
+						{formatPercent(summary.probability)}
 					</span>
-					<span>
-						<span className={cx(statLabel, 'block')}>EV</span>
-						<span className={cx(statValue, summary.ev > 0 && statValueEv)}>{formatEv(summary.ev)}</span>
+					<span className={summary.ev > 0 ? 'text-accent-text' : undefined}>
+						<small>EV</small>
+						{formatEv(summary.ev)}
 					</span>
 				</span>
-				<span className="text-small">
-					{formatFt(store.stake)} tét → {formatFt(summary.payout)}
+				<span className="oe-risk-dot" data-level={summary.risk}>
+					{riskText(summary.probability, summary.risk)}
 				</span>
-				<span className="oe-muted text-caption">{riskText(summary.probability, summary.risk)}</span>
-				{active && <span className={statusDot}>A szelvényeden</span>}
 			</button>
 		);
 	}
 
 	render() {
-		const presets = buildSlipPresets(this.props.tips, this.props.store.stake);
+		const { tips, store } = this.props;
+		const presets = buildSlipPresets(tips, store.stake);
 		if (presets.length === 0) return null;
+		const total = new Set(tips.filter((t) => t.ev > 0).map((t) => t.fixtureId)).size;
 		return (
-			<section aria-labelledby="slip-presets-title">
-				<div className="oe-section-head">
-					<h2 className="oe-h2" id="slip-presets-title">
-						Kész szelvények
-					</h2>
-					<span className="oe-muted text-small">a motor javaslata, utána szerkeszthető</span>
-				</div>
-				<div className={presetGrid}>{presets.map((p) => this.renderPreset(p))}</div>
-			</section>
+			<>
+				<div className="oe-label">Kész szelvények</div>
+				{presets.map((p) => this.renderPreset(p, total))}
+			</>
 		);
 	}
 }

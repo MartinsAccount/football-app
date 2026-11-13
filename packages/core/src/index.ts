@@ -12,6 +12,7 @@ export * from './model/eloPoisson';
 export * from './format/format';
 export * from './slip/slip';
 export * from './slip/presets';
+export * from './slip/oneIn';
 export * from './features/types';
 export * from './features/form';
 export * from './features/homeAway';

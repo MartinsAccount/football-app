@@ -6,7 +6,6 @@ import EmptyState from '../../components/PageIntro/EmptyState';
 import DataState from '../../components/PageIntro/DataState';
 import MatchDetails from '../../components/MatchDetails/MatchDetails';
 import SlipPanel from '../../components/SlipPanel/SlipPanel';
-import SlipPresets from '../../components/SlipPresets/SlipPresets';
 import TipCard from '../../components/TipCard/TipCard';
 import { ITip } from '../../components/TipCard/tipView';
 import { v } from '../../design/tokens/tokens';
@@ -100,7 +99,6 @@ class RecommendationsPage extends Component<IRecommendationsPageProps, IRecommen
 				</PageIntro>
 				<div className="oe-split" style={splitStyle}>
 					<div className="oe-split__main">
-						<SlipPresets tips={this.allTips} store={this.slip} />
 						{tipCount === 0 ? (
 							<EmptyState
 								title="Ma nincs érték-tipp."
@@ -110,7 +108,7 @@ class RecommendationsPage extends Component<IRecommendationsPageProps, IRecommen
 							this.days.map((day) => this.renderDay(day))
 						)}
 					</div>
-					<SlipPanel store={this.slip} now={now} />
+					<SlipPanel store={this.slip} now={now} presetTips={this.allTips} />
 				</div>
 			</>
 		);
