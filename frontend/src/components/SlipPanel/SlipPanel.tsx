@@ -1,7 +1,7 @@
 import React, { Component, CSSProperties } from 'react';
 import { observer } from 'mobx-react';
 import { formatFt, legOdds } from '@football/core';
-import { SlipStore, STAKE_OPTIONS } from '../../stores/SlipStore';
+import { SlipStore } from '../../stores/SlipStore';
 import RiskMeter from './RiskMeter';
 import SlipLegs from './SlipLegs';
 import SlipTotals from './SlipTotals';
@@ -53,7 +53,7 @@ class SlipPanel extends Component<ISlipPanelProps> {
 				<SlipLegs tips={store.tips} odds={store.legs.map(legOdds)} now={now} onRemove={this.remove} />
 				<SlipTotals summary={summary} />
 				<RiskMeter probability={summary.probability} level={summary.risk} />
-				<StakeSelector options={STAKE_OPTIONS} value={stake} onChange={this.setStake} />
+				<StakeSelector options={store.stakeOptions} value={stake} onChange={this.setStake} />
 				<div className="oe-slip__payout">
 					<span className="oe-muted">Lehetséges nyeremény</span>
 					<strong>{formatFt(summary.payout)}</strong>

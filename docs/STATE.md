@@ -4,7 +4,7 @@
 
 ## Aktuális fázis
 
-M1 (docs/GOAL-M1.md): S01–S21 kész, következik S22 (`/settings`).
+M1 (docs/GOAL-M1.md): S01–S22 kész, következik S23 (`/arbitrage`).
 
 ## Következő szeletek (sorrendben, az első a soron következő)
 
@@ -20,9 +20,8 @@ H. Odds-history (meccs nézet), /odds és /fixtures beolvasztása
 I. Arbitrázs átköltöztetése az új backendre
 -->
 
-1. **S22 – `/settings`:** ligák, piacok, irodák, becsült napi hívás és tárhely (core budget-becslés).
-2. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
-3. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
+1. **S23 – `/arbitrage` átalakítás:** új core + design; ui-audit #1–3, #7, #8.
+2. **S24 – M1 zárás:** maradék ui-audit P0/P1, minden route screenshot 1440/390, konzolhiba nincs, GOAL-M1 ellenőrzőlista →
    `ALL_DONE M1`.
 
 ## Kész
@@ -51,8 +50,13 @@ I. Arbitrázs átköltöztetése az új backendre
 | S19 – SlipStore + SlipPanel     | (lásd git log: feat(ui): add SlipStore and SlipPanel)           | core `parseOddsInput`/`transferStatus`; `stores/SlipStore.ts` (MainStore.SlipStore; tét 500–5000, beírt odds, `save()` → localStorage `oe_saved_slips`); `components/SlipPanel/` (SlipLegs, SlipTotals, RiskMeter, StakeSelector, TippmixTransfer, `slipView.ts`); `/` `.oe-split`; screenshot 1440/390 (CDP-kattintással kitöltve)                                           |
 | S20 – Mobil szelvény + presetek | (lásd git log: feat(ui): add mobile slip and SlipPresets)       | core `slip/presets.ts` (`presetCandidates`, `buildSlipPresets`: Szingli/Dupla/Hármas, „Ajánlott” = max EV nem magas kockázattal); `SlipStore.applyPreset`/`hasExactly`/`openSheet`; `SlipPresets`, `SlipBar`, `BottomSheet` (Esc, háttér, ✕, fókusz vissza); < 640 px: `.oe-slip--desktop` rejtve; screenshot 1440/390 (sáv + lap)                                            |
 | S21 – `/evaluation` dashboard   | (lásd git log: feat(ui): evaluation dashboard)                  | `pages/EvaluationPage/`: `evaluationView.ts` (szegmens-opciók, `betTiles` ROI ±1,96 SE, `scoreRows` modell/nyitó/záró, `verdict`, `segmentRows`, `calibrationPoints`/`calibrationError`), `CalibrationChart` (SVG, tokenekkel); szűrő: piac (1X2/Gól 2,5) + szegmens (szezon/liga, a bontás-sorra kattintva is); forrás `data/backtest/backtest-v0.json`; screenshot 1440/390 |
+| S22 – `/settings`               | (lásd git log: feat(ui): settings page)                         | `pages/SettingsPage/settingsView.ts` (katalógus: 9 liga, 3 piac, 8 iroda; `sanitizeSettings`, `estimateSettings` a core `budget/`-ből, `settingsWarnings`, `stakeOptions`); `stores/SettingsStore.ts` (localStorage `oe_settings`); a SlipStore tét-lépcsője az alapegységből; screenshot 1440/390                                                                            |
 
 ## Polish backlog
+
+- Beállítások (S22): a beállítás még nem hat az ajánlásokra/ingestionre (a `/` pillanatképe előre számolt); localStorage, nem a DB
+  `setting` tábla; liga-katalógus és `coverage` kézzel (később `/leagues`); csapat-szűrő, ligánkénti piac-felülírás, tét-mód
+  (flat/Kelly) nincs; a tét-lépcső ½/1/2/5 egység fix.
 
 - Kiértékelés (S21): csak backtest-adat (élő `prediction`-napló nincs); a kalibráció nem szegmentált; piaci kalibrációs görbe és
   időbeli ROI-görbe nincs; a PageIntro alcíme 1440-en 2 sorba tör; 390-en a táblák a dobozukban vízszintesen görgetnek; a diagram
@@ -84,6 +88,10 @@ I. Arbitrázs átköltöztetése az új backendre
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- Beállítások (S22): `MainStore.SettingsStore` (`settings`, `estimate`, `warnings`, `stakeOptions`, `toggle*`, `setNumber`); a
+  SlipStore 2. konstruktor-paramétere a tét-lépcső getter, a MainStore `reaction`-nel állítja a tétet egységváltáskor. Screenshot:
+  CDP-script (`%TEMP%/s22/shot.mjs <url> <out>`: 1440 + 390, scrollWidth + konzolhibák).
 
 - Kiértékelés (S21): `/evaluation` a `backtest-v0.json`-t importálja (`as unknown as BacktestReport`); nézet-modell tiszta
   függvényekkel a `pages/EvaluationPage/evaluationView.ts`-ben (teszt mellette). S22: a budget-becslés a core `budget/`-ből.

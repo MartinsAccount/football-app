@@ -1,8 +1,9 @@
-import { action, flow, observable } from 'mobx';
+import { action, flow, observable, reaction } from 'mobx';
 import { ArbitrageStore } from '../pages/ArbitragePage/stores/ArbitrageStore';
 import { FixtureStore } from '../pages/FixturePage/stores/FixtureStore';
 import { OddsStore } from '../pages/OddsPage/stores/OddsStore';
 import { FetchService } from '../services/FetchService';
+import { SettingsStore } from './SettingsStore';
 import { SlipStore } from './SlipStore';
 
 export class MainStore {
@@ -10,6 +11,7 @@ export class MainStore {
 	public ArbitrageStore: ArbitrageStore;
 	public FixtureStore: FixtureStore;
 	public SlipStore: SlipStore;
+	public SettingsStore: SettingsStore;
 
 	public FetchService: FetchService;
 
@@ -27,7 +29,13 @@ export class MainStore {
 		this.OddsStore = new OddsStore(this);
 		this.ArbitrageStore = new ArbitrageStore(this);
 		this.FixtureStore = new FixtureStore(this);
-		this.SlipStore = new SlipStore();
+		this.SettingsStore = new SettingsStore();
+		this.SlipStore = new SlipStore(undefined, () => this.SettingsStore.stakeOptions);
+		// Alapegység-váltáskor a tét az új egységre áll (a régi lépcső eleme már nem választható).
+		reaction(
+			() => this.SettingsStore.settings.stakeUnit,
+			(unit) => this.SlipStore.setStake(unit)
+		);
 
 		this.Init();
 	}

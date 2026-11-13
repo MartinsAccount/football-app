@@ -11,7 +11,7 @@ import {
 } from '@football/core';
 import { ITip } from '../components/TipCard/tipView';
 
-/** Tét-lépcső Ft-ban (DESIGN §7.6). TODO(polish): a `/settings` egységéből (S22). */
+/** Alap tét-lépcső Ft-ban (DESIGN §7.6); az appban a `SettingsStore.stakeOptions` adja. */
 export const STAKE_OPTIONS = [500, 1000, 2000, 5000] as const;
 export const DEFAULT_STAKE = 1000;
 
@@ -86,8 +86,17 @@ export class SlipStore {
 	/** Az utoljára mentett szelvény azonosítója (visszajelzéshez). */
 	@observable lastSavedId: string | null = null;
 
-	constructor(private storage: ISlipStorage = localSlipStorage) {
+	constructor(
+		private storage: ISlipStorage = localSlipStorage,
+		private getStakeOptions: () => readonly number[] = () => STAKE_OPTIONS
+	) {
 		this.saved = storage.load();
+		this.stake = this.stakeOptions[1] ?? DEFAULT_STAKE;
+	}
+
+	/** Tét-lépcső (az appban a `/settings` alapegységéből). */
+	@computed get stakeOptions(): readonly number[] {
+		return this.getStakeOptions();
 	}
 
 	isSelected = (tipId: string): boolean => this.tips.some((t) => t.id === tipId);
