@@ -1,6 +1,10 @@
 import { action, computed, observable } from 'mobx';
 import {
 	formatPairing,
+	ISavedSlip,
+	loadStoredSync,
+	saveStoredSync,
+	savedSlipsCodec,
 	hasFixture,
 	parseOddsInput,
 	SlipLeg,
@@ -10,6 +14,7 @@ import {
 	TransferStatus
 } from '@football/core';
 import { ITip } from '../components/TipCard/tipView';
+import { webStorage } from '../shared/storage/webStorage';
 
 /** Alap tét-lépcső Ft-ban (DESIGN §7.6); az appban a `SettingsStore.stakeOptions` adja. */
 export const STAKE_OPTIONS = [500, 1000, 2000, 5000] as const;
@@ -23,26 +28,7 @@ export interface ITransferRow {
 	status: TransferStatus;
 }
 
-/** Mentett (megtett) szelvény: beírt Tippmix-odds + tét. Fogadásleadás nincs (PRD 8). */
-export interface ISavedSlip {
-	id: string;
-	savedAt: string;
-	stake: number;
-	combinedOdds: number;
-	probability: number;
-	ev: number;
-	legs: {
-		tipId: string;
-		fixtureId: number;
-		pairing: string;
-		tippmixLabel: string;
-		kickoff: string;
-		pModel: number;
-		minOdds: number;
-		tippmixOdds: number;
-		modelVersion: string;
-	}[];
-}
+export type { ISavedSlip } from '@football/core';
 
 /** A mentett szelvények tárolója; a DB-s írás (bet tábla) a backend-íróval jön. */
 export interface ISlipStorage {
@@ -50,20 +36,10 @@ export interface ISlipStorage {
 	save(slips: ISavedSlip[]): void;
 }
 
-const STORAGE_KEY = 'oe_saved_slips';
-
+/** localStorage (`oe_saved_slips`) a core `savedSlipsCodec`-kel; szinkron olvasás, az írási hiba a hívóé (mint eddig). */
 export const localSlipStorage: ISlipStorage = {
-	load: () => {
-		try {
-			const raw = typeof window === 'undefined' ? null : window.localStorage.getItem(STORAGE_KEY);
-			return raw ? (JSON.parse(raw) as ISavedSlip[]) : [];
-		} catch {
-			return [];
-		}
-	},
-	save: (slips) => {
-		if (typeof window !== 'undefined') window.localStorage.setItem(STORAGE_KEY, JSON.stringify(slips));
-	}
+	load: () => loadStoredSync(webStorage, savedSlipsCodec),
+	save: (slips) => saveStoredSync(webStorage, savedSlipsCodec, slips)
 };
 
 export const memorySlipStorage = (initial: ISavedSlip[] = []): ISlipStorage => {

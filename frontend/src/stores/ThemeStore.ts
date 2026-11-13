@@ -1,5 +1,15 @@
 import { action, computed, observable } from 'mobx';
-import { ThemeName, ThemePreference, themes, THEME_STORAGE_KEY } from '../design/tokens/tokens';
+import {
+	effectiveTheme,
+	resolveThemePreference,
+	saveStoredSync,
+	ThemeName,
+	ThemePreference,
+	themeCodec,
+	toggledTheme
+} from '@football/core';
+import { themes } from '../design/tokens/tokens';
+import { webStorage } from '../shared/storage/webStorage';
 
 /**
  * A téma környezete (DESIGN §3.1). Tesztben cserélhető; alapból localStorage + matchMedia + `<html data-theme>`.
@@ -27,17 +37,10 @@ export const browserThemeEnv: IThemeEnv = {
 			return null;
 		}
 	},
-	load: () => {
-		try {
-			return window.localStorage.getItem(THEME_STORAGE_KEY);
-		} catch {
-			return null;
-		}
-	},
+	load: () => webStorage.getItemSync(themeCodec.key),
 	save: (preference) => {
 		try {
-			if (preference === 'system') window.localStorage.removeItem(THEME_STORAGE_KEY);
-			else window.localStorage.setItem(THEME_STORAGE_KEY, preference);
+			saveStoredSync(webStorage, themeCodec, preference);
 		} catch {
 			// privát ablak / tiltott tároló: a váltás erre a munkamenetre így is él
 		}
@@ -67,8 +70,6 @@ export const browserThemeEnv: IThemeEnv = {
 	}
 };
 
-const isTheme = (x: unknown): x is ThemeName => x === 'dark' || x === 'light';
-
 /** Téma-preferencia: `system | dark | light` (DESIGN §3.1). A fejléc-váltó és később a Beállítások is ezt állítja. */
 export class ThemeStore {
 	@observable preference: ThemePreference;
@@ -77,7 +78,7 @@ export class ThemeStore {
 	constructor(private env: IThemeEnv = browserThemeEnv) {
 		const url = env.urlTheme();
 		const stored = env.load();
-		this.preference = isTheme(url) ? url : isTheme(stored) ? stored : 'system';
+		this.preference = resolveThemePreference(url, stored);
 		this.systemLight = env.systemPrefersLight();
 		env.onSystemChange(
 			action((light: boolean) => {
@@ -90,8 +91,7 @@ export class ThemeStore {
 
 	/** A ténylegesen megjelenített téma. */
 	@computed get effective(): ThemeName {
-		if (this.preference !== 'system') return this.preference;
-		return this.systemLight ? 'light' : 'dark';
+		return effectiveTheme(this.preference, this.systemLight);
 	}
 
 	@action setPreference(preference: ThemePreference) {
@@ -102,6 +102,6 @@ export class ThemeStore {
 
 	/** Fejléc-váltó: a megjelenített téma ellenkezője, kézi választásként mentve. */
 	@action toggle() {
-		this.setPreference(this.effective === 'dark' ? 'light' : 'dark');
+		this.setPreference(toggledTheme(this.effective));
 	}
 }
