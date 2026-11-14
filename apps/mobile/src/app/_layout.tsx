@@ -1,6 +1,6 @@
 import { Link, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, View } from 'react-native';
 import { useRnTheme } from '@/lib/theme';
 
 export default function RootLayout() {
@@ -21,12 +21,18 @@ export default function RootLayout() {
 					options={{
 						title: 'Meccsek',
 						headerRight: () => (
-							<Link href="/settings" style={{ color: t.color.accent.text, fontSize: t.font.size.body }}>
-								Beállítások
-							</Link>
+							<View style={{ flexDirection: 'row', gap: t.space[8] }}>
+								<Link href="/evaluation" style={{ color: t.color.accent.text, fontSize: t.font.size.body }}>
+									Kiértékelés
+								</Link>
+								<Link href="/settings" style={{ color: t.color.accent.text, fontSize: t.font.size.body }}>
+									Beállítások
+								</Link>
+							</View>
 						)
 					}}
 				/>
+				<Stack.Screen name="evaluation" options={{ title: 'Kiértékelés' }} />
 				<Stack.Screen name="settings" options={{ title: 'Kapcsolat' }} />
 			</Stack>
 		</>

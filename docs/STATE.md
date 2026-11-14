@@ -40,13 +40,12 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 **Mobil (ROADMAP 11):**
 
-M1–M6 kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
+M1–M7 kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
 
-1. **M7 Kiértékelés** – backtest-összesítő + kalibráció (olvasó-API végpont vagy mentett JSON kell → előbb contract-DTO).
-2. **M8 Szelvény** – core `slip/` + `savedSlipsCodec` AsyncStorage-on (`asyncKeyValueStorage`).
-3. **M9 Beállítások** – core `settingsCodec` + téma-preferencia (`themeCodec`), a Kapcsolat-képernyő mellé.
-4. **M10 Arbitrázs** – core `arbitrage/scan` nézet (végpont/snapshot kell).
-5. **M11 Meccs-részlet** – `getOdds(fixtureId)` (odds-history), csapatnevek (DTO-bővítés).
+1. **M8 Szelvény** – core `slip/` + `savedSlipsCodec` AsyncStorage-on (`asyncKeyValueStorage`).
+2. **M9 Beállítások** – core `settingsCodec` + téma-preferencia (`themeCodec`), a Kapcsolat-képernyő mellé.
+3. **M10 Arbitrázs** – core `arbitrage/scan` nézet (`getArbitrage()` + `reviveArbitrageSnapshot`, SB4 óta van).
+4. **M11 Meccs-részlet** – `getOdds(fixtureId)` (odds-history), csapatnevek (DTO-bővítés).
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).
@@ -109,9 +108,12 @@ tételek).
 | SB4 – Snapshot-végpontok               | (lásd git log: feat(server): serve recommendation, backtest and arbitrage snapshots) | `/api/recommendations`, `/api/backtest`, `/api/arbitrage`; forrás `SnapshotSource` (ma `fileSnapshotSource(data/)`, kérésenként olvas; hiány → 404); contract: `getRecommendations/getBacktest/getArbitrage`, `ArbitrageResponse` drótforma (`sum: null`) → `reviveArbitrageSnapshot`; Vite-proxy bővítve                                                                                                                                                                                                                                                  |
 | SB5 – Snapshot-oldalak → olvasó API    | (lásd git log: feat(frontend): load snapshot pages from the read API)                | `components/PageIntro/RemoteData` (betöltés/hiba + Újra, `loadErrorText`); Ma/Kiértékelés/Arbitrázs `readApi.getRecommendations/getBacktest/getArbitrage`-ből, a nézet-osztály propként kapja; a 3 JSON kikerült a bundle-ből (index 444 → 368 kB); screenshot 1440/390 + hibaállapot                                                                                                                                                                                                                                                                      |
 | SB6 – Legacy FixturePage törlése       | (lásd git log: refactor(frontend): remove legacy FixturePage)                        | A routolatlan `FixturePage` (komponensek, `FixtureService`, `FixtureStore`) és az üres `DataService` törölve, `MainStore`-ból kivéve; `models.ts` marad (Odds/Arbitrázs importálja); ROADMAP 1.8 pipálva. Külső API-hívás csak az arbitrázs régi útján (8.3).                                                                                                                                                                                                                                                                                              |
+| M7 – Mobil Kiértékelés (11.7)          | (lásd git log: feat(mobile): add evaluation screen)                                  | core `evaluation/labels.ts` (EVAL_MARKETS, szezon/liga-név, fej-chipek, szegmensek, `goalRows`; a web `evaluationView` re-exportálja, teszt); `apps/mobile/src/app/evaluation.tsx`: `getBacktest()` + `loadWithCache` (`oe_cache_backtest`), piac- és szegmensválasztó, ítélet, 4 KPI, sikermutatók, kalibrációs tábla; fejléc-link; `tsc` + `expo export --platform android` zöld                                                                                                                                                                         |
 
 ## Polish backlog
 
+- M7: mobil Kiértékelés: kalibráció táblázatként (nincs diagram), pontossági/bontás-táblák és a ROI-sáv grafika hiányzik; nincs
+  screenshot (emulátor/expo-web nincs a gépen; az expo-secure-store weben nem fut); a fejléc két linkje keskeny kijelzőn szűkös.
 - SB5: `RemoteData` betöltéskor csak egy kártya (skeleton nincs), oldalváltáskor újratölt (nincs cache); a 390 px-es Edge-headless
   screenshot jobbra vágott (ablak-minimum, CDP-vel kell mérni).
 - SB3: az Odds-statisztika meccsenként hív `getOdds`-ot (~1250 kérés, PGlite-on ~4 s) → tömeges odds-végpont; az `ODDS_INFO`
@@ -187,6 +189,10 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **M7 kész.** Mobil Kiértékelés-képernyő a `getBacktest()`-ből; a közös címkék a core `evaluation/labels.ts`-ben (a web
+  `evaluationView.ts` re-exportál). Mobil ellenőrzés: `cd apps/mobile && npx tsc --noEmit` + `expo export --platform android`.
+  Következő: M8 Szelvény (fejléc-linkek helyett érdemes tab-navigációra váltani, ha 3+ képernyő lesz).
 
 - **SB6 kész.** A legacy FixturePage törölve, ROADMAP 1.8 pipálva. A frontendben `ApiURLs.FOOTBALL`/`FetchService` már csak az
   `ArbitrageStore`/`ArbitrageService` régi útján él (8.3 viszi ki). Következő: Mobil M7 Kiértékelés (a `getBacktest()` az SB4 óta

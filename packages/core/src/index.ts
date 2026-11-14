@@ -25,6 +25,7 @@ export * from './features/matchFeatures';
 export * from './evaluation/evaluation';
 export * from './evaluation/goals';
 export * from './evaluation/verdict';
+export * from './evaluation/labels';
 export * from './budget/budget';
 export * from './storage/keyValue';
 export * from './storage/cachedResponse';

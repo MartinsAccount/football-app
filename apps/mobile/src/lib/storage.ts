@@ -10,3 +10,6 @@ export const asyncKeyValueStorage: KeyValueStorage = {
 
 /** Az utolsó sikeres `/api/fixtures` válasz kulcsa. */
 export const FIXTURES_CACHE_KEY = 'oe_cache_fixtures';
+
+/** Az utolsó sikeres `/api/backtest` válasz kulcsa. */
+export const BACKTEST_CACHE_KEY = 'oe_cache_backtest';
