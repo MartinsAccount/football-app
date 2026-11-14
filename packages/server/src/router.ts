@@ -2,6 +2,7 @@ import { utcDay, type BudgetStore } from '@football/api-client';
 import type { FixtureFilter, Repository } from '@football/db';
 import { authorize, type AuthConfig } from './auth';
 import type { ApiErrorBody, ApiErrorCode, BudgetResponse, FixturesResponse, OddsResponse } from '@football/contract';
+import type { SnapshotSource } from './snapshots';
 
 /**
  * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
@@ -14,6 +15,8 @@ export interface ApiDeps {
 	now?: () => Date;
 	/** Hozzáférés-védelem (ADR-0005). Hiányában nincs ellenőrzés – a belépési pontok `authConfigFromEnv`-vel adják át. */
 	auth?: AuthConfig;
+	/** Pillanatkép-végpontok forrása (`/api/recommendations|backtest|arbitrage`). Hiányában ezek 404-et adnak. */
+	snapshots?: SnapshotSource;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -116,6 +119,14 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				const day = utcDay(now());
 				const u = await deps.budget.usage(day);
 				return json(200, { day, ...u, remaining: remainingCalls(u) } satisfies BudgetResponse);
+			}
+
+			const snapshot = /^\/api\/(recommendations|backtest|arbitrage)$/.exec(path);
+			if (snapshot) {
+				const kind = snapshot[1] as keyof SnapshotSource;
+				const body = deps.snapshots ? await deps.snapshots[kind]() : null;
+				if (body === null) return fail(404, 'not-found', `Még nincs pillanatkép: ${kind}`);
+				return json(200, body);
 			}
 
 			return fail(404, 'not-found', `Ismeretlen végpont: ${path}`);

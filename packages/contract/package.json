@@ -7,6 +7,9 @@
 	"exports": {
 		".": "./src/index.ts"
 	},
+	"dependencies": {
+		"@football/core": "0.1.0"
+	},
 	"scripts": {
 		"test": "vitest",
 		"test:ci": "vitest run",

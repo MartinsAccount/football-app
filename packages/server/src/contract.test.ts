@@ -1,8 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { SqlBudgetStore } from '@football/api-client';
+import { reviveArbitrageSnapshot } from '@football/core';
 import { ApiError, createApiClient, type ApiClient, type FetchLike } from '@football/contract';
 import { openMemoryRepository } from '@football/db';
 import { hashToken } from './auth';
 import { createApiHandler, type ApiHandler } from './router';
+import { fileSnapshotSource, SNAPSHOT_FILES, type SnapshotSource } from './snapshots';
 
 /** Szerződés-teszt: a `@football/contract` kliense a valódi handlert hívja (in-memory repo), hálózat nélkül. */
 let api: ApiClient;
@@ -82,5 +87,40 @@ describe('contract ↔ server', () => {
 		}
 		const res = await handler(new Request('http://localhost/api/budget'));
 		expect(res.headers.get('www-authenticate')).toBe('Bearer');
+	});
+});
+
+describe('snapshot endpoints (SB4)', () => {
+	const dataDir = fileURLToPath(new URL('../../../data/', import.meta.url));
+	const clientFor = async (snapshots?: SnapshotSource) => {
+		const { db, repo } = await openMemoryRepository();
+		const h = createApiHandler({ repo, budget: new SqlBudgetStore(db), snapshots });
+		return createApiClient({ baseUrl: 'http://localhost', fetch: (url, init) => h(new Request(url, init)) });
+	};
+
+	it('serve the saved JSON snapshots unchanged', async () => {
+		const api = await clientFor(fileSnapshotSource(dataDir));
+		for (const [get, file] of [
+			[() => api.getRecommendations(), SNAPSHOT_FILES.recommendations],
+			[() => api.getBacktest(), SNAPSHOT_FILES.backtest],
+			[() => api.getArbitrage(), SNAPSHOT_FILES.arbitrage]
+		] as const)
+			expect(await get()).toEqual(JSON.parse(readFileSync(join(dataDir, file), 'utf8')));
+	});
+
+	it('arbitrage wire form revives to Infinity for incomplete markets', async () => {
+		const api = await clientFor(fileSnapshotSource(dataDir));
+		const wire = await api.getArbitrage();
+		const hasNull = wire.fixtures.some((f) => f.opportunities.some((o) => o.sum === null));
+		const revived = reviveArbitrageSnapshot(wire);
+		expect(revived.fixtures.flatMap((f) => f.opportunities).every((o) => typeof o.sum === 'number')).toBe(true);
+		if (hasNull) expect(revived.fixtures.some((f) => f.opportunities.some((o) => o.sum === Infinity))).toBe(true);
+	});
+
+	it('missing snapshot or no source → 404 not-found', async () => {
+		const empty = await clientFor(fileSnapshotSource(join(dataDir, '__nincs__')));
+		await expect(empty.getBacktest()).rejects.toMatchObject({ status: 404, error: 'not-found' });
+		const none = await clientFor();
+		await expect(none.getRecommendations()).rejects.toMatchObject({ status: 404, error: 'not-found' });
 	});
 });

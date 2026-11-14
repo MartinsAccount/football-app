@@ -10,6 +10,11 @@ export type {
 	OddsSnapshotDto,
 	OddsResponse,
 	BudgetResponse,
+	RecommendationsResponse,
+	BacktestResponse,
+	ArbitrageOpportunityDto,
+	ArbitrageFixtureDto,
+	ArbitrageResponse,
 	ApiErrorCode,
 	ApiErrorBody
 } from './dto';

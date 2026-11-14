@@ -1,3 +1,11 @@
+import type {
+	ArbitrageFixture,
+	ArbitrageOpportunity,
+	ArbitrageSnapshot,
+	BacktestReport,
+	RecommendationSnapshot
+} from '@football/core';
+
 /**
  * Az olvasó API (`packages/server`) válasz-DTO-i. Szándékosan önálló típusok (nem a `@football/db`-ből), hogy a
  * kliensoldal (web, React Native) ne húzzon be DB-függőséget; a server `satisfies`-szal köti hozzájuk a válaszait,
@@ -78,6 +86,25 @@ export interface BudgetResponse {
 	syncedRemaining: number | null;
 	remaining: number;
 }
+
+// --- Pillanatkép-végpontok (SB4). A forrás ma a mentett `data/*/*-v0.json`, később DB-tábla. A típusok a `@football/core`
+// pillanatkép-típusai (csak `import type`: a contract futásidőben továbbra is függőség nélküli). ---
+
+/** `GET /api/recommendations` → az ajánlás-pillanatkép (`npm run recommendations -w @football/db`). */
+export type RecommendationsResponse = RecommendationSnapshot;
+
+/** `GET /api/backtest` → a walk-forward backtest riport (`npm run backtest -w @football/db`). */
+export type BacktestResponse = BacktestReport;
+
+/** JSON-ban az `Infinity` `null`-ként utazik: a nem teljes piac `sum`-ja `null`. */
+export type ArbitrageOpportunityDto = Omit<ArbitrageOpportunity, 'sum'> & { sum: number | null };
+export type ArbitrageFixtureDto = Omit<ArbitrageFixture, 'opportunities'> & { opportunities: ArbitrageOpportunityDto[] };
+
+/**
+ * `GET /api/arbitrage` → az arbitrázs-pillanatkép drótformája (`npm run arbitrage -w @football/db`). Olvasáskor:
+ * `reviveArbitrageSnapshot` (core) → `ArbitrageSnapshot`.
+ */
+export type ArbitrageResponse = Omit<ArbitrageSnapshot, 'fixtures'> & { fixtures: ArbitrageFixtureDto[] };
 
 /** Hibakódok, amelyeket a server az `{ error, message }` törzsben ad. */
 export type ApiErrorCode = 'bad-request' | 'unauthorized' | 'not-found' | 'method' | 'internal';

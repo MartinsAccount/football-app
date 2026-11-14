@@ -1,4 +1,13 @@
-import type { ApiErrorBody, BudgetResponse, FixtureQuery, FixturesResponse, OddsResponse } from './dto';
+import type {
+	ApiErrorBody,
+	ArbitrageResponse,
+	BacktestResponse,
+	BudgetResponse,
+	FixtureQuery,
+	FixturesResponse,
+	OddsResponse,
+	RecommendationsResponse
+} from './dto';
 
 /**
  * Platformfüggetlen olvasó-API kliens (ADR-0010): csak `fetch`-et használ, nincs DOM-, Node- vagy storage-függés,
@@ -38,6 +47,10 @@ export interface ApiClient {
 	listFixtures(query?: FixtureQuery): Promise<FixturesResponse>;
 	getOdds(fixtureId: number): Promise<OddsResponse>;
 	getBudget(): Promise<BudgetResponse>;
+	getRecommendations(): Promise<RecommendationsResponse>;
+	getBacktest(): Promise<BacktestResponse>;
+	/** Drótforma (`sum: null`); a hívó `reviveArbitrageSnapshot`-tal alakítja vissza. */
+	getArbitrage(): Promise<ArbitrageResponse>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -99,6 +112,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 	return {
 		listFixtures: (query) => get<FixturesResponse>(`/api/fixtures${buildFixtureQuery(query)}`),
 		getOdds: (fixtureId) => get<OddsResponse>(`/api/odds/${encodeURIComponent(String(fixtureId))}`),
-		getBudget: () => get<BudgetResponse>('/api/budget')
+		getBudget: () => get<BudgetResponse>('/api/budget'),
+		getRecommendations: () => get<RecommendationsResponse>('/api/recommendations'),
+		getBacktest: () => get<BacktestResponse>('/api/backtest'),
+		getArbitrage: () => get<ArbitrageResponse>('/api/arbitrage')
 	};
 }

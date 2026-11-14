@@ -10,6 +10,7 @@ import { openTarget, parseTargetArgs } from '@football/db';
 import { createApiHandler } from '../src/router';
 import { toNodeListener } from '../src/node';
 import { authConfigFromEnv } from '../src/auth';
+import { fileSnapshotSource } from '../src/snapshots';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const args = parseTargetArgs(process.argv.slice(2));
@@ -30,6 +31,12 @@ console.log(
 			: 'nyitott (nincs APP_API_TOKEN_HASH)'
 	}`
 );
-createServer(toNodeListener(createApiHandler({ repo, budget: new SqlBudgetStore(db), auth }))).listen(port, () =>
-	console.log(`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget} ← ${label}`)
+createServer(
+	toNodeListener(
+		createApiHandler({ repo, budget: new SqlBudgetStore(db), auth, snapshots: fileSnapshotSource(join(ROOT, 'data')) })
+	)
+).listen(port, () =>
+	console.log(
+		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,recommendations,backtest,arbitrage} ← ${label}`
+	)
 );

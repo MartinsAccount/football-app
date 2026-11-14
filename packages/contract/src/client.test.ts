@@ -30,10 +30,16 @@ describe('createApiClient', () => {
 		await api.listFixtures({ league: 39 });
 		await api.getOdds(100);
 		await api.getBudget();
+		await api.getRecommendations();
+		await api.getBacktest();
+		await api.getArbitrage();
 		expect(calls.map((c) => c.url)).toEqual([
 			'https://x.test/api/fixtures?league=39',
 			'https://x.test/api/odds/100',
-			'https://x.test/api/budget'
+			'https://x.test/api/budget',
+			'https://x.test/api/recommendations',
+			'https://x.test/api/backtest',
+			'https://x.test/api/arbitrage'
 		]);
 	});
 
