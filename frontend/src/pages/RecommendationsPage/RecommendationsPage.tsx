@@ -10,13 +10,15 @@ import TipCard from '../../components/TipCard/TipCard';
 import { ITip } from '../../components/TipCard/tipView';
 import { v } from '../../design/tokens/tokens';
 import { MainStore } from '../../stores/MainStore';
-import snapshotJson from '../../../../data/recommendations/recommendations-v0.json';
+import RemoteData from '../../components/PageIntro/RemoteData';
+import { readApi } from '../../services/readApi';
 import { dataState, groupTipsByDay, ITipDay } from './recommendationsView';
 
 const splitStyle: CSSProperties = { paddingBottom: v('space.14') };
 
 interface IRecommendationsPageProps {
 	MainStore?: MainStore;
+	snapshot: RecommendationSnapshot;
 }
 
 interface IRecommendationsPageState {
@@ -24,13 +26,13 @@ interface IRecommendationsPageState {
 }
 
 /**
- * `/` – Ma: ajánlások TipCard-okkal (PRD 5.8, ROADMAP 5.4) a mentett ajánlás-pillanatképből (0 külső hívás).
- * A pillanatkép: `npm run recommendations -w @football/db`; később a DB-ből (`/api/predictions`). Szelvény: SlipStore + SlipPanel.
+ * `/` – Ma: ajánlások TipCard-okkal (PRD 5.8, ROADMAP 5.4) a mentett ajánlás-pillanatképből (olvasó API `/api/recommendations`,
+ * SB5; 0 külső hívás). A pillanatkép: `npm run recommendations -w @football/db`. Szelvény: SlipStore + SlipPanel.
  */
 @inject('MainStore')
 @observer
-class RecommendationsPage extends Component<IRecommendationsPageProps, IRecommendationsPageState> {
-	snapshot = snapshotJson as RecommendationSnapshot;
+class RecommendationsView extends Component<IRecommendationsPageProps, IRecommendationsPageState> {
+	snapshot = this.props.snapshot;
 	now = new Date(this.snapshot.now);
 	days: ITipDay[] = groupTipsByDay(this.snapshot);
 	allTips: ITip[] = this.days.flatMap((d) => d.tips);
@@ -114,5 +116,11 @@ class RecommendationsPage extends Component<IRecommendationsPageProps, IRecommen
 		);
 	}
 }
+
+const RecommendationsPage = () => (
+	<RemoteData title="Ma" load={readApi.getRecommendations}>
+		{(snapshot) => <RecommendationsView snapshot={snapshot} />}
+	</RemoteData>
+);
 
 export default RecommendationsPage;

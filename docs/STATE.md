@@ -20,9 +20,7 @@ Floodlight v0.2 redesign: lezárva.
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
 
-1. **SB5 Frontend snapshot-oldalak → olvasó API** – Ajánlások, Kiértékelés, Arbitrázs a `createApiClient`-ből tölt (betöltés- és
-   hibaállapot tokenekkel), a JSON-import kikerül a bundle-ből. Ellenőrzés: tesztek + screenshot 1440 + 390.
-2. **SB6 Legacy FixturePage le a külső API-ról** (ROADMAP 1.8 maradéka) – a `FixtureService`/`DataService`
+1. **SB6 Legacy FixturePage le a külső API-ról** (ROADMAP 1.8 maradéka) – a `FixtureService`/`DataService`
    `ApiURLs.FOOTBALL`-hívásai helyett olvasó API vagy törlés (a /fixtures nincs routolva; a 8.3 úgyis kiveszi); utána 1.8
    pipálható.
 
@@ -111,9 +109,12 @@ tételek).
 | SB1b – Import a Supabase-en            | (lásd git log: feat(db): batch upserts for remote import)                            | history/legacy/odds-csv `--pg`: 5341 + 3656 fixture, 510 legacy (150 899 quote) + 11 170 CSV-snapshot, 119 alias; 2. futás: fixture/odds 0 írás. `SqlRepository.upsert` kötegelt (több soros VALUES): a history-import 637 s → 5 s                                                                                                                                                                                                                                                                                                                         |
 | SB3 – /odds → olvasó API               | (lásd git log: feat(frontend): read odds stats from the read API)                    | `services/readApi.ts` (`createApiClient`), Vite-proxy `^/api/(fixtures                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | odds/                                                            | budget)`→ :5100;`OddsPage/services/oddsMatch.ts` (tiszta, tesztelt); OddsStore lusta, 2021 FT meccsek 1X2-vel (505 db); mentés-gomb (külső hívás) kikerült |
 | SB4 – Snapshot-végpontok               | (lásd git log: feat(server): serve recommendation, backtest and arbitrage snapshots) | `/api/recommendations`, `/api/backtest`, `/api/arbitrage`; forrás `SnapshotSource` (ma `fileSnapshotSource(data/)`, kérésenként olvas; hiány → 404); contract: `getRecommendations/getBacktest/getArbitrage`, `ArbitrageResponse` drótforma (`sum: null`) → `reviveArbitrageSnapshot`; Vite-proxy bővítve                                                                                                                                                                                                                                                  |
+| SB5 – Snapshot-oldalak → olvasó API    | (lásd git log: feat(frontend): load snapshot pages from the read API)                | `components/PageIntro/RemoteData` (betöltés/hiba + Újra, `loadErrorText`); Ma/Kiértékelés/Arbitrázs `readApi.getRecommendations/getBacktest/getArbitrage`-ből, a nézet-osztály propként kapja; a 3 JSON kikerült a bundle-ből (index 444 → 368 kB); screenshot 1440/390 + hibaállapot                                                                                                                                                                                                                                                                      |
 
 ## Polish backlog
 
+- SB5: `RemoteData` betöltéskor csak egy kártya (skeleton nincs), oldalváltáskor újratölt (nincs cache); a 390 px-es Edge-headless
+  screenshot jobbra vágott (ablak-minimum, CDP-vel kell mérni).
 - SB3: az Odds-statisztika meccsenként hív `getOdds`-ot (~1250 kérés, PGlite-on ~4 s) → tömeges odds-végpont; az `ODDS_INFO`
   sekély másolata miatt a liga-váltás a beágyazott számlálókat nem nullázza (régi hiba).
 - M6: a mobil lista csapat-id-t mutat (a `FixtureDto`-ban nincs csapatnév); ajánlás-végpont híján meccslista; Sora/Manrope fontok
@@ -188,10 +189,17 @@ tételek).
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- **SB5 kész.** A Ma/Kiértékelés/Arbitrázs oldal az olvasó API-ból tölt (`RemoteData` wrapper; dev:
+  `npm run dev -w @football/server`
+
+  - Vite :3000). A view-tesztek továbbra is a `data/*.json`-t használják. Következő: SB6 (legacy FixturePage le a külső API-ról).
+
 - **SB4 kész.** A server `snapshots` függősége (`SnapshotSource`) adja a 3 pillanatkép-végpontot; a dev-szerver a repó `data/`-ját
   olvassa. A contract DTO-k `import type`-pal a `@football/core` pillanatkép-típusaira épülnek (a contract és a server
   `dependencies`-ében ott a core). Arbitrázsnál a kliens `reviveArbitrageSnapshot(await api.getArbitrage())`. Következő: SB5 (a 3
   oldal → `readApi`, a JSON-importok ki a bundle-ből; a view-tesztek maradhatnak a JSON-on).
+
+## Archív jegyzetek (korábbi sessionök, csak referencia)
 
 - **SB3 kész.** Dev: `npm run dev -w @football/server` (:5100, PGlite vagy `-- --pg`) + Vite :3000; a proxy az olvasó-API
   útvonalakat a :5100-ra, a többi `/api`-t a legacy :5000-re küldi. Az /odds nincs routolva; az app indulásakor már nincs

@@ -1,9 +1,10 @@
 import React, { Component, CSSProperties } from 'react';
-import { formatFt, reviveArbitrageSnapshot } from '@football/core';
+import { ArbitrageSnapshot, formatFt, reviveArbitrageSnapshot } from '@football/core';
 import PageHead from '../../components/PageIntro/PageHead';
 import EmptyState from '../../components/PageIntro/EmptyState';
 import { v } from '../../design/tokens/tokens';
-import snapshotJson from '../../../../data/arbitrage/arbitrage-v0.json';
+import RemoteData from '../../components/PageIntro/RemoteData';
+import { readApi } from '../../services/readApi';
 import ArbitrageCard from './ArbitrageCard';
 import {
 	arbitrageHeadChips,
@@ -49,12 +50,12 @@ const sectionStyle: CSSProperties = { display: 'flex', flexDirection: 'column', 
 
 /**
  * `/arbitrage` – Arbitrázs (PRD 5.8, ROADMAP 8.1/S23, S29 fej): irodák közti árkülönbségek a mentett odds-pillanatképből
- * (`data/arbitrage/arbitrage-v0.json`, `npm run arbitrage -w @football/db`; 0 külső hívás). A fejben alcím-chip, történeti-adat
+ * (olvasó API `/api/arbitrage`, SB5; `npm run arbitrage -w @football/db`; 0 külső hívás). A fejben alcím-chip, történeti-adat
  * jelzés és a szűrők (sáv, piac, iroda); a sáv a kerekített tétekkel számolt kifizetésből jön (core `arbitrageStakes`).
  * TODO(polish): a beállított ligák/irodák szűrése (SettingsStore), odds-kor figyelmeztetés, élő DB-snapshot (8.3).
  */
-class ArbitragePage extends Component<{}, IArbitragePageState> {
-	snapshot = reviveArbitrageSnapshot(snapshotJson);
+class ArbitrageView extends Component<{ snapshot: ArbitrageSnapshot }, IArbitragePageState> {
+	snapshot = this.props.snapshot;
 	state: IArbitragePageState = {
 		filter: defaultFilter(this.snapshot, DEFAULT_TOTAL_STAKE),
 		stakeText: String(DEFAULT_TOTAL_STAKE),
@@ -205,5 +206,13 @@ class ArbitragePage extends Component<{}, IArbitragePageState> {
 		);
 	}
 }
+
+const loadArbitrage = async () => reviveArbitrageSnapshot(await readApi.getArbitrage());
+
+const ArbitragePage = () => (
+	<RemoteData title="Arbitrázs" load={loadArbitrage}>
+		{(snapshot) => <ArbitrageView snapshot={snapshot} />}
+	</RemoteData>
+);
 
 export default ArbitragePage;

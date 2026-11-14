@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { BacktestMarket, BacktestReport, calibrationError, evaluationVerdict, formatDecimal } from '@football/core';
 import PageHead from '../../components/PageIntro/PageHead';
 import EmptyState from '../../components/PageIntro/EmptyState';
-import reportJson from '../../../../data/backtest/backtest-v0.json';
+import RemoteData from '../../components/PageIntro/RemoteData';
+import { readApi } from '../../services/readApi';
 import { CalibrationChart, CalibrationTable } from './CalibrationChart';
 import { AccuracyTable, GoalsTable, KpiRow, SegmentTable, VerdictBar } from './EvaluationSections';
 import {
@@ -25,13 +26,13 @@ interface IEvaluationPageState {
 }
 
 /**
- * `/evaluation` – Kiértékelés (PRD 5.8, CHANGES 3.) a walk-forward backtest riportjából (`data/backtest/backtest-v0.json`,
+ * `/evaluation` – Kiértékelés (PRD 5.8, CHANGES 3.) a walk-forward backtest riportjából (olvasó API `/api/backtest`, SB5;
  * `npm run backtest -w @football/db`; 0 külső hívás). Sorrend (DESIGN §2 „Ítélet előbb”): fej → ítélet-sáv → sikermutatók →
  * KPI-k → pontosság → kalibráció → bontás. Az ítélet és a célok a core `evaluationVerdict`-ből.
  * TODO(polish): élő predikció-napló (DB `prediction`); időbeli ROI-görbe; szegmentált kalibráció (a backtest nem adja).
  */
-class EvaluationPage extends Component<{}, IEvaluationPageState> {
-	report = reportJson as unknown as BacktestReport;
+class EvaluationView extends Component<{ report: BacktestReport }, IEvaluationPageState> {
+	report = this.props.report;
 	options = segmentOptions(this.report);
 	state: IEvaluationPageState = { market: 'h2h', segment: 'all' };
 
@@ -140,5 +141,11 @@ class EvaluationPage extends Component<{}, IEvaluationPageState> {
 		);
 	}
 }
+
+const EvaluationPage = () => (
+	<RemoteData title="Kiértékelés" load={readApi.getBacktest}>
+		{(report) => <EvaluationView report={report} />}
+	</RemoteData>
+);
 
 export default EvaluationPage;
