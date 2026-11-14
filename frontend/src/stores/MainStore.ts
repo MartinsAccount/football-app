@@ -45,7 +45,7 @@ export class MainStore {
 
 	Init = flow(function* (this: MainStore) {
 		try {
-			yield this.OddsStore.Init();
+			// Az OddsStore lusta: az OddsPage mountjakor tölt az olvasó API-ból (ROADMAP 1.8).
 			// yield this.ArbitrageStore.Init();
 			// yield this.FixtureStore.Init();
 		} catch (e) {

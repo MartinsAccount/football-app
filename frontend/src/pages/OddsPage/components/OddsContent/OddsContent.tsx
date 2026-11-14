@@ -6,7 +6,7 @@ import { ITableRow } from '../../models/ITableRow';
 import Card from '../../../../components/ui/Card';
 import StatCard from '../../../../components/ui/StatCard';
 import Pill from '../../../../components/ui/Pill';
-import { CURRENT_SEASON } from '../../../../core/constants/constants';
+import { ODDS_STATS_SEASON } from '../../services/OddsService';
 import { LEAGUE_COUNTRY, LEAGUE_LABEL, seasonLabel } from '../../constants/leagueMeta';
 
 interface IOddsContentProps {
@@ -30,7 +30,18 @@ class OddsContent extends Component<IOddsContentProps> {
 
 	render() {
 		const { OddsStore } = this.props.MainStore;
-		const { currentLeague, oddsInfos } = OddsStore;
+		const { currentLeague, oddsInfos, loadError } = OddsStore;
+
+		if (loadError) {
+			return (
+				<section className="flex-1 bg-bg p-8">
+					<Card className="flex flex-col items-center justify-center gap-2 p-16 text-center">
+						<h2 className="text-lg font-semibold text-text">Az odds-adatok nem tölthetők be</h2>
+						<p className="text-sm text-text-muted">Az olvasó API (:5100) nem érhető el: {loadError}</p>
+					</Card>
+				</section>
+			);
+		}
 
 		if (!currentLeague) {
 			return (
@@ -55,7 +66,7 @@ class OddsContent extends Component<IOddsContentProps> {
 							{LEAGUE_LABEL[currentLeague]} liga · {sum} mérkőzés
 						</p>
 					</div>
-					<Pill>Szezon {seasonLabel(CURRENT_SEASON)}</Pill>
+					<Pill>Szezon {seasonLabel(ODDS_STATS_SEASON)}</Pill>
 				</header>
 
 				<div className="grid grid-cols-3 gap-4 mb-6">

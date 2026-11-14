@@ -17,7 +17,8 @@
 		"react-router-dom": "^5.3.0",
 		"uuid": "^8.3.2",
 		"web-vitals": "^1.1.2",
-		"@football/core": "*"
+		"@football/core": "*",
+		"@football/contract": "*"
 	},
 	"scripts": {
 		"tokens": "node src/design/tokens/build-tokens.mjs",

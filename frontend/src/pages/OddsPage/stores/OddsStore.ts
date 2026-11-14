@@ -1,21 +1,29 @@
-import { action, computed, flow, observable, toJS } from 'mobx';
-import { IFixtures } from '../models/models';
+import { action, computed, flow, observable } from 'mobx';
 import { MainStore } from '../../../stores/MainStore';
-import { Fixture } from '../../../core/models/models';
-import ApiURLs from '../../../services/ApiURLs';
-import { Bet, BetsValue, ILeagueOddsResponse, IOdds } from '../models/IOdds';
 import { ITableRow } from '../models/ITableRow';
 import { ODDS_INFO } from '../constants/oddsInfo';
 import { DRAW_INFO } from '../constants/drawInfo';
 import { LEAGUES } from '../../../core/constants/Leagues';
+import OddsService from '../services/OddsService';
+import { OddsMatch } from '../services/oddsMatch';
 
 type ICurruntLeagues = 'england' | 'germany' | 'france' | 'italy' | 'spain' | 'all';
+type LeagueKey = Exclude<ICurruntLeagues, 'all'>;
+
+const LEAGUE_IDS: Record<LeagueKey, number> = {
+	england: LEAGUES.ENGLAND,
+	germany: LEAGUES.GERMANY,
+	france: LEAGUES.FRANCE,
+	italy: LEAGUES.ITALY,
+	spain: LEAGUES.SPAIN
+};
 
 export class OddsStore {
 	@observable public MainStore: MainStore;
 	// public OddsService: OddsService;
-	@observable Odds: IOdds;
-	@observable Fixtures: IFixtures;
+	/** Ligánként a lejátszott meccsek 1X2 oddsokkal (olvasó API, ROADMAP 1.8). */
+	@observable Matches: Partial<Record<LeagueKey, OddsMatch[]>>;
+	@observable loadError: string = null;
 
 	@observable oddsInfos: typeof ODDS_INFO;
 	@observable drawInfos: typeof DRAW_INFO;
@@ -29,47 +37,25 @@ export class OddsStore {
 		this.drawInfos = { ...DRAW_INFO };
 	}
 
+	/** Lusta betöltés: az OddsPage mountjakor fut (nem az app indulásakor), egyszer. */
 	Init = flow(function* (this: OddsStore) {
+		if (this.Matches) return;
 		this.MainStore.isLoading = true;
+		this.loadError = null;
 
 		try {
-			yield this.loadOdds();
-			yield this.loadFixtures();
+			const keys = Object.keys(LEAGUE_IDS) as LeagueKey[];
+			const lists: OddsMatch[][] = yield Promise.all(keys.map((k) => OddsService.loadLeagueMatches(LEAGUE_IDS[k])));
+			const matches: Partial<Record<LeagueKey, OddsMatch[]>> = {};
+			keys.forEach((k, i) => (matches[k] = lists[i]));
+			this.Matches = matches;
+			if (this.currentLeague) this.changeLeague(this.currentLeague);
 		} catch (e) {
+			this.loadError = e instanceof Error ? e.message : String(e);
 			console.log('OddsStore.Init error', e);
 		} finally {
 			this.MainStore.isLoading = false;
 		}
-	});
-
-	loadOdds = flow(function* (this: OddsStore) {
-		const { response } = yield this.MainStore.FetchService.get(ApiURLs.BACKEND.GET_SAVED_ODDS());
-
-		this.Odds = {
-			england: response.englandOdds,
-			germany: response.germanyOdds,
-			spain: response.spainOdds,
-			italy: response.italyOdds,
-			france: response.franceOdds
-		};
-		console.log('odds', toJS(this.Odds));
-	});
-
-	loadFixtures = flow(function* (this: OddsStore) {
-		let { response: england } = yield import('../../../data/allMatchPremierLeague_2021.json').then((m) => m.default);
-		let { response: germany } = yield import('../../../data/allMatchBundesliga_2021.json').then((m) => m.default);
-		let { response: spain } = yield import('../../../data/allMatchLaLiga_2021.json').then((m) => m.default);
-		let { response: italy } = yield import('../../../data/allMatchSeriaA_2021.json').then((m) => m.default);
-		let { response: france } = yield import('../../../data/allMatchFrance_2021.json').then((m) => m.default);
-
-		this.Fixtures = {
-			england: england,
-			germany: germany,
-			spain: spain,
-			italy: italy,
-			france: france
-		};
-		console.log('fixtures', toJS(this.Fixtures));
 	});
 
 	@action changeLeague(league: ICurruntLeagues) {
@@ -81,53 +67,26 @@ export class OddsStore {
 		this.analyzeOddsInfos();
 	}
 
-	analyzeOddsInfos = flow(function* (this: OddsStore) {
-		const fixtureIds = yield this.getAllFixtureIds;
+	@action analyzeOddsInfos() {
+		this.getCurrentMatches.forEach((m: OddsMatch) => {
+			const homeIsFavorite = m.odds.home <= m.odds.away;
+			const favorite: 'home' | 'away' = homeIsFavorite ? 'home' : 'away';
+			const unFavorite: 'home' | 'away' = homeIsFavorite ? 'away' : 'home';
+			const favoriteOdd = m.odds[favorite];
+			const unFavoriteOdd = m.odds[unFavorite];
 
-		yield fixtureIds.forEach((fixtureId: number) => {
-			const oddsObj: ILeagueOddsResponse = this.getCurrentOdds.find((item: ILeagueOddsResponse) => item.fixture.id === fixtureId);
-			const fixtureObj: Fixture = this.getCurrentFixtures.find((item: Fixture) => item.fixture.id === fixtureId);
-
-			const bets: Bet[] = oddsObj.bookmakers[0]?.bets;
-			const mainOdds: BetsValue[] = bets[0].values; // "Match Winners"
-
-			let favorite: 'home' | 'away' = null;
-			let unFavorite: 'home' | 'away' = null;
-			let favoriteOdd: number = null;
-			let unFavoriteOdd: number = null;
-
-			if (parseFloat(mainOdds[0].odd) <= parseFloat(mainOdds[2].odd)) {
-				favorite = 'home';
-				unFavorite = 'away';
-				favoriteOdd = parseFloat(mainOdds[0].odd);
-				unFavoriteOdd = parseFloat(mainOdds[2].odd);
-			}
-			if (parseFloat(mainOdds[0].odd) > parseFloat(mainOdds[2].odd)) {
-				favorite = 'away';
-				unFavorite = 'home';
-				favoriteOdd = parseFloat(mainOdds[2].odd);
-				unFavoriteOdd = parseFloat(mainOdds[0].odd);
-			}
-
-			// const winFavorite: boolean = fixtureObj.teams[favorite]?.winner;
-			const winFavorite: boolean = +fixtureObj.goals[favorite] > +fixtureObj.goals[unFavorite];
-			const isDraw: boolean = +fixtureObj.goals[favorite] === +fixtureObj.goals[unFavorite];
+			const winFavorite: boolean = m.goals[favorite] > m.goals[unFavorite];
+			const isDraw: boolean = m.goals.home === m.goals.away;
 			let winner: 'home' | 'away';
-			if (+fixtureObj.goals.home > +fixtureObj.goals.away) winner = 'home';
-			if (+fixtureObj.goals.home < +fixtureObj.goals.away) winner = 'away';
+			if (m.goals.home > m.goals.away) winner = 'home';
+			if (m.goals.home < m.goals.away) winner = 'away';
 
 			this.changeOddsInfos(favorite, winFavorite, favoriteOdd, isDraw);
 
 			if (favoriteOdd > 2 && unFavoriteOdd > 2) this.changeOverOddsInfos(winner, favoriteOdd, unFavoriteOdd, isDraw);
-			if (isDraw) {
-				const wasGoal: boolean = !!(fixtureObj.goals.home > 0);
-
-				this.changeDrawInfos(favoriteOdd, favorite, wasGoal);
-			}
+			if (isDraw) this.changeDrawInfos(favoriteOdd, favorite, m.goals.home > 0);
 		});
-
-		console.log(toJS(this.oddsInfos));
-	});
+	}
 
 	@action changeDrawInfos(favoriteOdd: number, favorite: 'home' | 'away', wasGoal: boolean) {
 		this.drawInfos.sum += 1;
@@ -200,96 +159,10 @@ export class OddsStore {
 		this.oddsInfos = _oddsInfos;
 	}
 
-	saveOdds = flow(function* (this: OddsStore, country: string, all?: boolean) {
-		this.MainStore.isLoading = true;
-		let odds;
-		// TODO: Backenden kezelni a kéréseket
-		if (country === 'all') {
-			this.MainStore.loadingText = 'Angol meccsek mentése...';
-			odds = yield this.MainStore.FetchService.get(ApiURLs.FOOTBALL.GET_UNIBET_ODDS(LEAGUES.ENGLAND));
-			if (odds.response.length < 1) return console.log('Nincs item');
-			let englands = yield this.MainStore.FetchService.post(ApiURLs.BACKEND.SAVE_ODDS('england'), odds);
-			console.log(englands);
-
-			this.MainStore.loadingText = 'Olasz meccsek mentése..';
-			odds = yield this.MainStore.FetchService.get(ApiURLs.FOOTBALL.GET_UNIBET_ODDS(LEAGUES.ITALY));
-			if (odds.response.length < 1) return console.log('Nincs item');
-			let italies = yield this.MainStore.FetchService.post(ApiURLs.BACKEND.SAVE_ODDS('italy'), odds);
-			console.log(italies);
-
-			this.MainStore.loadingText = 'Francia meccsek mentése..';
-			odds = yield this.MainStore.FetchService.get(ApiURLs.FOOTBALL.GET_UNIBET_ODDS(LEAGUES.FRANCE));
-			if (odds.response.length < 1) return console.log('Nincs item');
-			let frances = yield this.MainStore.FetchService.post(ApiURLs.BACKEND.SAVE_ODDS('france'), odds);
-			console.log(frances);
-
-			this.MainStore.loadingText = 'Spanyol meccsek mentése..';
-			odds = yield this.MainStore.FetchService.get(ApiURLs.FOOTBALL.GET_UNIBET_ODDS(LEAGUES.SPAIN));
-			if (odds.response.length < 1) return console.log('Nincs item');
-			let spains = yield this.MainStore.FetchService.post(ApiURLs.BACKEND.SAVE_ODDS('spain'), odds);
-			console.log(spains);
-
-			this.MainStore.loadingText = 'Német meccsek mentése..';
-			odds = yield this.MainStore.FetchService.get(ApiURLs.FOOTBALL.GET_UNIBET_ODDS(LEAGUES.GERMANY));
-			if (odds.response.length < 1) return console.log('Nincs item');
-			let germanys = yield this.MainStore.FetchService.post(ApiURLs.BACKEND.SAVE_ODDS('germany'), odds);
-			console.log(germanys);
-		}
-		//	response = yield OddsService.saveOdds(odds, country); // TODO: Backendre átírni constansba a league ID-kat
-		this.MainStore.isLoading = false;
-	});
-
-	getRandomFixtures = (n: number) => {
-		const arr = [];
-		let random = arr.sort(() => 0.5 - Math.random()).slice(0, n);
-
-		return random;
-	};
-
-	@computed get getAllFixtureIds() {
-		return this.getCurrentOdds.map((oddsPerFix: ILeagueOddsResponse) => oddsPerFix.fixture.id);
-	}
-
-	@computed get getCurrentOdds(): ILeagueOddsResponse[] {
-		if (!this.currentLeague || !this.Odds) return [];
-
-		if (this.currentLeague === 'all') {
-			return this.getAllOdds;
-		}
-
-		return this.Odds[this.currentLeague].odds;
-	}
-
-	@computed get getCurrentFixtures(): Fixture[] {
-		if (!this.currentLeague || !this.Fixtures) return [];
-
-		if (this.currentLeague === 'all') {
-			return this.getAllFixtures;
-		}
-
-		return this.Fixtures[this.currentLeague];
-	}
-
-	@computed get getAllFixtures(): Fixture[] {
-		if (!this.currentLeague || !this.Fixtures) return [];
-
-		let allFixtures = [];
-		for (let item of Object.values(this.Fixtures)) {
-			allFixtures.push(toJS(item));
-		}
-
-		return allFixtures.flat();
-	}
-
-	@computed get getAllOdds(): ILeagueOddsResponse[] {
-		if (!this.currentLeague || !this.Odds) return [];
-
-		let allOdds = [];
-		for (let item of Object.values(this.Odds)) {
-			allOdds.push(toJS(item.odds));
-		}
-
-		return allOdds.flat();
+	@computed get getCurrentMatches(): OddsMatch[] {
+		if (!this.currentLeague || !this.Matches) return [];
+		if (this.currentLeague === 'all') return Object.values(this.Matches).flat();
+		return this.Matches[this.currentLeague] ?? [];
 	}
 
 	@computed get getTableRows() {

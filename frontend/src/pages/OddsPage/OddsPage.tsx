@@ -1,8 +1,19 @@
+import { inject } from 'mobx-react';
 import React, { Component } from 'react';
+import { MainStore } from '../../stores/MainStore';
 import OddsContent from './components/OddsContent/OddsContent';
 import OddsSidebar from './components/OddsSidebar/OddsSidebar';
 
-class OddsPage extends Component {
+interface IOddsPageProps {
+	MainStore?: MainStore;
+}
+
+@inject('MainStore')
+class OddsPage extends Component<IOddsPageProps> {
+	componentDidMount() {
+		this.props.MainStore.OddsStore.Init();
+	}
+
 	render() {
 		return (
 			<main className="flex items-stretch min-h-[calc(100vh-3.5rem)]">
