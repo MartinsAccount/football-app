@@ -23,17 +23,15 @@ Floodlight v0.2 redesign: lezárva.
 1. **SB1b Import futtatása a Supabase-en** –
    `NODE_OPTIONS=--use-system-ca npm run import:{history,legacy,odds-csv} -w @football/db -- --pg` (sandboxon kívül, ebben a
    sorrendben). Ellenőrzés: 5341 + 3656 fixture, 510 legacy + 11 170 CSV-snapshot, 119 alias (= PGlite), 2. futás 0 írás.
-   2026-11-14 éjjel a pooler elérhetetlen volt (ECONNRESET/ENOTFOUND/EAUTHTIMEOUT) → ha most is, BLOCKERS + a végére.
-2. **SB2 Server Postgres-adapter** – `packages/server/scripts/dev.ts`: `DATABASE_URL` esetén `openPg` + `SqlRepository`, különben
-   PGlite; a `/api/fixtures`, `/api/odds/:id`, `/api/budget` a valódi DB-ből. Ellenőrzés: dev szerver + curl :5100 (2022–2024
-   meccsek jönnek), pg-integrációs teszt `skipIf(!DATABASE_URL)`.
-3. **SB3 Frontend /odds → olvasó API** (ROADMAP 1.8) – az `OddsService`/`OddsStore` a `@football/contract` `createApiClient`-en át
+   2026-11-14 éjjel a pooler elérhetetlen volt; 02:05-kor a próba is időtúllépés, 02:15-kor viszont SB2 tesztje átment → átmeneti
+   hiba, nem blokkoló: futtasd. A Supabase-ben már 5341 fixture van (a history-import kész lehet).
+2. **SB3 Frontend /odds → olvasó API** (ROADMAP 1.8) – az `OddsService`/`OddsStore` a `@football/contract` `createApiClient`-en át
    olvas (Vite-proxy az új végpontokra :5100; a legacy :5000 csak az arbitrázsnak marad). Ellenőrzés: a hálózati naplóban nincs
    külső API-hívás; screenshot 1440 + 390.
-4. **SB4 Snapshot-végpontok** – `/api/recommendations`, `/api/backtest`, `/api/arbitrage` (ma a frontend a
+3. **SB4 Snapshot-végpontok** – `/api/recommendations`, `/api/backtest`, `/api/arbitrage` (ma a frontend a
    `data/{recommendations,backtest,arbitrage}/*-v0.json`-t importálja): contract-DTO + kliensmetódus + server handler (forrás: a
    mentett JSON, később DB-tábla) + tesztek. Ez adja a mobil M7/M10 adatforrását is.
-5. **SB5 Frontend snapshot-oldalak → olvasó API** – Ajánlások, Kiértékelés, Arbitrázs a `createApiClient`-ből tölt (betöltés- és
+4. **SB5 Frontend snapshot-oldalak → olvasó API** – Ajánlások, Kiértékelés, Arbitrázs a `createApiClient`-ből tölt (betöltés- és
    hibaállapot tokenekkel), a JSON-import kikerül a bundle-ből. Ellenőrzés: tesztek + screenshot 1440 + 390.
 
 <!-- Javasolt nagy sorrend, ha a ROADMAP.md mást mond, az az irányadó:
@@ -117,6 +115,7 @@ tételek).
 | M6 – Expo-váz (11.6)                   | `0379a0b`                                                       | `apps/mobile` (Expo SDK 58, expo-router, TS; NEM workspace-tag, saját lockfile; Metro `watchFolders`+`extraNodeModules`, TS `paths`): Meccsek-képernyő (`listFixtures`, `rnTheme` rendszer szerint, core `format*`), Kapcsolat-képernyő (base URL + token `expo-secure-store`), offline: core `storage/cachedResponse.ts` (`loadWithCache`) + AsyncStorage-adapter; `tsc` és `expo export --platform android` zöld                                                                                                                                         |
 | S30 – Beállítások                      | (lásd git log: feat(ui): settings sections)                     | szekció-menü (`SettingsNav`: asztalon bal oszlop, mobilon görgethető chip-sor, `aria-current` semleges); `missingCoverage` (csak a hiány, `.oe-pill--warning`); piac/iroda/liga jelölőnégyzetes tömör sorok; Megjelenés `.oe-segmented` → `ThemeStore.setPreference`; `SettingsStore` `saved`/`draft`/`dirty`/`save`/`discard`, localStorage csak mentéskor, szelvény a mentettet követi; `SaveBar` + `settingsDiff`; `toggleBtn` törölve; screenshot `s30-*`, `s30-*-mentes`, záró `s30-final-*` (16)                                                     |
 | SB1 – Import-cél: PGlite vagy Supabase | (lásd git log: feat(db): batch odds import)                     | `openTarget()` (`--pg` / env `DATABASE_URL`), köteges `insertOddsSnapshots` (unnest, kötegenként ~5 lekérdezés; a CSV-import 2. futása ~2 s), `openPg` időkorlátokkal; PGlite-on a számok egyeznek S08/S11/S11b-vel                                                                                                                                                                                                                                                                                                                                        |
+| SB2 – Server Postgres-adapter          | (lásd git log: feat(server): serve read API from Postgres)      | `dev.ts` → `openTarget` (`-- --pg` vagy env `DATABASE_URL`, különben PGlite); `pg.integration.test.ts` (`skipIf(!DATABASE_URL)`) átment a Supabase-en; `openPg` sorba fűzi a lekérdezéseket (pg@9 deprecation)                                                                                                                                                                                                                                                                                                                                             |
 
 ## Polish backlog
 
@@ -191,6 +190,11 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **SB2 kész.** `npm run dev -w @football/server -- --pg` → Supabase (curl: `/api/fixtures?limit=1` total 5341, ~10 s az első
+  válasz – TODO(polish) count-lekérdezés). Vigyázat: a gyökérből indított `npx vite-node` betölti a gyökér `.env`-et a
+  `process.env`-be, így ott a `DATABASE_URL` jelen van → Postgres. Integrációs teszt: `DATABASE_URL` exporttal
+  (`grep ^DATABASE_URL= .env | cut -d= -f2-`), `NODE_OPTIONS=--use-system-ca`, sandboxon kívül.
 
 - **SB1 kész (kód), a Supabase-futás SB1b.** Az odds-import soronként ~1 snapshot/s volt távolról (2209 snapshot + 44 030 quote
   maradt bent egy megszakított futásból; az import idempotens, folytatja). Most `insertOddsSnapshots` kötegel. `openPg`: connect

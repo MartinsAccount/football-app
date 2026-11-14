@@ -22,9 +22,17 @@ export async function openPg(connectionString: string): Promise<PgExecutor> {
 		keepAlive: true
 	});
 	await client.connect();
+	// Egy kliensen a párhuzamos `client.query()` elavult (pg@9-ben megszűnik): a hívásokat sorba fűzzük (a szerver is
+	// `Promise.all`-lal kérdez).
+	let tail: Promise<unknown> = Promise.resolve();
+	const serial = <R>(run: () => Promise<R>): Promise<R> => {
+		const next = tail.then(run, run);
+		tail = next.catch(() => undefined);
+		return next;
+	};
 	return {
-		exec: (sql) => client.query(sql),
-		query: async <T>(sql: string, params?: unknown[]) => ({ rows: (await client.query(sql, params)).rows as T[] }),
+		exec: (sql) => serial(() => client.query(sql)),
+		query: <T>(sql: string, params?: unknown[]) => serial(async () => ({ rows: (await client.query(sql, params)).rows as T[] })),
 		close: () => client.end()
 	};
 }
