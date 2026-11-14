@@ -13,7 +13,14 @@ export interface PgExecutor extends SqlExecutor {
 
 export async function openPg(connectionString: string): Promise<PgExecutor> {
 	// TODO(polish): TLS-ellenőrzés a Supabase CA-val (prod-ca-2021.crt); most titkosított, de a tanúsítvány nincs ellenőrizve.
-	const client = new pg.Client({ connectionString, ssl: { rejectUnauthorized: false } });
+	// Időkorlátok: instabil hálózaton (TLS-proxy, pooler) egy lekérdezés különben órákig lóghat, és megakasztja a scriptet.
+	const client = new pg.Client({
+		connectionString,
+		ssl: { rejectUnauthorized: false },
+		connectionTimeoutMillis: 30_000,
+		query_timeout: 120_000,
+		keepAlive: true
+	});
 	await client.connect();
 	return {
 		exec: (sql) => client.query(sql),

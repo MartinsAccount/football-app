@@ -158,6 +158,9 @@ export interface LegacyImportReport {
 }
 
 /** A teljes import a repository-n át; FK-sorrend: törzsadat → meccs → odds. */
+/** Snapshot-köteg mérete (távoli DB-n kötegenként ~5 hálózati kör). */
+export const SNAPSHOT_BATCH = 500;
+
 export async function importLegacy(
 	repo: Repository,
 	input: { fixtureFiles: LegacyFixturesFile[]; oddsFiles: LegacyOddsFile[] }
@@ -173,16 +176,14 @@ export async function importLegacy(
 	const markets = await repo.upsertMarkets(od.markets);
 
 	const odds = { created: 0, existing: 0, skipped: 0, quotes: 0 };
-	for (const snap of od.snapshots) {
-		if (!(await repo.getFixture(snap.fixtureId))) {
-			odds.skipped++;
-			continue;
-		}
-		const { created } = await repo.insertOddsSnapshot(snap);
-		if (created) {
-			odds.created++;
-			odds.quotes += snap.quotes.length;
-		} else odds.existing++;
+	const known = new Set((await repo.listFixtures()).map((f) => f.id));
+	const present = od.snapshots.filter((snap) => known.has(snap.fixtureId));
+	odds.skipped = od.snapshots.length - present.length;
+	for (let i = 0; i < present.length; i += SNAPSHOT_BATCH) {
+		const r = await repo.insertOddsSnapshots(present.slice(i, i + SNAPSHOT_BATCH));
+		odds.created += r.created;
+		odds.existing += r.existing;
+		odds.quotes += r.quotes;
 	}
 	return { leagues, seasons, teams, fixtures, bookmakers, markets, odds };
 }

@@ -38,6 +38,8 @@ export interface Repository {
 
 	/** Ugyanaz a `(fixtureId, capturedAt, source)` második beszúrása no-op: `created: false`, a quote-ok nem íródnak. */
 	insertOddsSnapshot(snapshot: OddsSnapshotInput): Promise<{ id: number; created: boolean }>;
+	/** Köteges változat (egy tranzakció, fix számú lekérdezés); `quotes` = a beírt quote-sorok száma. */
+	insertOddsSnapshots(snapshots: OddsSnapshotInput[]): Promise<{ created: number; existing: number; quotes: number }>;
 	getLatestOdds(fixtureId: number): Promise<OddsSnapshot | null>;
 
 	ensureModelVersion(version: ModelVersion): Promise<void>;

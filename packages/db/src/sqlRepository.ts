@@ -258,15 +258,68 @@ export class SqlRepository implements Repository {
 				return { id: existing.rows[0].id, created: false };
 			}
 			const id = inserted.rows[0].id;
-			for (const q of s.quotes) {
-				await this.db.query(
-					`INSERT INTO odds_quote (snapshot_id, bookmaker_id, market_id, selection, line, odd)
-					 VALUES ($1, $2, $3, $4, $5::numeric, $6::numeric)`,
-					[id, q.bookmakerId, q.marketId, q.selection, q.line ?? null, q.odd]
-				);
-			}
+			await this.insertQuotes(s.quotes.map((q) => ({ ...q, snapshotId: id })));
 			return { id, created: true };
 		});
+	}
+
+	/**
+	 * Köteges snapshot-beszúrás egy tranzakcióban, kötegenként fix számú lekérdezéssel (távoli DB-n a soronkénti út
+	 * snapshotonként ~20 hálózati kör). Szemantika = `insertOddsSnapshot`: a meglévő kulcs no-op, a quote-ja nem íródik.
+	 * A kötegen belüli ismétlődő kulcsból az első számít.
+	 */
+	async insertOddsSnapshots(list: OddsSnapshotInput[]): Promise<{ created: number; existing: number; quotes: number }> {
+		const seen = new Set<string>();
+		const unique = list.filter((s) => {
+			const k = `${s.fixtureId}|${s.capturedAt}|${s.source}`;
+			return seen.has(k) ? false : (seen.add(k), true);
+		});
+		if (!unique.length) return { created: 0, existing: list.length, quotes: 0 };
+		return this.transaction(async () => {
+			const cols = [
+				unique.map((s) => s.fixtureId),
+				unique.map((s) => s.capturedAt),
+				unique.map((s) => s.providerUpdatedAt ?? null),
+				unique.map((s) => s.source),
+				unique.map((s) => s.kind)
+			];
+			const created = await this.db.query<{ id: number }>(
+				`INSERT INTO odds_snapshot (fixture_id, captured_at, provider_updated_at, source, kind)
+				 SELECT * FROM unnest($1::bigint[], $2::timestamptz[], $3::timestamptz[], $4::text[], $5::text[])
+				 ON CONFLICT (fixture_id, captured_at, source) DO NOTHING
+				 RETURNING ${num('id')} AS id`,
+				cols
+			);
+			const createdIds = new Set(created.rows.map((r) => r.id));
+			// Sorszám → id (az új és a meglévő sorokra is), hogy a quote-ok a saját snapshotjukhoz kerüljenek.
+			const ids = await this.db.query<{ ord: number; id: number }>(
+				`SELECT k.ord::int AS ord, ${num('s.id')} AS id
+				 FROM unnest($1::bigint[], $2::timestamptz[], $3::text[]) WITH ORDINALITY AS k(fixture_id, captured_at, source, ord)
+				 JOIN odds_snapshot s USING (fixture_id, captured_at, source)`,
+				[cols[0], cols[1], cols[3]]
+			);
+			const quotes = ids.rows
+				.filter((r) => createdIds.has(r.id))
+				.flatMap((r) => unique[r.ord - 1].quotes.map((q) => ({ ...q, snapshotId: r.id })));
+			await this.insertQuotes(quotes);
+			return { created: createdIds.size, existing: list.length - createdIds.size, quotes: quotes.length };
+		});
+	}
+
+	private async insertQuotes(quotes: Array<OddsSnapshotInput['quotes'][number] & { snapshotId: number }>) {
+		if (!quotes.length) return;
+		await this.db.query(
+			`INSERT INTO odds_quote (snapshot_id, bookmaker_id, market_id, selection, line, odd)
+			 SELECT * FROM unnest($1::bigint[], $2::bigint[], $3::bigint[], $4::text[], $5::numeric[], $6::numeric[])`,
+			[
+				quotes.map((q) => q.snapshotId),
+				quotes.map((q) => q.bookmakerId),
+				quotes.map((q) => q.marketId),
+				quotes.map((q) => q.selection),
+				quotes.map((q) => q.line ?? null),
+				quotes.map((q) => q.odd)
+			]
+		);
 	}
 
 	async getLatestOdds(fixtureId: number): Promise<OddsSnapshot | null> {

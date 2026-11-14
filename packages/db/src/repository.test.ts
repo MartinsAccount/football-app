@@ -121,6 +121,30 @@ describe('odds snapshots', () => {
 		expect(await repo.getLatestOdds(101)).toBeNull();
 	});
 
+	it('batch insert: same semantics as the single path, duplicates and existing keys are no-ops', async () => {
+		const { repo } = await seeded();
+		await repo.insertOddsSnapshot(SNAPSHOT);
+		const later = { ...SNAPSHOT, capturedAt: '2024-08-17T12:00:00Z', quotes: [SNAPSHOT.quotes[0]] };
+		const r = await repo.insertOddsSnapshots([SNAPSHOT, later, later]);
+		expect(r).toEqual({ created: 1, existing: 2, quotes: 1 });
+		expect(await repo.countRows('odds_snapshot')).toBe(2);
+		expect(await repo.countRows('odds_quote')).toBe(5);
+		expect((await repo.getLatestOdds(100))?.quotes).toEqual([{ ...SNAPSHOT.quotes[0], line: null }]);
+		expect(await repo.insertOddsSnapshots([SNAPSHOT, later])).toEqual({ created: 0, existing: 2, quotes: 0 });
+		expect(await repo.insertOddsSnapshots([])).toEqual({ created: 0, existing: 0, quotes: 0 });
+	});
+
+	it('batch insert rolls back the whole batch when a quote is invalid', async () => {
+		const { repo } = await seeded();
+		const bad = {
+			...SNAPSHOT,
+			capturedAt: '2024-08-17T12:00:00Z',
+			quotes: [{ bookmakerId: 8, marketId: 1, selection: 'X', odd: 0.9 }]
+		};
+		await expect(repo.insertOddsSnapshots([SNAPSHOT, bad])).rejects.toThrow();
+		expect(await repo.countRows('odds_snapshot')).toBe(0);
+	});
+
 	it('rolls back the snapshot when a quote is invalid', async () => {
 		const { repo } = await seeded();
 		const bad = { ...SNAPSHOT, quotes: [...SNAPSHOT.quotes, { bookmakerId: 8, marketId: 1, selection: 'X', odd: 0.9 }] };

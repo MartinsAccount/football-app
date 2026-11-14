@@ -1,6 +1,6 @@
 // football-data.co.uk CSV-odds import (S11b, ROADMAP 4.2): `data/history/football-data/<div>-<yyyy>.csv` →
 // `odds_snapshot(source='football-data-csv')` + `team_alias`. 0 élő hívás. Idempotens. Előfeltétel: `import:history`.
-// Futtatás: `npm run import:odds-csv -w @football/db [-- <dataDir>]`. A párosítatlan sorok: `data/history/unmatched-csv.json`.
+// Futtatás: `npm run import:odds-csv -w @football/db [-- <dataDir> | --pg]` (`--pg`/`DATABASE_URL` → Supabase). A párosítatlan sorok: `data/history/unmatched-csv.json`.
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,16 +14,17 @@ import {
 	parseFootballDataCsv,
 	type CsvMatchRow
 } from '../src/import/footballData';
-import { mapLegacyFixtures, type LegacyFixturesFile } from '../src/import/legacy';
-import { openMemoryRepository } from '../src/memory';
+import { mapLegacyFixtures, SNAPSHOT_BATCH, type LegacyFixturesFile } from '../src/import/legacy';
+import { openTarget, parseTargetArgs } from '../src/target';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const CSV_DIR = join(ROOT, 'data', 'history', 'football-data');
 const API_DIR = join(ROOT, 'data', 'history', 'api-football');
-const dataDir = process.argv[2] ?? join(ROOT, '.data', 'pglite');
+const args = parseTargetArgs(process.argv.slice(2));
+const dataDir = args.dataDir ?? join(ROOT, '.data', 'pglite');
 
 const started = Date.now();
-const { db, repo } = await openMemoryRepository(dataDir);
+const { db, repo, label } = await openTarget({ pg: args.pg, dataDir, envFile: join(ROOT, '.env') });
 if ((await repo.countRows('fixture')) === 0)
 	throw new Error('Nincs meccs a DB-ben: előbb `npm run import:history -w @football/db`.');
 await repo.upsertBookmakers(CSV_BOOKMAKERS);
@@ -54,12 +55,10 @@ for (const file of readdirSync(CSV_DIR)
 	const scoreDiff = result.matched.filter(
 		({ row, fixture }) => row.goalsHome !== fixture.goalsHome || row.goalsAway !== fixture.goalsAway
 	).length;
-	for (const { row, fixture } of result.matched) {
-		for (const s of csvRowSnapshots(row, fixture)) {
-			snapshots++;
-			if ((await repo.insertOddsSnapshot(s)).created) created++;
-		}
-	}
+	const batch = result.matched.flatMap(({ row, fixture }) => csvRowSnapshots(row, fixture));
+	snapshots = batch.length;
+	for (let i = 0; i < batch.length; i += SNAPSHOT_BATCH)
+		created += (await repo.insertOddsSnapshots(batch.slice(i, i + SNAPSHOT_BATCH))).created;
 	unmatched.push(...result.unmatched);
 	summary[file] = { rows: rows.length, matched: result.matched.length, scoreDiff, snapshots, created };
 }
@@ -71,7 +70,7 @@ const total = Object.values(summary).reduce((a, s) => ({ rows: a.rows + s.rows, 
 	matched: 0
 });
 writeFileSync(join(ROOT, 'data', 'history', 'unmatched-csv.json'), JSON.stringify(unmatched, null, '\t') + '\n');
-console.log(`CSV-odds import → ${dataDir} (${Date.now() - started} ms)`);
+console.log(`CSV-odds import → ${label} (${Date.now() - started} ms)`);
 console.table(summary);
 console.log(
 	`párosítás: ${total.matched}/${total.rows} = ${((100 * total.matched) / total.rows).toFixed(2)}%, párosítatlan: ${

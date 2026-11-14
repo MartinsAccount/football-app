@@ -1,16 +1,17 @@
 // Történeti meccsek importja (S11): `data/history/api-football/fixtures-<liga>-<szezon>.json` (API-Football `/fixtures`
 // válasz, a `fetch:history` mentette) → `.data/pglite`. 0 élő hívás. Idempotens (a 2. futás 0 írás).
-// Futtatás: `npm run import:history -w @football/db [-- <dataDir>]`. A CSV-oddsok importja külön szelet (S11b).
+// Futtatás: `npm run import:history -w @football/db [-- <dataDir> | --pg]` (`--pg`/`DATABASE_URL` → Supabase). A CSV-oddsok importja külön szelet (S11b).
 import { mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { importLegacy, type LegacyFixturesFile } from '../src/import/legacy';
-import { openMemoryRepository } from '../src/memory';
+import { openTarget, parseTargetArgs } from '../src/target';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const DIR = join(ROOT, 'data', 'history', 'api-football');
-const dataDir = process.argv[2] ?? join(ROOT, '.data', 'pglite');
-mkdirSync(join(dataDir, '..'), { recursive: true });
+const args = parseTargetArgs(process.argv.slice(2));
+const dataDir = args.dataDir ?? join(ROOT, '.data', 'pglite');
+if (!args.pg) mkdirSync(join(dataDir, '..'), { recursive: true });
 
 const files = readdirSync(DIR)
 	.filter((f) => /^fixtures-\d+-\d{4}\.json$/.test(f))
@@ -18,7 +19,7 @@ const files = readdirSync(DIR)
 const fixtureFiles = files.map((f) => JSON.parse(readFileSync(join(DIR, f), 'utf8')) as LegacyFixturesFile);
 
 const started = Date.now();
-const { db, repo } = await openMemoryRepository(dataDir);
+const { db, repo, label } = await openTarget({ pg: args.pg, dataDir, envFile: join(ROOT, '.env') });
 const report = await importLegacy(repo, { fixtureFiles, oddsFiles: [] });
 const { rows } = await db.query<{ season: number; n: number; finished: number }>(
 	`SELECT season, count(*)::int AS n, count(*) FILTER (WHERE status IN ('FT','AET','PEN'))::int AS finished
@@ -26,6 +27,6 @@ const { rows } = await db.query<{ season: number; n: number; finished: number }>
 );
 await db.close();
 
-console.log(`history import → ${dataDir} (${files.length} fájl, ${Date.now() - started} ms)`);
+console.log(`history import → ${label} (${files.length} fájl, ${Date.now() - started} ms)`);
 console.table({ leagues: report.leagues, seasons: report.seasons, teams: report.teams, fixtures: report.fixtures });
 console.table(rows);
