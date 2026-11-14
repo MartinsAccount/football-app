@@ -417,26 +417,49 @@ export class SqlRepository implements Repository {
 		const result: UpsertResult = { inserted: 0, updated: 0, unchanged: 0 };
 		if (!rows.length) return result;
 		const columns = spec.cols.map((c) => c.column);
-		const placeholders = spec.cols.map((c, i) => `$${i + 1}${c.cast ? `::${c.cast}` : ''}`);
 		const data = spec.cols.filter((c) => !spec.key.includes(c.column)).map((c) => c.column);
 		const set = [...data.map((c) => `${c} = EXCLUDED.${c}`), ...(spec.touch ? [spec.touch] : [])].join(', ');
 		const changed = data.map((c) => `${spec.table}.${c}`).join(', ');
 		const incoming = data.map((c) => `EXCLUDED.${c}`).join(', ');
-		const sql = `INSERT INTO ${spec.table} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})
-			ON CONFLICT (${spec.key.join(', ')}) DO UPDATE SET ${set}
-			WHERE (${changed}) IS DISTINCT FROM (${incoming})
-			RETURNING (xmax = 0) AS inserted`;
+		const toParams = (row: T) =>
+			spec.cols.map((c) => {
+				const value = (row as Record<string, unknown>)[c.field];
+				const v = value === undefined ? c.fallback ?? null : value;
+				return c.json && v !== null ? JSON.stringify(v) : v;
+			});
+		// Kötegen belül egy kulcs csak egyszer szerepelhet (ON CONFLICT DO UPDATE korlát): az utolsó előfordulás nyer, a
+		// korábbiak „unchanged”-nek számítanak (a soronkénti út is felülírta volna őket).
+		const byKey = new Map<string, T>();
+		for (const row of rows)
+			byKey.set(
+				JSON.stringify(
+					spec.key.map((k) => spec.cols.find((c) => c.column === k)!.field).map((f) => (row as Record<string, unknown>)[f])
+				),
+				row
+			);
+		const unique = [...byKey.values()];
+		result.unchanged += rows.length - unique.length;
+		// Távoli DB-n a soronkénti INSERT soronként egy hálózati kör: kötegelt, több soros VALUES (paraméterkorlát 65 535).
+		const chunkSize = Math.max(1, Math.floor(30000 / spec.cols.length));
 		return this.transaction(async () => {
-			for (const row of rows) {
-				const params = spec.cols.map((c) => {
-					const value = (row as Record<string, unknown>)[c.field];
-					const v = value === undefined ? c.fallback ?? null : value;
-					return c.json && v !== null ? JSON.stringify(v) : v;
+			for (let i = 0; i < unique.length; i += chunkSize) {
+				const chunk = unique.slice(i, i + chunkSize);
+				const params: unknown[] = [];
+				const values = chunk.map((row) => {
+					const p = toParams(row);
+					const base = params.length;
+					params.push(...p);
+					return `(${spec.cols.map((c, j) => `$${base + j + 1}${c.cast ? `::${c.cast}` : ''}`).join(', ')})`;
 				});
+				const sql = `INSERT INTO ${spec.table} (${columns.join(', ')}) VALUES ${values.join(', ')}
+					ON CONFLICT (${spec.key.join(', ')}) DO UPDATE SET ${set}
+					WHERE (${changed}) IS DISTINCT FROM (${incoming})
+					RETURNING (xmax = 0) AS inserted`;
 				const { rows: ret } = await this.db.query<{ inserted: boolean }>(sql, params);
-				if (!ret[0]) result.unchanged++;
-				else if (ret[0].inserted) result.inserted++;
-				else result.updated++;
+				const inserted = ret.filter((r) => r.inserted).length;
+				result.inserted += inserted;
+				result.updated += ret.length - inserted;
+				result.unchanged += chunk.length - ret.length;
 			}
 			return result;
 		});
