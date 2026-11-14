@@ -20,9 +20,7 @@ Floodlight v0.2 redesign: lezárva.
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
 
-1. **SB6 Legacy FixturePage le a külső API-ról** (ROADMAP 1.8 maradéka) – a `FixtureService`/`DataService`
-   `ApiURLs.FOOTBALL`-hívásai helyett olvasó API vagy törlés (a /fixtures nincs routolva; a 8.3 úgyis kiveszi); utána 1.8
-   pipálható.
+Az SB1–SB6 kész, a Supabase-fázisban nincs több nyitott szelet (deploy: BLOCKERS).
 
 <!-- Javasolt nagy sorrend, ha a ROADMAP.md mást mond, az az irányadó:
 A. Design (frontend/src/design/DESIGN.md): A1 tokenek bekötése + format.ts (core) → A2 komponensek → A3 oldalak
@@ -110,6 +108,7 @@ tételek).
 | SB3 – /odds → olvasó API               | (lásd git log: feat(frontend): read odds stats from the read API)                    | `services/readApi.ts` (`createApiClient`), Vite-proxy `^/api/(fixtures                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | odds/                                                            | budget)`→ :5100;`OddsPage/services/oddsMatch.ts` (tiszta, tesztelt); OddsStore lusta, 2021 FT meccsek 1X2-vel (505 db); mentés-gomb (külső hívás) kikerült |
 | SB4 – Snapshot-végpontok               | (lásd git log: feat(server): serve recommendation, backtest and arbitrage snapshots) | `/api/recommendations`, `/api/backtest`, `/api/arbitrage`; forrás `SnapshotSource` (ma `fileSnapshotSource(data/)`, kérésenként olvas; hiány → 404); contract: `getRecommendations/getBacktest/getArbitrage`, `ArbitrageResponse` drótforma (`sum: null`) → `reviveArbitrageSnapshot`; Vite-proxy bővítve                                                                                                                                                                                                                                                  |
 | SB5 – Snapshot-oldalak → olvasó API    | (lásd git log: feat(frontend): load snapshot pages from the read API)                | `components/PageIntro/RemoteData` (betöltés/hiba + Újra, `loadErrorText`); Ma/Kiértékelés/Arbitrázs `readApi.getRecommendations/getBacktest/getArbitrage`-ből, a nézet-osztály propként kapja; a 3 JSON kikerült a bundle-ből (index 444 → 368 kB); screenshot 1440/390 + hibaállapot                                                                                                                                                                                                                                                                      |
+| SB6 – Legacy FixturePage törlése       | (lásd git log: refactor(frontend): remove legacy FixturePage)                        | A routolatlan `FixturePage` (komponensek, `FixtureService`, `FixtureStore`) és az üres `DataService` törölve, `MainStore`-ból kivéve; `models.ts` marad (Odds/Arbitrázs importálja); ROADMAP 1.8 pipálva. Külső API-hívás csak az arbitrázs régi útján (8.3).                                                                                                                                                                                                                                                                                              |
 
 ## Polish backlog
 
@@ -188,6 +187,10 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **SB6 kész.** A legacy FixturePage törölve, ROADMAP 1.8 pipálva. A frontendben `ApiURLs.FOOTBALL`/`FetchService` már csak az
+  `ArbitrageStore`/`ArbitrageService` régi útján él (8.3 viszi ki). Következő: Mobil M7 Kiértékelés (a `getBacktest()` az SB4 óta
+  van a contractban → a mobil képernyő közvetlenül abból tölthet).
 
 - **SB5 kész.** A Ma/Kiértékelés/Arbitrázs oldal az olvasó API-ból tölt (`RemoteData` wrapper; dev:
   `npm run dev -w @football/server`

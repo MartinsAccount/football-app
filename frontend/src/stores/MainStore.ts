@@ -1,6 +1,5 @@
 import { action, flow, observable, reaction } from 'mobx';
 import { ArbitrageStore } from '../pages/ArbitragePage/stores/ArbitrageStore';
-import { FixtureStore } from '../pages/FixturePage/stores/FixtureStore';
 import { OddsStore } from '../pages/OddsPage/stores/OddsStore';
 import { FetchService } from '../services/FetchService';
 import { SettingsStore } from './SettingsStore';
@@ -10,7 +9,6 @@ import { ThemeStore } from './ThemeStore';
 export class MainStore {
 	public OddsStore: OddsStore;
 	public ArbitrageStore: ArbitrageStore;
-	public FixtureStore: FixtureStore;
 	public SlipStore: SlipStore;
 	public SettingsStore: SettingsStore;
 	public ThemeStore: ThemeStore;
@@ -30,7 +28,6 @@ export class MainStore {
 
 		this.OddsStore = new OddsStore(this);
 		this.ArbitrageStore = new ArbitrageStore(this);
-		this.FixtureStore = new FixtureStore(this);
 		this.ThemeStore = new ThemeStore();
 		this.SettingsStore = new SettingsStore();
 		this.SlipStore = new SlipStore(undefined, () => this.SettingsStore.stakeOptions);
@@ -47,7 +44,6 @@ export class MainStore {
 		try {
 			// Az OddsStore lusta: az OddsPage mountjakor tölt az olvasó API-ból (ROADMAP 1.8).
 			// yield this.ArbitrageStore.Init();
-			// yield this.FixtureStore.Init();
 		} catch (e) {
 			console.log('error', e);
 		}

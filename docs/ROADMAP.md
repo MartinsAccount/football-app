@@ -76,9 +76,10 @@
       bejelentkezve a `/api/budget` válaszol.
 - [ ] **1.7 Ütemező váz:** `/api/cron/tick` (`CRON_SECRET`, advisory lock, no-op worker), 15 perces ütemezés (Schedules, vagy
       tartalékként külső pinger). _Ellenőrzés:_ 24 óra alatt kb. 96 tick látszik a naplóban, átfedő futás nincs.
-- [ ] **1.8 A frontend átállítása:** az `/odds` oldal az új végpontokból olvas; a `FetchService*` és az `ApiURLs.FOOTBALL`
+- [x] **1.8 A frontend átállítása:** az `/odds` oldal az új végpontokból olvas; a `FetchService*` és az `ApiURLs.FOOTBALL`
       megszűnik a frontendben (az arbitrázsoldal a 8. fázisig a régi úton marad). _Ellenőrzés:_ a böngésző hálózati naplójában
-      nincs külső API-hívás. _Állapot:_ az odds-statisztika kész (SB3); a legacy FixturePage maradéka: SB6.
+      nincs külső API-hívás. _Állapot:_ kész (SB3 odds-statisztika, SB6 a legacy FixturePage törölve); a
+      `FetchService`/`ApiURLs.FOOTBALL` csak az arbitrázs régi útján maradt (8.3).
 
 ## 2. Beállítások (ligák, csapatok)
 
