@@ -19,6 +19,7 @@ import { loadPlannerInput, SqlTaskStore, type SqlExecutor, type StoredTask, type
 import type { TickWorker } from './cron';
 import { createFixturesWindowHandler } from './fixturesWindow';
 import { createOddsHandler } from './odds';
+import { withPredictions } from './predictions';
 import { createReferenceHandler } from './reference';
 import { createInjuriesHandler } from './injuries';
 import { createResultsHandler } from './results';
@@ -112,7 +113,7 @@ export function createIngestWorker(deps: IngestWorkerDeps): TickWorker {
 
 /**
  * Lokális/dev bekötés: DB-tár + `api_budget_day` + mock kliens (0 élő hívás). A `reference` jobok (3.2) a `fixtures`
- * mock-térképből töltik a törzsadatot, a `fixtures_window` (3.3a) a meccseket, a `results` (3.3b) az eredményeket, a `standings` (3.4) a tabellát, az `odds_*` (3.5) az odds-snapshotot, az `injuries` (3.6) a sérültlistát (`loadIngestMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
+ * mock-térképből töltik a törzsadatot, a `fixtures_window` (3.3a) a meccseket, a `results` (3.3b) az eredményeket, a `standings` (3.4) a tabellát, az `odds_*` (3.5) az odds-snapshotot, utána a `derive` predikciós futást (5.2), az `injuries` (3.6) a sérültlistát (`loadIngestMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
  * és a többi handler a 3.3b+ szeletekben (💸).
  */
 export function createDbIngestWorker(
@@ -129,8 +130,8 @@ export function createDbIngestWorker(
 			fixtures_window: createFixturesWindowHandler(db),
 			results: createResultsHandler(db),
 			standings: createStandingsHandler(db),
-			odds_early: createOddsHandler(db, 'early'),
-			odds_late: createOddsHandler(db, 'late'),
+			odds_early: withPredictions(db, createOddsHandler(db, 'early')),
+			odds_late: withPredictions(db, createOddsHandler(db, 'late')),
 			injuries: createInjuriesHandler(db),
 			...opts.handlers
 		},

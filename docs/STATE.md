@@ -33,8 +33,7 @@ Floodlight v0.2 redesign: lezárva.
 11. ~~I11 – 3.5b `odds_best`~~ kész (a megőrzési job törlés → BLOCKERS).
 12. ~~I12 – 3.6 `injuries` (mock)~~ kész.
 13. ~~I13 – 4.3 `standing_derived`~~ kész.
-14. **I14 – 5.2 Predikció-pipeline:** `derive` lépés az odds-snapshot után → `model_version`, `prediction_run`, `prediction`
-    (append-only). Teszt: ugyanarra a snapshotra két futás két run, a régi sor nem változik (memória-PGlite).
+14. ~~I14 – 5.2 Predikció-pipeline~~ kész.
 15. **I15 – 5.3 Kiértékelő job:** a `results` után `evaluation` (core `evaluation/` képletei); mock: PST → void.
 16. **I16 – 2.2 Liga-katalógus:** `reference` `/leagues` + `coverage` tárolás (mentett `/leagues` válasz nincs → `mock-missing`
     vagy a 3.6 mintája, DECISIONS).
@@ -155,8 +154,14 @@ git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.
 `docs/plans/i12-injuries.md` | | I13 – standing_derived (4.3) | (lásd git log: feat(server): add derived point-in-time standings) |
 migráció 0007, `packages/server/src/standingDerived.ts` (`refreshStandingDerived`, meccsnap-`as_of`, `unnest`-upsert), a `results`
 job hívja; terv `docs/plans/i13-standing-derived.md` |
+| I14 – predikció-pipeline (5.2) | (lásd git log: feat(server): add prediction pipeline) | `packages/server/src/predictions.ts`
+(`runPredictions`, `withPredictions` az odds-handlerek után, `ensureModelVersion`); terv `docs/plans/i14-prediction-pipeline.md` |
 
 ## Polish backlog
+
+- I14: a feature-snapshot kimenetenként ismétlődik a `features` jsonb-ben (külön tábla); az `odds_best` (minden iroda) nincs
+  bekötve, csak a tárolt quote-ok; `minBookmakers: 5` a kevés tárolt irodával szinte sosem ad ajánlást; a teljes történet
+  minden futásnál betöltődik (liga/időablak-szűrés); nincs olvasó API (az `/api/recommendations` még a JSON-pillanatkép).
 
 - I13: `standing_derived` – H2H-tiebreak és pontlevonás nincs; nincs olvasó API/DTO; minden results-futás a teljes szezont
   újraszámolja (inkrementális lehetne); nincs a `COUNTABLE_TABLES`-ben.
@@ -286,6 +291,12 @@ job hívja; terv `docs/plans/i13-standing-derived.md` |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I14 kész (5.2).** `runPredictions(db, fixtureIds, { now, trigger? })` (`packages/server/src/predictions.ts`): NS/TBD meccsek
+  (kezdés > now), történet = befejezett meccsek kezdés < now, odds = legutóbbi snapshot (`captured_at ≤ now`) `odds_quote`-jai
+  (piac 1 és 5/2.5), tabella = `standing_derived` utolsó `as_of` ≤ meccsnap éjfele. Kimenetenként 1 `prediction` sor
+  (`p_model` = piaccal kombinált p, `features` = teljes snapshot), egy CTE-ben a `prediction_run`-nal; nincs sor → nincs run.
+  `withPredictions` köti az `odds_early`/`odds_late` handler után. Következő: I15 kiértékelő job (5.3).
 
 - **I13 kész (4.3).** Tábla `standing_derived` (migráció 0007; PK liga, szezon, `as_of`, csapat). `refreshStandingDerived(db,
   league, season, asOfs?)` (`packages/server/src/standingDerived.ts`): a `fixture` FT/AET/PEN meccseiből core `deriveStandings`,

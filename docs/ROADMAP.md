@@ -154,9 +154,10 @@
 
 - [x] **5.1 Piaci baseline (B0)** (S03) tiszta függvényként (`packages/core/model/market`): margin-mentesítés, konszenzus, legjobb
       odds. _Ellenőrzés:_ unit-tesztek ismert oddsokra (a Σp = 1, a margin helyes).
-- [ ] **5.2 Predikció-pipeline:** a `derive` lépés az odds-snapshot után; `model_version`, `prediction_run`, `prediction`
+- [x] **5.2 Predikció-pipeline:** a `derive` lépés az odds-snapshot után; `model_version`, `prediction_run`, `prediction`
       (append-only, `features`, `explanation`, `warnings`). _Ellenőrzés:_ integrációs teszt: ugyanarra a snapshotra két futás két
-      külön run-t ad, és a régi sor nem változik.
+      külön run-t ad, és a régi sor nem változik. Kész: `packages/server/src/predictions.ts` — lásd git log:
+      feat(server): add prediction pipeline.
 - [ ] **5.3 Kiértékelő job:** a `results` után `evaluation` (win/loss/void, profit, Brier, log-loss, CLV a záró-közeli
       snapshottal). _Ellenőrzés:_ unit-tesztek a képletekre; mock: a PST státuszú meccs void.
 - [x] **5.4 Ajánlások oldal (kezdőoldal):** a mai és holnapi tételek a PRD 6. fejezetében felsorolt mezőkkel; az adatok kora; a
