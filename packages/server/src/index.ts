@@ -41,7 +41,7 @@ export { createInjuriesHandler, insertInjuries, toInjuryRows } from './injuries'
 export type { ApiInjuryItem, InjuryRow } from './injuries';
 export { createResultsHandler, parseResultIds, RESULTS_MAX_IDS } from './results';
 export { loadSeasonMatches, matchdayAsOfs, refreshStandingDerived, upsertStandingDerived } from './standingDerived';
-export { buildEvaluationRows, evaluateFixtures } from './evaluation';
+export { buildEvaluationRows, evaluateFixtures, loadEvaluationRecords } from './evaluation';
 export type { EvaluationCandidate, EvaluationOptions, EvaluationRow } from './evaluation';
 export { ensureModelVersion, PREDICTION_MARKETS, runPredictions, withPredictions } from './predictions';
 export type { PredictionRow, PredictionRunOptions, PredictionRunResult } from './predictions';

@@ -36,10 +36,11 @@ Floodlight v0.2 redesign: lezárva.
 14. ~~I14 – 5.2 Predikció-pipeline~~ kész.
 15. ~~I15 – 5.3 Kiértékelő job~~ kész.
 16. ~~I16 – 2.2 Liga-katalógus~~ kész.
-17. **I17 – 5.5 Kiértékelő dashboard DB-ből:** read-API végpont az `evaluation` táblából (hit rate vs. várt, flat ROI,
-    Brier/log-loss csoportonként 1 sorral – DECISIONS 5.3, CLV), modellverzió-szűrés; a web/mobil kiértékelő nézet erre kötése
-    külön szelet.
-18. **I18 – 2.3 Beállítások UI:** ligák a `league`/`season` katalógusból, `coverage` jelzések, becsült napi hívásköltség.
+17. ~~I17 – 5.5 Kiértékelő olvasó-API DB-ből~~ kész (`GET /api/evaluation?model=`).
+18. **I17b – 5.5 Kiértékelés-oldal bekötése:** a web Kiértékelés-oldal (és ha olcsó, a mobil `evaluation.tsx`) a
+    `client.getEvaluation(model?)`-ból egy „Élő (DB)” blokkot/fület kap a backtest-pillanatkép **mellé** (DECISIONS I17);
+    modellverzió-választó a `modelVersions`-ből; üres DB → üres állapot. DESIGN.md, screenshot 1440/390.
+19. **I18 – 2.3 Beállítások UI:** ligák a `league`/`season` katalógusból, `coverage` jelzések, becsült napi hívásköltség.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -162,10 +163,14 @@ add prediction pipeline) | `packages/server/src/predictions.ts` (`runPredictions
 add evaluation job) | `packages/server/src/evaluation.ts` (`evaluateFixtures`, `buildEvaluationRows`), a `results` handler hívja;
 terv `docs/plans/i15-evaluation-job.md` | | I16 – liga-katalógus (2.2) | (lásd git log: feat(server): add league catalog reference
 job) | `reference.ts` `/leagues` ág (`toLeagueRows`, `upsertLeagues`, `upsertSeasons`), core planner `reference:leagues:<hét>`,
-`referenceMocks.ts` `leaguesEnvelopeFromFixtures` |
+`referenceMocks.ts` `leaguesEnvelopeFromFixtures` | | I17 – kiértékelő olvasó-API (5.5) | (lásd git log: feat(server): add
+evaluation read API) | core `evaluation/dbSummary.ts` (`summarizeEvaluations`, `scoreProbabilities`), server
+`loadEvaluationRecords`, `GET /api/evaluation?model=`, contract `getEvaluation`; terv `docs/plans/evaluation-db-api.md` |
 
 ## Polish backlog
 
+- I17: az összesítés a core-ban fut a teljes sorlistán (SQL-aggregálás, ha nagy); liga-/piacszűrő és idősor még nincs az API-ban
+  (ROADMAP 5.5); a piacok csak `marketId`-vel (név a kliensen).
 - I16: valódi `/leagues` válasz mentése (💸 1 hívás → `data/history/api-football/leagues.json`), amíg nincs, a katalógus csak az 5
   mentett liga, coverage nélkül; `is_current` frissítése soronkénti jsonb-vizsgálattal (egyszerűsíthető); a budget
   (`api-football.md` §6) a bets/bookmakers havi, a planner heti ütemű – egyeztetni.
@@ -305,6 +310,13 @@ job) | `reference.ts` `/leagues` ág (`toLeagueRows`, `upsertLeagues`, `upsertSe
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I17 kész (5.5 API).** `GET /api/evaluation?model=<verzió>` → `EvaluationSummaryResponse` (= core `EvaluationSummary`):
+  `modelVersions` (szűrés előtti), `predictions` (Brier/log-loss **csoportonként – futás×meccs×piac×vonal – 1 sorral**,
+  `evaluationGroupKey`), `calibration` (minden nem-void predikció), `bets` (csak `is_recommendation`; `summarizeBets`: hit vs.
+  várt, flat ROI + SE, CLV), `markets[]`. Forrás: `loadEvaluationRecords(db)` (`deps.evaluations`, dev.ts bekötve; hiányában 404).
+  Kliens: `createApiClient(...).getEvaluation(model?)`. A helyi PGlite-ban valószínűleg még nincs `evaluation` sor → az I17b
+  UI-nak üres állapot kell. Következő: I17b (web Kiértékelés-oldal bekötése), utána I18.
 
 - **I16 kész (2.2).** A planner hetente `reference:leagues:<ISO-hét>` (`/leagues` paraméter nélkül, 1 hívás) feladatot tesz be; a
   `reference` handler `/leagues` ága `league` + `season` upsert (`jsonb_to_recordset`, 1-1 lekérdezés): null mező nem ír felül,

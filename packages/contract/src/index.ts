@@ -14,6 +14,7 @@ export type {
 	BudgetResponse,
 	RecommendationsResponse,
 	BacktestResponse,
+	EvaluationSummaryResponse,
 	ArbitrageOpportunityDto,
 	ArbitrageFixtureDto,
 	ArbitrageResponse,

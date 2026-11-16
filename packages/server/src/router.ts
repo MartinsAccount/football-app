@@ -1,10 +1,12 @@
 import { utcDay, type BudgetStore } from '@football/api-client';
+import { summarizeEvaluations, type EvaluationRecord } from '@football/core';
 import type { Fixture, FixtureFilter, Repository, SettingsRepository } from '@football/db';
 import { authorize, type AuthConfig } from './auth';
 import type {
 	ApiErrorBody,
 	ApiErrorCode,
 	BudgetResponse,
+	EvaluationSummaryResponse,
 	FixtureDto,
 	FixtureResponse,
 	FixturesResponse,
@@ -32,6 +34,8 @@ export interface ApiDeps {
 	cron?: (req: Request) => Promise<Response>;
 	/** Beállítás-API (`GET/PUT /api/settings`, I3). Hiányában a végpont 404-et ad. */
 	settings?: SettingsRepository;
+	/** Kiértékelő dashboard (`GET /api/evaluation?model=`, I17): a kiértékelt predikciók forrása. Hiányában 404. */
+	evaluations?: () => Promise<EvaluationRecord[]>;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -176,6 +180,13 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				const day = utcDay(now());
 				const u = await deps.budget.usage(day);
 				return json(200, { day, ...u, remaining: remainingCalls(u) } satisfies BudgetResponse);
+			}
+
+			if (path === '/api/evaluation') {
+				if (!deps.evaluations) return fail(404, 'not-found', 'A kiértékelő API nincs bekötve');
+				// TODO(polish): SQL-aggregálás, ha sok a sor (most a teljes lista a core-ban összesül).
+				const modelVersion = url.searchParams.get('model')?.trim() || null;
+				return json(200, summarizeEvaluations(await deps.evaluations(), { modelVersion }) satisfies EvaluationSummaryResponse);
 			}
 
 			const snapshot = /^\/api\/(recommendations|backtest|arbitrage)$/.exec(path);

@@ -1,6 +1,7 @@
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { SqlBudgetStore } from '@football/api-client';
+import type { EvaluationRecord } from '@football/core';
 import { openMemoryRepository, type Fixture } from '@football/db';
 import { createApiHandler, remainingCalls, type ApiHandler } from './router';
 import { toNodeListener } from './node';
@@ -99,6 +100,36 @@ describe('/api/budget', () => {
 	it('remainingCalls never goes negative and respects the reserve', () => {
 		expect(remainingCalls({ used: 95, limit: 100, reserve: 10, syncedRemaining: null })).toBe(0);
 		expect(remainingCalls({ used: 50, limit: 100, reserve: 10, syncedRemaining: 80 })).toBe(40);
+	});
+});
+
+describe('/api/evaluation', () => {
+	const r = (modelVersion: string, brier: number): EvaluationRecord => ({
+		runId: 1,
+		fixtureId: 100,
+		marketId: 1,
+		selection: 'Home',
+		line: null,
+		modelVersion,
+		isRecommendation: true,
+		pModel: 0.5,
+		odd: 2,
+		outcome: 'win',
+		brier,
+		logLoss: 0.7,
+		closingOdd: null
+	});
+
+	it('összesít, ?model= szűr; bekötés nélkül 404', async () => {
+		const h = createApiHandler({ repo: {} as never, budget: {} as never, evaluations: async () => [r('v1', 0.2), r('v2', 0.4)] });
+		const call = async (p: string) => (await h(new Request(`http://localhost${p}`))).json() as Promise<any>;
+		const all = await call('/api/evaluation');
+		expect(all.modelVersions).toEqual(['v1', 'v2']);
+		expect(all.modelVersion).toBeNull();
+		expect(all.bets.n).toBe(2);
+		const v2 = await call('/api/evaluation?model=v2');
+		expect([v2.records, v2.predictions.meanBrier]).toEqual([1, 0.4]);
+		expect((await get('/api/evaluation')).status).toBe(404);
 	});
 });
 

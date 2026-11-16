@@ -7,7 +7,8 @@ import {
 	outcome1x2,
 	overUnderOutcome,
 	settleBet,
-	type BetOutcome
+	type BetOutcome,
+	type EvaluationRecord
 } from '@football/core';
 import type { SqlExecutor } from '@football/db';
 import { PREDICTION_MARKETS } from './predictions';
@@ -147,4 +148,17 @@ export async function evaluateFixtures(db: SqlExecutor, fixtureIds: readonly num
 		[opts.now.toISOString(), JSON.stringify(evals)]
 	);
 	return res.rows.length;
+}
+
+/** A dashboard (I17) bemenete: minden kiértékelt predikció a futás modellverziójával (0 külső hívás). */
+export async function loadEvaluationRecords(db: SqlExecutor): Promise<EvaluationRecord[]> {
+	const { rows } = await db.query<EvaluationRecord>(
+		`SELECT p.run_id::float8 AS "runId", p.fixture_id::float8 AS "fixtureId", p.market_id::float8 AS "marketId",
+			p.selection, p.line::float8 AS line, r.model_version AS "modelVersion", p.is_recommendation AS "isRecommendation",
+			p.p_model AS "pModel", p.best_odd::float8 AS odd, e.outcome, e.brier, e.log_loss AS "logLoss",
+			e.closing_odd::float8 AS "closingOdd"
+		 FROM evaluation e JOIN prediction p ON p.id = e.prediction_id JOIN prediction_run r ON r.id = p.run_id
+		 ORDER BY p.id`
+	);
+	return rows;
 }

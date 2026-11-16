@@ -30,6 +30,7 @@ export * from './evaluation/evaluation';
 export * from './evaluation/goals';
 export * from './evaluation/verdict';
 export * from './evaluation/labels';
+export * from './evaluation/dbSummary';
 export * from './budget/budget';
 export * from './storage/keyValue';
 export * from './storage/cachedResponse';

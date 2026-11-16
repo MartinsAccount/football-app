@@ -3,6 +3,7 @@ import type {
 	ArbitrageOpportunity,
 	ArbitrageSnapshot,
 	BacktestReport,
+	EvaluationSummary,
 	RecommendationSnapshot
 } from '@football/core';
 
@@ -107,6 +108,9 @@ export type RecommendationsResponse = RecommendationSnapshot;
 
 /** `GET /api/backtest` → a walk-forward backtest riport (`npm run backtest -w @football/db`). */
 export type BacktestResponse = BacktestReport;
+
+/** `GET /api/evaluation?model=` (I17): a DB-ben tárolt kiértékelések összesítése (Brier/log-loss csoportonként 1 sorral). */
+export type EvaluationSummaryResponse = EvaluationSummary;
 
 /** JSON-ban az `Infinity` `null`-ként utazik: a nem teljes piac `sum`-ja `null`. */
 export type ArbitrageOpportunityDto = Omit<ArbitrageOpportunity, 'sum'> & { sum: number | null };

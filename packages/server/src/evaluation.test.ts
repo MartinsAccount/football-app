@@ -1,6 +1,7 @@
 import type { ApiFootballClient } from '@football/api-client';
 import { openMemoryRepository, SqlRepository, type SqlExecutor, type StoredTask } from '@football/db';
-import { buildEvaluationRows, evaluateFixtures, type EvaluationCandidate } from './evaluation';
+import { summarizeEvaluations } from '@football/core';
+import { buildEvaluationRows, evaluateFixtures, loadEvaluationRecords, type EvaluationCandidate } from './evaluation';
 import type { ApiFixtureItem } from './fixturesWindow';
 import { createResultsHandler } from './results';
 
@@ -160,6 +161,15 @@ describe('kiértékelő job (friss memória-PGlite, 0 élő hívás)', () => {
 		await handler(task, { now: new Date('2024-05-20T18:00:00Z'), client });
 		expect(await evaluateFixtures(db, [FT, PST], { now })).toBe(0);
 		expect(await evaluations(db)).toEqual(rows);
+
+		// I17: a dashboard-összesítés csoportonként EGY sorral számolja a Brier-t (1X2: 0.38, O/U 2.5: 0.405; void: null).
+		const records = await loadEvaluationRecords(db);
+		expect(records).toHaveLength(10);
+		expect(records[0]).toMatchObject({ modelVersion: 'elo-poisson@test', fixtureId: FT, line: null, odd: 2.2, closingOdd: 2 });
+		const s = summarizeEvaluations(records);
+		expect(s.predictions.groups).toBe(2);
+		expect(s.predictions.meanBrier).toBeCloseTo((0.38 + 0.405) / 2); // sorsúlyozva 0.39 lenne
+		expect(s.bets.n).toBe(0); // a seedben nincs is_recommendation
 	});
 
 	it('még nem lezárt meccsre nem ír', async () => {

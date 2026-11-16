@@ -3,6 +3,7 @@ import type {
 	ArbitrageResponse,
 	BacktestResponse,
 	BudgetResponse,
+	EvaluationSummaryResponse,
 	FixtureQuery,
 	FixtureResponse,
 	FixturesResponse,
@@ -59,6 +60,8 @@ export interface ApiClient {
 	getBudget(): Promise<BudgetResponse>;
 	getRecommendations(): Promise<RecommendationsResponse>;
 	getBacktest(): Promise<BacktestResponse>;
+	/** A DB-ben tárolt kiértékelések összesítése; `model` = modellverzió-szűrő (üres: mind). */
+	getEvaluation(model?: string): Promise<EvaluationSummaryResponse>;
 	/** Drótforma (`sum: null`); a hívó `reviveArbitrageSnapshot`-tal alakítja vissza. */
 	getArbitrage(): Promise<ArbitrageResponse>;
 	/** A teljes beállítás-állapot (értékek, követett ligák, csapatszűrők, tárolt piacok/irodák). */
@@ -137,6 +140,8 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 		getBudget: () => get<BudgetResponse>('/api/budget'),
 		getRecommendations: () => get<RecommendationsResponse>('/api/recommendations'),
 		getBacktest: () => get<BacktestResponse>('/api/backtest'),
+		getEvaluation: (model) =>
+			get<EvaluationSummaryResponse>(`/api/evaluation${model ? `?model=${encodeURIComponent(model)}` : ''}`),
 		getArbitrage: () => get<ArbitrageResponse>('/api/arbitrage'),
 		getSettings: () => get<SettingsResponse>('/api/settings'),
 		updateSettings: (update) => request<SettingsResponse>('PUT', '/api/settings', update)
