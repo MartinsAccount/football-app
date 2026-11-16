@@ -38,3 +38,5 @@ export * from './theme/theme';
 export * from './backtest/backtest';
 export * from './recommend/recommend';
 export * from './recommend/snapshot';
+export * from './ingest/tasks';
+export * from './ingest/queue';

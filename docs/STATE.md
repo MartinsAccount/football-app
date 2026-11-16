@@ -23,8 +23,7 @@ Floodlight v0.2 redesign: lezárva.
 1. ~~I1 – 1.7 Ütemező váz lokálisan~~ kész (Vercel-schedule: BLOCKERS).
 2. ~~I2 – 2.1a Beállítás-repository + tárolási feloldó~~ kész.
 3. ~~I3 – 2.1b Beállítás-API~~ kész (web/mobil átkötése: külön szelet, később).
-4. **I4 – 3.1a Feladatsor-mag (core, tiszta):** planner-szabályok (§7.1 táblázat) → `TaskPlan[]` `dedupe_key`-jel, esedékes
-   feladat kiválasztása prioritás szerint, deadline → `skipped`, visszalépés (`attempts`), plan/kvótahiba nem ismétlődik.
+4. ~~I4 – 3.1a Feladatsor-mag (core, tiszta)~~ kész.
 5. **I5 – 3.1b Worker a tickben:** `SqlTaskStore` (`ingest_task` upsert `ON CONFLICT (dedupe_key) DO NOTHING`, claim, lezárás), a
    `TickWorker` = planner + worker mock `ApiFootballClient`-tel; integrációs teszt: két tick nem duplikál, a budget-plafont
    tartja.
@@ -123,8 +122,12 @@ tételek).
 | M11b – Mobil Meccs-részlet (11.7)      | (lásd git log: feat(mobile): add match detail screen)                                | core `odds/history.ts` (`oddsHistoryMarkets`: piac/kimenet → legjobb odd időrendben, nyitó → legutóbbi, `formatOddsChange`/`formatOddsPath`; teszt); `src/app/match/[id].tsx` (`getFixture` + `getOddsHistory` párhuzamosan, `loadWithCache` meccsenkénti kulccsal, offline-jelzés); Meccsek sora csapatnévvel + `Link`; `tsc` + `expo export` zöld                                                                                                                                                                                                        |
 | I2 – Beállítás-repository (2.1a)       | (lásd git log: feat(db): add settings repository)                                    | db `SqlSettingsRepository` (`settings.ts`: követett liga / csapatszűrő upsert + egyedi törlés, `setting` jsonb get/set, `market`/`bookmaker` `stored` jelző, `loadStoredScopeInput`); core `storage/storedScope.ts` (`resolveStoredScope`, `resolveStoredScopes`, `isQuoteStored`); PGlite- + unit-teszt; séma nem változott                                                                                                                                                                                                                               |
 | I3 – Beállítás-API (2.1b)              | (lásd git log: feat(server): add settings API)                                       | server `settings.ts` (`readSettings`, `parseSettingsUpdate`, `applySettingsUpdate`), router `GET/PUT /api/settings` (`deps.settings`), Node-híd törzs-továbbítás; contract `SettingsResponse`/`SettingsUpdate` + `getSettings`/`updateSettings`; db `findMissingRefs` (FK-előellenőrzés); szerződés-teszt (PGlite)                                                                                                                                                                                                                                         |
+| I4 – Feladatsor-mag (3.1a)             | (lásd git log: feat(core): add ingest task queue core)                               | core `ingest/tasks.ts` (`planTasks`, `TASK_PRIORITY`, `isoWeek`), `ingest/queue.ts` (`selectNextTask`, `expiredTaskIds`, `onTaskFailure`); terv `docs/plans/i4-task-queue-core.md`                                                                                                                                                                                                                                                                                                                                                                         |
 
 ## Polish backlog
+
+- I4: `predictions_api` és `backfill_*` nincs a plannerben; a beragadt `running` sorok visszaállítása nincs (I5 / stale-claim);
+  `injuries` köteg-index eltolódhat, ha egy meccsnapra >20 meccs jut és közben változik a lista (top ligában nem fordul elő).
 
 - I3: a PUT nem egy tranzakcióban ír (a validálás és az FK-előellenőrzés előre fut, csak DB-hiba hagyhat félig alkalmazott
   frissítést); a core `ISettings` (web/mobil localStorage) és a szerver `SettingValuesDto` még két külön alak (a `leagues` /
@@ -223,6 +226,15 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I4 kész (3.1a).** Core:
+  `planTasks({ now, leagues:[{id,season}], fixtures:[{id,leagueId,kickoff,status,round?}], horizonHours? })` → `TaskPlan[]`
+  (`kind`, `dedupeKey`, `params`, `priority`, `notBefore`, `deadline`, `estCalls`), dedupeKey szerint rendezve, lejárt határidő
+  nélkül. Worker-oldal: `selectNextTask(tasks, now, remainingCalls)` (a fontosabbat nem ugorja át keret híján), `expiredTaskIds`
+  (pending + lejárt → `skipped`), `onTaskFailure(task, {kind,message}, now)`; a hívó képezi le az api-client `ApiErrorKind`-ot:
+  plan/token → `plan`/`token`, quota → `quota`, budget → `budget`, retryable http → `transient`, egyéb → `permanent`. **I5-höz:**
+  az `ingest_task` táblában nincs `est_calls` oszlop → additív migráció
+  (`ADD COLUMN IF NOT EXISTS est_calls smallint NOT NULL DEFAULT 1`) vagy `params`-ba. Következő: I5.
 
 - **I3 kész (2.1b).** `GET/PUT /api/settings` (`packages/server/src/settings.ts`, router `deps.settings` – hiányában 404; dev.ts
   bekötve). Contract: `SettingsResponse` / `SettingsUpdate`, `api.getSettings()` / `api.updateSettings(update)` (PUT, JSON;

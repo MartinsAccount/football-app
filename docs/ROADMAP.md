@@ -106,7 +106,8 @@
 
 - [ ] **3.1 Feladatsor-motor:** planner (idempotens `dedupe_key`), prioritásos worker, deadline → `skipped`, újrapróbálás
       visszalépéssel, a plan- és kvótahiba nem ismétlődik. _Ellenőrzés:_ unit- és integrációs tesztek mock klienssel (két egymás
-      utáni tick nem duplikál, a budget-plafont betartja).
+      utáni tick nem duplikál, a budget-plafont betartja). Részben: 3.1a core-mag kész (planner, kiválasztás, backoff –
+      `packages/core/src/ingest/`); 3.1b (tár + worker a tickben) nyitott.
 - [ ] **3.2 `reference` jobok:** `teams` (liga × szezon), `odds/bookmakers`, `odds/bets` → `market.analyzed`. _Ellenőrzés:_ mock
       módban kitöltött törzsadat.
 - [ ] **3.3 `fixtures_window` + `results`:** a következő 7 nap meccsei ligánként; meccs után `fixtures?ids` (max. 20) az
