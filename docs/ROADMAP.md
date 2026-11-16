@@ -171,16 +171,17 @@
       _Részben:_ olvasó-API (`GET /api/evaluation?model=`, core `summarizeEvaluations`) kész (I17); web „Élő (DB)” blokk
       modellverzió-szűrővel kész (I17b); mobil blokk kész (I17c). Hátra: kalibrációs görbe/ítélet DB-ből, liga-/piacszűrő, idősor.
 - [x] **5.6 Fogadás rögzítése:** `placed_bet` (Tippmix-odds, tét); „saját” ROI a modell ROI-ja mellett. _Ellenőrzés:_ integrációs
-      teszt; screenshot. _Részben:_ szerver kész (I23: `GET/POST /api/bets`, core `summarizeOwnBets`); UI: I23b (web szelvény-mentés → `POST /api/bets`, „Saját fogadások” a Kiértékelésen; mobil szelvény).
+      teszt; screenshot. _Részben:_ szerver kész (I23: `GET/POST /api/bets`, core `summarizeOwnBets`); UI: I23b (web
+      szelvény-mentés → `POST /api/bets`, „Saját fogadások” a Kiértékelésen; mobil szelvény).
 - [x] **5.7 Odds-history nézet:** (`056c327`; I20b `c3bf6a9`: pillanatkép DB fixture-id-val) egy meccs snapshotjai, az odds
       mozgása, a legjobb iroda, a kimenetel. _Ellenőrzés:_ screenshot a legacy-json és az élő snapshotokkal.
 
 ## 6. Ajánlómotor v1 (Elo + Poisson / Dixon–Coles)
 
-- [ ] **6.0 Terv:** `docs/plans/model-v1.md` (a paraméterek, az illesztés, a backtest-protokoll, a holdout), a tulajdonos
-      jóváhagyásával.
-- [ ] **6.1 Elo (M1)** + ordinális logit, tesztekkel. _(Részben: az Elo kész – `4757d41`, `model/elo.ts`; a logit helyett a v0 a
-      Poisson-mátrixból adja az 1X2-t, DECISIONS.)_ _Ellenőrzés:_ unit-tesztek; az illesztés reprodukálható seed-del.
+- [x] **6.0 Terv:** `docs/plans/model-v1.md` — I25 (autonóm munkamód, DECISIONS) (a paraméterek, az illesztés, a
+      backtest-protokoll, a holdout), a tulajdonos jóváhagyásával.
+- [x] **6.1 Elo (M1)** + ordinális logit, tesztekkel — I25 (`model/ordinalLogit.ts`, `elo-logit@1.0.0`, shadow előtt; az Elo:
+      `4757d41`). _Ellenőrzés:_ unit-tesztek; az illesztés reprodukálható seed-del.
 - [x] **6.2 Poisson / Dixon–Coles (M2)** — `4757d41` (fix paraméterek, `elo-poisson@0.1.0`; ML-illesztés a 6.3 után) +
       eredménymátrix → 1X2, O/U 2.5 (BTTS előkészítve). _Ellenőrzés:_ unit-tesztek (a mátrix összege 1; a piacok konzisztensek).
 - [x] **6.3 Backtest CLI** — S15 (riport: `docs/analysis/backtest-v0.md`, JSON: `data/backtest/backtest-v0.json`) (walk-forward,
@@ -210,8 +211,8 @@
       hívással. _Ellenőrzés:_ unit-tesztek; a régi és az új eredmény egyezik ugyanazon az adaton.
 - [ ] **8.2 Opcionális teljes piaci pásztázás** (`/odds/mapping` + lapozott `/odds`) kézi indítással, **előzetes hívásbecsléssel
       és megerősítéssel**, napi max. 1×. _Ellenőrzés:_ mock: a becslés egyezik a ténylegesen indított hívások számával.
-- [x] **8.3 Az arbitrázsoldal átállítása** (`e375c40`, I24) az új API-ra; a régi `localStorage`-út (`ls_Arbitrages`, `ls_AllLeagueIds`) és a
-      közvetlen API-hívások megszűnnek. _Ellenőrzés:_ a hálózati naplóban nincs külső hívás; screenshot.
+- [x] **8.3 Az arbitrázsoldal átállítása** (`e375c40`, I24) az új API-ra; a régi `localStorage`-út (`ls_Arbitrages`,
+      `ls_AllLeagueIds`) és a közvetlen API-hívások megszűnnek. _Ellenőrzés:_ a hálózati naplóban nincs külső hívás; screenshot.
 - [ ] **8.4 A régi Express és a JSON-tár kivezetése** (archiválás vagy törlés, a tulajdonos döntése szerint).
 
 ## 9. Frontend-modernizáció (az 1. fázis után bármikor)
