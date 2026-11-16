@@ -49,6 +49,7 @@ function AppStack() {
 				<Stack.Screen name="slip" options={{ title: 'Szelvény' }} />
 				<Stack.Screen name="evaluation" options={{ title: 'Kiértékelés' }} />
 				<Stack.Screen name="preferences" options={{ title: 'Beállítások' }} />
+				<Stack.Screen name="arbitrage" options={{ title: 'Arbitrázs' }} />
 				<Stack.Screen name="settings" options={{ title: 'Kapcsolat' }} />
 			</Stack>
 		</>

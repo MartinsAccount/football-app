@@ -16,3 +16,6 @@ export const BACKTEST_CACHE_KEY = 'oe_cache_backtest';
 
 /** Az utolsó sikeres `/api/recommendations` válasz kulcsa. */
 export const RECOMMENDATIONS_CACHE_KEY = 'oe_cache_recommendations';
+
+/** Az utolsó sikeres `/api/arbitrage` válasz kulcsa (drótforma; olvasáskor `reviveArbitrageSnapshot`). */
+export const ARBITRAGE_CACHE_KEY = 'oe_cache_arbitrage';

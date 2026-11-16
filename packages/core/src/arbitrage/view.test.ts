@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { scanMarket, type ArbitrageSnapshot } from '@football/core';
+import { scanMarket, type ArbitrageSnapshot } from './scan';
 import {
 	arbitrageHeadChips,
 	arbitrageRows,
 	arbitrageTiles,
-	defaultFilter,
+	defaultArbitrageFilter,
 	formatMarginPct,
 	historicalNotice,
 	parseTotalStake
-} from './arbitrageView';
+} from './view';
 
 const H2H = ['Home', 'Draw', 'Away'];
 const q = (bookmaker: string, outcome: string, odds: number) => ({ bookmaker, outcome, odds });
@@ -87,7 +87,7 @@ describe('formatMarginPct', () => {
 
 describe('arbitrageRows', () => {
 	it('alapszűrő: van arb → csak az arb', () => {
-		const f = defaultFilter(snap);
+		const f = defaultArbitrageFilter(snap);
 		expect(f.band).toBe('arb');
 		const rows = arbitrageRows(snap, f, 10000);
 		expect(rows.map((r) => r.key)).toEqual(['1-h2h']);

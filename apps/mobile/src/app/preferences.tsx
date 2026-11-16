@@ -213,6 +213,10 @@ export default function PreferencesScreen() {
 			<Link href="/settings" style={s.link}>
 				Kapcsolat (API-cím, token)
 			</Link>
+			{/* M10: a fejlécbe nem fér 4. link (DECISIONS 2026-11-16); TODO(polish): tab-navigáció. */}
+			<Link href="/arbitrage" style={s.link}>
+				Arbitrázs (irodák közötti árkülönbségek)
+			</Link>
 		</ScrollView>
 	);
 }

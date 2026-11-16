@@ -4,6 +4,7 @@ export * from './constants/betTypes';
 export * from './arbitrage/types';
 export * from './arbitrage/analyzeBookmakers';
 export * from './arbitrage/scan';
+export * from './arbitrage/view';
 export * from './odds/value';
 export * from './model/market';
 export * from './model/elo';

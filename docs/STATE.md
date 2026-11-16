@@ -40,10 +40,9 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 **Mobil (ROADMAP 11):**
 
-M1–M9 kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
+M1–M10 kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
 
-1. **M10 Arbitrázs** – core `arbitrage/scan` nézet (`getArbitrage()` + `reviveArbitrageSnapshot`, SB4 óta van).
-2. **M11 Meccs-részlet** – `getOdds(fixtureId)` (odds-history), csapatnevek (DTO-bővítés).
+1. **M11 Meccs-részlet** – `getOdds(fixtureId)` (odds-history), csapatnevek (DTO-bővítés).
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).
@@ -112,6 +111,8 @@ tételek).
 
 ## Polish backlog
 
+- M10: mobil Arbitrázs: nincs iroda-szűrő; az Arbitrázs a Beállításokból nyílik (fejléc → tab-navigáció kell); a lábak táblája
+  egyenlő oszlopokkal (hosszú irodanév tör); nincs screenshot.
 - M9: mobil Beállítások: nincs szekció-menü és „elhagyod mentés nélkül?” jelzés; a web `SettingsStore` még saját
   `toggle`/`setNumber`-t használ (→ core `toggleSettingsItem`/`withSettingsNumber`); a beállítás az ajánlásokra nem hat; a
   checkbox pipája szöveg-karakter (nincs ikonkészlet); nincs screenshot.
@@ -195,6 +196,10 @@ tételek).
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- **M10 kész.** Mobil Arbitrázs (`src/app/arbitrage.tsx`, a Beállítások aljáról linkelve – a fejlécbe nem fért 4. link).
+  Nézet-logika a core `arbitrage/view.ts`-ben (`arbitrageRows`, `arbitrageTiles`, `ARB_BAND_OPTIONS`, `defaultArbitrageFilter`…);
+  a web `arbitrageView.ts` csak alias-re-export. Cache: `ARBITRAGE_CACHE_KEY` (drótforma, olvasáskor `reviveArbitrageSnapshot`).
+  Következő: M11 Meccs-részlet. Tab-navigáció érett (5 képernyő) – polish backlog.
 - **M9 kész.** Mobil Beállítások (`src/app/preferences.tsx`, fejléc „Beállítások”); a Kapcsolat (`settings.tsx`) onnan linkkel.
   App-szintű állapot: `src/lib/preferences.tsx` (`PreferencesProvider` a `_layout`-ban, `usePreferences()` → `settings`,
   `saveSettings`, `themePreference`, `setThemePreference`; AsyncStorage, web-formátum). `useRnTheme` már a mentett preferenciát
