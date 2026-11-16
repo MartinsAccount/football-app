@@ -26,9 +26,7 @@ Floodlight v0.2 redesign: lezárva.
 4. ~~I4 – 3.1a Feladatsor-mag (core, tiszta)~~ kész.
 5. ~~I5 – 3.1b Worker a tickben~~ kész.
 6. ~~I6 – 3.2 `reference` jobok (mock)~~ kész.
-7. **I7 – 3.3a `fixtures_window` (mock):** handler a `createIngestWorker` `handlers` térképén: `/fixtures?league&season&from&to` →
-   upsert `fixture` (+ hiányzó `team`), mock a `data/history/api-football/fixtures-*.json`-ből (minta: `referenceMocks.ts`).
-   Ellenőrzés: PGlite-teszt, 0 élő hívás.
+7. ~~I7 – 3.3a `fixtures_window` (mock)~~ kész.
 8. **I8 – 3.3b `results` (mock):** `fixtures?ids` (max. 20) → eredmény, `NS` → `FT`; második kör +26 óra; hívásszám ≤ ⌈n/20⌉.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
@@ -129,12 +127,16 @@ tételek).
 
 | I5 – Worker a tickben (3.1b) | (lásd git log: feat(server): wire ingest worker into tick) | db `ingestTasks.ts` (`SqlTaskStore`,
 | I6 – reference jobok (3.2) | (lásd git log: feat(server): add reference ingest jobs) | `packages/server/src/reference.ts`
-(handler + upsert, `stored` marad), `referenceMocks.ts` (mentett adatból); terv `docs/plans/i6-reference-jobs.md` |
+(handler + upsert, `stored` marad), `referenceMocks.ts` (mentett adatból); terv `docs/plans/i6-reference-jobs.md` | | I7 –
+fixtures_window (3.3a) | (lásd git log: feat(server): add fixtures_window ingest job) | `packages/server/src/fixturesWindow.ts`
+(upsert, null nem ír felül), `referenceMocks.ts` `loadIngestMocks` (visszajátszás); terv `docs/plans/i7-fixtures-window.md` |
 `loadPlannerInput`), server `ingestWorker.ts` (`createIngestWorker`, `toFailureKind`, `createDbIngestWorker`); tick.ts + dev.ts
 bekötve; terv `docs/plans/ingest-worker.md` |
 
 ## Polish backlog
 
+- I7: a mock-kulcsok csak a betöltés napja −1…+30 napra (hosszan futó dev-szerver → újraindítás); a meccsek a mentett szezon
+  dátumával kerülnek be (a planner odds-feladatai ezért nem indulnak mockban); soronkénti upsert; venue-tábla nincs töltve.
 - I6: a mock `/teams` a mentett meccsek csapataiból (nincs `code`/`country`/venue); `/odds/bets` csak a mentett odds-fájlok piacai
   (Unibet); soronkénti upsert (unnest/batch helyett).
 - I5: `enqueue` soronkénti INSERT (unnest); claim nem `FOR UPDATE SKIP LOCKED` (a tick advisory lockja véd); hibás futásnál az
@@ -239,6 +241,13 @@ bekötve; terv `docs/plans/ingest-worker.md` |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I7 kész (3.3a).** `createFixturesWindowHandler(db)` (`packages/server/src/fixturesWindow.ts`):
+  `/fixtures?league&season&from&to` → hiányzó `team`/`season_team` + `fixture` upsert (kezdés/státusz mindig,
+  eredmény/forduló/játékvezető: null nem ír felül). Mock: `loadIngestMocks(ROOT, now)` (reference + ablak), `replayDay`: a 2026-os
+  nap a mentett szezon azonos napjára vetül, a meccsek eredeti dátummal. `createDbIngestWorker` alapból köti. Következő: I8
+  `results` (`fixtures?ids`, max. 20, NS → FT, +26 h második kör) – a mockhoz a mentett FT-meccsek kellenek `ids` kulccsal; a
+  mentett adatban nincs NS státusz.
 
 - **I6 kész (3.2).** `createReferenceHandler(db)` (`packages/server/src/reference.ts`): `/teams` → `team` + `season_team`
   (`season` sort létrehozza, ha a liga ismert), `/odds/bookmakers` → `bookmaker`, `/odds/bets` → `market` (`code` = `BETS_TYPES`

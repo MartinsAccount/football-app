@@ -114,7 +114,8 @@
       feat(server): add reference ingest jobs.
 - [ ] **3.3 `fixtures_window` + `results`:** a következő 7 nap meccsei ligánként; meccs után `fixtures?ids` (max. 20) az
       eredménnyel, statisztikával és eseményekkel; második kör +26 órával. _Ellenőrzés:_ mock: státuszváltás `NS` → `FT`, az
-      eredmény betöltődik, a hívásszám ≤ ⌈n/20⌉.
+      eredmény betöltődik, a hívásszám ≤ ⌈n/20⌉. Részben: 3.3a `fixtures_window` (mock) – `packages/server/src/fixturesWindow.ts`
+      — lásd git log: feat(server): add fixtures_window ingest job.
 - [ ] **3.4 `standings` snapshot** a forduló előtti napon. _Ellenőrzés:_ mock: a snapshot a megfelelő időpontban keletkezik.
 - [ ] **3.5 `odds_early` + `odds_late` snapshot:** **lapozással** (10/oldal), csak az elemzett piacokkal, a `provider_updated_at`
       mentésével; a `late` a nap első kezdése előtt ≤ 3 órával. _Ellenőrzés:_ mock: többoldalas válasz esetén is minden meccs

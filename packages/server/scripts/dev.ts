@@ -12,7 +12,7 @@ import { toNodeListener } from '../src/node';
 import { authConfigFromEnv } from '../src/auth';
 import { createCronHandler, cronConfigFromEnv } from '../src/cron';
 import { createDbIngestWorker } from '../src/ingestWorker';
-import { loadReferenceMocks } from '../src/referenceMocks';
+import { loadIngestMocks } from '../src/referenceMocks';
 import { fileSnapshotSource } from '../src/snapshots';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -45,7 +45,7 @@ createServer(
 			// Ütemező (1.7): `CRON_SECRET` env; hiányában lokálisan nyitott. Lokális ütemezés: `npm run tick -- --every 15`.
 			cron: createCronHandler({
 				store: new SqlCronStore(db),
-				worker: createDbIngestWorker(db, { fixtures: await loadReferenceMocks(ROOT) }),
+				worker: createDbIngestWorker(db, { fixtures: await loadIngestMocks(ROOT) }),
 				config: cronConfigFromEnv(process.env)
 			})
 		})

@@ -155,7 +155,7 @@ export async function upsertMarkets(db: SqlExecutor, rows: readonly MarketRow[])
 const path = (endpoint: unknown) => `/${String(endpoint).replace(/^\/+/, '')}`;
 
 /** Élő módban az elköltött hívás; mockban 0 (nincs budget-foglalás). */
-const spent = (client: ApiFootballClient, n: number) => (client.mode === 'live' ? n : 0);
+export const spent = (client: ApiFootballClient, n: number) => (client.mode === 'live' ? n : 0);
 
 /** A `reference` kind végrehajtója a `createIngestWorker` `handlers` térképére. */
 export function createReferenceHandler(db: SqlExecutor): TaskHandler {

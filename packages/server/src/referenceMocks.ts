@@ -10,6 +10,7 @@ import { fixtureKey, type ApiEnvelope, type MockFixtures } from '@football/api-c
  */
 
 interface SavedFixtureItem {
+	fixture?: { date?: string };
 	league?: { id?: number; season?: number; country?: string };
 	teams?: { home?: { id?: number; name?: string; logo?: string }; away?: { id?: number; name?: string; logo?: string } };
 }
@@ -66,6 +67,58 @@ export function buildReferenceMocks(input: {
 	return out;
 }
 
+const DAY_MS = 86_400_000;
+const isoDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
+/**
+ * Visszajátszás: a kért nap a mentett szezonba vetítve (a free tier csak 2022–2024-et éri el, ADR-0002). Az S szezon
+ * júl. S – jún. S+1: júliustól az S, előtte az S+1 évbe kerül (pl. 2026-11-16, 2024 → 2024-11-16).
+ */
+export function replayDay(day: string, season: number): string {
+	const [, m, d] = day.split('-').map(Number);
+	return isoDay(Date.UTC(m >= 7 ? season : season + 1, m - 1, d));
+}
+
+/**
+ * `/fixtures?league&season&from&to` envelope: a mentett meccsek a visszajátszott [from, to] napokon (mindkét vég zárt, UTC
+ * nap). A meccsek a mentett (valós) dátumukkal jönnek – adatot nem találunk ki.
+ */
+export function fixturesWindowEnvelope(
+	league: number,
+	season: number,
+	from: string,
+	to: string,
+	items: readonly SavedFixtureItem[]
+) {
+	const rFrom = replayDay(from, season);
+	const rTo = isoDay(Date.parse(rFrom) + Date.parse(to) - Date.parse(from));
+	const response = items.filter((i) => {
+		const day = i.fixture?.date ? isoDay(Date.parse(i.fixture.date)) : '';
+		return day >= rFrom && day <= rTo;
+	});
+	return envelope('fixtures', { league: String(league), season: String(season), from, to }, response);
+}
+
+/** A `fixtures_window` mock-kulcsai (a planner paraméterei: `from` = nap, `to` = nap + 7) a megadott napokra, liga×szezononként. */
+export function buildFixturesWindowMocks(
+	fixtures: readonly { league: number; season: number; items: readonly SavedFixtureItem[] }[],
+	days: readonly string[]
+): MockFixtures {
+	const out: MockFixtures = {};
+	for (const f of fixtures)
+		for (const from of days) {
+			const to = isoDay(Date.parse(from) + 7 * DAY_MS);
+			out[fixtureKey('/fixtures', { league: f.league, season: f.season, from, to })] = fixturesWindowEnvelope(
+				f.league,
+				f.season,
+				from,
+				to,
+				f.items
+			);
+		}
+	return out;
+}
+
 /** Tömb, `{ response: [] }` (API-envelope) vagy `{ odds: [] }` (backend/stores) alak. */
 const asItems = <T>(json: unknown): T[] => {
 	if (Array.isArray(json)) return json as T[];
@@ -93,11 +146,25 @@ async function readJsonFiles(dir: string, re: RegExp): Promise<{ match: RegExpMa
 
 /** A repó mentett adataiból (`<root>/data/history/api-football`, `<root>/backend/stores`) épített mock-térkép. */
 export async function loadReferenceMocks(root: string): Promise<MockFixtures> {
-	const fixtures = (await readJsonFiles(join(root, 'data', 'history', 'api-football'), /^fixtures-(\d+)-(\d+)\.json$/)).map(
-		({ match, json }) => ({ league: Number(match[1]), season: Number(match[2]), items: asItems<SavedFixtureItem>(json) })
-	);
+	const fixtures = await loadSavedFixtures(root);
 	const odds = (await readJsonFiles(join(root, 'backend', 'stores'), /-odds\.json$/)).flatMap(({ json }) =>
 		asItems<SavedOddsItem>(json)
 	);
 	return buildReferenceMocks({ fixtures, odds });
+}
+
+async function loadSavedFixtures(root: string) {
+	return (await readJsonFiles(join(root, 'data', 'history', 'api-football'), /^fixtures-(\d+)-(\d+)\.json$/)).map(
+		({ match, json }) => ({ league: Number(match[1]), season: Number(match[2]), items: asItems<SavedFixtureItem>(json) })
+	);
+}
+
+/**
+ * Az ingest-worker teljes mock-térképe: `reference` (3.2) + `fixtures_window` (3.3a) a `now` előtti 1 és utáni 30 napra.
+ * TODO(polish): 30 napnál tovább futó dev-szervernél a későbbi napok kulcsa hiányzik (`mock-missing`) – újraindítás kell.
+ */
+export async function loadIngestMocks(root: string, now = new Date()): Promise<MockFixtures> {
+	const start = Date.parse(isoDay(now.getTime())) - DAY_MS;
+	const days = Array.from({ length: 32 }, (_, i) => isoDay(start + i * DAY_MS));
+	return { ...(await loadReferenceMocks(root)), ...buildFixturesWindowMocks(await loadSavedFixtures(root), days) };
 }

@@ -1,12 +1,12 @@
 // Lokális ütemező (ROADMAP 1.7, a Vercel-schedule helyett): `npm run tick -w @football/server [-- <dataDir> | --pg]
-// [--every <perc>]`. Egy tick (planner + worker; `reference` handler mock-adatból, ROADMAP 3.2) a `cron_run` naplóval és az advisory lockkal; `--every 15` → 15 percenként,
+// [--every <perc>]`. Egy tick (planner + worker; `reference` + `fixtures_window` handler mock-adatból, ROADMAP 3.2–3.3a) a `cron_run` naplóval és az advisory lockkal; `--every 15` → 15 percenként,
 // Ctrl+C-ig. A végén kiírja a legutóbbi futásokat. 0 külső API-Football-hívás.
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openTarget, parseTargetArgs, SqlCronStore } from '@football/db';
 import { createTickRunner } from '../src/cron';
 import { createDbIngestWorker } from '../src/ingestWorker';
-import { loadReferenceMocks } from '../src/referenceMocks';
+import { loadIngestMocks } from '../src/referenceMocks';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const argv = process.argv.slice(2);
@@ -21,7 +21,7 @@ const { db, label } = await openTarget({
 	envFile: join(ROOT, '.env')
 });
 const store = new SqlCronStore(db);
-const tick = createTickRunner({ store, worker: createDbIngestWorker(db, { fixtures: await loadReferenceMocks(ROOT) }) });
+const tick = createTickRunner({ store, worker: createDbIngestWorker(db, { fixtures: await loadIngestMocks(ROOT) }) });
 
 const once = async () => console.log(`[tick] ${new Date().toISOString()}`, JSON.stringify(await tick()));
 

@@ -17,13 +17,14 @@ import {
 } from '@football/core';
 import { loadPlannerInput, SqlTaskStore, type SqlExecutor, type StoredTask, type TaskStore } from '@football/db';
 import type { TickWorker } from './cron';
+import { createFixturesWindowHandler } from './fixturesWindow';
 import { createReferenceHandler } from './reference';
 import { remainingCalls } from './router';
 
 /**
  * Ingest-worker a tickben (ROADMAP 3.1b, architecture.md §7.1–§7.3): lejárt → `skipped`, beragadt `running` → `pending`,
  * planner → `enqueue` (dedupe), majd prioritásos végrehajtás a napi maradék kereten belül. A szabályok a core-ban
- * (`ingest/tasks.ts`, `ingest/queue.ts`); a job-végrehajtók kindonkénti handlerek (3.2: `reference`), a többi még no-op.
+ * (`ingest/tasks.ts`, `ingest/queue.ts`); a job-végrehajtók kindonkénti handlerek (3.2: `reference`, 3.3a: `fixtures_window`), a többi még no-op.
  */
 
 export interface TaskHandlerContext {
@@ -107,8 +108,8 @@ export function createIngestWorker(deps: IngestWorkerDeps): TickWorker {
 
 /**
  * Lokális/dev bekötés: DB-tár + `api_budget_day` + mock kliens (0 élő hívás). A `reference` jobok (3.2) a `fixtures`
- * mock-térképből töltik a törzsadatot (`loadReferenceMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
- * és a többi handler a 3.3+ szeletekben (💸).
+ * mock-térképből töltik a törzsadatot, a `fixtures_window` (3.3a) a meccseket (`loadIngestMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
+ * és a többi handler a 3.3b+ szeletekben (💸).
  */
 export function createDbIngestWorker(
 	db: SqlExecutor,
@@ -119,7 +120,7 @@ export function createDbIngestWorker(
 		budget: new SqlBudgetStore(db),
 		plannerInput: (now) => loadPlannerInput(db, now),
 		client: new ApiFootballClient({ mode: 'mock', fixtures: opts.fixtures ?? {} }),
-		handlers: { reference: createReferenceHandler(db), ...opts.handlers },
+		handlers: { reference: createReferenceHandler(db), fixtures_window: createFixturesWindowHandler(db), ...opts.handlers },
 		maxTasks: opts.maxTasks
 	});
 }
