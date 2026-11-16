@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
-import { formatFt, legOdds } from '@football/core';
+import { formatFt, legOdds, slipSyncText } from '@football/core';
 import { SlipStore } from '../../stores/SlipStore';
 import RiskMeter from './RiskMeter';
 import SlipLegs from './SlipLegs';
@@ -48,7 +48,7 @@ class SlipPanel extends Component<ISlipPanelProps> {
 				</p>
 				{store.lastSavedId && (
 					<p className={cx(statusDot, 'm-0')} role="status">
-						Szelvény mentve ({store.saved.length} mentett szelvény).
+						Szelvény mentve ({store.saved.length} mentett szelvény) – {slipSyncText(store.lastSaved?.sync)}.
 					</p>
 				)}
 				<SlipPresets tips={presetTips} store={store} />

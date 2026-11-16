@@ -86,3 +86,39 @@ describe('SlipStore', () => {
 		expect(store.summary).toBeNull();
 	});
 });
+
+describe('SlipStore server sync (I23b)', () => {
+	const single = (store: SlipStore) => {
+		store.toggle(a);
+		store.setTippmixInput(a.id, '2,00');
+		return store.save(now)!;
+	};
+
+	it('records a single slip on the server and marks it synced', async () => {
+		const storage = memorySlipStorage();
+		const recordBet = vi.fn(async () => ({ id: 42 }));
+		const store = new SlipStore(storage, undefined, recordBet);
+		single(store);
+		await store.pending;
+		expect(recordBet).toHaveBeenCalledWith(expect.objectContaining({ fixtureId: a.fixtureId, oddTaken: 2, stake: store.stake }));
+		expect(store.lastSaved).toMatchObject({ sync: 'server', serverBetId: 42 });
+		expect(storage.load()[0]).toMatchObject({ sync: 'server', serverBetId: 42 });
+	});
+
+	it('keeps a combo local and marks a failed upload, without double-counting stakes', async () => {
+		const recordBet = vi.fn(async () => {
+			throw new Error('400');
+		});
+		const store = new SlipStore(memorySlipStorage(), undefined, recordBet);
+		store.toggle(a);
+		store.toggle(b);
+		store.setTippmixInput(a.id, '2');
+		store.setTippmixInput(b.id, '2');
+		expect(store.save(now)!.sync).toBe('local');
+		expect(recordBet).not.toHaveBeenCalled();
+		single(store);
+		await store.pending;
+		expect(recordBet).toHaveBeenCalledTimes(1);
+		expect(store.lastSaved!.sync).toBe('failed');
+	});
+});

@@ -170,8 +170,8 @@
       liga- és piacszűrő; idősor. _Ellenőrzés:_ screenshot; a mutatók egyeznek egy kézzel ellenőrzött mini-adatkészleten.
       _Részben:_ olvasó-API (`GET /api/evaluation?model=`, core `summarizeEvaluations`) kész (I17); web „Élő (DB)” blokk
       modellverzió-szűrővel kész (I17b); mobil blokk kész (I17c). Hátra: kalibrációs görbe/ítélet DB-ből, liga-/piacszűrő, idősor.
-- [ ] **5.6 Fogadás rögzítése:** `placed_bet` (Tippmix-odds, tét); „saját” ROI a modell ROI-ja mellett. _Ellenőrzés:_ integrációs
-      teszt; screenshot. _Részben:_ szerver kész (I23: `GET/POST /api/bets`, core `summarizeOwnBets`); hátra a UI (I23b).
+- [x] **5.6 Fogadás rögzítése:** `placed_bet` (Tippmix-odds, tét); „saját” ROI a modell ROI-ja mellett. _Ellenőrzés:_ integrációs
+      teszt; screenshot. _Részben:_ szerver kész (I23: `GET/POST /api/bets`, core `summarizeOwnBets`); UI: I23b (web szelvény-mentés → `POST /api/bets`, „Saját fogadások” a Kiértékelésen; mobil szelvény).
 - [x] **5.7 Odds-history nézet:** (`056c327`; I20b `c3bf6a9`: pillanatkép DB fixture-id-val) egy meccs snapshotjai, az odds
       mozgása, a legjobb iroda, a kimenetel. _Ellenőrzés:_ screenshot a legacy-json és az élő snapshotokkal.
 

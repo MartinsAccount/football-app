@@ -28,6 +28,8 @@ export interface SlipDraftTip {
 	minOdds: number;
 	ev: number;
 	modelVersion: string;
+	/** Snapshot-kimenet (a szerverre rögzítéshez, I23b). */
+	outcome?: string;
 }
 
 /** Pillanatkép-tétel → szelvény-tipp (az id a meccs-id, mint a weben: egy meccs = egy tipp). */
@@ -42,7 +44,8 @@ export const draftTipFromItem = (item: RecommendationItem): SlipDraftTip => ({
 	bestOdds: item.bestOdds,
 	minOdds: item.minOdds,
 	ev: item.ev,
-	modelVersion: item.modelVersion
+	modelVersion: item.modelVersion,
+	outcome: item.outcome
 });
 
 /** Beírt odds-szövegek tipp-id szerint. */
@@ -102,7 +105,8 @@ export const buildSavedSlip = (
 			pModel: tip.pModel,
 			minOdds: tip.minOdds,
 			tippmixOdds: tippmixOdds as number,
-			modelVersion: tip.modelVersion
+			modelVersion: tip.modelVersion,
+			...(tip.outcome ? { outcome: tip.outcome } : {})
 		}))
 	};
 };

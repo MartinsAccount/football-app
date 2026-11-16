@@ -6,6 +6,7 @@ import RemoteData from '../../components/PageIntro/RemoteData';
 import { readApi } from '../../services/readApi';
 import { CalibrationChart, CalibrationTable } from './CalibrationChart';
 import LiveEvaluation from './LiveEvaluation';
+import OwnBets from './OwnBets';
 import { AccuracyTable, GoalsTable, KpiRow, SegmentTable, VerdictBar } from './EvaluationSections';
 import {
 	calibrationAria,
@@ -150,6 +151,7 @@ const EvaluationPage = () => (
 			{(report) => <EvaluationView report={report} />}
 		</RemoteData>
 		<LiveEvaluation />
+		<OwnBets />
 	</div>
 );
 

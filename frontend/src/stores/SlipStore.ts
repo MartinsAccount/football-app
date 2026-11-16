@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx';
+import { action, computed, observable, runInAction } from 'mobx';
 import {
 	formatPairing,
 	ISavedSlip,
@@ -7,6 +7,8 @@ import {
 	savedSlipsCodec,
 	hasFixture,
 	parseOddsInput,
+	PlacedBetDraft,
+	slipToPlacedBet,
 	SlipLeg,
 	SlipSummary,
 	summarizeSlip,
@@ -42,6 +44,9 @@ export const localSlipStorage: ISlipStorage = {
 	save: (slips) => saveStoredSync(webStorage, savedSlipsCodec, slips)
 };
 
+/** Egy szingli szelvény rögzítése a szerveren (`POST /api/bets`, I23b); a szerver-oldali id-t adja vissza. */
+export type RecordBet = (bet: PlacedBetDraft) => Promise<{ id: number }>;
+
 export const memorySlipStorage = (initial: ISavedSlip[] = []): ISlipStorage => {
 	let slips = initial;
 	return { load: () => slips, save: (next) => (slips = next) };
@@ -63,7 +68,8 @@ export class SlipStore {
 
 	constructor(
 		private storage: ISlipStorage = localSlipStorage,
-		private getStakeOptions: () => readonly number[] = () => STAKE_OPTIONS
+		private getStakeOptions: () => readonly number[] = () => STAKE_OPTIONS,
+		private recordBet?: RecordBet
 	) {
 		this.saved = storage.load();
 		this.stake = this.stakeOptions[1] ?? DEFAULT_STAKE;
@@ -174,15 +180,43 @@ export class SlipStore {
 				pModel: tip.pModel,
 				minOdds: tip.minOdds,
 				tippmixOdds: tippmixOdds as number,
-				modelVersion: tip.modelVersion
+				modelVersion: tip.modelVersion,
+				outcome: tip.outcome
 			}))
 		};
+		const bet = this.recordBet ? slipToPlacedBet(slip) : null;
+		if (!bet) slip.sync = 'local';
 		this.saved = [...this.saved, slip];
 		this.storage.save(this.saved);
 		this.tips = [];
 		this.inputs.clear();
 		this.transferOpen = false;
 		this.lastSavedId = slip.id;
+		if (bet && this.recordBet) this.pending = this.syncSlip(slip.id, bet, this.recordBet);
 		return slip;
+	}
+
+	/** Az utolsó szerver-rögzítés ígérete (tesztekhez). */
+	pending: Promise<void> = Promise.resolve();
+
+	/**
+	 * Szingli szelvény → `placed_bet` (DECISIONS I23b); a helyi mentés offline-tartalék marad, hiba esetén `failed` jelzéssel.
+	 * TODO(polish): `failed`/I23b előtti szingli szelvények újrapróbálása.
+	 */
+	private syncSlip(id: string, bet: PlacedBetDraft, recordBet: RecordBet): Promise<void> {
+		const mark = (patch: Partial<ISavedSlip>) =>
+			runInAction(() => {
+				this.saved = this.saved.map((s) => (s.id === id ? { ...s, ...patch } : s));
+				this.storage.save(this.saved);
+			});
+		return recordBet(bet).then(
+			(dto) => mark({ sync: 'server', serverBetId: dto.id }),
+			() => mark({ sync: 'failed' })
+		);
+	}
+
+	/** Az utoljára mentett szelvény (visszajelzéshez). */
+	@computed get lastSaved(): ISavedSlip | undefined {
+		return this.saved.find((s) => s.id === this.lastSavedId);
 	}
 }

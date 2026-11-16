@@ -37,7 +37,11 @@ export class MainStore {
 			leagues: () => readApi.listLeagues().then((r) => r.leagues),
 			teams: (leagueId) => readApi.listLeagueTeams(leagueId)
 		});
-		this.SlipStore = new SlipStore(undefined, () => this.SettingsStore.stakeOptions);
+		this.SlipStore = new SlipStore(
+			undefined,
+			() => this.SettingsStore.stakeOptions,
+			(bet) => readApi.createPlacedBet(bet)
+		);
 		// Alapegység mentésekor (nem a piszkozatban) a tét az új egységre áll (a régi lépcső eleme már nem választható).
 		reaction(
 			() => this.SettingsStore.saved.stakeUnit,

@@ -19,6 +19,7 @@ export * from './slip/presets';
 export * from './slip/oneIn';
 export * from './slip/savedSlip';
 export * from './slip/draft';
+export * from './slip/placedBetSync';
 export * from './features/types';
 export * from './features/form';
 export * from './features/homeAway';

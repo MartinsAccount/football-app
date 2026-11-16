@@ -51,9 +51,7 @@ Floodlight v0.2 redesign: lezárva.
 29. ~~I21 – Budget-panel mobilon~~ kész (`/budget` képernyő, link a Beállításokból).
 30. ~~I22 – 8.1 Arbitrázsszámítás az odds-snapshotokból~~ kész (server `arbitrage.ts`, `/api/arbitrage` DB-ből, JSON-fallback).
 31. ~~I23 – 5.6 Fogadás rögzítése (szerver)~~ kész (`GET/POST /api/bets`, core `summarizeOwnBets`).
-32. I23b – 5.6 UI: a web/mobil szelvény-mentés (`savedSlipsCodec`, `buildSavedSlip`) szerverre kötése (`createPlacedBet`, a lábak
-    → egy-egy `placed_bet`; kombinált szelvény: lásd polish), saját ROI a kiértékelés-oldalon a modell mellett (`listPlacedBets`),
-    Vite-proxy `/api/bets`; screenshot 1440/390.
+32. ~~I23b – 5.6 UI: szelvény-mentés → `/api/bets` + saját ROI a Kiértékelésen~~ kész (web + mobil; csak szingli megy fel).
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -177,12 +175,17 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 /api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I22 – 8.1 Arbitrázs DB-snapshotból | `ce585ba`|`packages/server/src/arbitrage.ts` (`loadArbitrageSnapshot`, tiszta `buildArbitrageResponse`, core `scanMarket`), `withDbArbitrage`(DB → mentett JSON fallback), dev.ts bekötés; teszt memória-PGlite | | I21 – Budget-panel mobilon | feat(mobile): budget screen |`apps/mobile/src/app/budget.tsx` (`/budget`, link a Beállításokból), `BUDGET_CACHE_KEY`+`loadWithCache`offline-jelzéssel, core`budgetView` | | I20b – pillanatkép DB fixture-id |`c3bf6a9`|`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
 | |
 
+| I23b – 5.6 UI (web + mobil) | (lásd git log: feat: sync single slips to /api/bets) | core `slip/placedBetSync.ts` (`slipToPlacedBet`, `slipSyncText`, `ownBetsRows`, `ownBetsChip`), `ISavedSlip.sync/serverBetId`, láb `outcome`; web `SlipStore` (`RecordBet`, `lastSaved`), `SlipPanel` jelzés, `EvaluationPage/OwnBets.tsx`, Vite-proxy `bets`; mobil `slip.tsx`; screenshot `docs/plans/screens/i23b-kiertekeles-dark-{1440,390}.png` |
 | I23 – 5.6 Fogadás rögzítése (szerver) | `986708d` | core `evaluation/ownBets.ts` (`placedBetOutcome`, `settlePlacedBet`,
 `summarizeOwnBets`), db `SqlPlacedBetRepository` (`placedBets.ts`, `PlacedBetRefError`), server `placedBets.ts` + router
 `GET/POST /api/bets`, contract `PlacedBetInput`/`PlacedBetDto`/`PlacedBetsResponse` + `listPlacedBets`/`createPlacedBet`; terv
 `docs/plans/i23-placed-bet.md`; migráció nem kellett (0004) |
 
 ## Polish backlog
+
+- I23b: a `failed` és az I23b előtti szingli szelvények nincsenek újrapróbálva; a kombinált szelvény nem kerül a saját ROI-ba
+  (`placed_bet` séma-bővítés `slip_id`-vel kellene); a „Saját fogadások” blokkban nincs fogadáslista/időszak-szűrő; a Ft-profit
+  előjel nélkül; a mobilon nincs saját-ROI nézet; `predictionId` nem megy fel (a modell „ugyanezeken” sora így üres).
 
 - I23: törlés/szerkesztés nincs (elírt tipp nem javítható); kombinált szelvény (több láb, egy tét) nincs modellezve – csak egyes
   tippek; BTTS és más piac függő marad (nincs elszámolás); a saját ROI nem bontható modellverzióra/ligára; a `/api/bets` lapozás
@@ -366,6 +369,11 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I23b kész.** Mentéskor a szingli szelvény → core `slipToPlacedBet` → `createPlacedBet` (web `SlipStore` 3. ctor-param
+  `RecordBet`, mobil `slip.tsx`); `sync: server|local|failed` a helyi `oe_saved_slips`-ben. Kombinált szelvény csak helyben
+  (DECISIONS I23b). Kiértékelés: `OwnBets.tsx` (`GET /api/bets`, core `ownBetsRows`). Vite-proxy `/api/bets` → :5100. A szelvényen
+  nincs `predictionId` → a „Modell ugyanezeken” sor üres. Következő: a ROADMAP következő nyitott szelete.
 
 - **I23 kész (szerver).** `placed_bet` (0004, új migráció nem kellett) ← `SqlPlacedBetRepository.insert/list`
   (hivatkozás-ellenőrzés: `PlacedBetRefError` → 400). Elszámolás core `placedBetOutcome`: kapcsolt predikció `evaluation`-je, ha
