@@ -180,7 +180,7 @@
 
 - [x] **6.0 Terv:** `docs/plans/model-v1.md` — I25 (autonóm munkamód, DECISIONS) (a paraméterek, az illesztés, a
       backtest-protokoll, a holdout), a tulajdonos jóváhagyásával.
-- [x] **6.1 Elo (M1)** + ordinális logit, tesztekkel — I25 (`model/ordinalLogit.ts`, `elo-logit@1.0.0`, shadow előtt; az Elo:
+- [x] **6.1 Elo (M1)** + ordinális logit, tesztekkel — I25 `9fb57a2` (`model/ordinalLogit.ts`, `elo-logit@1.0.0`, shadow előtt; az Elo:
       `4757d41`). _Ellenőrzés:_ unit-tesztek; az illesztés reprodukálható seed-del.
 - [x] **6.2 Poisson / Dixon–Coles (M2)** — `4757d41` (fix paraméterek, `elo-poisson@0.1.0`; ML-illesztés a 6.3 után) +
       eredménymátrix → 1X2, O/U 2.5 (BTTS előkészítve). _Ellenőrzés:_ unit-tesztek (a mátrix összege 1; a piacok konzisztensek).

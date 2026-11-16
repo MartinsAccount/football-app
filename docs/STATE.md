@@ -191,7 +191,7 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 /api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I22 – 8.1 Arbitrázs DB-snapshotból | `ce585ba`|`packages/server/src/arbitrage.ts` (`loadArbitrageSnapshot`, tiszta `buildArbitrageResponse`, core `scanMarket`), `withDbArbitrage`(DB → mentett JSON fallback), dev.ts bekötés; teszt memória-PGlite | | I21 – Budget-panel mobilon | feat(mobile): budget screen |`apps/mobile/src/app/budget.tsx` (`/budget`, link a Beállításokból), `BUDGET_CACHE_KEY`+`loadWithCache`offline-jelzéssel, core`budgetView` | | I20b – pillanatkép DB fixture-id |`c3bf6a9`|`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
 | |
 
-| I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit | (lásd git log: feat(core): add ordinal logit) | terv
+| I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit | `9fb57a2` | terv
 `docs/plans/model-v1.md`; core `model/ordinalLogit.ts` (`fitOrdinalLogit`, `ordinalLogitProbabilities`, `eloLogitSamples`,
 `eloDiff`, `eloLogitPrediction`, `ELO_LOGIT_VERSION`) + 7 teszt; db `scripts/backtest-elo-logit.ts`
 (`npm run backtest:elo-logit -w @football/db`); holdout 2024 1X2 LL: M1 0,9905 / v0 0,9959 / nyitó 0,9640 / záró 0,9608; pipeline
