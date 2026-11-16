@@ -75,7 +75,9 @@
       `/api/*` csak bejelentkezve érhető el. _Ellenőrzés:_ bejelentkezés nélkül 401 vagy a platform belépési oldala jön;
       bejelentkezve a `/api/budget` válaszol.
 - [ ] **1.7 Ütemező váz:** `/api/cron/tick` (`CRON_SECRET`, advisory lock, no-op worker), 15 perces ütemezés (Schedules, vagy
-      tartalékként külső pinger). _Ellenőrzés:_ 24 óra alatt kb. 96 tick látszik a naplóban, átfedő futás nincs.
+      tartalékként külső pinger). _Ellenőrzés:_ 24 óra alatt kb. 96 tick látszik a naplóban, átfedő futás nincs. _(Részben: a váz
+      lokálisan kész – I1, `packages/server/src/cron.ts`, `cron_run` napló, `npm run tick -w @football/server`; a Vercel-schedule
+      és a `CRON_SECRET` az 1.6-tal, BLOCKERS.)_
 - [x] **1.8 A frontend átállítása:** az `/odds` oldal az új végpontokból olvas; a `FetchService*` és az `ApiURLs.FOOTBALL`
       megszűnik a frontendben (az arbitrázsoldal a 8. fázisig a régi úton marad). _Ellenőrzés:_ a böngésző hálózati naplójában
       nincs külső API-hívás. _Állapot:_ kész (SB3 odds-statisztika, SB6 a legacy FixturePage törölve); a

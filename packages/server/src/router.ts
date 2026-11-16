@@ -26,6 +26,8 @@ export interface ApiDeps {
 	auth?: AuthConfig;
 	/** Pillanatkép-végpontok forrása (`/api/recommendations|backtest|arbitrage`). Hiányában ezek 404-et adnak. */
 	snapshots?: SnapshotSource;
+	/** Ütemező (`/api/cron/*`, `createCronHandler`): saját `CRON_SECRET`-védelme van, az app-auth nem vonatkozik rá. */
+	cron?: (req: Request) => Promise<Response>;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -114,6 +116,7 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 	return async (req) => {
 		const url = new URL(req.url);
 		const path = url.pathname.replace(/\/+$/, '');
+		if (deps.cron && path.startsWith('/api/cron/')) return deps.cron(req);
 		if (deps.auth) {
 			const auth = await authorize(req, deps.auth);
 			if (!auth.ok) return fail(401, 'unauthorized', auth.message, { 'www-authenticate': 'Bearer' });

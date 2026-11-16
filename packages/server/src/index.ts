@@ -4,4 +4,6 @@ export { toNodeListener } from './node';
 export { fileSnapshotSource, SNAPSHOT_FILES } from './snapshots';
 export type { SnapshotSource } from './snapshots';
 export { authorize, authConfigFromEnv, hashToken } from './auth';
+export { createCronHandler, createTickRunner, cronAuthorize, cronConfigFromEnv, noopWorker, TICK_BUDGET_MS } from './cron';
+export type { CronConfig, TickDeps, TickOutcome, TickWorker } from './cron';
 export type { AuthConfig, AuthResult, Authorizer } from './auth';

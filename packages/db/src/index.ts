@@ -5,6 +5,8 @@ export type { PgExecutor } from './pg';
 export type { Repository } from './repository';
 export { SqlRepository } from './sqlRepository';
 export { openMemoryRepository } from './memory';
+export { CRON_LOCK_KEY, SqlCronStore } from './cron';
+export type { CronRun, CronRunResult, CronRunStatus, CronStore } from './cron';
 export { openTarget, parseTargetArgs } from './target';
 export type { Target, TargetOptions } from './target';
 export * from './types';
