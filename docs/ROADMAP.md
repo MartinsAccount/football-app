@@ -184,6 +184,9 @@
       `4757d41`). _Ellenőrzés:_ unit-tesztek; az illesztés reprodukálható seed-del.
 - [x] **6.2 Poisson / Dixon–Coles (M2)** — `4757d41` (fix paraméterek, `elo-poisson@0.1.0`; ML-illesztés a 6.3 után) +
       eredménymátrix → 1X2, O/U 2.5 (BTTS előkészítve). _Ellenőrzés:_ unit-tesztek (a mátrix összege 1; a piacok konzisztensek).
+- [x] **6.2b Dixon–Coles ML-illesztés (M2) + backtest v1** — I26 `68fa359` (`model/dixonColesFit.ts`, `dixon-coles@1.0.0`;
+      riport `docs/analysis/backtests/2026-11-16-model-v1.md`: holdout 1X2 LL M2 0,9857 / M1 0,9905 / v0 0,9959 / záró 0,9608).
+      _Ellenőrzés:_ paraméter-visszanyerés szintetikus mintán; determinisztikus riport.
 - [x] **6.3 Backtest CLI** — S15 (riport: `docs/analysis/backtest-v0.md`, JSON: `data/backtest/backtest-v0.json`) (walk-forward,
       2022–2023 tanítás, 2024 holdout), riport: Brier, log-loss, kalibráció, ROI és CLV a CSV-oddsokkal. _Ellenőrzés:_ a riport a
       `docs/analysis/backtests/<dátum>-<modell>.md`-be kerül; a futás determinisztikus.

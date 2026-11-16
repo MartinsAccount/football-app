@@ -17,6 +17,7 @@
 		"import:odds-csv": "vite-node scripts/import-odds-csv.ts",
 		"backtest": "vite-node scripts/backtest.ts",
 		"backtest:elo-logit": "vite-node scripts/backtest-elo-logit.ts",
+		"backtest:v1": "vite-node scripts/backtest-model-v1.ts",
 		"recommendations": "vite-node scripts/recommendations.ts",
 		"arbitrage": "vite-node scripts/arbitrage.ts",
 		"db:migrate": "vite-node scripts/db-migrate.ts"

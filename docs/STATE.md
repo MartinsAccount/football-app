@@ -60,9 +60,8 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 
 33. ~~I24 – 8.3 Arbitrázsoldal: a régi `ArbitrageStore`/`FetchService`/`localStorage`-út kivezetése~~ kész (`e375c40`).
 34. ~~I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit (core)~~ kész (`elo-logit@1.0.0`, holdout LL 0,9905 vs. v0 0,9959).
-35. **I26 – 6.2b Dixon–Coles ML-illesztés + backtest v1.** core `model/dixonColesFit.ts` (támadó/védő erő + ρ + hazai előny,
-    időbeli súlyozás), `elo-poisson@0.2.0`; `npm run backtest` v1 riport `docs/analysis/backtests/<dátum>-model-v1.md` a v0
-    mellett. ~6 fájl.
+35. ~~I26 – 6.2b Dixon–Coles ML-illesztés + backtest v1~~ kész (`dixon-coles@1.0.0`, holdout 1X2 LL 0,9857; riport
+    `docs/analysis/backtests/2026-11-16-model-v1.md`).
 36. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
 37. **I28 – 7.5b Double Chance + gólvonalak (1,5 / 3,5).** ugyanígy; a `market` referencia-sorok mockból. ~8 fájl.
@@ -191,6 +190,12 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 /api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I22 – 8.1 Arbitrázs DB-snapshotból | `ce585ba`|`packages/server/src/arbitrage.ts` (`loadArbitrageSnapshot`, tiszta `buildArbitrageResponse`, core `scanMarket`), `withDbArbitrage`(DB → mentett JSON fallback), dev.ts bekötés; teszt memória-PGlite | | I21 – Budget-panel mobilon | feat(mobile): budget screen |`apps/mobile/src/app/budget.tsx` (`/budget`, link a Beállításokból), `BUDGET_CACHE_KEY`+`loadWithCache`offline-jelzéssel, core`budgetView` | | I20b – pillanatkép DB fixture-id |`c3bf6a9`|`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
 | |
 
+| I26 – 6.2b Dixon–Coles ML + backtest v1 | `68fa359` (core) + docs/scripts (lásd git log) | core `model/dixonColesFit.ts`
+(`fitDixonColes`, `dixonColesPredict`, `dixonColesWalkForward`, `DIXON_COLES_VERSION`) + 7 teszt (paraméter-visszanyerés);
+`backtest.ts` `pickValueBet` export; db `scripts/backtestData.ts` (közös CSV-betöltő; v0/M1 kimenet bájtra azonos),
+`scripts/backtest-model-v1.ts` (`npm run backtest:v1 -w @football/db`) → `docs/analysis/backtests/2026-11-16-model-v1.md`; holdout 1X2
+LL M2 0,9857 / M1 0,9905 / v0 0,9959 / záró 0,9608; O/U M2 0,6791 / v0 0,6808 / záró 0,6652; pipeline változatlan |
+
 | I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit | `9fb57a2` | terv
 `docs/plans/model-v1.md`; core `model/ordinalLogit.ts` (`fitOrdinalLogit`, `ordinalLogitProbabilities`, `eloLogitSamples`,
 `eloDiff`, `eloLogitPrediction`, `ELO_LOGIT_VERSION`) + 7 teszt; db `scripts/backtest-elo-logit.ts`
@@ -210,8 +215,10 @@ migráció nem kellett (0004) |
 
 ## Polish backlog
 
-- I25: a `backtest-elo-logit.ts` duplikálja a CSV → `BacktestMatch` betöltést a `backtest.ts`-ből (I26-ban közös modulba); az M1
-  Elo-paraméterei (K, H) nincsenek hangolva (csak 2022–2023-on szabad).
+- I26: M2 feljutó csapatai att = def = 0-ról indulnak (ligaátlag; másodosztályos adat nincs) – feljutó-prior (pl. a kieső csapatok
+  átlaga) javíthatna; a Hesse-közelítés a τ kereszttagjait elhagyja (lassabb konvergencia, eredmény ugyanaz); a v1-riport fájlneve
+  fix dátumú (új futtatáshoz a scriptben átírni); az M1 Elo-paraméterei (K, H) továbbra sincsenek hangolva; a piaci kombinálás
+  (`w`) és az EV-küszöb CLV-alapú hangolása még nincs (strategy.md).
 
 - I24: a `MainStore.fetchNumber` mindig 0 – a `BudgetChip` `localCalls`/`fixture` propja és a `dataMode.ts` kivezethető (a fejléc
   csak a `/api/budget`-ből dolgozzon); a `frontend/src/data/*.json` mentett API-válaszokat már semmi nem tölti be (adat → a
@@ -406,10 +413,11 @@ migráció nem kellett (0004) |
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
-- **I25 kész (6.0 + 6.1).** Terv: `docs/plans/model-v1.md` (protokoll: tanítás 2022–2023, holdout 2024 zárolt, páros 1X2
-  LL/Brier). Core `model/ordinalLogit.ts`: kumulatív logit `x = (R_h+H−R_a)/400`, ML-Newton, determinisztikus; `elo-logit@1.0.0`
-  nincs a pipeline-ban (6.5 🔶). Holdout: M1 0,9905 / v0 0,9959 / záró 0,9608 LL. Következő: I26 (Dixon–Coles ML + backtest v1
-  riport; a CSV-betöltést közös modulba, és az M1 is kerüljön a v1-riportba).
+- **I26 kész (6.2b).** Core `model/dixonColesFit.ts` (`dixon-coles@1.0.0`: att/def csapatonként, μ/γ ligánként, ρ, ξ = 0,002/nap,
+  ridge = 4, walk-forward napi újraillesztés). Riport: `npm run backtest:v1 -w @football/db` (~1 perc) →
+  `docs/analysis/backtests/2026-11-16-model-v1.md`. Holdout 1X2 LL: M2 0,9857 / M1 0,9905 / v0 0,9959 / záró 0,9608; O/U: M2 0,6791
+  / v0 0,6808 / záró 0,6652. Értéktipp-ROI mindenhol negatív → élesítés (6.5 🔶) a tulajdonosé, a pipeline a v0-t futtatja. A
+  CSV-betöltés közös: `packages/db/scripts/backtestData.ts`. Következő: I27 (BTTS piac végig).
 
 - **I24 kész (8.3).** A frontend már nem hív külső API-t: törölve a `LegacyArbitragePage` + `components/`/`models/`/`services/`/
   `stores/` (Arbitrázs), `FetchService(3)`, `ApiURLs`, `services/fixtures/`, `LocalStorageUtil`, a csak ezek által használt
