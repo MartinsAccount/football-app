@@ -5,6 +5,7 @@ import EmptyState from '../../components/PageIntro/EmptyState';
 import RemoteData from '../../components/PageIntro/RemoteData';
 import { readApi } from '../../services/readApi';
 import { CalibrationChart, CalibrationTable } from './CalibrationChart';
+import LiveEvaluation from './LiveEvaluation';
 import { AccuracyTable, GoalsTable, KpiRow, SegmentTable, VerdictBar } from './EvaluationSections';
 import {
 	calibrationAria,
@@ -29,7 +30,7 @@ interface IEvaluationPageState {
  * `/evaluation` – Kiértékelés (PRD 5.8, CHANGES 3.) a walk-forward backtest riportjából (olvasó API `/api/backtest`, SB5;
  * `npm run backtest -w @football/db`; 0 külső hívás). Sorrend (DESIGN §2 „Ítélet előbb”): fej → ítélet-sáv → sikermutatók →
  * KPI-k → pontosság → kalibráció → bontás. Az ítélet és a célok a core `evaluationVerdict`-ből.
- * TODO(polish): élő predikció-napló (DB `prediction`); időbeli ROI-görbe; szegmentált kalibráció (a backtest nem adja).
+ * Alatta az „Élő (DB)” blokk (`LiveEvaluation`, I17b). TODO(polish): időbeli ROI-görbe; szegmentált kalibráció (a backtest nem adja).
  */
 class EvaluationView extends Component<{ report: BacktestReport }, IEvaluationPageState> {
 	report = this.props.report;
@@ -142,10 +143,14 @@ class EvaluationView extends Component<{ report: BacktestReport }, IEvaluationPa
 	}
 }
 
+// A backtest-pillanatkép alá kerül a DB-ben tárolt kiértékelés (I17b); a kettő egymástól függetlenül tölt.
 const EvaluationPage = () => (
-	<RemoteData title="Kiértékelés" load={readApi.getBacktest}>
-		{(report) => <EvaluationView report={report} />}
-	</RemoteData>
+	<div className="oe-stack">
+		<RemoteData title="Kiértékelés" load={readApi.getBacktest}>
+			{(report) => <EvaluationView report={report} />}
+		</RemoteData>
+		<LiveEvaluation />
+	</div>
 );
 
 export default EvaluationPage;

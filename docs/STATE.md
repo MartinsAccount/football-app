@@ -37,10 +37,12 @@ Floodlight v0.2 redesign: lezárva.
 15. ~~I15 – 5.3 Kiértékelő job~~ kész.
 16. ~~I16 – 2.2 Liga-katalógus~~ kész.
 17. ~~I17 – 5.5 Kiértékelő olvasó-API DB-ből~~ kész (`GET /api/evaluation?model=`).
-18. **I17b – 5.5 Kiértékelés-oldal bekötése:** a web Kiértékelés-oldal (és ha olcsó, a mobil `evaluation.tsx`) a
-    `client.getEvaluation(model?)`-ból egy „Élő (DB)” blokkot/fület kap a backtest-pillanatkép **mellé** (DECISIONS I17);
-    modellverzió-választó a `modelVersions`-ből; üres DB → üres állapot. DESIGN.md, screenshot 1440/390.
-19. **I18 – 2.3 Beállítások UI:** ligák a `league`/`season` katalógusból, `coverage` jelzések, becsült napi hívásköltség.
+18. ~~I17b – 5.5 Kiértékelés-oldal bekötése (web)~~ kész (`LiveEvaluation` „Élő (DB)” blokk).
+19. **I17c – 5.5 mobil „Élő (DB)” blokk:** `apps/mobile/src/app/evaluation.tsx` alá ugyanaz a blokk
+    `client.getEvaluation(model?)`-ból (KPI-k + piac-sorok `marketLabel`-lel, modellverzió-chipek, üres állapot); a web
+    `liveEvaluationView.ts` formázói a core-ba emelhetők (`evaluation/labels.ts`), hogy a mobil is használja.
+    `cd apps/mobile && npx tsc --noEmit`.
+20. **I18 – 2.3 Beállítások UI:** ligák a `league`/`season` katalógusból, `coverage` jelzések, becsült napi hívásköltség.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -165,9 +167,16 @@ terv `docs/plans/i15-evaluation-job.md` | | I16 – liga-katalógus (2.2) | (lá
 job) | `reference.ts` `/leagues` ág (`toLeagueRows`, `upsertLeagues`, `upsertSeasons`), core planner `reference:leagues:<hét>`,
 `referenceMocks.ts` `leaguesEnvelopeFromFixtures` | | I17 – kiértékelő olvasó-API (5.5) | (lásd git log: feat(server): add
 evaluation read API) | core `evaluation/dbSummary.ts` (`summarizeEvaluations`, `scoreProbabilities`), server
-`loadEvaluationRecords`, `GET /api/evaluation?model=`, contract `getEvaluation`; terv `docs/plans/evaluation-db-api.md` |
+`loadEvaluationRecords`, `GET /api/evaluation?model=`, contract `getEvaluation`; terv `docs/plans/evaluation-db-api.md` | | I17b –
+Kiértékelés „Élő (DB)” blokk (web) | (lásd git log: feat(ui): add live DB evaluation block) | `EvaluationPage/LiveEvaluation.tsx`,
+`liveEvaluationView.ts` (+teszt), Vite-proxy `/api/evaluation`; screenshot
+`docs/plans/screens/I17b-evaluation-dark-{1440,390}.png` |
 
 ## Polish backlog
+
+- I17b: az „Élő (DB)” blokk csak KPI + piac-tábla; kalibrációs grafikon, ítélet-sáv és sikermutatók a DB-adatból még nincsenek; a
+  modellverzió-választó a szekciófejben elcsúszva ül (saját sor / jobbra igazítás); csak sötét téma screenshot, adat nélküli
+  (üres) állapotról; a Vite-proxy `/api/settings`-et még a régi backendre küldi.
 
 - I17: az összesítés a core-ban fut a teljes sorlistán (SQL-aggregálás, ha nagy); liga-/piacszűrő és idősor még nincs az API-ban
   (ROADMAP 5.5); a piacok csak `marketId`-vel (név a kliensen).
@@ -310,6 +319,13 @@ evaluation read API) | core `evaluation/dbSummary.ts` (`summarizeEvaluations`, `
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I17b kész (web).** `/evaluation` alján `LiveEvaluation` (osztálykomponens, saját betöltés): `readApi.getEvaluation(model)`,
+  modellverzió-`select` (`modelOptions`: '' = mind), `records === 0` → EmptyState, különben `KpiRow(kpis(bets))` + piac-tábla
+  (`liveMarketRows`, piacnév: core `marketLabel`). A backtest és az élő blokk egymástól függetlenül tölt. Vite-proxy: `evaluation`
+  hozzáadva a :5100-as listához. A helyi PGlite-ban 0 kiértékelés → csak az üres állapot látszik. Screenshot: CDP
+  `Emulation.setDeviceMetricsOverride` (a `--window-size=390` headless Edge-ben szélesebb viewportot ad). Következő: I17c (mobil),
+  I18.
 
 - **I17 kész (5.5 API).** `GET /api/evaluation?model=<verzió>` → `EvaluationSummaryResponse` (= core `EvaluationSummary`):
   `modelVersions` (szűrés előtti), `predictions` (Brier/log-loss **csoportonként – futás×meccs×piac×vonal – 1 sorral**,

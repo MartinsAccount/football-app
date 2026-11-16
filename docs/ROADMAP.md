@@ -166,7 +166,8 @@
       minimális vállalható odds. _Ellenőrzés:_ screenshot mock adattal; az oldal betöltése 0 külső hívás.
 - [ ] **5.5 Kiértékelő dashboard:** találati arány vs. várt, ROI (flat), Brier, log-loss, kalibrációs görbe, CLV; modellverzió-,
       liga- és piacszűrő; idősor. _Ellenőrzés:_ screenshot; a mutatók egyeznek egy kézzel ellenőrzött mini-adatkészleten.
-      _Részben:_ olvasó-API (`GET /api/evaluation?model=`, core `summarizeEvaluations`) kész (I17); UI-bekötés: I17b.
+      _Részben:_ olvasó-API (`GET /api/evaluation?model=`, core `summarizeEvaluations`) kész (I17); web „Élő (DB)” blokk
+      modellverzió-szűrővel kész (I17b); mobil: I17c.
 - [ ] **5.6 Fogadás rögzítése:** `placed_bet` (Tippmix-odds, tét); „saját” ROI a modell ROI-ja mellett. _Ellenőrzés:_ integrációs
       teszt; screenshot.
 - [ ] **5.7 Odds-history nézet:** egy meccs snapshotjai, az odds mozgása, a legjobb iroda, a kimenetel. _Ellenőrzés:_ screenshot a
