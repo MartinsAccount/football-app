@@ -40,9 +40,7 @@ Floodlight v0.2 redesign: lezárva.
 18. ~~I17b – 5.5 Kiértékelés-oldal bekötése (web)~~ kész (`LiveEvaluation` „Élő (DB)” blokk).
 19. ~~I17c – 5.5 mobil „Élő (DB)” blokk~~ kész (formázók: core `evaluation/liveView.ts`).
 20. ~~I18a – 2.3 Beállítások ↔ `/api/settings` (web)~~ kész.
-21. **I18b – 2.3 Liga-katalógus a Beállításokban:** `GET /api/leagues` (`league` + aktuális `season` + `coverage`, csapatszám a
-    `season_team`-ből) server + contract (`listLeagues`); a web Ligák-lista és a `missingCoverage` ebből (a kézi `SETTINGS_LEAGUES`
-    tartalék), a becslés a katalógus csapatszámával. Terv: `docs/plans/i18-settings-ui.md`.
+21. ~~I18b – 2.3 Liga-katalógus a Beállításokban~~ kész (`GET /api/leagues`, core `leagueCatalog`).
 22. **I18c – 2.3 Csapatszűrő UI:** `team_filter` include/exclude a követett ligák csapataiból (web), a `teamFilters` a PUT-ban.
 23. **I18d – mobil Beállítások ↔ `/api/settings`:** a core `settings/remote.ts` a `PreferencesProvider`-ben.
 
@@ -82,7 +80,8 @@ tételek).
 3. Sérültlista-lefedettség: nincs strukturált jelző → a chip csak `warnings`/`source` alapján.
 4. Szegmentált kalibráció: a backtest csak piaconként ad kalibrációt → „összesített adat” pill.
 5. API `/predictions` baseline (PRD 9): nincs adat → nem szerepel a sikermutatók közt.
-6. Liga-coverage a Beállításokban: kézi katalógus (`SETTINGS_LEAGUES`), nem a `/leagues` válaszából.
+6. Liga-coverage a Beállításokban: a DB `season.coverage`-éből (I18b); a helyi PGlite-ban nincs tárolt coverage (a mock
+   `reference:leagues` fixture-ből származtat) → nincs jelzés, amíg egy `leagues.json` mock vagy élő hívás nem tölti.
 
 ## Kész
 
@@ -178,8 +177,14 @@ live DB evaluation block) | core `evaluation/liveView.ts` (+teszt, a web `liveEv
 `settings/remote.ts` (`settingsFromRemote`, `settingsUpdateFrom`, `SETTINGS_MARKET_IDS`; +teszt), `SettingsStore` `ISettingsRemote` +
 `syncStatus`/`saving`/`saveError`, MainStore → `readApi`, Vite-proxy `/api/settings` → :5100, szinkron-pill + SaveBar-hiba; terv
 `docs/plans/i18-settings-ui.md`; screenshot `docs/plans/screens/I18a-settings-dark-{1440,390}.png` |
+| I18b – Liga-katalógus a Beállításokban | a9ac420 (server) + (lásd git log: feat(ui): list leagues from the league catalog API) | server `leagues.ts` (`loadLeagueCatalog`, `toCoverageDto`; +PGlite-teszt), router `GET /api/leagues`, contract `LeagueDto`/`listLeagues`; core `leagueCatalog` (kézi jelöltek + DB csapatszám/coverage + adatos/követett DB-ligák), `estimateSettings(s, catalog)`, `missingCoverage` csak `false`-ra, a kézi `SETTINGS_LEAGUES` coverage-e `null`, `sanitizeSettings` bármely pozitív egész liga-id-t elfogad; `SettingsStore.loadCatalog`/`leagues`; Vite-proxy `leagues`; screenshot `docs/plans/screens/I18b-settings-dark-{1440,390}.png` |
 
 ## Polish backlog
+
+- I18b: a `/api/leagues` a teljes `league` táblát adja (szűrés/keresés/lapozás nincs; ~1000 ligánál kell); a DB-katalógus
+  extra ligái csak akkor jelennek meg, ha van csapatszám vagy követjük őket (keresővel lehetne hozzáadni); a fixture-ből
+  mért csapatszám eltérhet (Bundesliga/Ligue 1: 19 a helyi adatban – `season_team` pontosabb); ismeretlen csapatszám → 20
+  (`FALLBACK_LEAGUE_TEAMS`); a mobil lista még a kézi katalógusból (coverage nélkül) – I18d; csak sötét téma screenshot.
 
 - I18a: offline mentés csak helyi (újrakapcsolódáskor nincs feltöltés/ütközés-feloldás); a DB-ben hiányzó piac/iroda sor
   csak helyben jelölhető (a `reference` job tölti); friss DB-ben 0 követett liga → üres lista + figyelmeztetés (nincs „alap 5
@@ -334,6 +339,11 @@ live DB evaluation block) | core `evaluation/liveView.ts` (+teszt, a web `liveEv
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I18b kész.** `GET /api/leagues` (server `leagues.ts`, dev.ts bekötve), contract `listLeagues()`; a web `SettingsStore.leagues`
+  = core `leagueCatalog(catalogRows, saved.leagues)`, a becslés ezzel számol. A `sanitizeSettings` már nem szűr a kézi listára
+  (liga-id = pozitív egész, bemeneti sorrend). Következő: I18c (csapatszűrő UI: `team_filter` a követett ligák csapataiból;
+  a csapatokhoz új olvasó-végpont kell, pl. `/api/leagues/:id/teams` a `season_team`-ből).
 
 - **I18a kész.** A web `SettingsStore` a `MainStore`-ban `readApi.getSettings/updateSettings`-szel szinkronizál (`sync()` flow,
   `syncStatus`), a localStorage csak gyorsítótár; a `save()` most flow (Promise), PUT csak a diffet (`settingsUpdateFrom`). A lap

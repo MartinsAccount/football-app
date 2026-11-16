@@ -3,6 +3,9 @@ import {
 	estimateSettings,
 	ISettings,
 	ISettingsEstimate,
+	ISettingsLeague,
+	LeagueCatalogRow,
+	leagueCatalog,
 	ISettingsWarning,
 	NumberField,
 	Retention,
@@ -44,6 +47,8 @@ export const localSettingsStorage: ISettingsStorage = {
 export interface ISettingsRemote {
 	load(): Promise<RemoteSettingsShape>;
 	update(update: RemoteSettingsUpdate): Promise<RemoteSettingsShape>;
+	/** Liga-katalógus (`GET /api/leagues`, I18b); hiányában vagy hibánál a kézi lista marad. */
+	leagues?(): Promise<readonly LeagueCatalogRow[]>;
 }
 
 /** `off`: nincs szerver bekötve · `loading` · `synced`: a szerver az igazság · `offline`: nem érhető el, csak localStorage. */
@@ -62,13 +67,33 @@ export class SettingsStore {
 	@observable syncStatus: SettingsSyncStatus = 'off';
 	@observable saving = false;
 	@observable saveError: string | null = null;
+	/** A szerver liga-katalógusa; `null` = nincs (még) betöltve → a kézi `SETTINGS_LEAGUES`. */
+	@observable.ref catalogRows: readonly LeagueCatalogRow[] | null = null;
 	/** Az utolsó szerver-válasz (a PUT-diffhez: mely piac/iroda sor létezik a DB-ben). */
 	private remoteState: RemoteSettingsShape | null = null;
 
 	constructor(private storage: ISettingsStorage = localSettingsStorage, private remote?: ISettingsRemote) {
 		this.saved = sanitizeSettings(storage.load());
 		this.draft = this.saved;
-		if (remote) this.sync();
+		if (remote) {
+			this.sync();
+			this.loadCatalog();
+		}
+	}
+
+	/** A katalógus a beállításoktól függetlenül töltődik; hiba esetén csendben a kézi lista marad (az `offline` pill jelzi a szervert). */
+	loadCatalog = flow(function* (this: SettingsStore) {
+		if (!this.remote?.leagues) return;
+		try {
+			this.catalogRows = yield this.remote.leagues();
+		} catch {
+			this.catalogRows = null;
+		}
+	});
+
+	/** A Ligák-lista és a becslés katalógusa: kézi jelöltek + DB-ligák (csapatszám, coverage). */
+	@computed get leagues(): ISettingsLeague[] {
+		return leagueCatalog(this.catalogRows, this.saved.leagues);
 	}
 
 	/** Szerver-állapot betöltése; a localStorage gyorsítótár marad (első festés, offline). Szerkesztett piszkozatot nem ír felül. */
@@ -94,11 +119,11 @@ export class SettingsStore {
 
 	/** A piszkozat becslése (az űrlap ezt mutatja). */
 	@computed get estimate(): ISettingsEstimate {
-		return estimateSettings(this.draft);
+		return estimateSettings(this.draft, this.leagues);
 	}
 
 	@computed get savedEstimate(): ISettingsEstimate {
-		return estimateSettings(this.saved);
+		return estimateSettings(this.saved, this.leagues);
 	}
 
 	/** Mentés-sáv: „Napi hívás: 17 → 21 · Tárhely/szezon: 17,5 → 20,1 MB”. */

@@ -15,17 +15,17 @@ import {
 } from './settingsView';
 
 describe('settingsView', () => {
-	it('sanitizes stored settings: unknown ids drop, bad numbers fall back to defaults', () => {
+	it('sanitizes stored settings: unknown market ids drop, league ids must be positive integers, bad numbers fall back to defaults', () => {
 		expect(sanitizeSettings(null)).toEqual(DEFAULT_SETTINGS);
 		const s = sanitizeSettings({
-			leagues: [39, 999],
+			leagues: [39, 999, 0, 'x'],
 			markets: ['h2h', 'xx'],
 			evThreshold: -1,
 			minOdds: 5,
 			maxOdds: 2,
 			stakeUnit: 123
 		});
-		expect(s.leagues).toEqual([39]);
+		expect(s.leagues).toEqual([39, 999]);
 		expect(s.markets).toEqual(['h2h']);
 		expect(s.evThreshold).toBe(DEFAULT_SETTINGS.evThreshold);
 		expect([s.minOdds, s.maxOdds]).toEqual([DEFAULT_SETTINGS.minOdds, DEFAULT_SETTINGS.maxOdds]);
@@ -72,7 +72,7 @@ describe('settingsView', () => {
 	it('lists only the missing coverage items', () => {
 		const full = SETTINGS_LEAGUES.find((l) => l.id === 39)!;
 		expect(missingCoverage(full)).toEqual([]);
-		expect(missingCoverage(SETTINGS_LEAGUES.find((l) => l.id === 271)!)).toEqual(['Sérültek nincs']);
+		expect(missingCoverage({ ...full, coverage: { odds: true, injuries: false, statistics: null } })).toEqual(['Sérültek nincs']);
 		expect(missingCoverage({ ...full, coverage: { odds: false, injuries: true, statistics: false } })).toEqual([
 			'Odds nincs',
 			'Statisztika nincs'

@@ -152,7 +152,30 @@ describe('SettingsStore', () => {
 			store.toggleLeague(39);
 			await store.save();
 			expect(store.saveError).toBeNull();
-			expect((storage.saved() as ISettings).leagues).toEqual([39, 140]);
+			expect((storage.saved() as ISettings).leagues).toEqual([140, 39]);
+		});
+
+		it('lists the league catalog from the server and estimates with its team counts (I18b)', async () => {
+			const store = new SettingsStore(memory({ leagues: [203] }), {
+				load: async () => response({ followedLeagues: [{ leagueId: 203, enabled: true }] }),
+				update: async () => response(),
+				leagues: async () => [
+					{
+						id: 39,
+						name: 'Premier League',
+						country: 'England',
+						teamCount: 20,
+						coverage: { odds: true, injuries: false, statistics: true }
+					},
+					{ id: 203, name: 'Süper Lig', country: 'Turkey', teamCount: 19, coverage: null }
+				]
+			});
+			expect(store.leagues.some((l) => l.id === 203)).toBe(false);
+			const before = store.estimate.dailyAverage;
+			await store.loadCatalog();
+			expect(store.leagues.find((l) => l.id === 39)?.coverage?.injuries).toBe(false);
+			expect(store.leagues.find((l) => l.id === 203)).toMatchObject({ name: 'Süper Lig', teams: 19 });
+			expect(store.estimate.dailyAverage).toBeGreaterThan(before);
 		});
 	});
 });

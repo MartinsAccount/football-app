@@ -17,22 +17,68 @@ export interface ISettingsLeague {
 	name: string;
 	country: string;
 	teams: number;
-	/** API-Football `coverage` (TODO(polish): a `/leagues` válaszából, nem kézzel). */
-	coverage: { odds: boolean; injuries: boolean; statistics: boolean };
+	/** API-Football `coverage` a DB-ből (`GET /api/leagues`); `null` jelző / objektum = nincs adat (nem találjuk ki). */
+	coverage: ILeagueCoverage | null;
 }
 
-/** Top 5 (D6 kezdés) + bővítési jelöltek. */
+export interface ILeagueCoverage {
+	odds: boolean | null;
+	injuries: boolean | null;
+	statistics: boolean | null;
+}
+
+/**
+ * Kézi jelölt-lista (Top 5 = D6 kezdés + bővítési jelöltek): offline tartalék és a magyar megjelenítési név forrása.
+ * Coverage itt nincs (nem találjuk ki); az a `/api/leagues` katalógusból jön (`leagueCatalog`).
+ */
 export const SETTINGS_LEAGUES: readonly ISettingsLeague[] = [
-	{ id: 39, name: 'Premier League', country: 'Anglia', teams: 20, coverage: { odds: true, injuries: true, statistics: true } },
-	{ id: 140, name: 'La Liga', country: 'Spanyolország', teams: 20, coverage: { odds: true, injuries: true, statistics: true } },
-	{ id: 135, name: 'Serie A', country: 'Olaszország', teams: 20, coverage: { odds: true, injuries: true, statistics: true } },
-	{ id: 78, name: 'Bundesliga', country: 'Németország', teams: 18, coverage: { odds: true, injuries: true, statistics: true } },
-	{ id: 61, name: 'Ligue 1', country: 'Franciaország', teams: 18, coverage: { odds: true, injuries: true, statistics: true } },
-	{ id: 40, name: 'Championship', country: 'Anglia', teams: 24, coverage: { odds: true, injuries: true, statistics: true } },
-	{ id: 88, name: 'Eredivisie', country: 'Hollandia', teams: 18, coverage: { odds: true, injuries: true, statistics: true } },
-	{ id: 94, name: 'Primeira Liga', country: 'Portugália', teams: 18, coverage: { odds: true, injuries: true, statistics: true } },
-	{ id: 271, name: 'NB I', country: 'Magyarország', teams: 12, coverage: { odds: true, injuries: false, statistics: true } }
+	{ id: 39, name: 'Premier League', country: 'Anglia', teams: 20, coverage: null },
+	{ id: 140, name: 'La Liga', country: 'Spanyolország', teams: 20, coverage: null },
+	{ id: 135, name: 'Serie A', country: 'Olaszország', teams: 20, coverage: null },
+	{ id: 78, name: 'Bundesliga', country: 'Németország', teams: 18, coverage: null },
+	{ id: 61, name: 'Ligue 1', country: 'Franciaország', teams: 18, coverage: null },
+	{ id: 40, name: 'Championship', country: 'Anglia', teams: 24, coverage: null },
+	{ id: 88, name: 'Eredivisie', country: 'Hollandia', teams: 18, coverage: null },
+	{ id: 94, name: 'Primeira Liga', country: 'Portugália', teams: 18, coverage: null },
+	{ id: 271, name: 'NB I', country: 'Magyarország', teams: 12, coverage: null }
 ];
+
+/** A `GET /api/leagues` sora (szerkezeti típus: a core nem függ a contracttól; a `LeagueDto` ennek megfelel). */
+export interface LeagueCatalogRow {
+	id: number;
+	name: string;
+	country: string | null;
+	teamCount: number | null;
+	coverage: ILeagueCoverage | null;
+}
+
+/** Csapatszám a becsléshez, ha a DB-ben sincs (sem `season_team`, sem meccs): óvatos felső-közép érték. */
+export const FALLBACK_LEAGUE_TEAMS = 20;
+
+/**
+ * A Beállítások Ligák-listája (I18b): a kézi jelöltek (magyar név, sorrend) a DB-katalógussal összefésülve – a csapatszám és a
+ * coverage a DB-ből (ha ott van a liga), utána a DB azon ligái, amelyekhez van adat (csapatszám) vagy követjük őket.
+ * `rows === null` (nincs szerver) → a kézi lista változatlanul.
+ */
+export const leagueCatalog = (rows: readonly LeagueCatalogRow[] | null, followed: readonly number[] = []): ISettingsLeague[] => {
+	if (!rows) return [...SETTINGS_LEAGUES];
+	const byId = new Map(rows.map((r) => [r.id, r]));
+	const manual = SETTINGS_LEAGUES.map((l) => {
+		const r = byId.get(l.id);
+		return r ? { ...l, teams: r.teamCount ?? l.teams, coverage: r.coverage } : l;
+	});
+	const manualIds = new Set(SETTINGS_LEAGUES.map((l) => l.id));
+	const extra = rows
+		.filter((r) => !manualIds.has(r.id) && (r.teamCount !== null || followed.includes(r.id)))
+		.map((r) => ({
+			id: r.id,
+			name: r.name,
+			country: r.country ?? '',
+			teams: r.teamCount ?? FALLBACK_LEAGUE_TEAMS,
+			coverage: r.coverage
+		}));
+	return [...manual, ...extra];
+};
 
 export type SettingsMarketKey = 'h2h' | 'ou25' | 'btts';
 
@@ -104,6 +150,10 @@ export const NUMBER_LIMITS = {
 	backfillReserve: { min: 0, max: DAILY_CALL_LIMIT }
 } as const;
 
+/** Liga-id: pozitív egész (a katalógus dinamikus – `/api/leagues` –, ezért nem a kézi listára szűrünk). */
+const leagueIds = (xs: unknown): number[] | null =>
+	Array.isArray(xs) ? [...new Set(xs.filter((x): x is number => Number.isInteger(x) && x > 0))] : null;
+
 export type NumberField = keyof typeof NUMBER_LIMITS;
 
 const inRange = (x: unknown, f: NumberField): x is number =>
@@ -121,11 +171,7 @@ export const sanitizeSettings = (raw: unknown): ISettings => {
 	let maxOdds = num('maxOdds');
 	if (minOdds >= maxOdds) [minOdds, maxOdds] = [d.minOdds, d.maxOdds];
 	return {
-		leagues:
-			known(
-				r.leagues,
-				SETTINGS_LEAGUES.map((l) => l.id)
-			) ?? d.leagues,
+		leagues: leagueIds(r.leagues) ?? d.leagues,
 		markets:
 			known(
 				r.markets,
@@ -205,13 +251,15 @@ export interface ISettingsEstimate {
 	rowsPerSeason: number;
 }
 
-export const selectedLeagues = (s: ISettings) => SETTINGS_LEAGUES.filter((l) => s.leagues.includes(l.id));
+export const selectedLeagues = (s: ISettings, catalog: readonly ISettingsLeague[] = SETTINGS_LEAGUES) =>
+	catalog.filter((l) => s.leagues.includes(l.id));
 
-export const estimateSettings = (s: ISettings): ISettingsEstimate => {
-	const leagues = selectedLeagues(s);
+/** A becslés a megadott katalógus csapatszámaival (alap: a kézi lista; szinkron állapotban a `leagueCatalog` eredménye). */
+export const estimateSettings = (s: ISettings, catalog: readonly ISettingsLeague[] = SETTINGS_LEAGUES): ISettingsEstimate => {
+	const leagues = selectedLeagues(s, catalog);
 	const daily = estimateDailyCalls(leagues.map((l) => ({ fixturesPerRound: fixturesPerRound(l) })));
 	const leagueDaily = new Map(
-		SETTINGS_LEAGUES.map((l) => [
+		catalog.map((l) => [
 			l.id,
 			(estimateLeagueCallsPerRound({ fixturesPerRound: fixturesPerRound(l) }).total * ROUNDS_PER_WEEK) / 7
 		])
@@ -264,13 +312,14 @@ export const settingsWarnings = (s: ISettings, e: ISettingsEstimate): ISettingsW
 
 /**
  * A liga hiányzó coverage-elemei (CHANGES 5.): csak ezek jelennek meg, warning színnel; ha minden megvan, üres.
- * Forrás ma a kézi `SETTINGS_LEAGUES` katalógus (lásd TODO a `coverage` mezőn).
+ * Csak a tárolt `false` jelző számít hiánynak; ismeretlen (`null`) coverage-ből nem jelzünk semmit.
  */
 export const missingCoverage = (l: ISettingsLeague): string[] => {
 	const out: string[] = [];
-	if (!l.coverage.odds) out.push('Odds nincs');
-	if (!l.coverage.injuries) out.push('Sérültek nincs');
-	if (!l.coverage.statistics) out.push('Statisztika nincs');
+	const c = l.coverage;
+	if (c?.odds === false) out.push('Odds nincs');
+	if (c?.injuries === false) out.push('Sérültek nincs');
+	if (c?.statistics === false) out.push('Statisztika nincs');
 	return out;
 };
 

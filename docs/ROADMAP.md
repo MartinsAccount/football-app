@@ -99,7 +99,7 @@
       tárhely szezononként** az 500 MB-hoz mérve. _Ellenőrzés:_ screenshot; unit-teszt a hívásköltség- és a tárhelybecslő
       függvényre.
       _Részben (I18a):_ a web `/settings` a `GET/PUT /api/settings`-ből tölt és oda ment (core `settings/remote.ts`); hátra:
-      I18b liga-katalógus API + lista/coverage, I18c csapatszűrő UI.
+      I18b (a9ac420 + web) liga-katalógus `GET /api/leagues` → Ligák-lista, csapatszám, `coverage`; hátra: I18c csapatszűrő UI.
 - [ ] **2.4 Budget-panel:** a mai felhasznált és maradék hívások, jobonkénti bontás, a `/status`-szal egyeztetett érték.
       _Ellenőrzés:_ screenshot mock adattal.
 

@@ -14,7 +14,6 @@ import {
 	parseNumberField,
 	RETENTION_OPTIONS,
 	SETTINGS_BOOKMAKERS,
-	SETTINGS_LEAGUES,
 	SETTINGS_MARKETS,
 	SETTINGS_SECTIONS,
 	SettingsSectionId,
@@ -236,7 +235,7 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 	save = () => this.store.save();
 
 	render() {
-		const { draft: s, estimate: e, warnings, dirty, diff, syncStatus, saving, saveError } = this.store;
+		const { draft: s, estimate: e, warnings, dirty, diff, syncStatus, saving, saveError, leagues } = this.store;
 		const theme = this.props.MainStore!.ThemeStore;
 		const { texts, invalid, active } = this.state;
 		const tiles = [
@@ -273,7 +272,7 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 				<PageHead
 					title="Beállítások"
 					chips={[
-						`${s.leagues.length} / ${SETTINGS_LEAGUES.length} liga`,
+						`${s.leagues.length} / ${leagues.length} liga`,
 						`${s.markets.length} / ${SETTINGS_MARKETS.length} piac`,
 						`${s.bookmakers.length} / ${SETTINGS_BOOKMAKERS.length} iroda`,
 						`keret: ${DAILY_CALL_LIMIT} hívás/nap`
@@ -315,13 +314,13 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 					<div className="flex min-w-0 flex-col gap-sp-16">
 						<Section id="ligak" title="Ligák" sub="Csak a követett ligák meccsei, tabellája és oddsa kerül tárolásra.">
 							<ul style={listStyle(v('size.aside-basis'))}>
-								{SETTINGS_LEAGUES.map((l) => (
+								{leagues.map((l) => (
 									<Check
 										key={l.id}
 										checked={s.leagues.includes(l.id)}
 										onChange={() => this.store.toggleLeague(l.id)}
 										label={l.name}
-										meta={`${l.country} · ${l.teams} csapat`}
+										meta={[l.country, `${l.teams} csapat`].filter(Boolean).join(' · ')}
 										missing={missingCoverage(l)}
 										right={`≈ ${formatDecimal(e.leagueDaily.get(l.id) ?? 0, 1)} hívás/nap`}
 									/>

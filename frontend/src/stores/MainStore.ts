@@ -33,7 +33,8 @@ export class MainStore {
 		// A szerver (`/api/settings`, :5100) az igazság; a localStorage gyorsítótár / offline tartalék (ROADMAP 2.3, I18a).
 		this.SettingsStore = new SettingsStore(localSettingsStorage, {
 			load: () => readApi.getSettings(),
-			update: (u) => readApi.updateSettings(u)
+			update: (u) => readApi.updateSettings(u),
+			leagues: () => readApi.listLeagues().then((r) => r.leagues)
 		});
 		this.SlipStore = new SlipStore(undefined, () => this.SettingsStore.stakeOptions);
 		// Alapegység mentésekor (nem a piszkozatban) a tét az új egységre áll (a régi lépcső eleme már nem választható).
