@@ -120,9 +120,11 @@
 - [x] **3.4 `standings` snapshot** a forduló előtti napon. _Ellenőrzés:_ mock: a snapshot a megfelelő időpontban keletkezik. Kész
       (mock): `packages/server/src/standings.ts` + `referenceMocks.ts` `withStandings` (a mentett meccsekből számolt tabella) —
       lásd git log: feat(server): add standings snapshot ingest job. `form`/`description`: polish.
-- [ ] **3.5 `odds_early` + `odds_late` snapshot:** **lapozással** (10/oldal), csak az elemzett piacokkal, a `provider_updated_at`
+- [x] **3.5 `odds_early` + `odds_late` snapshot:** **lapozással** (10/oldal), csak az elemzett piacokkal, a `provider_updated_at`
       mentésével; a `late` a nap első kezdése előtt ≤ 3 órával. _Ellenőrzés:_ mock: többoldalas válasz esetén is minden meccs
-      bekerül; snapshotonként csak beszúrás történik.
+      bekerül; snapshotonként csak beszúrás történik. Kész (mock): `packages/server/src/odds.ts` + `referenceMocks.ts`
+      `withOdds` (a mentett irodablokkok a nap meccseire képezve) — lásd git log: feat(server): add odds snapshot ingest jobs.
+      A tárolási szűrés (stored piac × iroda) már itt; `odds_best`: 3.5b.
 - [ ] **3.5b Tárolási szűrés + megőrzés:** a snapshot mentésekor előbb az `odds_best` (legjobb/átlag) számolódik a teljes
       válaszból, utána csak a `stored` piacok × irodák kerülnek az `odds_quote`-ba; napi karbantartó job: lejátszott meccsnél csak
       a nyitó + záró snapshot marad (`odds_retention`). _Ellenőrzés:_ unit-teszt: a szűrés nem változtatja a `max_odd`-ot; mock: a

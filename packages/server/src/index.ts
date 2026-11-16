@@ -23,12 +23,16 @@ export {
 	buildFixturesWindowMocks,
 	buildReferenceMocks,
 	fixturesByIdsEnvelope,
+	oddsEnvelope,
 	replayDay,
 	replayInstant,
 	standingsEnvelope,
 	withFixturesByIds,
+	withOdds,
 	withStandings
 } from './referenceMocks';
+export { createOddsHandler, parseOddsParams, toOddsSnapshots } from './odds';
+export type { ApiOddsItem } from './odds';
 export { createStandingsHandler, insertStandingSnapshot, toStandingRows } from './standings';
 export type { ApiStandingsItem, StandingSnapshotRow } from './standings';
 export { createResultsHandler, parseResultIds, RESULTS_MAX_IDS } from './results';

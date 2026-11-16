@@ -18,6 +18,7 @@ import {
 import { loadPlannerInput, SqlTaskStore, type SqlExecutor, type StoredTask, type TaskStore } from '@football/db';
 import type { TickWorker } from './cron';
 import { createFixturesWindowHandler } from './fixturesWindow';
+import { createOddsHandler } from './odds';
 import { createReferenceHandler } from './reference';
 import { createResultsHandler } from './results';
 import { remainingCalls } from './router';
@@ -26,7 +27,7 @@ import { createStandingsHandler } from './standings';
 /**
  * Ingest-worker a tickben (ROADMAP 3.1b, architecture.md §7.1–§7.3): lejárt → `skipped`, beragadt `running` → `pending`,
  * planner → `enqueue` (dedupe), majd prioritásos végrehajtás a napi maradék kereten belül. A szabályok a core-ban
- * (`ingest/tasks.ts`, `ingest/queue.ts`); a job-végrehajtók kindonkénti handlerek (3.2: `reference`, 3.3a: `fixtures_window`, 3.3b: `results`, 3.4: `standings`), a többi még no-op.
+ * (`ingest/tasks.ts`, `ingest/queue.ts`); a job-végrehajtók kindonkénti handlerek (3.2: `reference`, 3.3a: `fixtures_window`, 3.3b: `results`, 3.4: `standings`, 3.5: `odds_early`/`odds_late`), a többi még no-op.
  */
 
 export interface TaskHandlerContext {
@@ -110,7 +111,7 @@ export function createIngestWorker(deps: IngestWorkerDeps): TickWorker {
 
 /**
  * Lokális/dev bekötés: DB-tár + `api_budget_day` + mock kliens (0 élő hívás). A `reference` jobok (3.2) a `fixtures`
- * mock-térképből töltik a törzsadatot, a `fixtures_window` (3.3a) a meccseket, a `results` (3.3b) az eredményeket, a `standings` (3.4) a tabellát (`loadIngestMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
+ * mock-térképből töltik a törzsadatot, a `fixtures_window` (3.3a) a meccseket, a `results` (3.3b) az eredményeket, a `standings` (3.4) a tabellát, az `odds_*` (3.5) az odds-snapshotot (`loadIngestMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
  * és a többi handler a 3.3b+ szeletekben (💸).
  */
 export function createDbIngestWorker(
@@ -127,6 +128,8 @@ export function createDbIngestWorker(
 			fixtures_window: createFixturesWindowHandler(db),
 			results: createResultsHandler(db),
 			standings: createStandingsHandler(db),
+			odds_early: createOddsHandler(db, 'early'),
+			odds_late: createOddsHandler(db, 'late'),
 			...opts.handlers
 		},
 		maxTasks: opts.maxTasks

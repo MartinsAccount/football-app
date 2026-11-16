@@ -2,6 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fixtureKey, type ApiEnvelope, type MockFixtures } from '@football/api-client';
 import { deriveStandings, type PlayedMatch } from '@football/core';
+import type { ApiOddsItem } from './odds';
 import type { ApiStandingsItem } from './standings';
 
 /**
@@ -222,6 +223,73 @@ export function withStandings(
 	});
 }
 
+const ODDS_PREFIX = '/odds?';
+const ODDS_KEYS = new Set(['date', 'league', 'season', 'page']);
+
+/**
+ * `/odds?league&season&date&page` envelope (3.5): a mentett meccsek közül a `date` (UTC) napon játszottak, fixture-id szerint,
+ * `pageSize`/oldal. Ezekre a meccsekre szóló mentett `/odds` válasz nincs (a `backend/stores` 2021-es): az azonos ligájú
+ * mentett irodablokkok ciklikusan ráképezve, az `update` a kezdés előtt a mentett előnnyel. Csak a pipeline tesztjére
+ * (DECISIONS); a ligához nincs mentett odds → üres válasz.
+ */
+export function oddsEnvelope(
+	league: number,
+	season: number,
+	date: string,
+	page: number,
+	items: readonly SavedFixtureItem[],
+	odds: readonly ApiOddsItem[],
+	pageSize = 10
+) {
+	const day = items
+		.filter((i) => typeof i.fixture?.id === 'number' && i.fixture.date && isoDay(Date.parse(i.fixture.date)) === date)
+		.sort((a, b) => a.fixture!.id! - b.fixture!.id!);
+	const source = odds.filter((o) => o.league?.id === league && o.bookmakers?.length);
+	const mapped: ApiOddsItem[] = source.length
+		? day.map((f, n) => {
+				const o = source[n % source.length];
+				const kickoff = Date.parse(f.fixture!.date!);
+				const lead = Date.parse(o.fixture?.date ?? '') - Date.parse(o.update ?? '');
+				return {
+					league: { ...o.league, id: league, season },
+					fixture: { id: f.fixture!.id, timezone: 'UTC', date: f.fixture!.date, timestamp: Math.floor(kickoff / 1000) },
+					update: new Date(kickoff - (Number.isFinite(lead) ? lead : 0)).toISOString(),
+					bookmakers: o.bookmakers
+				};
+		  })
+		: [];
+	const params: Record<string, string> = { league: String(league), season: String(season), date };
+	if (page > 1) params.page = String(page);
+	return {
+		...envelope('odds', params, mapped.slice((page - 1) * pageSize, page * pageSize)),
+		paging: { current: page, total: Math.max(1, Math.ceil(mapped.length / pageSize)) }
+	};
+}
+
+/** A mock-térkép kiegészítése `/odds?date&league&season[&page]` feloldással (`oddsEnvelope`); ismeretlen liga×szezon → `undefined`. */
+export function withOdds(
+	map: MockFixtures,
+	fixtures: readonly { league: number; season: number; items: readonly SavedFixtureItem[] }[],
+	odds: readonly ApiOddsItem[]
+): MockFixtures {
+	return new Proxy(map, {
+		get(target, key, receiver) {
+			const own: unknown = Reflect.get(target, key, receiver);
+			if (own !== undefined || typeof key !== 'string' || !key.startsWith(ODDS_PREFIX)) return own;
+			const qs = new URLSearchParams(key.slice(ODDS_PREFIX.length));
+			if (!['date', 'league', 'season'].every((k) => qs.has(k)) || [...qs.keys()].some((k) => !ODDS_KEYS.has(k)))
+				return undefined;
+			const league = Number(qs.get('league'));
+			const season = Number(qs.get('season'));
+			const page = Number(qs.get('page') ?? 1);
+			const saved = fixtures.find((f) => f.league === league && f.season === season);
+			return saved && Number.isInteger(page) && page >= 1
+				? oddsEnvelope(league, season, qs.get('date')!, page, saved.items, odds)
+				: undefined;
+		}
+	});
+}
+
 /** Tömb, `{ response: [] }` (API-envelope) vagy `{ odds: [] }` (backend/stores) alak. */
 const asItems = <T>(json: unknown): T[] => {
 	if (Array.isArray(json)) return json as T[];
@@ -250,10 +318,11 @@ async function readJsonFiles(dir: string, re: RegExp): Promise<{ match: RegExpMa
 /** A repó mentett adataiból (`<root>/data/history/api-football`, `<root>/backend/stores`) épített mock-térkép. */
 export async function loadReferenceMocks(root: string): Promise<MockFixtures> {
 	const fixtures = await loadSavedFixtures(root);
-	const odds = (await readJsonFiles(join(root, 'backend', 'stores'), /-odds\.json$/)).flatMap(({ json }) =>
-		asItems<SavedOddsItem>(json)
-	);
-	return buildReferenceMocks({ fixtures, odds });
+	return buildReferenceMocks({ fixtures, odds: await loadSavedOdds(root) });
+}
+
+async function loadSavedOdds(root: string) {
+	return (await readJsonFiles(join(root, 'backend', 'stores'), /-odds\.json$/)).flatMap(({ json }) => asItems<ApiOddsItem>(json));
 }
 
 async function loadSavedFixtures(root: string) {
@@ -264,7 +333,8 @@ async function loadSavedFixtures(root: string) {
 
 /**
  * Az ingest-worker teljes mock-térképe: `reference` (3.2) + `fixtures_window` (3.3a) a `now` előtti 1 és utáni 30 napra +
- * `results` (3.3b) `ids` szerint az összes mentett meccsből + `standings` (3.4) a `clock` visszajátszott pillanatáig.
+ * `results` (3.3b) `ids` szerint az összes mentett meccsből + `standings` (3.4) a `clock` visszajátszott pillanatáig + `odds`
+ * (3.5) a mentett meccsnapokra (`withOdds`).
  * TODO(polish): 30 napnál tovább futó dev-szervernél a későbbi napok kulcsa hiányzik (`mock-missing`) – újraindítás kell.
  */
 export async function loadIngestMocks(
@@ -276,12 +346,16 @@ export async function loadIngestMocks(
 	const days = Array.from({ length: 32 }, (_, i) => isoDay(start + i * DAY_MS));
 	const saved = await loadSavedFixtures(root);
 	const map = { ...(await loadReferenceMocks(root)), ...buildFixturesWindowMocks(saved, days) };
-	return withStandings(
-		withFixturesByIds(
-			map,
-			saved.flatMap((f) => f.items)
+	return withOdds(
+		withStandings(
+			withFixturesByIds(
+				map,
+				saved.flatMap((f) => f.items)
+			),
+			saved,
+			clock
 		),
 		saved,
-		clock
+		await loadSavedOdds(root)
 	);
 }

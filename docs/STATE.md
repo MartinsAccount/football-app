@@ -29,9 +29,11 @@ Floodlight v0.2 redesign: lezárva.
 7. ~~I7 – 3.3a `fixtures_window` (mock)~~ kész.
 8. ~~I8 – 3.3b `results` (mock)~~ kész.
 9. ~~I9 – 3.4 `standings` snapshot (mock)~~ kész.
-10. **I10 – 3.5 `odds_early` + `odds_late` snapshot (mock):** a planner odds-feladatai → `/odds?league&season&date&page`
-    lapozással (10/oldal), csak az elemzett piacok, `provider_updated_at` mentése, snapshotonként csak insert. Mock: a mentett
-    `backend/stores/*-odds.json` válaszokból (több oldalra bontva); ha a dátum-kulcs nem képezhető, DECISIONS-sor.
+10. ~~I10 – 3.5 `odds_early` + `odds_late` snapshot (mock)~~ kész.
+11. **I11 – 3.5b `odds_best` + megőrzés:** az `odds.ts` handlerben a teljes válaszból (iroda-szűrés előtt, a kör piacain)
+    `odds_best` sorok (max, átlag, `n_books`, legjobb iroda – ha nincs a `bookmaker` táblában: null), tiszta függvény a
+    core-ban + unit-teszt (a szűrés nem változtatja a `max_odd`-ot). A megőrzési job (köztes snapshotok törlése) **törlés** →
+    CLAUDE.md 2. pont: BLOCKERS-be, ne valósítsd meg.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -138,10 +140,16 @@ fixtures_window (3.3a) | (lásd git log: feat(server): add fixtures_window inges
 hívás/feladat), `referenceMocks.ts` `withFixturesByIds` (ids-feloldás a mentett meccsekből); terv `docs/plans/i8-results.md` | |
 I9 – standings (3.4) | (lásd git log: feat(server): add standings snapshot ingest job) | `packages/server/src/standings.ts`
 (insert `ON CONFLICT DO NOTHING`), `referenceMocks.ts` `withStandings` (core `deriveStandings` a mentett meccsekből,
-visszajátszott időpontig); terv `docs/plans/i9-standings.md` | `loadPlannerInput`), server `ingestWorker.ts`
+visszajátszott időpontig); terv `docs/plans/i9-standings.md` | | I10 – odds (3.5) | (lásd git log: feat(server): add odds
+snapshot ingest jobs) | `packages/server/src/odds.ts` (`getAllPages`, stored kör, `insertOddsSnapshots`), `referenceMocks.ts`
+`withOdds`; terv `docs/plans/i10-odds.md` | `loadPlannerInput`), server `ingestWorker.ts`
 (`createIngestWorker`, `toFailureKind`, `createDbIngestWorker`); tick.ts + dev.ts bekötve; terv `docs/plans/ingest-worker.md` |
 
 ## Polish backlog
+
+- I10: a mock-odds szintetikus (a 2021-es Unibet-blokkok ciklikusan a nap meccseire képezve) – valódi `/odds` válasz mentése
+  (💸 1 hívás/oldal) a 7 napos megőrzésen belüli meccsre; a dev-tick (falióra 2026) nem ütemez odds-feladatot, mert a DB-ben a
+  mentett (2024-es) meccsek vannak – csak a tesztek (2024-es órával) futtatják.
 
 - I9: a mock-tabla `form` és `description` (BL/EK/kiesés zóna) mezője `null` (a mentett meccslistából nem képezhető); a
   holtverseny a core közelítése (pont → gólkülönbség → rúgott gól), nem ligánkénti H2H; valódi `/standings` válasz mentése (💸 1
@@ -257,6 +265,12 @@ visszajátszott időpontig); terv `docs/plans/i9-standings.md` | `loadPlannerInp
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I10 kész (3.5).** `createOddsHandler(db, 'early'|'late')` (`packages/server/src/odds.ts`): a planner
+  `{ league, season, date, fixtures }` feladata → `client.getAllPages('/odds', { league, season, date }, { maxPages: ⌈n/10⌉ })`
+  → `toOddsSnapshots` (csak a feladat meccsei, `resolveStoredScope` + `isQuoteStored`, `parseSelection`, odd > 1, dedupe;
+  `captured_at = now`, `provider_updated_at = update`) → `SqlRepository.insertOddsSnapshots` (meglévő kulcs no-op). Mock:
+  `withOdds(map, saved, odds)` a `/odds?date&league&season[&page]` kulcsra; `loadIngestMocks` adja. Következő: I11 `odds_best`.
 
 - **I9 kész (3.4).** `createStandingsHandler(db)` (`packages/server/src/standings.ts`): a planner `standings` feladata
   (`{ league, season }`, forduló előtti UTC-nap 00:00-tól) → 1 hívás `/standings` → `upsertTeams` + `upsertSeasonTeams` (`season`
