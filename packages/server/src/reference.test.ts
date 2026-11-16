@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { fixtureKey } from '@football/api-client';
 import { openMemoryRepository, SqlTaskStore } from '@football/db';
 import { createDbIngestWorker } from './ingestWorker';
-import { toMarketRows } from './reference';
+import { toLeagueRows, toMarketRows, type ApiLeagueItem } from './reference';
 import { buildReferenceMocks, loadReferenceMocks } from './referenceMocks';
 
 const AT = new Date('2026-11-16T10:00:00Z');
@@ -15,6 +15,10 @@ const mocks = buildReferenceMocks({
 			league: 39,
 			season: 2024,
 			items: [
+				{
+					league: { id: 39, name: 'Premier League', country: 'England', logo: 'https://x/l39.png' },
+					teams: { home: team(33, 'Manchester United'), away: team(40, 'Liverpool') }
+				},
 				{ teams: { home: team(40, 'Liverpool'), away: team(50, 'Manchester City') } },
 				{ teams: { home: team(50, 'Manchester City'), away: team(33, 'Manchester United') } }
 			]
@@ -40,7 +44,9 @@ const mocks = buildReferenceMocks({
 async function setup() {
 	const { db } = await openMemoryRepository();
 	await db.exec(`
-		INSERT INTO league (id, name) VALUES (39, 'Premier League');
+		INSERT INTO league (id, name, type) VALUES (39, 'Premier League', 'league');
+		INSERT INTO season (league_id, year, is_current, coverage, coverage_checked_at)
+			VALUES (39, 2024, true, '{"odds": true}', '2026-11-01T00:00:00Z');
 		INSERT INTO followed_league (league_id) VALUES (39);
 		INSERT INTO bookmaker (id, name, stored) VALUES (8, 'Bet 365 (régi)', true);
 		INSERT INTO market (id, name, code, stored) VALUES (1, 'Match Winner', 'Vegeredmeny', true);
@@ -75,6 +81,10 @@ describe('reference mapping', () => {
 		expect(real[fixtureKey('/teams', { league: 39, season: 2024 })]?.results).toBeGreaterThanOrEqual(20);
 		expect(real['/odds/bookmakers'].results).toBeGreaterThan(0);
 		expect(real['/odds/bets'].results).toBeGreaterThan(0);
+		// mentett /leagues nincs → a meccslistákból: 5 liga, coverage nélkül
+		const leagues = real['/leagues'].response as ApiLeagueItem[];
+		expect(leagues.map((l) => l.league?.id)).toEqual([39, 61, 78, 135, 140]);
+		expect(leagues.every((l) => l.seasons?.every((s) => s.coverage === undefined))).toBe(true);
 	});
 });
 
@@ -86,9 +96,16 @@ describe('reference jobok a workerben (mock, friss memória-PGlite)', () => {
 		expect(res.calls).toBe(0);
 
 		const ref = (await tasks.list()).filter((t) => t.kind === 'reference');
-		expect(ref.map((t) => t.status)).toEqual(['done', 'done', 'done']);
+		expect(ref.map((t) => t.status)).toEqual(['done', 'done', 'done', 'done']);
 
 		const q = async <T>(sql: string) => (await db.query<T>(sql)).rows;
+		// /leagues mock (meccsekből, coverage nélkül): a meglévő type/is_current/coverage marad.
+		expect(await q('SELECT id, name, country, type, logo_url FROM league')).toEqual([
+			{ id: 39, name: 'Premier League', country: 'England', type: 'league', logo_url: 'https://x/l39.png' }
+		]);
+		expect(await q('SELECT year, is_current, coverage, coverage_checked_at FROM season')).toEqual([
+			{ year: 2024, is_current: true, coverage: { odds: true }, coverage_checked_at: new Date('2026-11-01T00:00:00Z') }
+		]);
 		expect(await q('SELECT id, name, logo_url FROM team ORDER BY id')).toEqual([
 			{ id: 33, name: 'Manchester United', logo_url: 'https://x/33.png' },
 			{ id: 40, name: 'Liverpool', logo_url: 'https://x/40.png' },
@@ -110,6 +127,47 @@ describe('reference jobok a workerben (mock, friss memória-PGlite)', () => {
 		]);
 	});
 
+	it('/leagues valódi alakú válasz: liga + szezonok + coverage, checked_at = now; üres mező nem ír felül', async () => {
+		const { db } = await setup();
+		// Kézi, egyértelműen szintetikus elem (nem mentett API-válasz).
+		const synthetic: ApiLeagueItem[] = [
+			{
+				league: { id: 39, name: 'Premier League', type: 'League', logo: null },
+				country: { name: 'England' },
+				seasons: [
+					{ year: 2023, start: '2023-08-11', end: '2024-05-19', current: false, coverage: { odds: false } },
+					{ year: 2024, start: '2024-08-16', end: '2025-05-25', current: true, coverage: { odds: true, injuries: true } }
+				]
+			},
+			{ league: { id: 2, name: 'UEFA Champions League', type: 'Cup' }, country: { name: 'World' }, seasons: [{ year: 2024 }] },
+			{ league: { name: 'id nélkül' } }
+		];
+		const fx = { ...mocks, '/leagues': { ...mocks['/leagues'], results: 3, response: synthetic } };
+		await createDbIngestWorker(db, { fixtures: fx })({ now: AT, deadline: new Date(AT.getTime() + 60_000) });
+		const q = async <T>(sql: string) => (await db.query<T>(sql)).rows;
+		expect(await q('SELECT id, country, type FROM league ORDER BY id')).toEqual([
+			{ id: 2, country: 'World', type: 'cup' },
+			{ id: 39, country: 'England', type: 'league' }
+		]);
+		expect(
+			await q(
+				'SELECT league_id, year, is_current, coverage, coverage_checked_at, start_date::text AS start FROM season ORDER BY 1, 2'
+			)
+		).toEqual([
+			{ league_id: 2, year: 2024, is_current: false, coverage: null, coverage_checked_at: null, start: null },
+			{ league_id: 39, year: 2023, is_current: false, coverage: { odds: false }, coverage_checked_at: AT, start: '2023-08-11' },
+			{
+				league_id: 39,
+				year: 2024,
+				is_current: true,
+				coverage: { odds: true, injuries: true },
+				coverage_checked_at: AT,
+				start: '2024-08-16'
+			}
+		]);
+		expect(toLeagueRows(synthetic).leagues).toHaveLength(2);
+	});
+
 	it('hiányzó mock → mock-missing → végleges hiba (failed), a többi lefut', async () => {
 		const { db, tasks } = await setup();
 		const partial = { ...mocks };
@@ -117,6 +175,6 @@ describe('reference jobok a workerben (mock, friss memória-PGlite)', () => {
 		await createDbIngestWorker(db, { fixtures: partial })({ now: AT, deadline: new Date(AT.getTime() + 60_000) });
 		const ref = (await tasks.list()).filter((t) => t.kind === 'reference');
 		const byKey = Object.fromEntries(ref.map((t) => [t.dedupeKey.split(':')[1], t.status]));
-		expect(byKey).toMatchObject({ bets: 'failed', bookmakers: 'done', teams: 'done' });
+		expect(byKey).toMatchObject({ bets: 'failed', bookmakers: 'done', leagues: 'done', teams: 'done' });
 	});
 });

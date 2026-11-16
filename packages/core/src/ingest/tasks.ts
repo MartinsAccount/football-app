@@ -133,8 +133,10 @@ export const planTasks = (input: PlannerInput): TaskPlan[] => {
 	const out: TaskPlan[] = [];
 	const leagues = new Map(input.leagues.map((l) => [l.id, l]));
 
-	// Törzsadat: hetente a bukméker- és fogadástípus-lista, havonta ligánként a csapatok.
+	// Törzsadat: hetente a liga-katalógus (1 hívás az összes ligára, `coverage` flagekkel), a bukméker- és fogadástípus-lista,
+	// havonta ligánként a csapatok.
 	const week = isoWeek(now);
+	out.push(plan('reference', `reference:leagues:${week}`, { endpoint: 'leagues' }, now, null));
 	out.push(plan('reference', `reference:bookmakers:${week}`, { endpoint: 'odds/bookmakers' }, now, null));
 	out.push(plan('reference', `reference:bets:${week}`, { endpoint: 'odds/bets' }, now, null));
 

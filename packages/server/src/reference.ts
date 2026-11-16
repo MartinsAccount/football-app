@@ -4,8 +4,8 @@ import type { SqlExecutor, StoredTask } from '@football/db';
 import type { TaskHandler } from './ingestWorker';
 
 /**
- * `reference` jobok (ROADMAP 3.2, architecture.md §7.2): `teams` (liga × szezon), `odds/bookmakers`, `odds/bets` → upsert a
- * `team` / `season_team` / `bookmaker` / `market` táblákba. Csak upsert, törlés nincs; a felhasználói `stored` beállítást nem
+ * `reference` jobok (ROADMAP 2.2, 3.2, architecture.md §7.2): `leagues` (katalógus + `coverage`), `teams` (liga × szezon),
+ * `odds/bookmakers`, `odds/bets` → upsert a `league` / `season` / `team` / `season_team` / `bookmaker` / `market` táblákba. Csak upsert, törlés nincs; a felhasználói `stored` beállítást nem
  * írja felül. Mock módban a válasz a mentett fixture-ökből jön (0 élő hívás).
  */
 
@@ -151,6 +151,132 @@ export async function upsertMarkets(db: SqlExecutor, rows: readonly MarketRow[])
 	return n;
 }
 
+// ── Liga-katalógus (ROADMAP 2.2): `/leagues` → `league` + `season` (coverage flagek) ──
+
+export interface ApiLeagueItem {
+	league?: { id?: number; name?: string; type?: string | null; logo?: string | null };
+	country?: { name?: string | null } | null;
+	seasons?: {
+		year?: number;
+		start?: string | null;
+		end?: string | null;
+		current?: boolean | null;
+		coverage?: Record<string, unknown> | null;
+	}[];
+}
+export interface LeagueRow {
+	id: number;
+	name: string;
+	country: string | null;
+	/** `league` | `cup` (az API `League`/`Cup` kisbetűsítve); más érték → null. */
+	type: 'league' | 'cup' | null;
+	logoUrl: string | null;
+}
+export interface SeasonRow {
+	leagueId: number;
+	year: number;
+	startDate: string | null;
+	endDate: string | null;
+	/** null → nem ismert (a meglévő érték marad). */
+	isCurrent: boolean | null;
+	/** Az API `coverage` objektuma változatlanul; null → nincs adat (a meglévő marad). */
+	coverage: Record<string, unknown> | null;
+}
+
+const leagueType = (t: string | null | undefined): LeagueRow['type'] => {
+	const v = t?.toLowerCase();
+	return v === 'league' || v === 'cup' ? v : null;
+};
+
+export function toLeagueRows(response: readonly ApiLeagueItem[]): { leagues: LeagueRow[]; seasons: SeasonRow[] } {
+	const leagues = new Map<number, LeagueRow>();
+	const seasons = new Map<string, SeasonRow>();
+	for (const item of response) {
+		const l = item.league;
+		if (!l || typeof l.id !== 'number' || !l.name) continue;
+		leagues.set(l.id, {
+			id: l.id,
+			name: l.name,
+			country: item.country?.name ?? null,
+			type: leagueType(l.type),
+			logoUrl: l.logo ?? null
+		});
+		for (const s of item.seasons ?? []) {
+			if (typeof s.year !== 'number') continue;
+			seasons.set(`${l.id}:${s.year}`, {
+				leagueId: l.id,
+				year: s.year,
+				startDate: s.start ?? null,
+				endDate: s.end ?? null,
+				isCurrent: typeof s.current === 'boolean' ? s.current : null,
+				coverage: s.coverage && typeof s.coverage === 'object' ? s.coverage : null
+			});
+		}
+	}
+	return { leagues: [...leagues.values()], seasons: [...seasons.values()] };
+}
+
+/**
+ * Ligák upsertje egyetlen lekérdezésben (a teljes katalógus ~1000+ sor); a hiányzó (null) mező nem írja felül a meglévőt.
+ * A változott/új sorok száma.
+ */
+export async function upsertLeagues(db: SqlExecutor, rows: readonly LeagueRow[]): Promise<number> {
+	if (rows.length === 0) return 0;
+	const res = await db.query<{ id: number }>(
+		`INSERT INTO league (id, name, country, type, logo_url)
+		 SELECT id, name, country, type, logo_url
+		 FROM jsonb_to_recordset($1::jsonb) AS r(id bigint, name text, country text, type text, logo_url text)
+		 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name,
+			country = COALESCE(EXCLUDED.country, league.country),
+			type = COALESCE(EXCLUDED.type, league.type),
+			logo_url = COALESCE(EXCLUDED.logo_url, league.logo_url)
+		 WHERE (league.name, league.country, league.type, league.logo_url) IS DISTINCT FROM
+			(EXCLUDED.name, COALESCE(EXCLUDED.country, league.country), COALESCE(EXCLUDED.type, league.type),
+			 COALESCE(EXCLUDED.logo_url, league.logo_url))
+		 RETURNING id`,
+		[JSON.stringify(rows.map((r) => ({ id: r.id, name: r.name, country: r.country, type: r.type, logo_url: r.logoUrl })))]
+	);
+	return res.rows.length;
+}
+
+/**
+ * Szezonok upsertje (`season`, egy lekérdezés). Üres mező nem ír felül; a `coverage_checked_at` csak akkor lesz `now`, ha a
+ * válasz hozott `coverage`-et. Ismeretlen ligájú sor kimarad (FK). A változott/új sorok száma.
+ */
+export async function upsertSeasons(db: SqlExecutor, rows: readonly SeasonRow[], now: Date): Promise<number> {
+	if (rows.length === 0) return 0;
+	const payload = rows.map((r) => ({
+		league_id: r.leagueId,
+		year: r.year,
+		start_date: r.startDate,
+		end_date: r.endDate,
+		is_current: r.isCurrent,
+		coverage: r.coverage
+	}));
+	const res = await db.query<{ league_id: number }>(
+		`INSERT INTO season (league_id, year, start_date, end_date, is_current, coverage, coverage_checked_at)
+		 SELECT r.league_id, r.year, r.start_date, r.end_date, COALESCE(r.is_current, false), r.coverage,
+			CASE WHEN r.coverage IS NULL THEN NULL ELSE $2::timestamptz END
+		 FROM jsonb_to_recordset($1::jsonb)
+			AS r(league_id bigint, year int, start_date date, end_date date, is_current boolean, coverage jsonb)
+		 WHERE EXISTS (SELECT 1 FROM league WHERE id = r.league_id)
+		 ON CONFLICT (league_id, year) DO UPDATE SET
+			start_date = COALESCE(EXCLUDED.start_date, season.start_date),
+			end_date = COALESCE(EXCLUDED.end_date, season.end_date),
+			is_current = CASE WHEN $3::jsonb @> jsonb_build_array(jsonb_build_array(EXCLUDED.league_id, EXCLUDED.year))
+				THEN EXCLUDED.is_current ELSE season.is_current END,
+			coverage = COALESCE(EXCLUDED.coverage, season.coverage),
+			coverage_checked_at = COALESCE(EXCLUDED.coverage_checked_at, season.coverage_checked_at)
+		 RETURNING league_id`,
+		[
+			JSON.stringify(payload),
+			now.toISOString(),
+			JSON.stringify(rows.filter((r) => r.isCurrent !== null).map((r) => [r.leagueId, r.year]))
+		]
+	);
+	return res.rows.length;
+}
+
 /** A planner `endpoint` paramétere (`odds/bets`) → kliens-útvonal (`/odds/bets`). */
 const path = (endpoint: unknown) => `/${String(endpoint).replace(/^\/+/, '')}`;
 
@@ -159,7 +285,7 @@ export const spent = (client: ApiFootballClient, n: number) => (client.mode === 
 
 /** A `reference` kind végrehajtója a `createIngestWorker` `handlers` térképére. */
 export function createReferenceHandler(db: SqlExecutor): TaskHandler {
-	return async (task: StoredTask, { client }) => {
+	return async (task: StoredTask, { client, now }) => {
 		if (!client) throw new Error('reference: API client missing');
 		const p = task.params;
 		const endpoint = path(p.endpoint);
@@ -176,6 +302,14 @@ export function createReferenceHandler(db: SqlExecutor): TaskHandler {
 					season,
 					teams.map((t) => t.id)
 				);
+				return { calls: spent(client, 1) };
+			}
+			case '/leagues': {
+				// Paraméter nélkül: 1 hívás az összes ligára (api-football.md §6: heti 1).
+				const env = await client.get<ApiLeagueItem>(endpoint, {}, { taskId: task.id });
+				const { leagues, seasons } = toLeagueRows(env.response);
+				await upsertLeagues(db, leagues);
+				await upsertSeasons(db, seasons, now);
 				return { calls: spent(client, 1) };
 			}
 			case '/odds/bookmakers': {

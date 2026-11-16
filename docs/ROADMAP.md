@@ -90,8 +90,9 @@
       `bookmaker.stored`, `odds_retention`. _Ellenőrzés:_ CRUD integrációs teszt; unit-teszt a „melyik piac/iroda tárolandó ebben
       a ligában” feloldó függvényre. — 2.1a kész (repository `SqlSettingsRepository` + core `resolveStoredScope`, I2); 2.1b kész
       (`GET/PUT /api/settings` + contract `getSettings`/`updateSettings`, I3 – lásd git log: feat(server): add settings API).
-- [ ] **2.2 Liga-katalógus:** a `reference` job (`/leagues`, hetente) és a `coverage` flagek tárolása. _Ellenőrzés:_ mock módban a
-      katalógus feltöltődik; élesben heti 1 hívás.
+- [x] **2.2 Liga-katalógus:** a `reference` job (`/leagues`, hetente) és a `coverage` flagek tárolása. _Ellenőrzés:_ mock módban a
+      katalógus feltöltődik; élesben heti 1 hívás. — kész (I16, lásd git log: feat(server): add league catalog reference job;
+      mock: mentett meccsekből coverage nélkül, valódi `/leagues` mentése 💸 1 hívás – DECISIONS 2.2).
 - [ ] **2.3 Beállítások UI:** ligák és csapatok kiválasztása; a **becsült napi hívásköltség** ligánként és összesen (a
       [`api-football.md` §6](api/api-football.md#6-hívás-budget) képlete szerint); a `coverage` jelzések; figyelmeztetés, ha a
       becslés túllépi a keretet. Tárolt piacok és irodák kapcsolói (globálisan és ligánként), snapshot-megőrzés, és a **becsült

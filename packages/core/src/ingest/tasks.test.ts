@@ -23,7 +23,8 @@ describe('planTasks', () => {
 	it('liga nélkül csak a heti globális törzsadat', () => {
 		expect(keys({ now: at('2026-11-16T10:00:00Z'), leagues: [], fixtures: [] })).toEqual([
 			'reference:bets:2026-W47',
-			'reference:bookmakers:2026-W47'
+			'reference:bookmakers:2026-W47',
+			'reference:leagues:2026-W47'
 		]);
 	});
 

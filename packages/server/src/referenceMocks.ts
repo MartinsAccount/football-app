@@ -4,18 +4,21 @@ import { fixtureKey, type ApiEnvelope, type MockFixtures } from '@football/api-c
 import { deriveStandings, type PlayedMatch } from '@football/core';
 import type { ApiInjuryItem } from './injuries';
 import type { ApiOddsItem } from './odds';
+import type { ApiLeagueItem } from './reference';
 import type { ApiStandingsItem } from './standings';
 
 /**
  * Mock-válaszok a `reference` jobokhoz (ROADMAP 3.2) a mentett API-adatból, 0 élő hívással:
  * - `/teams?league&season` ← `data/history/api-football/fixtures-<liga>-<szezon>.json` (a meccsek hazai/vendég csapatai);
- * - `/odds/bookmakers`, `/odds/bets` ← `backend/stores/*-odds.json` (a mentett `/odds` válaszok irodái és piacai).
+ * - `/odds/bookmakers`, `/odds/bets` ← `backend/stores/*-odds.json` (a mentett `/odds` válaszok irodái és piacai);
+ * - `/leagues` ← `data/history/api-football/leagues.json` (mentett valódi válasz, ma nincs), különben a mentett meccsek
+ *   `league` blokkjaiból (id, név, ország, logó, szezonévek) – **coverage nélkül** (nem találunk ki flaget; DECISIONS 2.2).
  * TODO(polish): valódi `/teams` és `/odds/bets` válasz mentése (💸 1–1 hívás), ha a csapatkód/ország vagy a teljes piaclista kell.
  */
 
 interface SavedFixtureItem {
 	fixture?: { id?: number; date?: string; status?: { short?: string } };
-	league?: { id?: number; season?: number; country?: string; name?: string };
+	league?: { id?: number; season?: number; country?: string; name?: string; logo?: string | null };
 	goals?: { home?: number | null; away?: number | null };
 	teams?: {
 		home?: { id?: number; name?: string; logo?: string | null };
@@ -61,12 +64,42 @@ export function oddsReferenceEnvelopes(odds: readonly SavedOddsItem[]) {
 	};
 }
 
+/**
+ * `/leagues` envelope a mentett meccslisták `league` blokkjaiból: ligánként id/név/ország/logó és a mentett szezonévek.
+ * `type`, `current`, dátumok és `coverage` nincs benne (a handler ezeket nem írja felül).
+ */
+export function leaguesEnvelopeFromFixtures(
+	fixtures: readonly { league: number; season: number; items: readonly SavedFixtureItem[] }[]
+): ApiEnvelope<ApiLeagueItem> {
+	const byId = new Map<number, { name: string; country: string | null; logo: string | null; years: Set<number> }>();
+	for (const f of fixtures) {
+		const l = f.items.find((i) => i.league?.id === f.league && i.league?.name)?.league;
+		if (!l?.name) continue;
+		const cur = byId.get(f.league) ?? { name: l.name, country: l.country ?? null, logo: l.logo ?? null, years: new Set() };
+		cur.years.add(f.season);
+		byId.set(f.league, cur);
+	}
+	const response = [...byId]
+		.sort(([a], [b]) => a - b)
+		.map(([id, l]) => ({
+			league: { id, name: l.name, logo: l.logo },
+			country: { name: l.country },
+			seasons: [...l.years].sort((a, b) => a - b).map((year) => ({ year }))
+		}));
+	return envelope('leagues', {}, response);
+}
+
 /** Mock-térkép összeállítása a már beolvasott mentett adatokból (tiszta, tesztelhető). */
 export function buildReferenceMocks(input: {
 	fixtures: readonly { league: number; season: number; items: readonly SavedFixtureItem[] }[];
 	odds: readonly SavedOddsItem[];
+	/** Mentett valódi `/leagues` válasz; ha nincs, a meccslistákból épül (coverage nélkül). */
+	leagues?: readonly ApiLeagueItem[];
 }): MockFixtures {
 	const out: MockFixtures = {};
+	out[fixtureKey('/leagues')] = input.leagues?.length
+		? envelope('leagues', {}, [...input.leagues])
+		: leaguesEnvelopeFromFixtures(input.fixtures);
 	for (const f of input.fixtures)
 		out[fixtureKey('/teams', { league: f.league, season: f.season })] = teamsEnvelopeFromFixtures(f.league, f.season, f.items);
 	const { bookmakers, bets } = oddsReferenceEnvelopes(input.odds);
@@ -354,7 +387,10 @@ async function readJsonFiles(dir: string, re: RegExp): Promise<{ match: RegExpMa
 /** A repó mentett adataiból (`<root>/data/history/api-football`, `<root>/backend/stores`) épített mock-térkép. */
 export async function loadReferenceMocks(root: string): Promise<MockFixtures> {
 	const fixtures = await loadSavedFixtures(root);
-	return buildReferenceMocks({ fixtures, odds: await loadSavedOdds(root) });
+	const leagues = (await readJsonFiles(join(root, 'data', 'history', 'api-football'), /^leagues.json$/)).flatMap(({ json }) =>
+		asItems<ApiLeagueItem>(json)
+	);
+	return buildReferenceMocks({ fixtures, odds: await loadSavedOdds(root), leagues });
 }
 
 async function loadSavedOdds(root: string) {

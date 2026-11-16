@@ -35,8 +35,11 @@ Floodlight v0.2 redesign: lezárva.
 13. ~~I13 – 4.3 `standing_derived`~~ kész.
 14. ~~I14 – 5.2 Predikció-pipeline~~ kész.
 15. ~~I15 – 5.3 Kiértékelő job~~ kész.
-16. **I16 – 2.2 Liga-katalógus:** `reference` `/leagues` + `coverage` tárolás (mentett `/leagues` válasz nincs → `mock-missing`
-    vagy a 3.6 mintája, DECISIONS).
+16. ~~I16 – 2.2 Liga-katalógus~~ kész.
+17. **I17 – 5.5 Kiértékelő dashboard DB-ből:** read-API végpont az `evaluation` táblából (hit rate vs. várt, flat ROI,
+    Brier/log-loss csoportonként 1 sorral – DECISIONS 5.3, CLV), modellverzió-szűrés; a web/mobil kiértékelő nézet erre kötése
+    külön szelet.
+18. **I18 – 2.3 Beállítások UI:** ligák a `league`/`season` katalógusból, `coverage` jelzések, becsült napi hívásköltség.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -157,10 +160,15 @@ git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.
 add prediction pipeline) | `packages/server/src/predictions.ts` (`runPredictions`, `withPredictions` az odds-handlerek után,
 `ensureModelVersion`); terv `docs/plans/i14-prediction-pipeline.md` | | I15 – kiértékelő job (5.3) | (lásd git log: feat(server):
 add evaluation job) | `packages/server/src/evaluation.ts` (`evaluateFixtures`, `buildEvaluationRows`), a `results` handler hívja;
-terv `docs/plans/i15-evaluation-job.md` |
+terv `docs/plans/i15-evaluation-job.md` | | I16 – liga-katalógus (2.2) | (lásd git log: feat(server): add league catalog reference
+job) | `reference.ts` `/leagues` ág (`toLeagueRows`, `upsertLeagues`, `upsertSeasons`), core planner `reference:leagues:<hét>`,
+`referenceMocks.ts` `leaguesEnvelopeFromFixtures` |
 
 ## Polish backlog
 
+- I16: valódi `/leagues` válasz mentése (💸 1 hívás → `data/history/api-football/leagues.json`), amíg nincs, a katalógus csak az 5
+  mentett liga, coverage nélkül; `is_current` frissítése soronkénti jsonb-vizsgálattal (egyszerűsíthető); a budget
+  (`api-football.md` §6) a bets/bookmakers havi, a planner heti ütemű – egyeztetni.
 - I15: ázsiai vonalak (half_win/half_loss) nincsenek; a záró odds csak a tárolt quote-okból (`odds_best` nincs bekötve); a
   kiértékelt sor eredmény-korrekciókor nem frissül; Brier/log-loss csoportonként ismétlődik (aggregáláskor dedup); nincs olvasó
   API.
@@ -297,6 +305,13 @@ terv `docs/plans/i15-evaluation-job.md` |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I16 kész (2.2).** A planner hetente `reference:leagues:<ISO-hét>` (`/leagues` paraméter nélkül, 1 hívás) feladatot tesz be; a
+  `reference` handler `/leagues` ága `league` + `season` upsert (`jsonb_to_recordset`, 1-1 lekérdezés): null mező nem ír felül,
+  `coverage` nyersen jsonb-ben, `coverage_checked_at = ctx.now` csak hozott coverage-nél. Mock:
+  `data/history/api-football/ leagues.json`, ha van (ma nincs), különben a mentett meccsek `league` blokkjaiból 5 liga ×
+  szezonévek **coverage nélkül** (DECISIONS 2.2). Helyi `.data/pglite`: az új heti kulcs még nincs benne, a következő tick tölti
+  (DB nem törölve). Következő: I17 kiértékelő dashboard DB-ből (5.5), utána I18 Beállítások UI (2.3).
 
 - **I15 kész (5.3).** `evaluateFixtures(db, fixtureIds, { now })` (`packages/server/src/evaluation.ts`): FT/AET/PEN (rendes
   játékidő: `ft_*`, különben `goals_*`) vagy PST/CANC/ABD (→ void) meccsek még ki nem értékelt predikcióira 1-1 `evaluation` sor
