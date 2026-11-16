@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
 import {
 	estimateSettings,
 	formatDecimal,
@@ -12,7 +12,6 @@ import {
 	sameSettings,
 	sanitizeSettings,
 	SETTINGS_BOOKMAKERS,
-	SETTINGS_LEAGUES,
 	SETTINGS_MARKETS,
 	settingsDiff,
 	settingsWarnings,
@@ -24,10 +23,11 @@ import {
 	type NumberField,
 	type ThemePreference
 } from '@football/core';
-import { usePreferences } from '@/lib/preferences';
+import { TeamFilterSection } from '@/components/TeamFilterSection';
+import { usePreferences, type SettingsSyncStatus } from '@/lib/preferences';
 import { useRnTheme } from '@/lib/theme';
 
-// TODO(polish): szekció-menü (a web `SettingsNav`-ja), „elhagyod mentés nélkül?” figyelmeztetés, liga-katalógus a `/leagues`-ből.
+// TODO(polish): szekció-menü (a web `SettingsNav`-ja), „elhagyod mentés nélkül?” figyelmeztetés.
 
 type Theme = ReturnType<typeof useRnTheme>;
 
@@ -45,6 +45,13 @@ const NUMBER_FIELDS: { field: NumberField; label: string; unit: string }[] = [
 
 const MB = 1024 * 1024;
 
+const SYNC_LABELS: Record<SettingsSyncStatus, string> = {
+	off: 'Csak ezen az eszközön (nincs API-cím)',
+	loading: 'Szinkronizálás…',
+	synced: 'Szinkronban a szerverrel',
+	offline: 'Szerver nem érhető el – a mentés csak helyi'
+};
+
 const fieldTexts = (s: ISettings): Record<NumberField, string> => ({
 	evThreshold: numberFieldText('evThreshold', s.evThreshold),
 	minOdds: numberFieldText('minOdds', s.minOdds),
@@ -52,28 +59,63 @@ const fieldTexts = (s: ISettings): Record<NumberField, string> => ({
 	backfillReserve: numberFieldText('backfillReserve', s.backfillReserve)
 });
 
-/** Beállítások (PRD 5.3): a web `/settings` mentett formátuma (`oe_settings`); a téma azonnal hat, a többi Mentéssel. */
+/**
+ * Beállítások (PRD 5.3): a web `/settings` mentett formátuma (`oe_settings`); a téma azonnal hat, a többi Mentéssel. API-cím
+ * esetén a szerver `/api/settings` az igazság (I18d, `PreferencesProvider`).
+ */
 export default function PreferencesScreen() {
 	const t = useRnTheme();
 	const s = styles(t);
-	const { loaded, settings, saveSettings, themePreference, setThemePreference } = usePreferences();
+	const { loaded, settings, saveSettings, syncStatus, sync, leagues, loadTeams, themePreference, setThemePreference } =
+		usePreferences();
 	const [draft, setDraft] = useState(settings);
 	const [texts, setTexts] = useState(() => fieldTexts(settings));
 	const [invalid, setInvalid] = useState<NumberField[]>([]);
+	const [saving, setSaving] = useState(false);
+	const [saveError, setSaveError] = useState<string | null>(null);
+	const prevSaved = useRef(settings);
+	const justSaved = useRef(false);
 
 	const reset = (next: ISettings) => {
 		setDraft(next);
 		setTexts(fieldTexts(next));
 		setInvalid([]);
+		setSaveError(null);
 	};
 
-	// A mentett érték aszinkron töltődik: betöltéskor (és mentés után) a piszkozat ahhoz igazodik.
-	useEffect(() => reset(settings), [loaded, settings]);
+	// A mentett érték aszinkron töltődik (helyi, majd szerver): a piszkozat akkor igazodik hozzá, ha érintetlen vagy épp mentettünk
+	// – a fókuszkori szinkron nem írja felül a szerkesztést.
+	useEffect(() => {
+		if (justSaved.current || sameSettings(prevSaved.current, draft)) reset(settings);
+		justSaved.current = false;
+		prevSaved.current = settings;
+	}, [loaded, settings]);
 
-	const estimate = useMemo(() => estimateSettings(draft), [draft]);
-	const savedEstimate = useMemo(() => estimateSettings(settings), [settings]);
+	// Fókuszkor szerver-szinkron (a Kapcsolat képernyőn közben megadható az API-cím).
+	useFocusEffect(
+		useCallback(() => {
+			if (loaded) void sync();
+		}, [loaded, sync])
+	);
+
+	const estimate = useMemo(() => estimateSettings(draft, leagues), [draft, leagues]);
+	const savedEstimate = useMemo(() => estimateSettings(settings, leagues), [settings, leagues]);
 	const warnings = settingsWarnings(draft, estimate);
 	const dirty = !sameSettings(settings, draft);
+
+	const save = async () => {
+		setSaving(true);
+		setSaveError(null);
+		try {
+			justSaved.current = true;
+			await saveSettings(draft);
+		} catch (e) {
+			justSaved.current = false;
+			setSaveError(e instanceof Error ? e.message : String(e));
+		} finally {
+			setSaving(false);
+		}
+	};
 
 	const editNumber = (field: NumberField, text: string) => {
 		setTexts((prev) => ({ ...prev, [field]: text }));
@@ -85,6 +127,7 @@ export default function PreferencesScreen() {
 
 	return (
 		<ScrollView contentContainerStyle={s.page} keyboardShouldPersistTaps="handled">
+			<Text style={[s.muted, syncStatus === 'offline' && s.warning]}>{SYNC_LABELS[syncStatus]}</Text>
 			<Text style={s.section}>Megjelenés</Text>
 			<Choices options={THEMES} value={themePreference} onChange={(key) => void setThemePreference(key)} s={s} />
 
@@ -115,7 +158,7 @@ export default function PreferencesScreen() {
 
 			<Text style={s.section}>Ligák</Text>
 			<View style={s.card}>
-				{SETTINGS_LEAGUES.map((l) => (
+				{leagues.map((l) => (
 					<CheckRow
 						key={l.id}
 						label={l.name}
@@ -127,6 +170,14 @@ export default function PreferencesScreen() {
 					/>
 				))}
 			</View>
+
+			<Text style={s.section}>Csapatszűrő</Text>
+			<TeamFilterSection
+				draft={draft}
+				leagues={leagues}
+				loadTeams={loadTeams}
+				onChange={(next) => setDraft(sanitizeSettings(next))}
+			/>
 
 			<Text style={s.section}>Piacok</Text>
 			<View style={s.card}>
@@ -187,15 +238,16 @@ export default function PreferencesScreen() {
 			</View>
 
 			{dirty ? <Text style={s.muted}>{settingsDiff(savedEstimate, estimate)}</Text> : null}
+			{saveError ? <Text style={s.danger}>Mentés sikertelen: {saveError}</Text> : null}
 			<View style={s.actions}>
 				<Pressable
-					onPress={() => void saveSettings(draft)}
-					disabled={!dirty || invalid.length > 0}
+					onPress={() => void save()}
+					disabled={!dirty || invalid.length > 0 || saving}
 					accessibilityRole="button"
-					accessibilityState={{ disabled: !dirty || invalid.length > 0 }}
-					style={[s.primary, (!dirty || invalid.length > 0) && s.disabled]}
+					accessibilityState={{ disabled: !dirty || invalid.length > 0 || saving }}
+					style={[s.primary, (!dirty || invalid.length > 0 || saving) && s.disabled]}
 				>
-					<Text style={s.primaryText}>Mentés</Text>
+					<Text style={s.primaryText}>{saving ? 'Mentés…' : 'Mentés'}</Text>
 				</Pressable>
 				<Pressable
 					onPress={() => reset(settings)}
