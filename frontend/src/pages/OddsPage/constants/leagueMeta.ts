@@ -1,5 +1,4 @@
-// Az OddsStore liga-kulcsai ('england' | 'germany' | ...) → megjelenítendő címke,
-// és az ArbitrageStore.Arbitrages country mezőjéhez használt ország-név.
+// Az OddsStore liga-kulcsai ('england' | 'germany' | ...) → megjelenítendő címke.
 
 export type LeagueKey = 'england' | 'germany' | 'france' | 'italy' | 'spain' | 'all';
 
@@ -10,15 +9,6 @@ export const LEAGUE_LABEL: Record<LeagueKey, string> = {
 	italy: 'Olasz',
 	spain: 'Spanyol',
 	all: 'Összes'
-};
-
-// Liga-kulcs → az arbitrage-adatban szereplő ország-név (country mező).
-export const LEAGUE_COUNTRY: Record<Exclude<LeagueKey, 'all'>, string> = {
-	england: 'England',
-	germany: 'Germany',
-	france: 'France',
-	italy: 'Italy',
-	spain: 'Spain'
 };
 
 // A sidebar liga-listája (kulcs + rövid címke).

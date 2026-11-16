@@ -210,7 +210,7 @@
       hívással. _Ellenőrzés:_ unit-tesztek; a régi és az új eredmény egyezik ugyanazon az adaton.
 - [ ] **8.2 Opcionális teljes piaci pásztázás** (`/odds/mapping` + lapozott `/odds`) kézi indítással, **előzetes hívásbecsléssel
       és megerősítéssel**, napi max. 1×. _Ellenőrzés:_ mock: a becslés egyezik a ténylegesen indított hívások számával.
-- [ ] **8.3 Az arbitrázsoldal átállítása** az új API-ra; a régi `localStorage`-út (`ls_Arbitrages`, `ls_AllLeagueIds`) és a
+- [x] **8.3 Az arbitrázsoldal átállítása** (I24) az új API-ra; a régi `localStorage`-út (`ls_Arbitrages`, `ls_AllLeagueIds`) és a
       közvetlen API-hívások megszűnnek. _Ellenőrzés:_ a hálózati naplóban nincs külső hívás; screenshot.
 - [ ] **8.4 A régi Express és a JSON-tár kivezetése** (archiválás vagy törlés, a tulajdonos döntése szerint).
 

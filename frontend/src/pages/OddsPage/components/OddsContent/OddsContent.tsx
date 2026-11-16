@@ -7,7 +7,7 @@ import Card from '../../../../components/ui/Card';
 import StatCard from '../../../../components/ui/StatCard';
 import Pill from '../../../../components/ui/Pill';
 import { ODDS_STATS_SEASON } from '../../services/OddsService';
-import { LEAGUE_COUNTRY, LEAGUE_LABEL, seasonLabel } from '../../constants/leagueMeta';
+import { LEAGUE_LABEL, seasonLabel } from '../../constants/leagueMeta';
 
 interface IOddsContentProps {
 	MainStore?: MainStore;
@@ -16,18 +16,6 @@ interface IOddsContentProps {
 @inject('MainStore')
 @observer
 class OddsContent extends Component<IOddsContentProps> {
-	private get arbitrageCount(): number {
-		const { currentLeague } = this.props.MainStore.OddsStore;
-		const country = currentLeague && currentLeague !== 'all' ? LEAGUE_COUNTRY[currentLeague] : null;
-		const arbitrages = this.props.MainStore.ArbitrageStore.Arbitrages || [];
-
-		return arbitrages.filter((fx) => {
-			const matchCountry = !country || fx.country === country;
-			const good = fx.arbitrages?.some((a) => a.arbitrage != null && Number(a.arbitrage) < 1);
-			return matchCountry && good;
-		}).length;
-	}
-
 	render() {
 		const { OddsStore } = this.props.MainStore;
 		const { currentLeague, oddsInfos, loadError } = OddsStore;
@@ -69,10 +57,9 @@ class OddsContent extends Component<IOddsContentProps> {
 					<Pill>Szezon {seasonLabel(ODDS_STATS_SEASON)}</Pill>
 				</header>
 
-				<div className="grid grid-cols-3 gap-4 mb-6">
+				<div className="grid grid-cols-2 gap-4 mb-6">
 					<StatCard label="Elemzett meccs" value={sum} />
 					<StatCard label="Esélyes nyert" value={`${favoritePct}%`} accent />
-					<StatCard label="Arbitrage" value={this.arbitrageCount} />
 				</div>
 
 				<Card className="overflow-hidden">

@@ -1,7 +1,5 @@
 import { action, flow, observable, reaction } from 'mobx';
-import { ArbitrageStore } from '../pages/ArbitragePage/stores/ArbitrageStore';
 import { OddsStore } from '../pages/OddsPage/stores/OddsStore';
-import { FetchService } from '../services/FetchService';
 import { readApi } from '../services/readApi';
 import { localSettingsStorage, SettingsStore } from './SettingsStore';
 import { SlipStore } from './SlipStore';
@@ -9,26 +7,22 @@ import { ThemeStore } from './ThemeStore';
 
 export class MainStore {
 	public OddsStore: OddsStore;
-	public ArbitrageStore: ArbitrageStore;
 	public SlipStore: SlipStore;
 	public SettingsStore: SettingsStore;
 	public ThemeStore: ThemeStore;
 
-	public FetchService: FetchService;
-
 	@observable public isLoading: boolean = false;
 	@observable public loadingText: string = 'Loading...';
 
+	// A böngésző már nem hív külső API-t (ROADMAP 8.3, I24): a számláló 0 marad. TODO(polish): a BudgetChip `localCalls`-szal együtt kivezetni.
 	@observable fetchNumber: number = 0;
 
 	@observable public Sport: string;
 
 	constructor() {
 		this.Sport = 'football';
-		this.FetchService = new FetchService(this);
 
 		this.OddsStore = new OddsStore(this);
-		this.ArbitrageStore = new ArbitrageStore(this);
 		this.ThemeStore = new ThemeStore();
 		// A szerver (`/api/settings`, :5100) az igazság; a localStorage gyorsítótár / offline tartalék (ROADMAP 2.3, I18a).
 		this.SettingsStore = new SettingsStore(localSettingsStorage, {
@@ -54,7 +48,6 @@ export class MainStore {
 	Init = flow(function* (this: MainStore) {
 		try {
 			// Az OddsStore lusta: az OddsPage mountjakor tölt az olvasó API-ból (ROADMAP 1.8).
-			// yield this.ArbitrageStore.Init();
 		} catch (e) {
 			console.log('error', e);
 		}
