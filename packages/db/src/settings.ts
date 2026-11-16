@@ -1,4 +1,10 @@
-import type { StoredScopeInput } from '@football/core';
+import {
+	buildTeamFilterIndex,
+	NO_TEAM_FILTER,
+	type StoredScopeInput,
+	type TeamFilterIndex,
+	type TeamLeagueMembership
+} from '@football/core';
 import type { SqlExecutor } from './migrate';
 
 /**
@@ -163,6 +169,27 @@ export class SqlSettingsRepository implements SettingsRepository {
 			return rows.map((r) => r.id);
 		};
 		return { leagueIds: await missing('league', refs.leagueIds), teamIds: await missing('team', refs.teamIds) };
+	}
+
+	/**
+	 * Csapatszűrő-index (I18e): a `team_filter` sorai + az include-csapatok ligái (`season_team` ∪ a `fixture` tábla hazai/vendég
+	 * oldala). Szűrő nélkül `NO_TEAM_FILTER`.
+	 */
+	async loadTeamFilterIndex(): Promise<TeamFilterIndex> {
+		const filters = await this.listTeamFilters();
+		if (!filters.length) return NO_TEAM_FILTER;
+		const include = filters.filter((f) => f.mode === 'include').map((f) => f.teamId);
+		const { rows } = include.length
+			? await this.db.query<TeamLeagueMembership>(
+					`SELECT DISTINCT team_id::float8 AS "teamId", league_id::float8 AS "leagueId" FROM (
+						SELECT team_id, league_id FROM season_team WHERE team_id = ANY($1::bigint[])
+						UNION SELECT home_team_id, league_id FROM fixture WHERE home_team_id = ANY($1::bigint[])
+						UNION SELECT away_team_id, league_id FROM fixture WHERE away_team_id = ANY($1::bigint[])
+					 ) m ORDER BY 1, 2`,
+					[include]
+			  )
+			: { rows: [] };
+		return buildTeamFilterIndex(filters, rows);
 	}
 
 	async loadStoredScopeInput(): Promise<StoredScopeInput> {

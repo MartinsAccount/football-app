@@ -97,4 +97,24 @@ describe('loadPlannerInput', () => {
 		const keys = planTasks(input).map((t) => t.dedupeKey);
 		expect(keys).toContain('odds_late:39:2026-11-17');
 	});
+
+	it('csapatszűrő: include-csapat ligája (fixture ∪ season_team) a szűrő-indexben, odds csak a megengedett meccsekre', async () => {
+		await db.exec(`
+			INSERT INTO league (id, name) VALUES (39, 'Premier League'), (140, 'La Liga');
+			INSERT INTO team (id, name) VALUES (1, 'A'), (2, 'B'), (3, 'C'), (4, 'D'), (5, 'E');
+			INSERT INTO season (league_id, year, is_current) VALUES (39, 2024, true), (140, 2024, true);
+			INSERT INTO season_team (league_id, year, team_id) VALUES (140, 2024, 5);
+			INSERT INTO followed_league (league_id) VALUES (39), (140);
+			INSERT INTO team_filter (team_id, mode) VALUES (1, 'include'), (5, 'include'), (4, 'exclude');
+			INSERT INTO fixture (id, league_id, season, kickoff_at, status, home_team_id, away_team_id) VALUES
+				(1001, 39, 2024, '2026-11-17T15:00:00Z', 'NS', 1, 2),
+				(1002, 39, 2024, '2026-11-17T17:00:00Z', 'NS', 2, 3),
+				(1003, 140, 2024, '2026-11-17T15:00:00Z', 'NS', 3, 4);
+		`);
+		const input = await loadPlannerInput(db, NOW);
+		expect([...input.teamFilter!.includeLeagues].sort()).toEqual([140, 39]);
+		expect(input.fixtures.find((f) => f.id === 1002)).toMatchObject({ homeTeamId: 2, awayTeamId: 3 });
+		const late = planTasks(input).filter((t) => t.kind === 'odds_late');
+		expect(late.map((t) => [t.dedupeKey, t.params.fixtures])).toEqual([['odds_late:39:2026-11-17', [1001]]]);
+	});
 });

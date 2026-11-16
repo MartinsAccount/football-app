@@ -1,4 +1,5 @@
 import { isoWeek, planTasks, type PlannerFixture, type PlannerInput } from './tasks';
+import { buildTeamFilterIndex } from '../settings/teamFilter';
 
 const at = (iso: string) => new Date(iso);
 const fx = (
@@ -95,6 +96,29 @@ describe('planTasks', () => {
 			fixtures: [fx(1, '2026-11-17T15:00:00Z', 'NS', null, 140)]
 		};
 		expect(byKind(input, 'odds_late')).toHaveLength(0);
+	});
+
+	it('csapatszűrő: odds/sérültlista csak a megengedett meccsekre, a tabella a teljes meccsnapból; üres nap → nincs odds', () => {
+		const withTeams = (f: PlannerFixture, home: number, away: number): PlannerFixture => ({
+			...f,
+			homeTeamId: home,
+			awayTeamId: away
+		});
+		const input: PlannerInput = {
+			now: at('2026-11-16T10:00:00Z'),
+			leagues: [league],
+			fixtures: [
+				withTeams(fx(1, '2026-11-17T12:00:00Z'), 10, 11),
+				withTeams(fx(2, '2026-11-17T15:00:00Z'), 12, 13),
+				withTeams(fx(3, '2026-11-18T15:00:00Z', 'NS', 'Regular Season - 13'), 11, 14)
+			],
+			teamFilter: buildTeamFilterIndex([{ teamId: 11, mode: 'exclude' }], [])
+		};
+		const late = byKind(input, 'odds_late');
+		expect(late.map((t) => [t.dedupeKey, t.params.fixtures])).toEqual([['odds_late:39:2026-11-17', [2]]]);
+		expect(late[0].deadline).toEqual(at('2026-11-17T15:00:00Z'));
+		expect(byKind(input, 'injuries').map((t) => t.params.ids)).toEqual([[2]]);
+		expect(byKind(input, 'standings')).toHaveLength(2);
 	});
 
 	it('results: 1. kör kezdés +3 h-tól, 2. kör csak ha +26 h után sincs FT', () => {

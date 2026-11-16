@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { ELO_POISSON_VERSION } from '@football/core';
+import { DEFAULT_RECOMMENDATION_RULES, ELO_POISSON_VERSION } from '@football/core';
 import { openMemoryRepository, SqlRepository, type SqlExecutor } from '@football/db';
 import { toFixtureRows, upsertFixtureRows, type ApiFixtureItem } from './fixturesWindow';
 import { createDbIngestWorker } from './ingestWorker';
@@ -145,6 +145,44 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 		expect(home.features.standing.home.played).toBe(before);
 		expect(home.features.model).toBeTruthy();
 		expect(home.features.match).toBeTruthy();
+	});
+
+	it('csapatszűrő (DB team_filter): a kiszűrt meccs naplózódik, de nincs rajta ajánlás; a többi meccs változatlan', async () => {
+		const { db } = await openMemoryRepository();
+		const { ids, t0, target } = await seed(db);
+		const now = new Date(t0 - 2 * HOUR);
+		await seedOdds(db, ids, new Date(t0 - 3 * HOUR).toISOString());
+		const recs = async (runId: number | null) =>
+			(
+				await db.query<{ f: number; m: number; sel: string; blocked: boolean | null }>(
+					`SELECT fixture_id::float8 AS f, market_id::float8 AS m, selection AS sel,
+						(features->>'teamFilterBlocked')::boolean AS blocked
+					 FROM prediction WHERE run_id = $1 AND is_recommendation ORDER BY fixture_id`,
+					[runId]
+				)
+			).rows;
+
+		// Laza szabályok (3 iroda, bármely EV): legyen ajánlás, amit a szűrő elvehet.
+		const rules = { ...DEFAULT_RECOMMENDATION_RULES, minBookmakers: 1, evThreshold: -1, minEdge: -1, maxOdds: 100, minOdds: 1 };
+		const base = await runPredictions(db, ids, { now, rules });
+		const baseRecs = await recs(base.runId);
+		expect(baseRecs.length).toBeGreaterThan(0);
+		const blockedFixture = baseRecs[0].f;
+		const home = target.find((i) => i.fixture!.id === blockedFixture)!.teams!.home!.id!;
+		await db.query(`INSERT INTO team_filter (team_id, mode) VALUES ($1, 'exclude')`, [home]);
+
+		const filtered = await runPredictions(db, ids, { now, rules });
+		expect(filtered.predictions).toBe(base.predictions);
+		expect(await recs(filtered.runId)).toEqual(
+			baseRecs.filter((r) => r.f !== blockedFixture).map((r) => ({ ...r, blocked: null }))
+		);
+		const blocked = (
+			await db.query<{ n: number }>(
+				`SELECT count(*)::int AS n FROM prediction WHERE run_id = $1 AND fixture_id = $2 AND features ? 'teamFilterBlocked'`,
+				[filtered.runId, blockedFixture]
+			)
+		).rows[0].n;
+		expect(blocked).toBe(5);
 	});
 
 	it('odds nélkül, elkezdett meccsre vagy üres listára nincs futás', async () => {

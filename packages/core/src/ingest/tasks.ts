@@ -1,5 +1,6 @@
 // Feladatsor-planner (architecture.md §7.1). Tiszta: a „mit kell lekérni” döntés I/O nélkül; a tár (ingest_task) az I5-ben.
 // Idempotens: ugyanarra a bemenetre ugyanazokat a `dedupeKey`-eket adja, a tár `ON CONFLICT (dedupe_key) DO NOTHING`-gal szűr.
+import { NO_TEAM_FILTER, teamFilterAllows, type TeamFilterIndex } from '../settings/teamFilter';
 
 export type IngestTaskKind =
 	| 'odds_late'
@@ -52,6 +53,9 @@ export interface PlannerFixture {
 	/** API `fixture.status.short` (NS, FT, PST …). */
 	status: string;
 	round?: string | null;
+	/** A csapatszűrőhöz (I18e); hiányzó id nem zár ki. */
+	homeTeamId?: number | null;
+	awayTeamId?: number | null;
 }
 
 export interface PlannerInput {
@@ -60,6 +64,8 @@ export interface PlannerInput {
 	fixtures: readonly PlannerFixture[];
 	/** Ennyi órán belüli kezdésű meccsekre tervez előre (alap 72). */
 	horizonHours?: number;
+	/** Csapatszűrő (I18e): csak az `odds_*` és `injuries` feladatok meccseit szűri; hiányzik = minden meccs. */
+	teamFilter?: TeamFilterIndex;
 }
 
 /** Ezeknél a státuszoknál nincs több eredmény-lekérés. */
@@ -179,7 +185,11 @@ export const planTasks = (input: PlannerInput): TaskPlan[] => {
 		matchDays.push(fx);
 		upcoming.push(...fx);
 	}
-	for (const fx of matchDays) {
+	const teamFilter = input.teamFilter ?? NO_TEAM_FILTER;
+	for (const matchDay of matchDays) {
+		// Csapatszűrő: odds/sérültlista csak a megengedett meccsekre; a tabella (lent) a teljes meccsnapból számol.
+		const fx = matchDay.filter((f) => teamFilterAllows(f, teamFilter));
+		if (!fx.length) continue;
 		const { leagueId, kickoff: first } = fx[0];
 		const season = leagues.get(leagueId)!.season;
 		const day = utcDay(first);

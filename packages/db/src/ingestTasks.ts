@@ -8,6 +8,7 @@ import type {
 	TaskPlan
 } from '@football/core';
 import type { SqlExecutor } from './migrate';
+import { SqlSettingsRepository } from './settings';
 
 /**
  * Feladat-tár az `ingest_task` táblán (ROADMAP 3.1b, architecture.md §7.1–§7.3). A szabályok (kiválasztás, backoff) a core
@@ -185,8 +186,17 @@ export async function loadPlannerInput(
 	);
 	const ids = leagues.map((l) => l.id);
 	const { rows: fixtures } = ids.length
-		? await db.query<{ id: number; leagueId: number; kickoff: unknown; status: string; round: string | null }>(
-				`SELECT id::float8 AS id, league_id::float8 AS "leagueId", kickoff_at AS kickoff, status, round FROM fixture
+		? await db.query<{
+				id: number;
+				leagueId: number;
+				kickoff: unknown;
+				status: string;
+				round: string | null;
+				homeTeamId: number | null;
+				awayTeamId: number | null;
+		  }>(
+				`SELECT id::float8 AS id, league_id::float8 AS "leagueId", kickoff_at AS kickoff, status, round,
+					home_team_id::float8 AS "homeTeamId", away_team_id::float8 AS "awayTeamId" FROM fixture
 				 WHERE league_id = ANY($1::bigint[]) AND kickoff_at >= $2::timestamptz AND kickoff_at <= $3::timestamptz`,
 				[
 					ids,
@@ -199,6 +209,7 @@ export async function loadPlannerInput(
 		now,
 		horizonHours,
 		leagues: leagues.map((l) => ({ id: l.id, season: l.season ?? opts.defaultSeason ?? DEFAULT_PLANNER_SEASON })),
-		fixtures: fixtures.map((f) => ({ ...f, kickoff: toDate(f.kickoff) }))
+		fixtures: fixtures.map((f) => ({ ...f, kickoff: toDate(f.kickoff) })),
+		teamFilter: await new SqlSettingsRepository(db).loadTeamFilterIndex()
 	};
 }

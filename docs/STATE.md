@@ -43,8 +43,9 @@ Floodlight v0.2 redesign: lezárva.
 21. ~~I18b – 2.3 Liga-katalógus a Beállításokban~~ kész (`GET /api/leagues`, core `leagueCatalog`).
 22. ~~I18c – 2.3 Csapatszűrő UI (web)~~ kész (`GET /api/leagues/:id/teams`, core `teamFilters`).
 23. ~~I18d – mobil Beállítások ↔ `/api/settings`~~ kész (szinkron + liga-katalógus + csapatszűrő a `PreferencesProvider`-ben).
-24. **I18e – csapatszűrő alkalmazása:** a `team_filter` (include/exclude) érvényesítése az ajánlás-/ingestion-hatókörben (core
-    `storedScope` + predikció-pipeline), teszttel.
+24. ~~I18e – csapatszűrő alkalmazása~~ kész (core `teamFilter`, planner + `loadPlannerInput`, predikció: csak az ajánlás).
+25. **I18f – 2.3 ligánkénti piac-felülírás UI (web):** a `followed_league.markets` szerkesztése a Beállítások liga-sorában (`null`
+    = globális), a settings-API már kezeli; a becslés ezzel számol. Utána: ROADMAP 2.4 Budget-panel.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -146,7 +147,7 @@ tételek).
 | I5 – Worker a tickben (3.1b) | (lásd git log: feat(server): wire ingest worker into tick) | db `ingestTasks.ts` (`SqlTaskStore`,
 | I6 – reference jobok (3.2) | (lásd git log: feat(server): add reference ingest jobs) | `packages/server/src/reference.ts`
 (handler + upsert, `stored` marad), `referenceMocks.ts` (mentett adatból); terv `docs/plans/i6-reference-jobs.md` | | I7 –
-fixtures_window (3.3a) | (lásd git log: feat(server): add fixtures_window ingest job) | `packages/server/src/fixturesWindow.ts`
+fixtures*window (3.3a) | (lásd git log: feat(server): add fixtures_window ingest job) | `packages/server/src/fixturesWindow.ts`
 (upsert, null nem ír felül), `referenceMocks.ts` `loadIngestMocks` (visszajátszás); terv `docs/plans/i7-fixtures-window.md` | | I8
 – results (3.3b) | (lásd git log: feat(server): add results ingest job) | `packages/server/src/results.ts` (`fixtures?ids`, 1
 hívás/feladat), `referenceMocks.ts` `withFixturesByIds` (ids-feloldás a mentett meccsekből); terv `docs/plans/i8-results.md` | |
@@ -194,9 +195,16 @@ már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); 
 Mobil Beállítások ↔ API | (lásd git log: feat(mobile): sync preferences with the settings API) | `PreferencesProvider`: `sync()`
 (GET `/api/settings` + `/api/leagues`, fókuszkor is), `saveSettings` PUT csak a diffet (`settingsUpdateFrom`), AsyncStorage
 gyorsítótár; `syncStatus` sor a képernyő tetején; Ligák a core `leagueCatalog`-ból, a becslés ezzel; új
-`components/TeamFilterSection.tsx` (Mind/Csak/Kizár, `listLeagueTeams`) |
+`components/TeamFilterSection.tsx` (Mind/Csak/Kizár, `listLeagueTeams`) | | I18e – Csapatszűrő alkalmazása | (lásd git log: feat:
+apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `teamFilterAllows`, `NO_TEAM_FILTER`); planner
+`PlannerInput.teamFilter` →
+`odds*\*`/`injuries`csak megengedett meccsre; db`SqlSettingsRepository.loadTeamFilterIndex()` (`season_team`∪`fixture`), `loadPlannerInput`hozza; server`runPredictions`: kiszűrt meccsen nincs ajánlás, naplózás marad (`features.teamFilterBlocked`)
+|
 
 ## Polish backlog
+
+- I18e: a UI nem jelzi, hogy egy ajánlás a szűrő miatt maradt el; a kiértékelés nem bontja szét a `teamFilterBlocked` sorokat; az
+  include-liga a csapat összes (régi) ligáját is érinti (kupa, kiesés előtti liga) – szezonra szűkíthető.
 
 - I18d: nincs emulátoros screenshot; a fókuszkori szinkron minden belépéskor 2 hívás; hosszú csapatlistához nincs kereső; offline
   mentés csak helyi (mint a weben); a mentés-hiba a nyers szerverüzenet.
@@ -361,6 +369,11 @@ gyorsítótár; `syncStatus` sor a képernyő tetején; Ligák a core `leagueCat
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I18e kész.** Szűrő-jelentés: Kizár = a csapat meccsei ki; Csak = a csapat ligáiban csak az include-csapatok meccsei; ütközés →
+  exclude. Gyűjtés: a planner csak az `odds_*`/`injuries` meccseit szűri (tabella/eredmény nem); predikció: a naplózás marad, csak
+  az ajánlás tiltott (DECISIONS I18e). `runPredictions` `opts.teamFilter` nélkül a DB-ből tölti. Terv:
+  `docs/plans/i18e-team-filter-apply.md`. Következő: I18f (ligánkénti piac-felülírás UI).
 
 - **I18d kész.** Mobil `lib/preferences.tsx`: a `PreferencesProvider` a web `SettingsStore` mintáját követi (remoteRef a
   PUT-diffhez, `settingsFromRemote(res, helyi)`), API-cím nélkül `off` és minden helyi. A képernyő piszkozata csak akkor igazodik

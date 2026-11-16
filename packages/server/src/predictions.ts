@@ -12,10 +12,12 @@ import {
 	eloPoissonPrediction,
 	evaluateMarket,
 	pickRecommendation,
+	teamFilterAllows,
 	type PlayedMatch,
-	type RecommendationRules
+	type RecommendationRules,
+	type TeamFilterIndex
 } from '@football/core';
-import type { SqlExecutor, StoredTask } from '@football/db';
+import { SqlSettingsRepository, type SqlExecutor, type StoredTask } from '@football/db';
 import type { TaskHandler } from './ingestWorker';
 
 /**
@@ -47,6 +49,11 @@ export interface PredictionRunOptions {
 	rules?: RecommendationRules;
 	/** A kiírt ajánlás tétje egységben. */
 	stakeUnits?: number;
+	/**
+	 * Csapatszűrő (I18e). Csak az ajánlást érinti: a kiszűrt meccs kimenetei is naplózódnak (a kiértékeléshez), de
+	 * `is_recommendation = false`. Hiányzik → a DB `team_filter` táblájából.
+	 */
+	teamFilter?: TeamFilterIndex;
 }
 
 export interface PredictionRunResult {
@@ -211,6 +218,7 @@ export async function runPredictions(
 	if (!targetRows.length) return empty;
 	const history = await loadHistory(db, opts.now);
 	const allMatches = history.map((h) => h.match);
+	const teamFilter = opts.teamFilter ?? (await new SqlSettingsRepository(db).loadTeamFilterIndex());
 	const out: PredictionRow[] = [];
 
 	for (const r of targetRows) {
@@ -255,7 +263,8 @@ export async function runPredictions(
 			);
 			return e ? [{ m, books, pModel, e }] : [];
 		});
-		const pick = pickRecommendation(markets.map((x) => ({ ...x.e, marketId: x.m.id })));
+		const allowed = teamFilterAllows({ leagueId: t.league, homeTeamId: t.homeTeamId, awayTeamId: t.awayTeamId }, teamFilter);
+		const pick = allowed ? pickRecommendation(markets.map((x) => ({ ...x.e, marketId: x.m.id }))) : null;
 		const seasonMin = Math.min(played('home'), played('away'));
 
 		for (const { m, books, pModel, e } of markets) {
@@ -270,7 +279,8 @@ export async function runPredictions(
 				match,
 				standing,
 				odds: { snapshotId: odds.snapshotId, capturedAt: odds.capturedAt, bookmakers: books.length },
-				rejections: e.rejections
+				rejections: e.rejections,
+				...(allowed ? {} : { teamFilterBlocked: true })
 			};
 			m.selections.forEach((selection, i) => {
 				const isRec = pick?.marketId === m.id && pick.outcomeIndex === i;
