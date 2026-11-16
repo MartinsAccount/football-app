@@ -4,6 +4,8 @@ import type {
 	ArbitrageSnapshot,
 	BacktestReport,
 	EvaluationSummary,
+	OwnBetsSummary,
+	SettledPlacedBet,
 	RecommendationSnapshot
 } from '@football/core';
 
@@ -274,4 +276,35 @@ export type ApiErrorCode = 'bad-request' | 'unauthorized' | 'not-found' | 'metho
 export interface ApiErrorBody {
 	error: ApiErrorCode;
 	message: string;
+}
+
+/** `POST /api/bets` törzse (ROADMAP 5.6): egy ténylegesen megtett tipp kézi rögzítése (bukmékerhez leadás nincs, PRD 8). */
+export interface PlacedBetInput {
+	fixtureId: number;
+	/** API-Football piac-id (1 = 1X2, 5 = Gól O/U; más piac rögzíthető, de nem számol el). */
+	marketId: number;
+	/** Pl. `Home`/`Draw`/`Away`, `Over`/`Under`. */
+	selection: string;
+	/** O/U vonal (pl. 2,5); 1X2-nél elhagyható. */
+	line?: number | null;
+	/** A ténylegesen kapott (Tippmix-) odds, > 1. */
+	oddTaken: number;
+	/** Tét pénzben (Ft), > 0. */
+	stake: number;
+	/** A kapcsolt predikció (`prediction.id`), ha ajánlásból jött; ugyanahhoz a meccshez kell tartoznia. */
+	predictionId?: number | null;
+	/** Alapértelmezés: „Tippmix”. */
+	bookmakerLabel?: string | null;
+	/** ISO időpont; alapértelmezés: most. */
+	placedAt?: string | null;
+	note?: string | null;
+}
+
+/** Egy rögzített fogadás elszámolással (`outcome`/`profit` `null` = még függő). */
+export type PlacedBetDto = SettledPlacedBet;
+
+/** `GET /api/bets`: a rögzített fogadások és a „saját” ROI a modell ROI-ja mellett. */
+export interface PlacedBetsResponse {
+	bets: PlacedBetDto[];
+	summary: OwnBetsSummary;
 }

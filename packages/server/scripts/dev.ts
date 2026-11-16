@@ -6,7 +6,7 @@ import { createServer } from 'node:http';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SqlBudgetStore } from '@football/api-client';
-import { openTarget, parseTargetArgs, SqlCronStore, SqlSettingsRepository } from '@football/db';
+import { openTarget, parseTargetArgs, SqlCronStore, SqlPlacedBetRepository, SqlSettingsRepository } from '@football/db';
 import { createApiHandler } from '../src/router';
 import { toNodeListener } from '../src/node';
 import { authConfigFromEnv } from '../src/auth';
@@ -44,6 +44,7 @@ createServer(
 			repo,
 			budget: new SqlBudgetStore(db),
 			settings: new SqlSettingsRepository(db),
+			placedBets: new SqlPlacedBetRepository(db),
 			evaluations: () => loadEvaluationRecords(db),
 			leagues: () => loadLeagueCatalog(db),
 			leagueTeams: (id) => loadLeagueTeams(db, id),
@@ -61,6 +62,6 @@ createServer(
 	)
 ).listen(port, () =>
 	console.log(
-		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,settings,leagues[/:id/teams],evaluation,recommendations,backtest,arbitrage,cron/tick} ← ${label}`
+		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,settings,leagues[/:id/teams],evaluation,bets,recommendations,backtest,arbitrage,cron/tick} ← ${label}`
 	)
 );

@@ -11,6 +11,9 @@ import type {
 	LeagueTeamsResponse,
 	OddsHistoryResponse,
 	OddsResponse,
+	PlacedBetDto,
+	PlacedBetInput,
+	PlacedBetsResponse,
 	RecommendationsResponse,
 	SettingsResponse,
 	SettingsUpdate
@@ -74,6 +77,10 @@ export interface ApiClient {
 	listLeagues(): Promise<LeaguesResponse>;
 	/** Egy liga csapatai (a csapatszűrőhöz); ismeretlen liga → üres lista. */
 	listLeagueTeams(leagueId: number): Promise<LeagueTeamsResponse>;
+	/** A rögzített fogadások + saját vs. modell ROI. */
+	listPlacedBets(): Promise<PlacedBetsResponse>;
+	/** Egy megtett tipp rögzítése (`POST`); hibás bemenet vagy ismeretlen meccs/piac/predikció → `ApiError` 400. */
+	createPlacedBet(input: PlacedBetInput): Promise<PlacedBetDto>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -105,7 +112,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 	// A globális fetch-et hívás közben, a globalThis-en hívjuk (néhány környezet "Illegal invocation"-t dob leválasztva).
 	const doFetch: FetchLike | undefined = options.fetch ?? (g.fetch ? (url, init) => g.fetch!(url, init) : undefined);
 
-	async function request<T>(method: 'GET' | 'PUT', path: string, payload?: unknown): Promise<T> {
+	async function request<T>(method: 'GET' | 'PUT' | 'POST', path: string, payload?: unknown): Promise<T> {
 		if (!doFetch) throw new ApiError(0, 'network', 'Nincs elérhető fetch');
 		const headers: Record<string, string> = { accept: 'application/json' };
 		if (options.token) headers.authorization = `Bearer ${options.token}`;
@@ -152,6 +159,8 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 		getSettings: () => get<SettingsResponse>('/api/settings'),
 		updateSettings: (update) => request<SettingsResponse>('PUT', '/api/settings', update),
 		listLeagues: () => get<LeaguesResponse>('/api/leagues'),
-		listLeagueTeams: (leagueId) => get<LeagueTeamsResponse>(`/api/leagues/${encodeURIComponent(String(leagueId))}/teams`)
+		listLeagueTeams: (leagueId) => get<LeagueTeamsResponse>(`/api/leagues/${encodeURIComponent(String(leagueId))}/teams`),
+		listPlacedBets: () => get<PlacedBetsResponse>('/api/bets'),
+		createPlacedBet: (input) => request<PlacedBetDto>('POST', '/api/bets', input)
 	};
 }

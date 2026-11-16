@@ -33,6 +33,7 @@ export * from './evaluation/verdict';
 export * from './evaluation/labels';
 export * from './evaluation/dbSummary';
 export * from './evaluation/liveView';
+export * from './evaluation/ownBets';
 export * from './budget/budget';
 export * from './budget/budgetView';
 export * from './storage/keyValue';

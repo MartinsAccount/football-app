@@ -1,6 +1,13 @@
 import { utcDay, type BudgetStore } from '@football/api-client';
-import { summarizeEvaluations, type EvaluationRecord } from '@football/core';
-import type { Fixture, FixtureFilter, Repository, SettingsRepository } from '@football/db';
+import { settlePlacedBet, summarizeEvaluations, type EvaluationRecord } from '@football/core';
+import {
+	PlacedBetRefError,
+	type Fixture,
+	type FixtureFilter,
+	type PlacedBetRepository,
+	type Repository,
+	type SettingsRepository
+} from '@football/db';
 import { authorize, type AuthConfig } from './auth';
 import type {
 	ApiErrorBody,
@@ -15,11 +22,14 @@ import type {
 	LeagueTeamsResponse,
 	OddsHistoryResponse,
 	OddsResponse,
+	PlacedBetDto,
+	PlacedBetsResponse,
 	SettingsResponse
 } from '@football/contract';
 import type { SnapshotSource } from './snapshots';
 import { applySettingsUpdate, readSettings, SettingsValidationError } from './settings';
 import { EMPTY_BUDGET_DETAILS, type BudgetDetails } from './budget';
+import { parsePlacedBetInput, PlacedBetValidationError, readPlacedBets } from './placedBets';
 
 /**
  * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
@@ -46,6 +56,8 @@ export interface ApiDeps {
 	leagueTeams?: (leagueId: number) => Promise<LeagueTeamsResponse>;
 	/** Budget-panel (`GET /api/budget`, I19): `loadBudgetDetails(db, day)`. Hiányában üres bontás. */
 	budgetDetails?: (day: string) => Promise<BudgetDetails>;
+	/** Fogadás-rögzítés (`GET/POST /api/bets`, I23): `SqlPlacedBetRepository`. Hiányában 404. A modell-oldal az `evaluations`-ből. */
+	placedBets?: PlacedBetRepository;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -140,19 +152,36 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 			if (!auth.ok) return fail(401, 'unauthorized', auth.message, { 'www-authenticate': 'Bearer' });
 		}
 		const isSettings = path === '/api/settings';
-		if (req.method !== 'GET' && !(isSettings && req.method === 'PUT'))
-			return fail(405, 'method', isSettings ? 'Csak GET vagy PUT engedélyezett' : 'Csak GET engedélyezett');
+		const isBets = path === '/api/bets';
+		if (req.method !== 'GET' && !(isSettings && req.method === 'PUT') && !(isBets && req.method === 'POST'))
+			return fail(
+				405,
+				'method',
+				isSettings ? 'Csak GET vagy PUT engedélyezett' : isBets ? 'Csak GET vagy POST engedélyezett' : 'Csak GET engedélyezett'
+			);
+		const readJson = async (): Promise<unknown> => {
+			try {
+				return JSON.parse(await req.text());
+			} catch {
+				throw new BadRequest('A törzs nem érvényes JSON');
+			}
+		};
 		try {
 			if (isSettings) {
 				if (!deps.settings) return fail(404, 'not-found', 'A beállítás-API nincs bekötve');
 				if (req.method === 'GET') return json(200, (await readSettings(deps.settings)) satisfies SettingsResponse);
-				let body: unknown;
-				try {
-					body = JSON.parse(await req.text());
-				} catch {
-					throw new BadRequest('A törzs nem érvényes JSON');
-				}
-				return json(200, (await applySettingsUpdate(deps.settings, body)) satisfies SettingsResponse);
+				return json(200, (await applySettingsUpdate(deps.settings, await readJson())) satisfies SettingsResponse);
+			}
+
+			if (isBets) {
+				if (!deps.placedBets) return fail(404, 'not-found', 'A fogadás-rögzítés nincs bekötve');
+				if (req.method === 'GET')
+					return json(
+						200,
+						(await readPlacedBets(deps.placedBets, deps.evaluations ?? (async () => []))) satisfies PlacedBetsResponse
+					);
+				const created = await deps.placedBets.insert(parsePlacedBetInput(await readJson()));
+				return json(201, settlePlacedBet(created) satisfies PlacedBetDto);
 			}
 
 			if (path === '/api/fixtures') {
@@ -223,7 +252,13 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 
 			return fail(404, 'not-found', `Ismeretlen végpont: ${path}`);
 		} catch (e) {
-			if (e instanceof BadRequest || e instanceof SettingsValidationError) return fail(400, 'bad-request', e.message);
+			if (
+				e instanceof BadRequest ||
+				e instanceof SettingsValidationError ||
+				e instanceof PlacedBetValidationError ||
+				e instanceof PlacedBetRefError
+			)
+				return fail(400, 'bad-request', e.message);
 			console.error('[api]', e);
 			return fail(500, 'internal', 'Szerverhiba');
 		}

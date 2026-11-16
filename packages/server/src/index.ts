@@ -47,6 +47,7 @@ export { loadLeagueCatalog, loadLeagueTeams, toCoverageDto } from './leagues';
 export { EMPTY_BUDGET_DETAILS, loadBudgetDetails, MANUAL_JOB } from './budget';
 export type { BudgetDetails } from './budget';
 export { buildEvaluationRows, evaluateFixtures, loadEvaluationRecords } from './evaluation';
+export { DEFAULT_BOOKMAKER_LABEL, parsePlacedBetInput, PlacedBetValidationError, readPlacedBets } from './placedBets';
 export type { EvaluationCandidate, EvaluationOptions, EvaluationRow } from './evaluation';
 export { ensureModelVersion, PREDICTION_MARKETS, runPredictions, withPredictions } from './predictions';
 export type { PredictionRow, PredictionRunOptions, PredictionRunResult } from './predictions';

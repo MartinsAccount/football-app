@@ -35,6 +35,9 @@ export type {
 	LeaguesResponse,
 	LeagueTeamDto,
 	LeagueTeamsResponse,
+	PlacedBetInput,
+	PlacedBetDto,
+	PlacedBetsResponse,
 	ApiErrorCode,
 	ApiErrorBody
 } from './dto';

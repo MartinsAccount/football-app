@@ -39,6 +39,8 @@ describe('createApiClient', () => {
 		await api.getEvaluation('elo@1 b');
 		await api.listLeagues();
 		await api.listLeagueTeams(78);
+		await api.listPlacedBets();
+		await api.createPlacedBet({ fixtureId: 1, marketId: 1, selection: 'Home', oddTaken: 2, stake: 500 });
 		expect(calls.map((c) => c.url)).toEqual([
 			'https://x.test/api/fixtures?league=39',
 			'https://x.test/api/odds/100',
@@ -51,7 +53,9 @@ describe('createApiClient', () => {
 			'https://x.test/api/evaluation',
 			'https://x.test/api/evaluation?model=elo%401%20b',
 			'https://x.test/api/leagues',
-			'https://x.test/api/leagues/78/teams'
+			'https://x.test/api/leagues/78/teams',
+			'https://x.test/api/bets',
+			'https://x.test/api/bets'
 		]);
 	});
 
