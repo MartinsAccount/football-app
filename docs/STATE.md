@@ -177,10 +177,10 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 /api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I22 – 8.1 Arbitrázs DB-snapshotból | `ce585ba`|`packages/server/src/arbitrage.ts` (`loadArbitrageSnapshot`, tiszta `buildArbitrageResponse`, core `scanMarket`), `withDbArbitrage`(DB → mentett JSON fallback), dev.ts bekötés; teszt memória-PGlite | | I21 – Budget-panel mobilon | feat(mobile): budget screen |`apps/mobile/src/app/budget.tsx` (`/budget`, link a Beállításokból), `BUDGET_CACHE_KEY`+`loadWithCache`offline-jelzéssel, core`budgetView` | | I20b – pillanatkép DB fixture-id |`c3bf6a9`|`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
 | |
 
-| I23 – 5.6 Fogadás rögzítése (szerver) | (lásd git log: feat: record placed bets) | core `evaluation/ownBets.ts`
-(`placedBetOutcome`, `settlePlacedBet`, `summarizeOwnBets`), db `SqlPlacedBetRepository` (`placedBets.ts`, `PlacedBetRefError`),
-server `placedBets.ts` + router `GET/POST /api/bets`, contract `PlacedBetInput`/`PlacedBetDto`/`PlacedBetsResponse` +
-`listPlacedBets`/`createPlacedBet`; terv `docs/plans/i23-placed-bet.md`; migráció nem kellett (0004) |
+| I23 – 5.6 Fogadás rögzítése (szerver) | `986708d` | core `evaluation/ownBets.ts` (`placedBetOutcome`, `settlePlacedBet`,
+`summarizeOwnBets`), db `SqlPlacedBetRepository` (`placedBets.ts`, `PlacedBetRefError`), server `placedBets.ts` + router
+`GET/POST /api/bets`, contract `PlacedBetInput`/`PlacedBetDto`/`PlacedBetsResponse` + `listPlacedBets`/`createPlacedBet`; terv
+`docs/plans/i23-placed-bet.md`; migráció nem kellett (0004) |
 
 ## Polish backlog
 
