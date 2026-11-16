@@ -49,7 +49,7 @@ Floodlight v0.2 redesign: lezárva.
 27. ~~I20 – 5.7 Odds-history nézet (web)~~ kész (`/match/:id`, core `odds/matchView`).
 28. ~~I20b – pillanatkép DB fixture-id-val~~ kész (`src/import/csvFixtureIds.ts`, S11b-párosítás).
 29. ~~I21 – Budget-panel mobilon~~ kész (`/budget` képernyő, link a Beállításokból).
-30. I22 – 8.1 Arbitrázsszámítás az odds-snapshotokból (core `arbitrage` + `odds_best`/snapshot, a beállított ligákra, 0 hívás).
+30. ~~I22 – 8.1 Arbitrázsszámítás az odds-snapshotokból~~ kész (server `arbitrage.ts`, `/api/arbitrage` DB-ből, JSON-fallback).
 31. I23 – 5.6 Fogadás rögzítése (`placed_bet` migráció + repository + „saját” ROI; UI külön szelet).
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
@@ -171,10 +171,13 @@ git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.
 /api/leagues`, contract `LeagueDto`/`listLeagues`; core `leagueCatalog`(kézi jelöltek + DB csapatszám/coverage + adatos/követett DB-ligák),`estimateSettings(s,
 catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e`null`, `sanitizeSettings`bármely pozitív egész liga-id-t elfogad;`SettingsStore.loadCatalog`/`leagues`; Vite-proxy `leagues`; screenshot `docs/plans/screens/I18b-settings-dark-{1440,390}.png`| | I18c – Csapatszűrő (web) | 01e47fd (server) + (lásd git log: feat(ui): add team filter to the settings page) | server`loadLeagueTeams`+ router`GET
 /api/leagues/:id/teams`(season_team → fixture-tartalék, osztályozó nélkül), contract`LeagueTeamDto`/`LeagueTeamsResponse`/`listLeagueTeams`; a katalógus csapatszáma már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); core `ISettings.teamFilters`, `teamFilterMode`, `withTeamFilter`, remote diff (upsert/remove); web `SettingsStore` `teamsByLeague`/`loadTeams`/`setTeamFilter`, `TeamFilter.tsx`(Mind/Csak/Kizár szegmens), új szekció „Csapatszűrő”; screenshot`docs/plans/screens/I18c-settings-dark-{1440,390}.png`| | I18d – Mobil Beállítások ↔ API | (lásd git log: feat(mobile): sync preferences with the settings API) |`PreferencesProvider`: `sync()`(GET`/api/settings`+`/api/leagues`, fókuszkor is), `saveSettings` PUT csak a diffet (`settingsUpdateFrom`), AsyncStorage gyorsítótár; `syncStatus`sor a képernyő tetején; Ligák a core`leagueCatalog`-ból, a becslés ezzel; új `components/TeamFilterSection.tsx`(Mind/Csak/Kizár,`listLeagueTeams`) | | I18e – Csapatszűrő alkalmazása | (lásd git log: feat: apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `teamFilterAllows`, `NO_TEAM_FILTER`); planner `PlannerInput.teamFilter`→`odds\*\*`/`injuries`csak megengedett meccsre; db`SqlSettingsRepository.loadTeamFilterIndex()` (`season_team`∪`fixture`), `loadPlannerInput`hozza; server`runPredictions`: kiszűrt meccsen nincs ajánlás, naplózás marad (`features.teamFilterBlocked`) | | I18f – Ligánkénti piac-felülírás (web) | (lásd git log: feat(ui): league market overrides) | core `ISettings.leagueMarkets`+`remote.ts`leképezés (tesztek), store`setLeagueMarkets`/`toggleLeagueMarket`, `LeagueMarkets.tsx`; screenshot `docs/plans/screens/I18f-settings-dark-{1440,390}.png`| I19 – 2.4 Budget-panel |`acb8bb2`(server/core) + feat(ui): budget panel |`GET
-/api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I21 – Budget-panel mobilon | feat(mobile): budget screen | `apps/mobile/src/app/budget.tsx` (`/budget`, link a Beállításokból), `BUDGET_CACHE_KEY`+`loadWithCache`offline-jelzéssel, core`budgetView` | | I20b – pillanatkép DB fixture-id |`c3bf6a9`|`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
+/api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I22 – 8.1 Arbitrázs DB-snapshotból | feat(server): arbitrage from DB odds snapshots | `packages/server/src/arbitrage.ts` (`loadArbitrageSnapshot`, tiszta `buildArbitrageResponse`, core `scanMarket`), `withDbArbitrage`(DB → mentett JSON fallback), dev.ts bekötés; teszt memória-PGlite | | I21 – Budget-panel mobilon | feat(mobile): budget screen |`apps/mobile/src/app/budget.tsx` (`/budget`, link a Beállításokból), `BUDGET_CACHE_KEY`+`loadWithCache`offline-jelzéssel, core`budgetView` | | I20b – pillanatkép DB fixture-id |`c3bf6a9`|`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
 | |
 
 ## Polish backlog
+
+- I22: az `odds_best` (minden iroda) nincs bevonva; csak 1X2 + Gól 2,5; az ablak fix 10 nap (nem beállítás); nincs API-paraméter
+  (`?days=`); a régi CSV-generátor (`npm run arbitrage -w @football/db`) megmaradt fallbacknak.
 
 - I20: sparkline pontjelölő/tooltip nélkül, kimenetenként külön y-skála; a TipCard link sima `<a>` (teljes újratöltés); a
   pillanatkép-lista forrás (`source`) nélkül; nincs vissza-link.
@@ -351,6 +354,12 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I22 kész.** `packages/server/src/arbitrage.ts`: `loadArbitrageSnapshot(db, { now, days=10 })` – NS/TBD meccsek
+  `[now, now+10 nap)` ablakban a bekapcsolt `followed_league` ligáiban (nincs követett liga → mind), meccsenként a legutóbbi
+  `captured_at ≤ now` snapshot `odds_quote`-jai → core `scanMarket` (h2h, ou25; kulcsok/címkék = CSV-pillanatkép). Drótforma
+  változatlan (`ArbitrageResponse`, `sum: null`). `withDbArbitrage(fileSource, load)`: DB-kép, `null` esetén a mentett JSON – a
+  helyi 2024-es adaton „most” nincs közelgő meccs, ezért a web/mobil ma is a JSON-t látja. Router nem változott. Következő: I23.
 
 - **I21 kész.** Mobil `apps/mobile/src/app/budget.tsx` (`/budget`, „API-keret”; link a Beállítások aljáról): `getBudget` →
   `loadWithCache(BUDGET_CACHE_KEY)` → core `budgetView` (pill + sáv tónusszínnel, Felhasznált/Maradék/Tartalék, jobonként élő +

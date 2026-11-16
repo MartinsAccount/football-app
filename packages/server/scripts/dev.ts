@@ -13,7 +13,8 @@ import { authConfigFromEnv } from '../src/auth';
 import { createCronHandler, cronConfigFromEnv } from '../src/cron';
 import { createDbIngestWorker } from '../src/ingestWorker';
 import { loadIngestMocks } from '../src/referenceMocks';
-import { fileSnapshotSource } from '../src/snapshots';
+import { fileSnapshotSource, withDbArbitrage } from '../src/snapshots';
+import { loadArbitrageSnapshot } from '../src/arbitrage';
 import { loadEvaluationRecords } from '../src/evaluation';
 import { loadLeagueCatalog, loadLeagueTeams } from '../src/leagues';
 import { loadBudgetDetails } from '../src/budget';
@@ -48,7 +49,8 @@ createServer(
 			leagueTeams: (id) => loadLeagueTeams(db, id),
 			budgetDetails: (day) => loadBudgetDetails(db, day),
 			auth,
-			snapshots: fileSnapshotSource(join(ROOT, 'data')),
+			// Arbitrázs (I22): a DB odds-snapshotjaiból, közelgő meccs hiányában a mentett JSON.
+			snapshots: withDbArbitrage(fileSnapshotSource(join(ROOT, 'data')), () => loadArbitrageSnapshot(db, { now: new Date() })),
 			// Ütemező (1.7): `CRON_SECRET` env; hiányában lokálisan nyitott. Lokális ütemezés: `npm run tick -- --every 15`.
 			cron: createCronHandler({
 				store: new SqlCronStore(db),

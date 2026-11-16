@@ -11,7 +11,9 @@ export {
 	SettingsValidationError
 } from './settings';
 export type { SettingsUpdateContext } from './settings';
-export { fileSnapshotSource, SNAPSHOT_FILES } from './snapshots';
+export { fileSnapshotSource, SNAPSHOT_FILES, withDbArbitrage } from './snapshots';
+export { ARBITRAGE_MARKETS, ARBITRAGE_WINDOW_DAYS, buildArbitrageResponse, loadArbitrageSnapshot } from './arbitrage';
+export type { ArbitrageLoadOptions, ArbitrageQuoteRow } from './arbitrage';
 export type { SnapshotSource } from './snapshots';
 export { authorize, authConfigFromEnv, hashToken } from './auth';
 export { createCronHandler, createTickRunner, cronAuthorize, cronConfigFromEnv, noopWorker, TICK_BUDGET_MS } from './cron';

@@ -36,3 +36,11 @@ export function fileSnapshotSource(dataDir: string): SnapshotSource {
 		arbitrage: () => readJson<ArbitrageResponse>(join(dataDir, SNAPSHOT_FILES.arbitrage))
 	};
 }
+
+/**
+ * I22 (ROADMAP 8.1): az arbitrázs elsődleges forrása a DB odds-snapshotjaiból számolt kép (`loadArbitrageSnapshot`); ha az
+ * ablakban nincs közelgő meccs (`null`), a mentett JSON. A többi pillanatkép változatlan.
+ */
+export function withDbArbitrage(source: SnapshotSource, fromDb: () => Promise<ArbitrageResponse | null>): SnapshotSource {
+	return { ...source, arbitrage: async () => (await fromDb()) ?? (await source.arbitrage()) };
+}

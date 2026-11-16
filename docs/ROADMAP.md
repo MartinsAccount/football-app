@@ -206,7 +206,7 @@
 
 ## 8. Arbitrázsmodul az új backenden
 
-- [ ] **8.1 Arbitrázsszámítás az odds-snapshotokból** (`packages/core/arbitrage`), a beállított ligákra, 0 extra hívással.
+- [x] **8.1 Arbitrázsszámítás az odds-snapshotokból** (`packages/core/arbitrage`), a beállított ligákra, 0 extra hívással.
       _Ellenőrzés:_ unit-tesztek; a régi és az új eredmény egyezik ugyanazon az adaton.
 - [ ] **8.2 Opcionális teljes piaci pásztázás** (`/odds/mapping` + lapozott `/odds`) kézi indítással, **előzetes hívásbecsléssel
       és megerősítéssel**, napi max. 1×. _Ellenőrzés:_ mock: a becslés egyezik a ténylegesen indított hívások számával.
