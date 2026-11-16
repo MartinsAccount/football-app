@@ -32,8 +32,7 @@ Floodlight v0.2 redesign: lezárva.
 10. ~~I10 – 3.5 `odds_early` + `odds_late` snapshot (mock)~~ kész.
 11. ~~I11 – 3.5b `odds_best`~~ kész (a megőrzési job törlés → BLOCKERS).
 12. ~~I12 – 3.6 `injuries` (mock)~~ kész.
-13. **I13 – 4.3 `standing_derived`:** pont-idejű tabella a meccsekből (`as_of`) a core `deriveStandings`-szel, DB-be írva (Grep:
-    `standing_derived` a migrációkban; ha nincs tábla, additív migráció). Teszt: szezonvégi derived tabella = ismert tabella.
+13. ~~I13 – 4.3 `standing_derived`~~ kész.
 14. **I14 – 5.2 Predikció-pipeline:** `derive` lépés az odds-snapshot után → `model_version`, `prediction_run`, `prediction`
     (append-only). Teszt: ugyanarra a snapshotra két futás két run, a régi sor nem változik (memória-PGlite).
 15. **I15 – 5.3 Kiértékelő job:** a `results` után `evaluation` (core `evaluation/` képletei); mock: PST → void.
@@ -153,9 +152,14 @@ feat(server): store odds_best) | core `odds/best.ts` (`computeBestOdds`), `odds.
 szűrés), db `OddsSnapshotInput.best` + `insertBest` (ismeretlen iroda → null); megőrzés: BLOCKERS | | I12 – injuries (3.6) | (lásd
 git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.ts` (insert `captured_at = now`,
 `ON CONFLICT DO NOTHING`), `referenceMocks.ts` `withInjuries` (csak mentett `injuries-*.json`, ma nincs → `mock-missing`); terv
-`docs/plans/i12-injuries.md` |
+`docs/plans/i12-injuries.md` | | I13 – standing_derived (4.3) | (lásd git log: feat(server): add derived point-in-time standings) |
+migráció 0007, `packages/server/src/standingDerived.ts` (`refreshStandingDerived`, meccsnap-`as_of`, `unnest`-upsert), a `results`
+job hívja; terv `docs/plans/i13-standing-derived.md` |
 
 ## Polish backlog
+
+- I13: `standing_derived` – H2H-tiebreak és pontlevonás nincs; nincs olvasó API/DTO; minden results-futás a teljes szezont
+  újraszámolja (inkrementális lehetne); nincs a `COUNTABLE_TABLES`-ben.
 
 - I12: nincs valódi `/injuries` válasz a repóban (a teszt szintetikus) – mentés (💸 1 hívás, 2022–2024-es meccsnap, `ids`) →
   `data/history/api-football/injuries-<...>.json`, a `loadIngestMocks` magától felveszi; soronkénti INSERT; a sérültlista nincs a
@@ -282,6 +286,12 @@ git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I13 kész (4.3).** Tábla `standing_derived` (migráció 0007; PK liga, szezon, `as_of`, csapat). `refreshStandingDerived(db,
+  league, season, asOfs?)` (`packages/server/src/standingDerived.ts`): a `fixture` FT/AET/PEN meccseiből core `deriveStandings`,
+  alapból minden meccsnap UTC-éjfelére + az utolsó meccsnap utáni éjfélre (= aktuális tabella); upsert, `season` sor nélkül 0.
+  A `results` handler befejezett meccs után hívja. Teszt: a mentett PL 2024 végtabellája = a hivatalos 2024/25 végeredmény.
+  Következő: I14 predikció-pipeline (5.2).
 
 - **I12 kész (3.6).** `createInjuriesHandler(db)` (`packages/server/src/injuries.ts`): a planner `injuries` feladata (`{ ids }` ≤
   20, T−24 h) → 1 hívás `/injuries?ids=a-b-c` → `toInjuryRows` (csak a kért meccsek) → `upsertTeams` + `insertInjuries`

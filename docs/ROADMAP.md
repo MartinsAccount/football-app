@@ -145,8 +145,10 @@
 - [x] **4.2 football-data.co.uk import:** (S11b, 5330/5330 párosítva) CSV →
       `odds_snapshot(source = 'football-data-csv', kind = opening/closing)` + a meccsek párosítása; `team_alias` mapping.
       _Ellenőrzés:_ a párosítási arány ≥ 99% a lefedett ligákra; a párosítatlanokról lista készül.
-- [ ] **4.3 `standing_derived`:** pont-idejű tabella a meccsekből (`as_of`). _Ellenőrzés:_ unit-teszt: a szezon végi derived
-      tabella egyezik az API szezonvégi `standings`-ével (ahol van snapshot) vagy egy ismert tabellával.
+- [x] **4.3 `standing_derived`:** pont-idejű tabella a meccsekből (`as_of`). _Ellenőrzés:_ unit-teszt: a szezon végi derived
+      tabella egyezik az API szezonvégi `standings`-ével (ahol van snapshot) vagy egy ismert tabellával. Kész: migráció 0007 +
+      `packages/server/src/standingDerived.ts` (a `results` job frissíti); teszt: PL 2024/25 végeredmény — lásd git log:
+      feat(server): add derived point-in-time standings.
 
 ## 5. Predikció-napló és kiértékelés (v0: piaci baseline)
 
