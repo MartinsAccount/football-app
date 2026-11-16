@@ -1,4 +1,11 @@
-import { ApiFootballClient, ApiFootballError, SqlBudgetStore, utcDay, type BudgetStore } from '@football/api-client';
+import {
+	ApiFootballClient,
+	ApiFootballError,
+	SqlBudgetStore,
+	utcDay,
+	type BudgetStore,
+	type MockFixtures
+} from '@football/api-client';
 import {
 	onTaskFailure,
 	planTasks,
@@ -10,12 +17,13 @@ import {
 } from '@football/core';
 import { loadPlannerInput, SqlTaskStore, type SqlExecutor, type StoredTask, type TaskStore } from '@football/db';
 import type { TickWorker } from './cron';
+import { createReferenceHandler } from './reference';
 import { remainingCalls } from './router';
 
 /**
  * Ingest-worker a tickben (ROADMAP 3.1b, architecture.md §7.1–§7.3): lejárt → `skipped`, beragadt `running` → `pending`,
  * planner → `enqueue` (dedupe), majd prioritásos végrehajtás a napi maradék kereten belül. A szabályok a core-ban
- * (`ingest/tasks.ts`, `ingest/queue.ts`); a job-végrehajtók ma no-op handlerek (élő hívás nincs).
+ * (`ingest/tasks.ts`, `ingest/queue.ts`); a job-végrehajtók kindonkénti handlerek (3.2: `reference`), a többi még no-op.
  */
 
 export interface TaskHandlerContext {
@@ -98,15 +106,20 @@ export function createIngestWorker(deps: IngestWorkerDeps): TickWorker {
 }
 
 /**
- * Lokális/dev bekötés: DB-tár + `api_budget_day` + mock kliens üres fixture-térképpel (0 élő hívás). Élő kliens és valódi
- * handlerek a 3.2+ szeletekben (💸).
+ * Lokális/dev bekötés: DB-tár + `api_budget_day` + mock kliens (0 élő hívás). A `reference` jobok (3.2) a `fixtures`
+ * mock-térképből töltik a törzsadatot (`loadReferenceMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
+ * és a többi handler a 3.3+ szeletekben (💸).
  */
-export function createDbIngestWorker(db: SqlExecutor, opts: Pick<IngestWorkerDeps, 'handlers' | 'maxTasks'> = {}): TickWorker {
+export function createDbIngestWorker(
+	db: SqlExecutor,
+	opts: Pick<IngestWorkerDeps, 'handlers' | 'maxTasks'> & { fixtures?: MockFixtures } = {}
+): TickWorker {
 	return createIngestWorker({
 		tasks: new SqlTaskStore(db),
 		budget: new SqlBudgetStore(db),
 		plannerInput: (now) => loadPlannerInput(db, now),
-		client: new ApiFootballClient({ mode: 'mock', fixtures: {} }),
-		...opts
+		client: new ApiFootballClient({ mode: 'mock', fixtures: opts.fixtures ?? {} }),
+		handlers: { reference: createReferenceHandler(db), ...opts.handlers },
+		maxTasks: opts.maxTasks
 	});
 }

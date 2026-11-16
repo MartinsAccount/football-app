@@ -109,8 +109,9 @@
       utáni tick nem duplikál, a budget-plafont betartja). Részben: 3.1a core-mag kész (planner, kiválasztás, backoff –
       `packages/core/src/ingest/`) — `c088738`; 3.1b `SqlTaskStore` + `createIngestWorker` a tickben (no-op handlerek) — lásd git
       log: feat(server): wire ingest worker into tick.
-- [ ] **3.2 `reference` jobok:** `teams` (liga × szezon), `odds/bookmakers`, `odds/bets` → `market.analyzed`. _Ellenőrzés:_ mock
-      módban kitöltött törzsadat.
+- [x] **3.2 `reference` jobok:** `teams` (liga × szezon), `odds/bookmakers`, `odds/bets` → `market.analyzed`. _Ellenőrzés:_ mock
+      módban kitöltött törzsadat. Kész (mock): `packages/server/src/reference.ts` + `referenceMocks.ts` — lásd git log:
+      feat(server): add reference ingest jobs.
 - [ ] **3.3 `fixtures_window` + `results`:** a következő 7 nap meccsei ligánként; meccs után `fixtures?ids` (max. 20) az
       eredménnyel, statisztikával és eseményekkel; második kör +26 órával. _Ellenőrzés:_ mock: státuszváltás `NS` → `FT`, az
       eredmény betöltődik, a hívásszám ≤ ⌈n/20⌉.

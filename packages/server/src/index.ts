@@ -18,4 +18,6 @@ export { createCronHandler, createTickRunner, cronAuthorize, cronConfigFromEnv, 
 export type { CronConfig, TickDeps, TickOutcome, TickWorker } from './cron';
 export type { AuthConfig, AuthResult, Authorizer } from './auth';
 export { createDbIngestWorker, createIngestWorker, noopHandler, toFailureKind } from './ingestWorker';
+export { createReferenceHandler, toMarketRows, toNamedRows, toTeamRows } from './reference';
+export { buildReferenceMocks } from './referenceMocks';
 export type { IngestWorkerDeps, TaskHandler, TaskHandlerContext } from './ingestWorker';

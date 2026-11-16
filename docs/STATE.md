@@ -25,9 +25,11 @@ Floodlight v0.2 redesign: lezárva.
 3. ~~I3 – 2.1b Beállítás-API~~ kész (web/mobil átkötése: külön szelet, később).
 4. ~~I4 – 3.1a Feladatsor-mag (core, tiszta)~~ kész.
 5. ~~I5 – 3.1b Worker a tickben~~ kész.
-6. **I6 – 3.2 `reference` jobok (mock):** `reference` handler (`teams`, `odds/bookmakers`, `odds/bets`) a `createIngestWorker`
-   `handlers` térképén → upsert `team` / `bookmaker` / `market`; mock fixture-ök a `packages/api-client/src/fixtures`-ből (vagy új
-   mentett válasz). Ellenőrzés: PGlite-teszt, mock módban kitöltött törzsadat, 0 élő hívás.
+6. ~~I6 – 3.2 `reference` jobok (mock)~~ kész.
+7. **I7 – 3.3a `fixtures_window` (mock):** handler a `createIngestWorker` `handlers` térképén: `/fixtures?league&season&from&to` →
+   upsert `fixture` (+ hiányzó `team`), mock a `data/history/api-football/fixtures-*.json`-ből (minta: `referenceMocks.ts`).
+   Ellenőrzés: PGlite-teszt, 0 élő hívás.
+8. **I8 – 3.3b `results` (mock):** `fixtures?ids` (max. 20) → eredmény, `NS` → `FT`; második kör +26 óra; hívásszám ≤ ⌈n/20⌉.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -126,11 +128,15 @@ tételek).
 | I4 – Feladatsor-mag (3.1a)             | (lásd git log: feat(core): add ingest task queue core)                               | core `ingest/tasks.ts` (`planTasks`, `TASK_PRIORITY`, `isoWeek`), `ingest/queue.ts` (`selectNextTask`, `expiredTaskIds`, `onTaskFailure`); terv `docs/plans/i4-task-queue-core.md`                                                                                                                                                                                                                                                                                                                                                                         |
 
 | I5 – Worker a tickben (3.1b) | (lásd git log: feat(server): wire ingest worker into tick) | db `ingestTasks.ts` (`SqlTaskStore`,
+| I6 – reference jobok (3.2) | (lásd git log: feat(server): add reference ingest jobs) | `packages/server/src/reference.ts`
+(handler + upsert, `stored` marad), `referenceMocks.ts` (mentett adatból); terv `docs/plans/i6-reference-jobs.md` |
 `loadPlannerInput`), server `ingestWorker.ts` (`createIngestWorker`, `toFailureKind`, `createDbIngestWorker`); tick.ts + dev.ts
 bekötve; terv `docs/plans/ingest-worker.md` |
 
 ## Polish backlog
 
+- I6: a mock `/teams` a mentett meccsek csapataiból (nincs `code`/`country`/venue); `/odds/bets` csak a mentett odds-fájlok piacai
+  (Unibet); soronkénti upsert (unnest/batch helyett).
 - I5: `enqueue` soronkénti INSERT (unnest); claim nem `FOR UPDATE SKIP LOCKED` (a tick advisory lockja véd); hibás futásnál az
   elköltött hívás nem számít a `calls`-ba; a no-op handler `done`-ra zár (dev-tickek után a heti/havi `reference` kulcs foglalt).
 - I4: `predictions_api` és `backfill_*` nincs a plannerben; a beragadt `running` sorok visszaállítása kész (I5 `resetStale`);
@@ -233,6 +239,13 @@ bekötve; terv `docs/plans/ingest-worker.md` |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I6 kész (3.2).** `createReferenceHandler(db)` (`packages/server/src/reference.ts`): `/teams` → `team` + `season_team`
+  (`season` sort létrehozza, ha a liga ismert), `/odds/bookmakers` → `bookmaker`, `/odds/bets` → `market` (`code` = `BETS_TYPES`
+  kulcs, `analyzed` = ismert piac). Saját SQL-upsert: a `stored`-ot nem írja (a `SqlRepository.upsert*` false-ra írná!).
+  `createDbIngestWorker(db, { fixtures })` alapból köti; a tick.ts/dev.ts `loadReferenceMocks(ROOT)`-ot ad. Ismeretlen endpoint /
+  hiányzó mock → végleges hiba. **Helyi `.data/pglite`:** az I5 no-op handlere a heti/havi `reference` kulcsokat már `done`-ra
+  zárta, ezért ott a törzsadat csak a következő ISO-héten / hónapban töltődik (a DB-t nem töröltük); a teszt friss memória-PGlite.
 
 - **I5 kész (3.1b).** `SqlTaskStore` (`@football/db`): `enqueue` (ON CONFLICT DO NOTHING, beszúrt db), `skipExpired`,
   `resetStale`, `listRunnable`, `claim`, `complete`, `fail`, `list`; `estCalls` a `params._estCalls`-ban (olvasáskor leválik).
