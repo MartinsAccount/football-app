@@ -34,7 +34,8 @@ export class MainStore {
 		this.SettingsStore = new SettingsStore(localSettingsStorage, {
 			load: () => readApi.getSettings(),
 			update: (u) => readApi.updateSettings(u),
-			leagues: () => readApi.listLeagues().then((r) => r.leagues)
+			leagues: () => readApi.listLeagues().then((r) => r.leagues),
+			teams: (leagueId) => readApi.listLeagueTeams(leagueId)
 		});
 		this.SlipStore = new SlipStore(undefined, () => this.SettingsStore.stakeOptions);
 		// Alapegység mentésekor (nem a piszkozatban) a tét az új egységre áll (a régi lépcső eleme már nem választható).

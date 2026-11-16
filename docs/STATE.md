@@ -41,8 +41,11 @@ Floodlight v0.2 redesign: lezárva.
 19. ~~I17c – 5.5 mobil „Élő (DB)” blokk~~ kész (formázók: core `evaluation/liveView.ts`).
 20. ~~I18a – 2.3 Beállítások ↔ `/api/settings` (web)~~ kész.
 21. ~~I18b – 2.3 Liga-katalógus a Beállításokban~~ kész (`GET /api/leagues`, core `leagueCatalog`).
-22. **I18c – 2.3 Csapatszűrő UI:** `team_filter` include/exclude a követett ligák csapataiból (web), a `teamFilters` a PUT-ban.
-23. **I18d – mobil Beállítások ↔ `/api/settings`:** a core `settings/remote.ts` a `PreferencesProvider`-ben.
+22. ~~I18c – 2.3 Csapatszűrő UI (web)~~ kész (`GET /api/leagues/:id/teams`, core `teamFilters`).
+23. **I18d – mobil Beállítások ↔ `/api/settings`:** a core `settings/remote.ts` a `PreferencesProvider`-ben (a `teamFilters`
+    már az `ISettings` része; mobil csapatszűrő UI opcionális, külön szelet).
+24. **I18e – csapatszűrő alkalmazása:** a `team_filter` (include/exclude) érvényesítése az ajánlás-/ingestion-hatókörben
+    (core `storedScope` + predikció-pipeline), teszttel.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -178,12 +181,16 @@ live DB evaluation block) | core `evaluation/liveView.ts` (+teszt, a web `liveEv
 `syncStatus`/`saving`/`saveError`, MainStore → `readApi`, Vite-proxy `/api/settings` → :5100, szinkron-pill + SaveBar-hiba; terv
 `docs/plans/i18-settings-ui.md`; screenshot `docs/plans/screens/I18a-settings-dark-{1440,390}.png` |
 | I18b – Liga-katalógus a Beállításokban | a9ac420 (server) + (lásd git log: feat(ui): list leagues from the league catalog API) | server `leagues.ts` (`loadLeagueCatalog`, `toCoverageDto`; +PGlite-teszt), router `GET /api/leagues`, contract `LeagueDto`/`listLeagues`; core `leagueCatalog` (kézi jelöltek + DB csapatszám/coverage + adatos/követett DB-ligák), `estimateSettings(s, catalog)`, `missingCoverage` csak `false`-ra, a kézi `SETTINGS_LEAGUES` coverage-e `null`, `sanitizeSettings` bármely pozitív egész liga-id-t elfogad; `SettingsStore.loadCatalog`/`leagues`; Vite-proxy `leagues`; screenshot `docs/plans/screens/I18b-settings-dark-{1440,390}.png` |
+| I18c – Csapatszűrő (web) | 01e47fd (server) + (lásd git log: feat(ui): add team filter to the settings page) | server `loadLeagueTeams` + router `GET /api/leagues/:id/teams` (season_team → fixture-tartalék, osztályozó nélkül), contract `LeagueTeamDto`/`LeagueTeamsResponse`/`listLeagueTeams`; a katalógus csapatszáma már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); core `ISettings.teamFilters`, `teamFilterMode`, `withTeamFilter`, remote diff (upsert/remove); web `SettingsStore` `teamsByLeague`/`loadTeams`/`setTeamFilter`, `TeamFilter.tsx` (Mind/Csak/Kizár szegmens), új szekció „Csapatszűrő”; screenshot `docs/plans/screens/I18c-settings-dark-{1440,390}.png` |
 
 ## Polish backlog
 
+- I18c: kereső és „összes törlése” nincs; más ligák szűrői csak a számlálóban látszanak; a szűrő még nem hat az ajánlásokra
+  (I18e); csak sötét téma screenshot; a hosszú csapatnév 390 px-en levágva (title-ben teljes).
+
 - I18b: a `/api/leagues` a teljes `league` táblát adja (szűrés/keresés/lapozás nincs; ~1000 ligánál kell); a DB-katalógus
-  extra ligái csak akkor jelennek meg, ha van csapatszám vagy követjük őket (keresővel lehetne hozzáadni); a fixture-ből
-  mért csapatszám eltérhet (Bundesliga/Ligue 1: 19 a helyi adatban – `season_team` pontosabb); ismeretlen csapatszám → 20
+  extra ligái csak akkor jelennek meg, ha van csapatszám vagy követjük őket (keresővel lehetne hozzáadni); a 19-es
+  csapatszám javítva (I18c: osztályozó kizárva); ismeretlen csapatszám → 20
   (`FALLBACK_LEAGUE_TEAMS`); a mobil lista még a kézi katalógusból (coverage nélkül) – I18d; csak sötét téma screenshot.
 
 - I18a: offline mentés csak helyi (újrakapcsolódáskor nincs feltöltés/ütközés-feloldás); a DB-ben hiányzó piac/iroda sor
@@ -339,6 +346,12 @@ live DB evaluation block) | core `evaluation/liveView.ts` (+teszt, a web `liveEv
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I18c kész.** `GET /api/leagues/:id/teams` (server `loadLeagueTeams`, dev.ts bekötve; `season_team` üres helyben → meccsekből).
+  A 19-es csapatszám oka: „Relegation Round” (osztályozó) meccsek a `fixture`-ben – SQL-ben kizárva. Core `ISettings.teamFilters`
+  (sanitize: id szerint rendezve, utolsó mód nyer), `settingsUpdateFrom` → `teamFilters: { upsert, remove }`. Web: `TeamFilter.tsx`
+  (observer osztály, a csapatlistát didMount/didUpdate-ben kéri). Screenshothoz a helyi PGlite-ba ideiglenesen 2 ligát + 2 szűrőt
+  PUT-oltam, utána visszavontam. Következő: I18d (mobil), majd I18e (szűrő alkalmazása).
 
 - **I18b kész.** `GET /api/leagues` (server `leagues.ts`, dev.ts bekötve), contract `listLeagues()`; a web `SettingsStore.leagues`
   = core `leagueCatalog(catalogRows, saved.leagues)`, a becslés ezzel számol. A `sanitizeSettings` már nem szűr a kézi listára

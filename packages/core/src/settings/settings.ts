@@ -115,8 +115,18 @@ export const RETENTION_OPTIONS: readonly { key: Retention; label: string; hint: 
 	{ key: 'all', label: 'Minden snapshot', hint: '≈ 4,5 / meccs', snapshotsPerFixture: 4.5 }
 ];
 
+/** Csapatszűrő (`team_filter`): `include` = csak ezek a csapatok, `exclude` = ezek kimaradnak (ROADMAP 2.3). */
+export type TeamFilterMode = 'include' | 'exclude';
+
+export interface ISettingsTeamFilter {
+	teamId: number;
+	mode: TeamFilterMode;
+}
+
 export interface ISettings {
 	leagues: number[];
+	/** Csapatszűrők (I18c); a csapatnév a liga csapatlistájából (`/api/leagues/:id/teams`) jön. */
+	teamFilters: ISettingsTeamFilter[];
 	markets: SettingsMarketKey[];
 	bookmakers: number[];
 	retention: Retention;
@@ -133,6 +143,7 @@ export const STAKE_UNITS = [500, 1000, 2000, 5000] as const;
 
 export const DEFAULT_SETTINGS: ISettings = {
 	leagues: [39, 140, 135, 78, 61],
+	teamFilters: [],
 	markets: ['h2h', 'ou25', 'btts'],
 	bookmakers: [8, 4, 16, 6, 11],
 	retention: 'opening-closing',
@@ -154,6 +165,30 @@ export const NUMBER_LIMITS = {
 const leagueIds = (xs: unknown): number[] | null =>
 	Array.isArray(xs) ? [...new Set(xs.filter((x): x is number => Number.isInteger(x) && x > 0))] : null;
 
+/** Érvényes csapatszűrők: pozitív egész id + ismert mód; ugyanarra a csapatra az utolsó nyer, id szerint rendezve. */
+const teamFilters = (xs: unknown): ISettingsTeamFilter[] | null => {
+	if (!Array.isArray(xs)) return null;
+	const byTeam = new Map<number, TeamFilterMode>();
+	for (const x of xs) {
+		const t = (x && typeof x === 'object' ? x : {}) as { teamId?: unknown; mode?: unknown };
+		if (Number.isInteger(t.teamId) && (t.teamId as number) > 0 && (t.mode === 'include' || t.mode === 'exclude'))
+			byTeam.set(t.teamId as number, t.mode);
+	}
+	return [...byTeam].sort((a, b) => a[0] - b[0]).map(([teamId, mode]) => ({ teamId, mode }));
+};
+
+/** A csapat szűrő-módja (`null` = nincs szűrve). */
+export const teamFilterMode = (filters: readonly ISettingsTeamFilter[], teamId: number): TeamFilterMode | null =>
+	filters.find((f) => f.teamId === teamId)?.mode ?? null;
+
+/** Csapatszűrő beállítása (`null` = törlés); id szerint rendezett, új tömb. */
+export const withTeamFilter = (
+	filters: readonly ISettingsTeamFilter[],
+	teamId: number,
+	mode: TeamFilterMode | null
+): ISettingsTeamFilter[] =>
+	teamFilters([...filters.filter((f) => f.teamId !== teamId), ...(mode ? [{ teamId, mode }] : [])]) ?? [];
+
 export type NumberField = keyof typeof NUMBER_LIMITS;
 
 const inRange = (x: unknown, f: NumberField): x is number =>
@@ -172,6 +207,7 @@ export const sanitizeSettings = (raw: unknown): ISettings => {
 	if (minOdds >= maxOdds) [minOdds, maxOdds] = [d.minOdds, d.maxOdds];
 	return {
 		leagues: leagueIds(r.leagues) ?? d.leagues,
+		teamFilters: teamFilters(r.teamFilters) ?? d.teamFilters,
 		markets:
 			known(
 				r.markets,

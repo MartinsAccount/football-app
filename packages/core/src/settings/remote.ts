@@ -1,4 +1,11 @@
-import { DEFAULT_SETTINGS, ISettings, sanitizeSettings, SETTINGS_MARKETS, SettingsMarketKey } from './settings';
+import {
+	DEFAULT_SETTINGS,
+	ISettings,
+	ISettingsTeamFilter,
+	sanitizeSettings,
+	SETTINGS_MARKETS,
+	SettingsMarketKey
+} from './settings';
 
 // Web/mobil `ISettings` ↔ szerver `GET/PUT /api/settings` (ROADMAP 2.3, I18a). A core nem függhet a `@football/contract`-tól
 // (az függ a core-tól), ezért itt a szerver-alak szerkezeti mása áll; a contract `SettingsResponse`/`SettingsUpdate` ennek megfelel.
@@ -17,14 +24,17 @@ export interface RemoteSettingsShape {
 		retention: ISettings['retention'];
 	};
 	followedLeagues: readonly { leagueId: number; enabled: boolean }[];
+	/** A szerver mindig küldi; hiányában (régi szerver) a helyi mentés csapatszűrői maradnak. */
+	teamFilters?: readonly ISettingsTeamFilter[];
 	markets: readonly { id: number; stored: boolean }[];
 	bookmakers: readonly { id: number; stored: boolean }[];
 }
 
-/** A `SettingsUpdate` része, amit a leképezés küld (a `stakeMode`, `backfillCap`, csapatszűrő érintetlen marad). */
+/** A `SettingsUpdate` része, amit a leképezés küld (a `stakeMode` és a `backfillCap` érintetlen marad). */
 export interface RemoteSettingsUpdate {
 	values?: Partial<RemoteSettingsShape['values']>;
 	followedLeagues?: { upsert: { leagueId: number; enabled: boolean }[] };
+	teamFilters?: { upsert?: ISettingsTeamFilter[]; remove?: number[] };
 	markets?: { id: number; stored: boolean }[];
 	bookmakers?: { id: number; stored: boolean }[];
 }
@@ -41,6 +51,7 @@ export const settingsFromRemote = (remote: RemoteSettingsShape, fallback: ISetti
 	return sanitizeSettings({
 		...remote.values,
 		leagues: remote.followedLeagues.filter((l) => l.enabled).map((l) => l.leagueId),
+		teamFilters: remote.teamFilters ?? fallback.teamFilters,
 		markets: SETTINGS_MARKETS.map((m) => m.key).filter(
 			(k) => markets.get(SETTINGS_MARKET_IDS[k]) ?? fallback.markets.includes(k)
 		),
@@ -74,6 +85,14 @@ export const settingsUpdateFrom = (
 	];
 	const leagues = toggled(saved.leagues, draft.leagues);
 	if (leagues.length) out.followedLeagues = { upsert: leagues.map((l) => ({ leagueId: l.id, enabled: l.on })) };
+
+	// Csapatszűrő: új vagy módváltott → upsert; a piszkozatból hiányzó → törlés (a `team_filter` sor ekkor felesleges).
+	const savedMode = new Map(saved.teamFilters.map((t) => [t.teamId, t.mode]));
+	const draftIds = new Set(draft.teamFilters.map((t) => t.teamId));
+	const upsert = draft.teamFilters.filter((t) => savedMode.get(t.teamId) !== t.mode).map((t) => ({ ...t }));
+	const remove = saved.teamFilters.filter((t) => !draftIds.has(t.teamId)).map((t) => t.teamId);
+	if (upsert.length || remove.length)
+		out.teamFilters = { ...(upsert.length ? { upsert } : {}), ...(remove.length ? { remove } : {}) };
 
 	const known = (rows: readonly { id: number }[]) => new Set(rows.map((r) => r.id));
 	const marketIds = (s: ISettings) => s.markets.map((k) => SETTINGS_MARKET_IDS[k]);

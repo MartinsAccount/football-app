@@ -23,6 +23,7 @@ import {
 import { cx, dangerBox, input, warningBox } from '../../components/ui/oeClasses';
 import SettingsNav from './components/SettingsNav';
 import SaveBar from './components/SaveBar';
+import TeamFilter from './components/TeamFilter';
 
 interface ISettingsPageProps {
 	MainStore?: MainStore;
@@ -326,6 +327,14 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 									/>
 								))}
 							</ul>
+						</Section>
+
+						<Section
+							id="csapatok"
+							title="Csapatszűrő"
+							sub="Követett ligánként csapatok szűkítése vagy kizárása (alapból minden csapat)."
+						>
+							<TeamFilter store={this.store} />
 						</Section>
 
 						<Section

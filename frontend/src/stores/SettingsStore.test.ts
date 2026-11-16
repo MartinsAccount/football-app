@@ -177,5 +177,50 @@ describe('SettingsStore', () => {
 			expect(store.leagues.find((l) => l.id === 203)).toMatchObject({ name: 'Süper Lig', teams: 19 });
 			expect(store.estimate.dailyAverage).toBeGreaterThan(before);
 		});
+
+		it('loads league teams once and PUTs the team filter diff (I18c)', async () => {
+			const puts: RemoteSettingsUpdate[] = [];
+			let teamCalls = 0;
+			const store = new SettingsStore(memory(), {
+				load: async () =>
+					response({
+						followedLeagues: [
+							{ leagueId: 39, enabled: true },
+							{ leagueId: 78, enabled: true }
+						],
+						teamFilters: [{ teamId: 50, mode: 'exclude' }]
+					}),
+				update: async (u) => {
+					puts.push(u);
+					return response({ teamFilters: u.teamFilters?.upsert ?? [] });
+				},
+				teams: async (leagueId) => {
+					teamCalls += 1;
+					return { season: 2024, teams: [{ id: leagueId * 10, name: `T${leagueId}` }] };
+				}
+			});
+			await store.sync();
+			expect(store.teamsLeague).toBe(39);
+			await store.loadTeams(39);
+			await store.loadTeams(39);
+			expect(teamCalls).toBe(1);
+			expect(store.teamsState).toEqual({ season: 2024, teams: [{ id: 390, name: 'T39' }] });
+			store.selectTeamsLeague(78);
+			expect(store.teamsLeague).toBe(78);
+
+			store.setTeamFilter(780, 'include');
+			store.setTeamFilter(50, null);
+			expect(store.dirty).toBe(true);
+			await store.save();
+			expect(puts).toEqual([{ teamFilters: { upsert: [{ teamId: 780, mode: 'include' }], remove: [50] } }]);
+			expect(store.saved.teamFilters).toEqual([{ teamId: 780, mode: 'include' }]);
+			expect(store.dirty).toBe(false);
+		});
+
+		it('marks the team list as error without a teams endpoint', async () => {
+			const store = new SettingsStore(memory({ leagues: [39] }));
+			await store.loadTeams(39);
+			expect(store.teamsState).toBe('error');
+		});
 	});
 });

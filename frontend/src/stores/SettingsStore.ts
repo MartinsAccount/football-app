@@ -21,7 +21,9 @@ import {
 	settingsUpdateFrom,
 	RemoteSettingsShape,
 	RemoteSettingsUpdate,
-	stakeOptions
+	stakeOptions,
+	TeamFilterMode,
+	withTeamFilter
 } from '@football/core';
 import { webStorage } from '../shared/storage/webStorage';
 
@@ -49,7 +51,18 @@ export interface ISettingsRemote {
 	update(update: RemoteSettingsUpdate): Promise<RemoteSettingsShape>;
 	/** Liga-katalógus (`GET /api/leagues`, I18b); hiányában vagy hibánál a kézi lista marad. */
 	leagues?(): Promise<readonly LeagueCatalogRow[]>;
+	/** Egy liga csapatai (`GET /api/leagues/:id/teams`, I18c); hiányában a csapatszűrő nem tölt csapatot. */
+	teams?(leagueId: number): Promise<ILeagueTeams>;
 }
+
+/** A csapatszűrő csapatlistája (a contract `LeagueTeamsResponse` része). */
+export interface ILeagueTeams {
+	season: number | null;
+	teams: readonly { id: number; name: string }[];
+}
+
+/** Egy liga csapatlistájának állapota: betöltés alatt, betöltve vagy hiba (szerver nélkül / offline). */
+export type LeagueTeamsState = 'loading' | 'error' | ILeagueTeams;
 
 /** `off`: nincs szerver bekötve · `loading` · `synced`: a szerver az igazság · `offline`: nem érhető el, csak localStorage. */
 export type SettingsSyncStatus = 'off' | 'loading' | 'synced' | 'offline';
@@ -69,6 +82,10 @@ export class SettingsStore {
 	@observable saveError: string | null = null;
 	/** A szerver liga-katalógusa; `null` = nincs (még) betöltve → a kézi `SETTINGS_LEAGUES`. */
 	@observable.ref catalogRows: readonly LeagueCatalogRow[] | null = null;
+	/** Ligánkénti csapatlista (csapatszűrő, I18c); egyszer töltjük, hibánál újrapróbálható. */
+	@observable.ref teamsByLeague: ReadonlyMap<number, LeagueTeamsState> = new Map();
+	/** A csapatszűrőben kiválasztott liga; `null` = az első követett liga. */
+	@observable teamsLeagueId: number | null = null;
 	/** Az utolsó szerver-válasz (a PUT-diffhez: mely piac/iroda sor létezik a DB-ben). */
 	private remoteState: RemoteSettingsShape | null = null;
 
@@ -95,6 +112,35 @@ export class SettingsStore {
 	@computed get leagues(): ISettingsLeague[] {
 		return leagueCatalog(this.catalogRows, this.saved.leagues);
 	}
+
+	/** A csapatszűrő ligája: a választott, ha még követett, különben a piszkozat első követett ligája. */
+	@computed get teamsLeague(): number | null {
+		const ids = this.draft.leagues;
+		return this.teamsLeagueId !== null && ids.includes(this.teamsLeagueId) ? this.teamsLeagueId : ids[0] ?? null;
+	}
+
+	@computed get teamsState(): LeagueTeamsState | null {
+		return this.teamsLeague === null ? null : this.teamsByLeague.get(this.teamsLeague) ?? null;
+	}
+
+	@action selectTeamsLeague = (leagueId: number) => {
+		this.teamsLeagueId = leagueId;
+		this.loadTeams(leagueId);
+	};
+
+	/** Csapatlista betöltése (gyorsítótárazva; hiba után újra). Szerver nélkül `error`. */
+	loadTeams = flow(function* (this: SettingsStore, leagueId: number) {
+		const cur = this.teamsByLeague.get(leagueId);
+		if (cur && cur !== 'error') return;
+		const set = (state: LeagueTeamsState) => (this.teamsByLeague = new Map(this.teamsByLeague).set(leagueId, state));
+		if (!this.remote?.teams) return set('error');
+		set('loading');
+		try {
+			set(yield this.remote.teams(leagueId));
+		} catch {
+			set('error');
+		}
+	});
 
 	/** Szerver-állapot betöltése; a localStorage gyorsítótár marad (első festés, offline). Szerkesztett piszkozatot nem ír felül. */
 	sync = flow(function* (this: SettingsStore) {
@@ -147,6 +193,9 @@ export class SettingsStore {
 	toggleLeague = (id: number) => this.update({ leagues: toggle(this.draft.leagues, id) });
 	toggleMarket = (key: SettingsMarketKey) => this.update({ markets: toggle(this.draft.markets, key) });
 	toggleBookmaker = (id: number) => this.update({ bookmakers: toggle(this.draft.bookmakers, id) });
+	/** Csapatszűrő a piszkozatba; `null` = a szűrő törlése (mentés kell hozzá). */
+	setTeamFilter = (teamId: number, mode: TeamFilterMode | null) =>
+		this.update({ teamFilters: withTeamFilter(this.draft.teamFilters, teamId, mode) });
 	setRetention = (retention: Retention) => this.update({ retention });
 	setStakeUnit = (stakeUnit: number) => this.update({ stakeUnit });
 

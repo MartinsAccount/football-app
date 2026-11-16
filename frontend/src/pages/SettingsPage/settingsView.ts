@@ -47,6 +47,7 @@ export const THEME_OPTIONS: readonly { key: ThemePreference; label: string }[] =
 /** A Beállítások szekciói (asztalon bal menü, mobilon chip-sor; anchor-célok). */
 export const SETTINGS_SECTIONS = [
 	{ id: 'ligak', label: 'Ligák' },
+	{ id: 'csapatok', label: 'Csapatszűrő' },
 	{ id: 'piacok', label: 'Piacok és irodák' },
 	{ id: 'tarolas', label: 'Tárolás' },
 	{ id: 'strategia', label: 'Stratégia' },
