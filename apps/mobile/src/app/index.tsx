@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { Link, useFocusEffect } from 'expo-router';
 import type { FixtureDto, FixturesResponse } from '@football/contract';
 import { formatKickoff, formatPairing, formatScore, loadWithCache, type CachedResult } from '@football/core';
@@ -8,7 +8,6 @@ import { asyncKeyValueStorage, FIXTURES_CACHE_KEY } from '@/lib/storage';
 import { useRnTheme } from '@/lib/theme';
 
 // TODO(polish): ajánlás-nézet (tipp, EV, indoklás), ha az olvasó API ad ajánlás-végpontot; addig a meccslista.
-// TODO(polish): csapatnevek – a FixtureDto csak csapat-id-t ad.
 const QUERY = { limit: 50 };
 
 type State = { loading: boolean; result?: CachedResult<FixturesResponse>; missingUrl?: boolean };
@@ -91,17 +90,21 @@ export default function FixturesScreen() {
 function FixtureRow({ fixture: f }: { fixture: FixtureDto }) {
 	const s = styles(useRnTheme());
 	const played = f.goalsHome != null && f.goalsAway != null;
+	// Csapatnév, ha a szerver adja (M11a); különben `#id`.
+	const pairing = formatPairing(f.homeTeamName ?? `#${f.homeTeamId}`, f.awayTeamName ?? `#${f.awayTeamId}`);
 	return (
-		<View style={s.card}>
-			<Text style={s.meta}>
-				{formatKickoff(new Date(f.kickoffAt))} · {f.status}
-				{f.round ? ` · ${f.round}` : ''}
-			</Text>
-			<View style={s.row}>
-				<Text style={s.title}>{formatPairing(`#${f.homeTeamId}`, `#${f.awayTeamId}`)}</Text>
-				{played ? <Text style={s.score}>{formatScore(f.goalsHome!, f.goalsAway!)}</Text> : null}
-			</View>
-		</View>
+		<Link href={`/match/${f.id}`} asChild>
+			<Pressable accessibilityRole="link" accessibilityLabel={`${pairing} részletei`} style={s.card}>
+				<Text style={s.meta}>
+					{formatKickoff(new Date(f.kickoffAt))} · {f.status}
+					{f.round ? ` · ${f.round}` : ''}
+				</Text>
+				<View style={s.row}>
+					<Text style={s.title}>{pairing}</Text>
+					{played ? <Text style={s.score}>{formatScore(f.goalsHome!, f.goalsAway!)}</Text> : null}
+				</View>
+			</Pressable>
+		</Link>
 	);
 }
 
@@ -118,8 +121,8 @@ const styles = (t: ReturnType<typeof useRnTheme>) =>
 			padding: t.space[6],
 			gap: t.space[2]
 		},
-		row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-		title: { color: t.color.text.primary, fontSize: t.font.size.lead, fontWeight: '600' },
+		row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: t.space[4] },
+		title: { color: t.color.text.primary, fontSize: t.font.size.lead, fontWeight: '600', flexShrink: 1 },
 		score: { color: t.color.text.primary, fontSize: t.font.size['num-s'], fontWeight: '700' },
 		meta: { color: t.color.text.muted, fontSize: t.font.size.small },
 		body: { color: t.color.text.primary, fontSize: t.font.size.body, textAlign: 'center' },

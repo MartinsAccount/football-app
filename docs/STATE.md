@@ -40,11 +40,8 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 **Mobil (ROADMAP 11):**
 
-M1–M10 és M11a kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
-
-1. **M11b Meccs-részlet képernyő** – core `odds/history.ts` (legjobb odd időbeli sora piac/kimenetenként, teszttel) + Expo
-   `src/app/match/[id].tsx` (`getFixture` + `getOddsHistory`, `loadWithCache`), a Meccsek sorából `Link`, csapatnevek a listában
-   is. Terv: `docs/plans/m11-match-detail.md`. (M11a adat-rész kész.)
+M1–M11 kész. A Mobil szeletlista kiürült; a ROADMAP 11.7-ből csak az APK-build (EAS) maradt – EAS-fiók/build-szolgáltatás kell,
+ezért BLOCKERS-jelölt (fiók-beállítás). Polish-jelölt: tab-navigáció (6 képernyő).
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).
@@ -110,8 +107,12 @@ tételek).
 | M7 – Mobil Kiértékelés (11.7)          | (lásd git log: feat(mobile): add evaluation screen)                                  | core `evaluation/labels.ts` (EVAL_MARKETS, szezon/liga-név, fej-chipek, szegmensek, `goalRows`; a web `evaluationView` re-exportálja, teszt); `apps/mobile/src/app/evaluation.tsx`: `getBacktest()` + `loadWithCache` (`oe_cache_backtest`), piac- és szegmensválasztó, ítélet, 4 KPI, sikermutatók, kalibrációs tábla; fejléc-link; `tsc` + `expo export --platform android` zöld                                                                                                                                                                         |
 | M8 – Mobil Szelvény (11.7)             | (lásd git log: feat(mobile): add slip screen)                                        | core `slip/draft.ts` (`TIPPMIX_LABEL`, `draftTipFromItem`, `draftRows`/`draftLegs`, `buildSavedSlip`; teszt; a web re-használja a címkét); `apps/mobile/src/app/slip.tsx`: `getRecommendations()` + cache (`oe_cache_recommendations`), kész szelvények, tipp-toggle, odds-beírás státusszal, tét-lépcső, összesítő, mentés `savedSlipsCodec`-kel AsyncStorage-ba, mentett lista; `tsc` + `expo export` zöld                                                                                                                                               |
 | M9 – Mobil Beállítások (11.7)          | (lásd git log: feat(mobile): add settings screen)                                    | core `toggleSettingsItem`/`withSettingsNumber` (teszt); `apps/mobile/src/lib/preferences.tsx` (`PreferencesProvider`: `settingsCodec` + `themeCodec` AsyncStorage-ban); `src/app/preferences.tsx`: téma (azonnal), tét-alapegység, value-szűrő, ligák/piacok/irodák, tárolás, backfill, becslés + figyelmeztetések, Mentés/Elvetés/Alapértékek, Kapcsolat-link; `useRnTheme` a mentett preferenciát követi; Szelvény tét-lépcső a beállításból; `tsc` + `expo export` zöld                                                                                 |
+| M11b – Mobil Meccs-részlet (11.7)      | (lásd git log: feat(mobile): add match detail screen)                                | core `odds/history.ts` (`oddsHistoryMarkets`: piac/kimenet → legjobb odd időrendben, nyitó → legutóbbi, `formatOddsChange`/`formatOddsPath`; teszt); `src/app/match/[id].tsx` (`getFixture` + `getOddsHistory` párhuzamosan, `loadWithCache` meccsenkénti kulccsal, offline-jelzés); Meccsek sora csapatnévvel + `Link`; `tsc` + `expo export` zöld                                                                                                                                                                                                        |
 
 ## Polish backlog
+
+- M11b: meccs-részlet odds-mozgás csak szöveges pontsor (sparkline kell); irodanév helyett csak darabszám (a quote `bookmakerId`);
+  piac-címke kézi katalógus (`HISTORY_MARKET_LABELS`: 1, 2, 5, 8, 12); nincs screenshot; tab-navigáció (6 képernyő).
 
 - M11a: `/api/odds/:id/history` lapozás/limit nélkül adja az összes snapshotot (meccsenként kevés); `/api/fixtures/:id` nem ad
   ligát/szezont névvel.
@@ -199,6 +200,11 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **M11b kész.** Mobil meccs-részlet `src/app/match/[id].tsx` (a Meccsek soráról `Link`), nézet-logika a core
+  `odds/history.ts`-ben (`oddsHistoryMarkets`, `marketLabel`, `outcomeLabel`, `snapshotKindLabel`). Cache-kulcs:
+  `matchCacheKey(id)` (`src/lib/storage.ts`). A Mobil lista üres: következő a ROADMAP következő nyitott, nem blokkolt szelete
+  (APK-build EAS-fiókot igényel → BLOCKERS), vagy a polish backlog (tab-navigáció).
 
 - **M11a kész.** Contract: `getFixture(id)`, `getOddsHistory(id)` (`/api/fixtures/:id`, `/api/odds/:id/history`),
   `FixtureDto.homeTeamName/awayTeamName` (opcionális; a lista is adja). Repo: `listTeams(ids?)`, `listOdds(fixtureId)`. Következő:

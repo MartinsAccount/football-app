@@ -230,7 +230,7 @@
 - [x] **11.5 `packages/theme`:** RN-téma a `tokens.json`-ból. (ff5e4fd)
 - [x] **11.6 Expo-váz `apps/mobile`:** egy képernyő (Ajánlások) a contract-kliensen, offline cache. (0379a0b)
 - [ ] **11.7+ Expo-képernyők** fokozatosan (Kiértékelés ✓ M7, Szelvény ✓ M8, Beállítások ✓ M9, Arbitrázs ✓ M10, Meccs-részlet:
-      adat ✓ M11a, képernyő M11b); APK-build (EAS).
+      adat ✓ M11a, képernyő ✓ M11b); APK-build (EAS).
 
 ## Parkoló (nem-célok, újranyitható)
 

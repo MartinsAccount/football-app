@@ -19,3 +19,6 @@ export const RECOMMENDATIONS_CACHE_KEY = 'oe_cache_recommendations';
 
 /** Az utolsó sikeres `/api/arbitrage` válasz kulcsa (drótforma; olvasáskor `reviveArbitrageSnapshot`). */
 export const ARBITRAGE_CACHE_KEY = 'oe_cache_arbitrage';
+
+/** Meccsenkénti cache-kulcs a meccs-részlethez (`/api/fixtures/:id` + `/api/odds/:id/history`). */
+export const matchCacheKey = (fixtureId: number): string => `oe_cache_match_${fixtureId}`;
