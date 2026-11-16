@@ -7,6 +7,16 @@ export { SqlRepository } from './sqlRepository';
 export { openMemoryRepository } from './memory';
 export { CRON_LOCK_KEY, SqlCronStore } from './cron';
 export type { CronRun, CronRunResult, CronRunStatus, CronStore } from './cron';
+export { SqlSettingsRepository } from './settings';
+export type {
+	FollowedLeague,
+	FollowedLeagueInput,
+	MarketRow,
+	SettingsRepository,
+	StoredFlagRow,
+	TeamFilter,
+	TeamFilterMode
+} from './settings';
 export { openTarget, parseTargetArgs } from './target';
 export type { Target, TargetOptions } from './target';
 export * from './types';

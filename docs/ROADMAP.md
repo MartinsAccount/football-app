@@ -88,7 +88,8 @@
 - [ ] **2.1 Beállítás-modell + API:** `followed_league`, `team_filter`, `setting` (EV-küszöb, odds-sáv, tét-mód, backfill-plafon),
       valamint a **tárolási szabályok** ([`architecture.md` §4.1](architecture.md)): `market.stored` + ligánkénti felülírás,
       `bookmaker.stored`, `odds_retention`. _Ellenőrzés:_ CRUD integrációs teszt; unit-teszt a „melyik piac/iroda tárolandó ebben
-      a ligában” feloldó függvényre.
+      a ligában” feloldó függvényre. — 2.1a kész (repository `SqlSettingsRepository` + core `resolveStoredScope`, I2); az API
+      (2.1b, I3) nyitott.
 - [ ] **2.2 Liga-katalógus:** a `reference` job (`/leagues`, hetente) és a `coverage` flagek tárolása. _Ellenőrzés:_ mock módban a
       katalógus feltöltődik; élesben heti 1 hívás.
 - [ ] **2.3 Beállítások UI:** ligák és csapatok kiválasztása; a **becsült napi hívásköltség** ligánként és összesen (a

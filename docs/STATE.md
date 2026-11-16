@@ -21,9 +21,7 @@ Floodlight v0.2 redesign: lezárva.
 **Ingestion-alap (ROADMAP 1.7, 2.1, 3.1 – lokálisan, PGlite/mock, 0 élő hívás; adatvesztő migráció nincs):**
 
 1. ~~I1 – 1.7 Ütemező váz lokálisan~~ kész (Vercel-schedule: BLOCKERS).
-2. **I2 – 2.1a Beállítás-repository + tárolási feloldó:** `SettingsRepository` (db: `followed_league`, `team_filter`, `setting`
-   CRUD, csak upsert/egyedi törlés), core `storage/storedScope.ts` („melyik piac/iroda tárolandó ebben a ligában”:
-   `market.stored` + ligánkénti `markets` felülírás, `bookmaker.stored`); PGlite CRUD-teszt + unit-teszt.
+2. ~~I2 – 2.1a Beállítás-repository + tárolási feloldó~~ kész.
 3. **I3 – 2.1b Beállítás-API:** `GET/PUT /api/settings` (+ followed leagues) a serverben, contract DTO + kliensmetódus,
    szerződés-teszt; a web/mobil átkötése külön szelet (később).
 4. **I4 – 3.1a Feladatsor-mag (core, tiszta):** planner-szabályok (§7.1 táblázat) → `TaskPlan[]` `dedupe_key`-jel, esedékes
@@ -124,8 +122,12 @@ tételek).
 | M9 – Mobil Beállítások (11.7)          | (lásd git log: feat(mobile): add settings screen)                                    | core `toggleSettingsItem`/`withSettingsNumber` (teszt); `apps/mobile/src/lib/preferences.tsx` (`PreferencesProvider`: `settingsCodec` + `themeCodec` AsyncStorage-ban); `src/app/preferences.tsx`: téma (azonnal), tét-alapegység, value-szűrő, ligák/piacok/irodák, tárolás, backfill, becslés + figyelmeztetések, Mentés/Elvetés/Alapértékek, Kapcsolat-link; `useRnTheme` a mentett preferenciát követi; Szelvény tét-lépcső a beállításból; `tsc` + `expo export` zöld                                                                                 |
 | I1 – Ütemező váz (1.7, lokális)        | (lásd git log: feat(server): add cron tick skeleton)                                 | `0006_cron_run.sql` (`cron_run` napló: running/ok/locked/error); db `SqlCronStore` (`pg_try_advisory_lock` kulcs `CRON_LOCK_KEY`, `startRun`/`finishRun`/`logLocked`/`listRuns`); server `cron.ts`: `createTickRunner` (inFlight-őr + advisory lock, no-op worker, hiba → `error` sor + unlock), `cronAuthorize` (Bearer `CRON_SECRET`), `createCronHandler` (`GET                                                                                                                                                                                         | POST /api/cron/tick`, a router az app-auth előtt adja át); `npm run tick -w @football/server [-- --pg] [--every 15]`; Vercel-schedule: BLOCKERS |
 | M11b – Mobil Meccs-részlet (11.7)      | (lásd git log: feat(mobile): add match detail screen)                                | core `odds/history.ts` (`oddsHistoryMarkets`: piac/kimenet → legjobb odd időrendben, nyitó → legutóbbi, `formatOddsChange`/`formatOddsPath`; teszt); `src/app/match/[id].tsx` (`getFixture` + `getOddsHistory` párhuzamosan, `loadWithCache` meccsenkénti kulccsal, offline-jelzés); Meccsek sora csapatnévvel + `Link`; `tsc` + `expo export` zöld                                                                                                                                                                                                        |
+| I2 – Beállítás-repository (2.1a)       | (lásd git log: feat(db): add settings repository)                                    | db `SqlSettingsRepository` (`settings.ts`: követett liga / csapatszűrő upsert + egyedi törlés, `setting` jsonb get/set, `market`/`bookmaker` `stored` jelző, `loadStoredScopeInput`); core `storage/storedScope.ts` (`resolveStoredScope`, `resolveStoredScopes`, `isQuoteStored`); PGlite- + unit-teszt; séma nem változott                                                                                                                                                                                                                               |
 
 ## Polish backlog
+
+- I2: a `setting` kulcsai nincsenek típusos sémával validálva (az I3 API-ban kell); a `followed_league.markets` elemei nincsenek a
+  `market.code`-hoz ellenőrizve íráskor (a feloldó csendben kihagyja az ismeretlent).
 
 - I1: a tick a teljes futás végén válaszol (külső pinger 30 s timeoutjához azonnali 202 + háttérfutás kellene, `TODO(polish)`); a
   `cron_run` sorok megőrzése/törlése nincs (a 3.5b karbantartó jobba); a tick-napló nincs a UI-ban (2.4 Budget-panel).
@@ -220,11 +222,11 @@ tételek).
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
-- **I1 kész (1.7 váz).** Tick: `createTickRunner({ store: new SqlCronStore(db), worker })` (`packages/server/src/cron.ts`), a
-  worker típusa `TickWorker = ({ now, deadline }) => Promise<{ planned, executed, calls }>` – az I5 ide köti a planner+workert. A
-  `createApiHandler({ cron })` a `/api/cron/*`-ot az app-auth előtt adja át. Lokálisan:
-  `npm run tick -w @football/server -- <pglite-dir> [--every 15]`; a `.data/pglite`-re és `--pg`-vel a Supabase-re a 0006 migráció
-  (additív) automatikusan lefut. Következő: I2 (2.1a).
+- **I2 kész (2.1a).** `new SqlSettingsRepository(db)` (`packages/db/src/settings.ts`): `listFollowedLeagues`,
+  `upsertFollowedLeague({ leagueId, enabled?, priority?, markets? })` (a meg nem adott mező marad; `markets: null` = globális),
+  `removeFollowedLeague`, `*TeamFilter`, `getSettings`/`getSetting`/`setSetting` (jsonb), `setMarketStored`/`setBookmakerStored`,
+  `loadStoredScopeInput()` → core `resolveStoredScope(leagueId, input)` / `isQuoteStored`. Felülírás-elem = piackód vagy id
+  szövegként. Tick-worker: `TickWorker` (`packages/server/src/cron.ts`), az I5 köti be. Következő: I3 (`/api/settings`).
 
 - **M11b kész.** Mobil meccs-részlet `src/app/match/[id].tsx` (a Meccsek soráról `Link`), nézet-logika a core
   `odds/history.ts`-ben (`oddsHistoryMarkets`, `marketLabel`, `outcomeLabel`, `snapshotKindLabel`). Cache-kulcs:
