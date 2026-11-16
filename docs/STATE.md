@@ -45,8 +45,10 @@ Floodlight v0.2 redesign: lezárva.
 23. ~~I18d – mobil Beállítások ↔ `/api/settings`~~ kész (szinkron + liga-katalógus + csapatszűrő a `PreferencesProvider`-ben).
 24. ~~I18e – csapatszűrő alkalmazása~~ kész (core `teamFilter`, planner + `loadPlannerInput`, predikció: csak az ajánlás).
 25. ~~I18f – 2.3 ligánkénti piac-felülírás UI (web)~~ kész (core `ISettings.leagueMarkets`, `LeagueMarkets.tsx`).
-26. **I19 – ROADMAP 2.4 Budget-panel:** a mai felhasznált/maradék hívás, jobonkénti bontás (`api_call_log`), a `/status`-szal
-    egyeztetve; screenshot mock adattal.
+26. ~~I19 – 2.4 Budget-panel~~ kész (`GET /api/budget` jobs/status/cron, core `budgetView`, web `BudgetChip` a fejlécben).
+27. **I20 – ROADMAP 5.7 Odds-history nézet:** egy meccs snapshotjai (`GET /api/odds/:id/history` már van), az odds mozgása, a
+    legjobb iroda, a kimenetel; nézet-logika a core-ban, web meccs-részlet; screenshot 1440/390.
+28. I21 – Budget-panel mobilon (a core `budgetView` kész; Beállítások vagy fejléc).
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -167,9 +169,13 @@ git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.
 /api/leagues`, contract `LeagueDto`/`listLeagues`; core `leagueCatalog`(kézi jelöltek + DB csapatszám/coverage + adatos/követett DB-ligák),`estimateSettings(s,
 catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e`null`, `sanitizeSettings`bármely pozitív egész liga-id-t elfogad;`SettingsStore.loadCatalog`/`leagues`; Vite-proxy `leagues`; screenshot `docs/plans/screens/I18b-settings-dark-{1440,390}.png`| | I18c – Csapatszűrő (web) | 01e47fd (server) + (lásd git log: feat(ui): add team filter to the settings page) | server`loadLeagueTeams`+ router`GET
 /api/leagues/:id/teams`(season_team → fixture-tartalék, osztályozó nélkül), contract`LeagueTeamDto`/`LeagueTeamsResponse`/`listLeagueTeams`; a katalógus csapatszáma már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); core `ISettings.teamFilters`, `teamFilterMode`, `withTeamFilter`, remote diff (upsert/remove); web `SettingsStore` `teamsByLeague`/`loadTeams`/`setTeamFilter`, `TeamFilter.tsx`(Mind/Csak/Kizár szegmens), új szekció „Csapatszűrő”; screenshot`docs/plans/screens/I18c-settings-dark-{1440,390}.png`| | I18d – Mobil Beállítások ↔ API | (lásd git log: feat(mobile): sync preferences with the settings API) |`PreferencesProvider`: `sync()`(GET`/api/settings`+`/api/leagues`, fókuszkor is), `saveSettings` PUT csak a diffet (`settingsUpdateFrom`), AsyncStorage gyorsítótár; `syncStatus`sor a képernyő tetején; Ligák a core`leagueCatalog`-ból, a becslés ezzel; új `components/TeamFilterSection.tsx`(Mind/Csak/Kizár,`listLeagueTeams`) | | I18e – Csapatszűrő alkalmazása | (lásd git log: feat: apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `teamFilterAllows`, `NO_TEAM_FILTER`); planner `PlannerInput.teamFilter`→`odds\*\*`/`injuries`csak megengedett meccsre; db`SqlSettingsRepository.loadTeamFilterIndex()` (`season_team`∪`fixture`), `loadPlannerInput`hozza; server`runPredictions`: kiszűrt meccsen nincs ajánlás, naplózás marad (`features.teamFilterBlocked`) | | I18f – Ligánkénti piac-felülírás (web) | (lásd git log: feat(ui): league market overrides) | core `ISettings.leagueMarkets`+`remote.ts`leképezés (tesztek), store`setLeagueMarkets`/`toggleLeagueMarket`, `LeagueMarkets.tsx`; screenshot `docs/plans/screens/I18f-settings-dark-{1440,390}.png`
+| I19 – 2.4 Budget-panel | `acb8bb2` (server/core) + feat(ui): budget panel | `GET /api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png` |
 |
 
 ## Polish backlog
+
+- I19: a Budget-panel kívül kattintásra nem zár, nyitva nem frissül magától; mobilon nincs; a pötty színe nem követi a
+  keret-tónust (csak a sáv); a `/status` időpontja a Budapest-időt mutatja, a nap UTC.
 
 - I18f: mobilon nincs ligánkénti piac-felülírás UI (a core már átviszi); az ajánlás nem szűr a liga piacaira (csak a tárolás
   `resolveStoredScope` és a becslés); a h2h/ou25/btts-en kívüli felülírás-elem a webes oda-vissza úton elveszik; csak sötét téma
@@ -341,6 +347,13 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I19 kész.** `GET /api/budget` + `jobs` (`api_call_log` ⟕ `ingest_task.kind`, feladat nélkül `manual`, `/status` nélkül;
+  élő/mock külön), `status` (a mai utolsó `/status` log-sor), `cron` (`cron_run` összesítő); server `loadBudgetDetails(db, day)`,
+  `ApiDeps.budgetDetails` (hiányában üres bontás). Core `budgetView`/`reconcileBudget` (drift = limit − used − syncedRemaining).
+  Web `components/AppShell/BudgetChip.tsx`: a pill gomb (aria-expanded), alatta kártya; 640 px alatt `fixed` a gutterek közt.
+  Screenshot: scratch PGlite-ba seedelt minta + `shots.mjs --click ".oe-status-pill"` → `docs/plans/screens/i19-budget-*`.
+  Következő: I20 (5.7 Odds-history).
 
 - **I18f kész.** Core `ISettings.leagueMarkets` (`{leagueId, markets}[]`, rendezett; `leagueMarketOverride`,
   `effectiveLeagueMarkets`, `withLeagueMarkets`); `settingsFromRemote` a `followedLeagues[].markets`-et (id-szöveg vagy

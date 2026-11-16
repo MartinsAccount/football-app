@@ -33,7 +33,7 @@ describe('AppHeader', () => {
 
 	it('állapot-pill fixture módban: saved, hívásszámmal', () => {
 		const html = render('/');
-		expect(html).toContain('class="oe-status-pill" data-state="saved"');
+		expect(html).toContain('class="oe-status-pill min-h-touch cursor-pointer bg-transparent" data-state="saved"');
 		expect(html).toContain('Mentett adat · 7/100 hívás');
 		expect(html).toContain('oe-theme-toggle');
 	});

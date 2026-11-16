@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import { MainStore } from '../../stores/MainStore';
 import { isFixtureMode } from '../../services/dataMode';
+import BudgetChip from './BudgetChip';
 import ThemeToggle from './ThemeToggle';
 
 interface IAppHeaderProps {
@@ -16,9 +17,6 @@ const NAV_ITEMS: { to: string; label: string; exact?: boolean }[] = [
 	{ to: '/arbitrage', label: 'Arbitrázs' },
 	{ to: '/settings', label: 'Beállítások' }
 ];
-
-/** Napi API-keret (free tier). TODO(polish): a budget a backend-proxyból jöjjön (S10). */
-const DAILY_CALL_LIMIT = 100;
 
 @inject('MainStore')
 @observer
@@ -46,9 +44,8 @@ class AppHeader extends Component<IAppHeaderProps> {
 					))}
 				</nav>
 				<div className="oe-header__end">
-					<span className="oe-status-pill" data-state={fixture ? 'saved' : 'live'} role="status">
-						{fixture ? 'Mentett adat' : 'Élő adat'} · {MainStore.fetchNumber}/{DAILY_CALL_LIMIT} hívás
-					</span>
+					{/* Budget-panel (I19): a pill a `/api/budget` napi keretét mutatja, kattintásra lenyílik. */}
+					<BudgetChip fixture={fixture} localCalls={MainStore.fetchNumber} />
 					<ThemeToggle store={MainStore.ThemeStore} />
 				</div>
 			</header>
