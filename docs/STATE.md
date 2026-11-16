@@ -48,7 +48,9 @@ Floodlight v0.2 redesign: lezárva.
 26. ~~I19 – 2.4 Budget-panel~~ kész (`GET /api/budget` jobs/status/cron, core `budgetView`, web `BudgetChip` a fejlécben).
 27. ~~I20 – 5.7 Odds-history nézet (web)~~ kész (`/match/:id`, core `odds/matchView`).
 28. ~~I20b – pillanatkép DB fixture-id-val~~ kész (`src/import/csvFixtureIds.ts`, S11b-párosítás).
-29. I21 – Budget-panel mobilon (a core `budgetView` kész; Beállítások vagy fejléc).
+29. ~~I21 – Budget-panel mobilon~~ kész (`/budget` képernyő, link a Beállításokból).
+30. I22 – 8.1 Arbitrázsszámítás az odds-snapshotokból (core `arbitrage` + `odds_best`/snapshot, a beállított ligákra, 0 hívás).
+31. I23 – 5.6 Fogadás rögzítése (`placed_bet` migráció + repository + „saját” ROI; UI külön szelet).
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -169,7 +171,7 @@ git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.
 /api/leagues`, contract `LeagueDto`/`listLeagues`; core `leagueCatalog`(kézi jelöltek + DB csapatszám/coverage + adatos/követett DB-ligák),`estimateSettings(s,
 catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e`null`, `sanitizeSettings`bármely pozitív egész liga-id-t elfogad;`SettingsStore.loadCatalog`/`leagues`; Vite-proxy `leagues`; screenshot `docs/plans/screens/I18b-settings-dark-{1440,390}.png`| | I18c – Csapatszűrő (web) | 01e47fd (server) + (lásd git log: feat(ui): add team filter to the settings page) | server`loadLeagueTeams`+ router`GET
 /api/leagues/:id/teams`(season_team → fixture-tartalék, osztályozó nélkül), contract`LeagueTeamDto`/`LeagueTeamsResponse`/`listLeagueTeams`; a katalógus csapatszáma már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); core `ISettings.teamFilters`, `teamFilterMode`, `withTeamFilter`, remote diff (upsert/remove); web `SettingsStore` `teamsByLeague`/`loadTeams`/`setTeamFilter`, `TeamFilter.tsx`(Mind/Csak/Kizár szegmens), új szekció „Csapatszűrő”; screenshot`docs/plans/screens/I18c-settings-dark-{1440,390}.png`| | I18d – Mobil Beállítások ↔ API | (lásd git log: feat(mobile): sync preferences with the settings API) |`PreferencesProvider`: `sync()`(GET`/api/settings`+`/api/leagues`, fókuszkor is), `saveSettings` PUT csak a diffet (`settingsUpdateFrom`), AsyncStorage gyorsítótár; `syncStatus`sor a képernyő tetején; Ligák a core`leagueCatalog`-ból, a becslés ezzel; új `components/TeamFilterSection.tsx`(Mind/Csak/Kizár,`listLeagueTeams`) | | I18e – Csapatszűrő alkalmazása | (lásd git log: feat: apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `teamFilterAllows`, `NO_TEAM_FILTER`); planner `PlannerInput.teamFilter`→`odds\*\*`/`injuries`csak megengedett meccsre; db`SqlSettingsRepository.loadTeamFilterIndex()` (`season_team`∪`fixture`), `loadPlannerInput`hozza; server`runPredictions`: kiszűrt meccsen nincs ajánlás, naplózás marad (`features.teamFilterBlocked`) | | I18f – Ligánkénti piac-felülírás (web) | (lásd git log: feat(ui): league market overrides) | core `ISettings.leagueMarkets`+`remote.ts`leképezés (tesztek), store`setLeagueMarkets`/`toggleLeagueMarket`, `LeagueMarkets.tsx`; screenshot `docs/plans/screens/I18f-settings-dark-{1440,390}.png`| I19 – 2.4 Budget-panel |`acb8bb2`(server/core) + feat(ui): budget panel |`GET
-/api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I20b – pillanatkép DB fixture-id | fix(db): snapshot fixture ids |`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
+/api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I21 – Budget-panel mobilon | feat(mobile): budget screen | `apps/mobile/src/app/budget.tsx` (`/budget`, link a Beállításokból), `BUDGET_CACHE_KEY` + `loadWithCache` offline-jelzéssel, core `budgetView` | | I20b – pillanatkép DB fixture-id |`c3bf6a9`|`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
 | |
 
 ## Polish backlog
@@ -349,6 +351,11 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I21 kész.** Mobil `apps/mobile/src/app/budget.tsx` (`/budget`, „API-keret”; link a Beállítások aljáról): `getBudget` →
+  `loadWithCache(BUDGET_CACHE_KEY)` → core `budgetView` (pill + sáv tónusszínnel, Felhasznált/Maradék/Tartalék, jobonként élő +
+  mock, `/status`-egyeztetés, cron-összesítő), cache-ből „offline – utolsó frissítés” sáv, lehúzásra újratölt. Screenshot nincs
+  (emulátor nincs); `tsc` + `expo export` zöld. Polish: a pill a Meccsek fejlécében (tab-navigációval). Következő: I22.
 
 - **I20b kész.** A `recommendations`/`arbitrage` generátor a `packages/db/src/import/csvFixtureIds.ts`-sel (S11b `matchCsvRows` a
   mentett `data/history/api-football` fájlokon, DB nélkül) a DB/API-Football meccs-id-t írja (pl. 866 → 1224234 Bochum–Augsburg).

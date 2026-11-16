@@ -25,3 +25,6 @@ export const matchCacheKey = (fixtureId: number): string => `oe_cache_match_${fi
 
 /** Az utolsó sikeres `/api/evaluation?model=` válasz kulcsa, modellverziónként (üres = minden verzió). */
 export const evaluationCacheKey = (model: string): string => (model ? `oe_cache_evaluation_${model}` : 'oe_cache_evaluation');
+
+/** Az utolsó sikeres `/api/budget` válasz kulcsa (I21). */
+export const BUDGET_CACHE_KEY = 'oe_cache_budget';

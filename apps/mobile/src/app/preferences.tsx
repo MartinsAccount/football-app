@@ -269,6 +269,10 @@ export default function PreferencesScreen() {
 			<Link href="/arbitrage" style={s.link}>
 				Arbitrázs (irodák közötti árkülönbségek)
 			</Link>
+			{/* I21: a budget-panel saját képernyő, a fejlécben nincs hely (DECISIONS 2026-11-16). */}
+			<Link href="/budget" style={s.link}>
+				API-keret (mai hívások, jobonként)
+			</Link>
 		</ScrollView>
 	);
 }

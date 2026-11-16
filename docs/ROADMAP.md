@@ -100,7 +100,7 @@
       függvényre. _Állapot:_ web kész (I18a settings-API, I18b liga-katalógus, I18c csapatszűrő – 01e47fd + I18c UI commit); mobil
       kész (I18d); a szűrő alkalmazása kész (I18e: gyűjtés + ajánlás); ligánkénti piac-felülírás UI kész (I18f, web); hátra: mobil
       piac-felülírás (polish).
-- [x] **2.4 Budget-panel:** _(I19: `acb8bb2` + web)_ a mai felhasznált és maradék hívások, jobonkénti bontás, a `/status`-szal
+- [x] **2.4 Budget-panel:** _(I19: `acb8bb2` + web; I21: mobil `/budget`)_ a mai felhasznált és maradék hívások, jobonkénti bontás, a `/status`-szal
       egyeztetett érték. _Ellenőrzés:_ screenshot mock adattal.
 
 ## 3. Ingestion (a budgeten belül)
@@ -172,7 +172,7 @@
       modellverzió-szűrővel kész (I17b); mobil blokk kész (I17c). Hátra: kalibrációs görbe/ítélet DB-ből, liga-/piacszűrő, idősor.
 - [ ] **5.6 Fogadás rögzítése:** `placed_bet` (Tippmix-odds, tét); „saját” ROI a modell ROI-ja mellett. _Ellenőrzés:_ integrációs
       teszt; screenshot.
-- [x] **5.7 Odds-history nézet:** (`056c327`; I20b: pillanatkép DB fixture-id-val, fix(db)) egy meccs snapshotjai, az odds
+- [x] **5.7 Odds-history nézet:** (`056c327`; I20b `c3bf6a9`: pillanatkép DB fixture-id-val) egy meccs snapshotjai, az odds
       mozgása, a legjobb iroda, a kimenetel. _Ellenőrzés:_ screenshot a legacy-json és az élő snapshotokkal.
 
 ## 6. Ajánlómotor v1 (Elo + Poisson / Dixon–Coles)
@@ -253,7 +253,7 @@
 - [x] **11.5 `packages/theme`:** RN-téma a `tokens.json`-ból. (ff5e4fd)
 - [x] **11.6 Expo-váz `apps/mobile`:** egy képernyő (Ajánlások) a contract-kliensen, offline cache. (0379a0b)
 - [ ] **11.7+ Expo-képernyők** fokozatosan (Kiértékelés ✓ M7, Szelvény ✓ M8, Beállítások ✓ M9, Arbitrázs ✓ M10, Meccs-részlet:
-      adat ✓ M11a, képernyő ✓ M11b); APK-build (EAS).
+      adat ✓ M11a, képernyő ✓ M11b, API-keret ✓ I21); APK-build (EAS).
 
 ## Parkoló (nem-célok, újranyitható)
 
