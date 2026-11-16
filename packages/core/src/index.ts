@@ -14,6 +14,7 @@ export * from './model/elo';
 export * from './model/poisson';
 export * from './model/eloPoisson';
 export * from './model/ordinalLogit';
+export * from './model/dixonColesFit';
 export * from './format/format';
 export * from './slip/slip';
 export * from './slip/presets';

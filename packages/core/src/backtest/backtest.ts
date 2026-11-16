@@ -73,7 +73,8 @@ const pushCapped = <T>(map: Map<string | number, T[]>, key: string | number, ite
 const validOdds = (odds: readonly number[] | undefined, n: number): odds is readonly number[] =>
 	!!odds && odds.length === n && odds.every((o) => o > 1);
 
-const pickBet = (
+/** Értéktipp: a legnagyobb EV-jű kimenet a `taken` oddson, ha `EV ≥ küszöb`; CLV a `takenClosing`-hoz. */
+export const pickValueBet = (
 	p: readonly number[],
 	odds: BacktestMarketOdds | undefined,
 	outcomeIndex: number,
@@ -130,7 +131,7 @@ export const runBacktest = (matches: readonly BacktestMatch[], options: Backtest
 				const n = model[market].length;
 				if (validOdds(odds?.marketOpening, n)) rec.marketOpening[market] = fairProbabilities(odds!.marketOpening!);
 				if (validOdds(odds?.marketClosing, n)) rec.marketClosing[market] = fairProbabilities(odds!.marketClosing!);
-				const bet = pickBet(model[market], odds, outcome[market], threshold);
+				const bet = pickValueBet(model[market], odds, outcome[market], threshold);
 				if (bet) rec.bets[market] = bet;
 			}
 			records.push(rec);
