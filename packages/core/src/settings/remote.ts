@@ -1,6 +1,7 @@
 import {
 	DEFAULT_SETTINGS,
 	ISettings,
+	ISettingsLeagueMarkets,
 	ISettingsTeamFilter,
 	sanitizeSettings,
 	SETTINGS_MARKETS,
@@ -23,23 +24,36 @@ export interface RemoteSettingsShape {
 		backfillReserve: number;
 		retention: ISettings['retention'];
 	};
-	followedLeagues: readonly { leagueId: number; enabled: boolean }[];
+	/** `markets`: ligánkénti piac-felülírás (piackód vagy id szövegként), `null` = globális; hiányában (régi szerver) a helyi marad. */
+	followedLeagues: readonly { leagueId: number; enabled: boolean; markets?: readonly string[] | null }[];
 	/** A szerver mindig küldi; hiányában (régi szerver) a helyi mentés csapatszűrői maradnak. */
 	teamFilters?: readonly ISettingsTeamFilter[];
-	markets: readonly { id: number; stored: boolean }[];
+	markets: readonly { id: number; stored: boolean; code?: string | null }[];
 	bookmakers: readonly { id: number; stored: boolean }[];
 }
 
 /** A `SettingsUpdate` része, amit a leképezés küld (a `stakeMode` és a `backfillCap` érintetlen marad). */
 export interface RemoteSettingsUpdate {
 	values?: Partial<RemoteSettingsShape['values']>;
-	followedLeagues?: { upsert: { leagueId: number; enabled: boolean }[] };
+	followedLeagues?: { upsert: { leagueId: number; enabled: boolean; markets?: string[] | null }[] };
 	teamFilters?: { upsert?: ISettingsTeamFilter[]; remove?: number[] };
 	markets?: { id: number; stored: boolean }[];
 	bookmakers?: { id: number; stored: boolean }[];
 }
 
 const flagged = (rows: readonly { id: number; stored: boolean }[]) => new Map(rows.map((r) => [r.id, r.stored]));
+
+const KEY_BY_ID = new Map(Object.entries(SETTINGS_MARKET_IDS).map(([k, id]) => [id, k as SettingsMarketKey]));
+
+/**
+ * `followed_league.markets` → piac-kulcsok (I18f). Elem: id szövegként („8”) vagy `market.code`; a h2h/ou25/btts-re nem
+ * leképezhető elem kimarad (a webes felület csak ezt a hármat kezeli).
+ */
+export const leagueMarketsFromRemote = (raw: readonly string[], markets: RemoteSettingsShape['markets']): SettingsMarketKey[] => {
+	const byCode = new Map(markets.filter((m) => m.code != null).map((m) => [m.code as string, m.id]));
+	const keys = raw.map((x) => KEY_BY_ID.get(/^\d+$/.test(x) ? Number(x) : byCode.get(x) ?? -1));
+	return SETTINGS_MARKETS.map((m) => m.key).filter((k) => keys.includes(k));
+};
 
 /**
  * Szerver-állapot → `ISettings`. Liga: az `enabled` követett ligák. Piac/iroda: a DB `stored` jelzője; ha a sor még nincs a
@@ -52,6 +66,10 @@ export const settingsFromRemote = (remote: RemoteSettingsShape, fallback: ISetti
 		...remote.values,
 		leagues: remote.followedLeagues.filter((l) => l.enabled).map((l) => l.leagueId),
 		teamFilters: remote.teamFilters ?? fallback.teamFilters,
+		leagueMarkets: remote.followedLeagues.flatMap((l): ISettingsLeagueMarkets[] => {
+			if (l.markets === undefined) return fallback.leagueMarkets.filter((o) => o.leagueId === l.leagueId);
+			return l.markets === null ? [] : [{ leagueId: l.leagueId, markets: leagueMarketsFromRemote(l.markets, remote.markets) }];
+		}),
 		markets: SETTINGS_MARKETS.map((m) => m.key).filter(
 			(k) => markets.get(SETTINGS_MARKET_IDS[k]) ?? fallback.markets.includes(k)
 		),
@@ -83,16 +101,37 @@ export const settingsUpdateFrom = (
 		...b.filter((x) => !a.includes(x)).map((id) => ({ id, on: true })),
 		...a.filter((x) => !b.includes(x)).map((id) => ({ id, on: false }))
 	];
-	const leagues = toggled(saved.leagues, draft.leagues);
-	if (leagues.length) out.followedLeagues = { upsert: leagues.map((l) => ({ leagueId: l.id, enabled: l.on })) };
+	const upsert = new Map<number, { leagueId: number; enabled: boolean; markets?: string[] | null }>();
+	for (const l of toggled(saved.leagues, draft.leagues)) upsert.set(l.id, { leagueId: l.id, enabled: l.on });
+	// Piac-felülírás (I18f): változott → `markets` (id szövegként, csak a DB-ben létező piacok; `null` = vissza a globálisra).
+	// Az `enabled` mindig megy vele, hogy egy még nem követett liga sora ne jöjjön létre követettként.
+	const override = (s: ISettings, id: number) => s.leagueMarkets.find((o) => o.leagueId === id)?.markets ?? null;
+	const overrideIds = [...new Set([...saved.leagueMarkets, ...draft.leagueMarkets].map((o) => o.leagueId))].sort((a, b) => a - b);
+	const knownMarkets = new Set(remote.markets.map((m) => m.id));
+	for (const id of overrideIds) {
+		const before = override(saved, id);
+		const after = override(draft, id);
+		if (JSON.stringify(before) === JSON.stringify(after)) continue;
+		upsert.set(id, {
+			leagueId: id,
+			enabled: draft.leagues.includes(id),
+			markets:
+				after &&
+				after
+					.map((k) => SETTINGS_MARKET_IDS[k])
+					.filter((m) => knownMarkets.has(m))
+					.map(String)
+		});
+	}
+	if (upsert.size) out.followedLeagues = { upsert: [...upsert.values()] };
 
 	// Csapatszűrő: új vagy módváltott → upsert; a piszkozatból hiányzó → törlés (a `team_filter` sor ekkor felesleges).
 	const savedMode = new Map(saved.teamFilters.map((t) => [t.teamId, t.mode]));
 	const draftIds = new Set(draft.teamFilters.map((t) => t.teamId));
-	const upsert = draft.teamFilters.filter((t) => savedMode.get(t.teamId) !== t.mode).map((t) => ({ ...t }));
+	const teamUpsert = draft.teamFilters.filter((t) => savedMode.get(t.teamId) !== t.mode).map((t) => ({ ...t }));
 	const remove = saved.teamFilters.filter((t) => !draftIds.has(t.teamId)).map((t) => t.teamId);
-	if (upsert.length || remove.length)
-		out.teamFilters = { ...(upsert.length ? { upsert } : {}), ...(remove.length ? { remove } : {}) };
+	if (teamUpsert.length || remove.length)
+		out.teamFilters = { ...(teamUpsert.length ? { upsert: teamUpsert } : {}), ...(remove.length ? { remove } : {}) };
 
 	const known = (rows: readonly { id: number }[]) => new Set(rows.map((r) => r.id));
 	const marketIds = (s: ISettings) => s.markets.map((k) => SETTINGS_MARKET_IDS[k]);

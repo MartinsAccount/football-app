@@ -23,6 +23,8 @@ import {
 	RemoteSettingsUpdate,
 	stakeOptions,
 	TeamFilterMode,
+	effectiveLeagueMarkets,
+	withLeagueMarkets,
 	withTeamFilter
 } from '@football/core';
 import { webStorage } from '../shared/storage/webStorage';
@@ -196,6 +198,12 @@ export class SettingsStore {
 	/** Csapatszűrő a piszkozatba; `null` = a szűrő törlése (mentés kell hozzá). */
 	setTeamFilter = (teamId: number, mode: TeamFilterMode | null) =>
 		this.update({ teamFilters: withTeamFilter(this.draft.teamFilters, teamId, mode) });
+	/** Ligánkénti piac-felülírás (I18f); `null` = vissza a globális piaclistára. */
+	setLeagueMarkets = (leagueId: number, markets: readonly SettingsMarketKey[] | null) =>
+		this.update({ leagueMarkets: withLeagueMarkets(this.draft.leagueMarkets, leagueId, markets) });
+	/** Egy piac ki/be a liga felülírásában (globálisból indulva a globális lista a kiindulás). */
+	toggleLeagueMarket = (leagueId: number, key: SettingsMarketKey) =>
+		this.setLeagueMarkets(leagueId, toggle(effectiveLeagueMarkets(this.draft, leagueId), key));
 	setRetention = (retention: Retention) => this.update({ retention });
 	setStakeUnit = (stakeUnit: number) => this.update({ stakeUnit });
 

@@ -44,8 +44,9 @@ Floodlight v0.2 redesign: lezárva.
 22. ~~I18c – 2.3 Csapatszűrő UI (web)~~ kész (`GET /api/leagues/:id/teams`, core `teamFilters`).
 23. ~~I18d – mobil Beállítások ↔ `/api/settings`~~ kész (szinkron + liga-katalógus + csapatszűrő a `PreferencesProvider`-ben).
 24. ~~I18e – csapatszűrő alkalmazása~~ kész (core `teamFilter`, planner + `loadPlannerInput`, predikció: csak az ajánlás).
-25. **I18f – 2.3 ligánkénti piac-felülírás UI (web):** a `followed_league.markets` szerkesztése a Beállítások liga-sorában (`null`
-    = globális), a settings-API már kezeli; a becslés ezzel számol. Utána: ROADMAP 2.4 Budget-panel.
+25. ~~I18f – 2.3 ligánkénti piac-felülírás UI (web)~~ kész (core `ISettings.leagueMarkets`, `LeagueMarkets.tsx`).
+26. **I19 – ROADMAP 2.4 Budget-panel:** a mai felhasznált/maradék hívás, jobonkénti bontás (`api_call_log`), a `/status`-szal
+    egyeztetve; screenshot mock adattal.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -160,48 +161,19 @@ terv `docs/plans/i10-odds.md` | `loadPlannerInput`), server `ingestWorker.ts` (`
 feat(server): store odds_best) | core `odds/best.ts` (`computeBestOdds`), `odds.ts` (kör piacai × minden iroda → best, utána
 szűrés), db `OddsSnapshotInput.best` + `insertBest` (ismeretlen iroda → null); megőrzés: BLOCKERS | | I12 – injuries (3.6) | (lásd
 git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.ts` (insert `captured_at = now`,
-`ON CONFLICT DO NOTHING`), `referenceMocks.ts` `withInjuries` (csak mentett `injuries-*.json`, ma nincs → `mock-missing`); terv
-`docs/plans/i12-injuries.md` | | I13 – standing_derived (4.3) | (lásd git log: feat(server): add derived point-in-time standings)
-| migráció 0007, `packages/server/src/standingDerived.ts` (`refreshStandingDerived`, meccsnap-`as_of`, `unnest`-upsert), a
-`results` job hívja; terv `docs/plans/i13-standing-derived.md` | | I14 – predikció-pipeline (5.2) | (lásd git log: feat(server):
-add prediction pipeline) | `packages/server/src/predictions.ts` (`runPredictions`, `withPredictions` az odds-handlerek után,
-`ensureModelVersion`); terv `docs/plans/i14-prediction-pipeline.md` | | I15 – kiértékelő job (5.3) | (lásd git log: feat(server):
-add evaluation job) | `packages/server/src/evaluation.ts` (`evaluateFixtures`, `buildEvaluationRows`), a `results` handler hívja;
-terv `docs/plans/i15-evaluation-job.md` | | I16 – liga-katalógus (2.2) | (lásd git log: feat(server): add league catalog reference
-job) | `reference.ts` `/leagues` ág (`toLeagueRows`, `upsertLeagues`, `upsertSeasons`), core planner `reference:leagues:<hét>`,
-`referenceMocks.ts` `leaguesEnvelopeFromFixtures` | | I17 – kiértékelő olvasó-API (5.5) | (lásd git log: feat(server): add
-evaluation read API) | core `evaluation/dbSummary.ts` (`summarizeEvaluations`, `scoreProbabilities`), server
-`loadEvaluationRecords`, `GET /api/evaluation?model=`, contract `getEvaluation`; terv `docs/plans/evaluation-db-api.md` | | I17b –
-Kiértékelés „Élő (DB)” blokk (web) | (lásd git log: feat(ui): add live DB evaluation block) | `EvaluationPage/LiveEvaluation.tsx`,
-`liveEvaluationView.ts` (+teszt), Vite-proxy `/api/evaluation`; screenshot
-`docs/plans/screens/I17b-evaluation-dark-{1440,390}.png` | | I17c – „Élő (DB)” blokk (mobil) | (lásd git log: feat(mobile): add
-live DB evaluation block) | core `evaluation/liveView.ts` (+teszt, a web `liveEvaluationView.ts`-ből emelve), mobil
-`evaluation.tsx` `LiveEvaluation`, `evaluationCacheKey(model)`; screenshot nincs (emulátor nélkül) | | I18a – Beállítások ↔
-settings-API (web) | (lásd git log: feat(ui): sync settings page with the settings API) | core `settings/remote.ts`
-(`settingsFromRemote`, `settingsUpdateFrom`, `SETTINGS_MARKET_IDS`; +teszt), `SettingsStore` `ISettingsRemote` +
-`syncStatus`/`saving`/`saveError`, MainStore → `readApi`, Vite-proxy `/api/settings` → :5100, szinkron-pill + SaveBar-hiba; terv
-`docs/plans/i18-settings-ui.md`; screenshot `docs/plans/screens/I18a-settings-dark-{1440,390}.png` | | I18b – Liga-katalógus a
-Beállításokban | a9ac420 (server) + (lásd git log: feat(ui): list leagues from the league catalog API) | server `leagues.ts`
-(`loadLeagueCatalog`, `toCoverageDto`; +PGlite-teszt), router `GET /api/leagues`, contract `LeagueDto`/`listLeagues`; core
-`leagueCatalog` (kézi jelöltek + DB csapatszám/coverage + adatos/követett DB-ligák), `estimateSettings(s, catalog)`,
-`missingCoverage` csak `false`-ra, a kézi `SETTINGS_LEAGUES` coverage-e `null`, `sanitizeSettings` bármely pozitív egész liga-id-t
-elfogad; `SettingsStore.loadCatalog`/`leagues`; Vite-proxy `leagues`; screenshot
-`docs/plans/screens/I18b-settings-dark-{1440,390}.png` | | I18c – Csapatszűrő (web) | 01e47fd (server) + (lásd git log: feat(ui):
-add team filter to the settings page) | server `loadLeagueTeams` + router `GET /api/leagues/:id/teams` (season_team →
-fixture-tartalék, osztályozó nélkül), contract `LeagueTeamDto`/`LeagueTeamsResponse`/`listLeagueTeams`; a katalógus csapatszáma
-már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); core `ISettings.teamFilters`, `teamFilterMode`,
-`withTeamFilter`, remote diff (upsert/remove); web `SettingsStore` `teamsByLeague`/`loadTeams`/`setTeamFilter`, `TeamFilter.tsx`
-(Mind/Csak/Kizár szegmens), új szekció „Csapatszűrő”; screenshot `docs/plans/screens/I18c-settings-dark-{1440,390}.png` | | I18d –
-Mobil Beállítások ↔ API | (lásd git log: feat(mobile): sync preferences with the settings API) | `PreferencesProvider`: `sync()`
-(GET `/api/settings` + `/api/leagues`, fókuszkor is), `saveSettings` PUT csak a diffet (`settingsUpdateFrom`), AsyncStorage
-gyorsítótár; `syncStatus` sor a képernyő tetején; Ligák a core `leagueCatalog`-ból, a becslés ezzel; új
-`components/TeamFilterSection.tsx` (Mind/Csak/Kizár, `listLeagueTeams`) | | I18e – Csapatszűrő alkalmazása | (lásd git log: feat:
-apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `teamFilterAllows`, `NO_TEAM_FILTER`); planner
-`PlannerInput.teamFilter` →
-`odds*\*`/`injuries`csak megengedett meccsre; db`SqlSettingsRepository.loadTeamFilterIndex()` (`season_team`∪`fixture`), `loadPlannerInput`hozza; server`runPredictions`: kiszűrt meccsen nincs ajánlás, naplózás marad (`features.teamFilterBlocked`)
+`ON CONFLICT DO NOTHING`), `referenceMocks.ts` `withInjuries` (csak mentett
+`injuries-*.json`, ma nincs → `mock-missing`); terv `docs/plans/i12-injuries.md`| | I13 – standing_derived (4.3) | (lásd git log: feat(server): add derived point-in-time standings) | migráció 0007,`packages/server/src/standingDerived.ts` (`refreshStandingDerived`, meccsnap-`as_of`, `unnest`-upsert), a `results`job hívja; terv`docs/plans/i13-standing-derived.md`| | I14 – predikció-pipeline (5.2) | (lásd git log: feat(server): add prediction pipeline) |`packages/server/src/predictions.ts` (`runPredictions`, `withPredictions`az odds-handlerek után,`ensureModelVersion`); terv `docs/plans/i14-prediction-pipeline.md`| | I15 – kiértékelő job (5.3) | (lásd git log: feat(server): add evaluation job) |`packages/server/src/evaluation.ts` (`evaluateFixtures`, `buildEvaluationRows`), a `results`handler hívja; terv`docs/plans/i15-evaluation-job.md`| | I16 – liga-katalógus (2.2) | (lásd git log: feat(server): add league catalog reference job) |`reference.ts` `/leagues` ág (`toLeagueRows`, `upsertLeagues`, `upsertSeasons`), core planner `reference:leagues:<hét>`, `referenceMocks.ts` `leaguesEnvelopeFromFixtures`| | I17 – kiértékelő olvasó-API (5.5) | (lásd git log: feat(server): add evaluation read API) | core`evaluation/dbSummary.ts` (`summarizeEvaluations`, `scoreProbabilities`), server `loadEvaluationRecords`, `GET
+/api/evaluation?model=`, contract `getEvaluation`; terv `docs/plans/evaluation-db-api.md`| | I17b – Kiértékelés „Élő (DB)” blokk (web) | (lásd git log: feat(ui): add live DB evaluation block) |`EvaluationPage/LiveEvaluation.tsx`, `liveEvaluationView.ts`(+teszt), Vite-proxy`/api/evaluation`; screenshot `docs/plans/screens/I17b-evaluation-dark-{1440,390}.png`| | I17c – „Élő (DB)” blokk (mobil) | (lásd git log: feat(mobile): add live DB evaluation block) | core`evaluation/liveView.ts`(+teszt, a web`liveEvaluationView.ts`-ből emelve), mobil `evaluation.tsx` `LiveEvaluation`, `evaluationCacheKey(model)`; screenshot nincs (emulátor nélkül) | | I18a – Beállítások ↔ settings-API (web) | (lásd git log: feat(ui): sync settings page with the settings API) | core `settings/remote.ts` (`settingsFromRemote`, `settingsUpdateFrom`, `SETTINGS_MARKET_IDS`; +teszt), `SettingsStore` `ISettingsRemote`+`syncStatus`/`saving`/`saveError`, MainStore → `readApi`, Vite-proxy `/api/settings`→ :5100, szinkron-pill + SaveBar-hiba; terv`docs/plans/i18-settings-ui.md`; screenshot `docs/plans/screens/I18a-settings-dark-{1440,390}.png`| | I18b – Liga-katalógus a Beállításokban | a9ac420 (server) + (lásd git log: feat(ui): list leagues from the league catalog API) | server`leagues.ts` (`loadLeagueCatalog`, `toCoverageDto`; +PGlite-teszt), router `GET
+/api/leagues`, contract `LeagueDto`/`listLeagues`; core `leagueCatalog`(kézi jelöltek + DB csapatszám/coverage + adatos/követett DB-ligák),`estimateSettings(s,
+catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e`null`, `sanitizeSettings`bármely pozitív egész liga-id-t elfogad;`SettingsStore.loadCatalog`/`leagues`; Vite-proxy `leagues`; screenshot `docs/plans/screens/I18b-settings-dark-{1440,390}.png`| | I18c – Csapatszűrő (web) | 01e47fd (server) + (lásd git log: feat(ui): add team filter to the settings page) | server`loadLeagueTeams`+ router`GET
+/api/leagues/:id/teams`(season_team → fixture-tartalék, osztályozó nélkül), contract`LeagueTeamDto`/`LeagueTeamsResponse`/`listLeagueTeams`; a katalógus csapatszáma már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); core `ISettings.teamFilters`, `teamFilterMode`, `withTeamFilter`, remote diff (upsert/remove); web `SettingsStore` `teamsByLeague`/`loadTeams`/`setTeamFilter`, `TeamFilter.tsx`(Mind/Csak/Kizár szegmens), új szekció „Csapatszűrő”; screenshot`docs/plans/screens/I18c-settings-dark-{1440,390}.png`| | I18d – Mobil Beállítások ↔ API | (lásd git log: feat(mobile): sync preferences with the settings API) |`PreferencesProvider`: `sync()`(GET`/api/settings`+`/api/leagues`, fókuszkor is), `saveSettings` PUT csak a diffet (`settingsUpdateFrom`), AsyncStorage gyorsítótár; `syncStatus`sor a képernyő tetején; Ligák a core`leagueCatalog`-ból, a becslés ezzel; új `components/TeamFilterSection.tsx`(Mind/Csak/Kizár,`listLeagueTeams`) | | I18e – Csapatszűrő alkalmazása | (lásd git log: feat: apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `teamFilterAllows`, `NO_TEAM_FILTER`); planner `PlannerInput.teamFilter`→`odds\*\*`/`injuries`csak megengedett meccsre; db`SqlSettingsRepository.loadTeamFilterIndex()` (`season_team`∪`fixture`), `loadPlannerInput`hozza; server`runPredictions`: kiszűrt meccsen nincs ajánlás, naplózás marad (`features.teamFilterBlocked`) | | I18f – Ligánkénti piac-felülírás (web) | (lásd git log: feat(ui): league market overrides) | core `ISettings.leagueMarkets`+`remote.ts`leképezés (tesztek), store`setLeagueMarkets`/`toggleLeagueMarket`, `LeagueMarkets.tsx`; screenshot `docs/plans/screens/I18f-settings-dark-{1440,390}.png`
 |
 
 ## Polish backlog
+
+- I18f: mobilon nincs ligánkénti piac-felülírás UI (a core már átviszi); az ajánlás nem szűr a liga piacaira (csak a tárolás
+  `resolveStoredScope` és a becslés); a h2h/ou25/btts-en kívüli felülírás-elem a webes oda-vissza úton elveszik; csak sötét téma
+  screenshot.
 
 - I18e: a UI nem jelzi, hogy egy ajánlás a szűrő miatt maradt el; a kiértékelés nem bontja szét a `teamFilterBlocked` sorokat; az
   include-liga a csapat összes (régi) ligáját is érinti (kupa, kiesés előtti liga) – szezonra szűkíthető.
@@ -369,6 +341,13 @@ apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `tea
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I18f kész.** Core `ISettings.leagueMarkets` (`{leagueId, markets}[]`, rendezett; `leagueMarketOverride`,
+  `effectiveLeagueMarkets`, `withLeagueMarkets`); `settingsFromRemote` a `followedLeagues[].markets`-et (id-szöveg vagy
+  `market.code`) képezi le, a `settingsUpdateFrom` változáskor `followedLeagues.upsert`
+  `{leagueId, enabled, markets: ids-as-string | null}`. A tárhelybecslés ligánként a saját piacaival számol. Web:
+  `components/LeagueMarkets.tsx` (Globális/Egyéni + piac-kapcsolók). `shots.mjs --storage` (localStorage-minta szerver nélkül).
+  Következő: I19 (2.4 Budget-panel).
 
 - **I18e kész.** Szűrő-jelentés: Kizár = a csapat meccsei ki; Csak = a csapat ligáiban csak az include-csapatok meccsei; ütközés →
   exclude. Gyűjtés: a planner csak az `odds_*`/`injuries` meccseit szűri (tabella/eredmény nem); predikció: a naplózás marad, csak

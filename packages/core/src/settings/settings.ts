@@ -123,8 +123,16 @@ export interface ISettingsTeamFilter {
 	mode: TeamFilterMode;
 }
 
+/** Ligánkénti piac-felülírás (I18f, `followed_league.markets`): a liga csak ezeket a piacokat kapja; üres = egy piac sem. */
+export interface ISettingsLeagueMarkets {
+	leagueId: number;
+	markets: SettingsMarketKey[];
+}
+
 export interface ISettings {
 	leagues: number[];
+	/** Ligánkénti piac-felülírások (I18f); a listában nem szereplő liga a globális `markets`-et kapja. Liga-id szerint rendezve. */
+	leagueMarkets: ISettingsLeagueMarkets[];
 	/** Csapatszűrők (I18c); a csapatnév a liga csapatlistájából (`/api/leagues/:id/teams`) jön. */
 	teamFilters: ISettingsTeamFilter[];
 	markets: SettingsMarketKey[];
@@ -144,6 +152,7 @@ export const STAKE_UNITS = [500, 1000, 2000, 5000] as const;
 export const DEFAULT_SETTINGS: ISettings = {
 	leagues: [39, 140, 135, 78, 61],
 	teamFilters: [],
+	leagueMarkets: [],
 	markets: ['h2h', 'ou25', 'btts'],
 	bookmakers: [8, 4, 16, 6, 11],
 	retention: 'opening-closing',
@@ -189,6 +198,38 @@ export const withTeamFilter = (
 ): ISettingsTeamFilter[] =>
 	teamFilters([...filters.filter((f) => f.teamId !== teamId), ...(mode ? [{ teamId, mode }] : [])]) ?? [];
 
+/** Érvényes piac-felülírások: pozitív egész liga-id, ismert piacok (katalógus-sorrendben); ugyanarra a ligára az utolsó nyer. */
+const leagueMarkets = (xs: unknown): ISettingsLeagueMarkets[] | null => {
+	if (!Array.isArray(xs)) return null;
+	const byLeague = new Map<number, SettingsMarketKey[]>();
+	for (const x of xs) {
+		const o = (x && typeof x === 'object' ? x : {}) as { leagueId?: unknown; markets?: unknown };
+		const markets = o.markets;
+		if (Number.isInteger(o.leagueId) && (o.leagueId as number) > 0 && Array.isArray(markets))
+			byLeague.set(
+				o.leagueId as number,
+				SETTINGS_MARKETS.map((m) => m.key).filter((k) => markets.includes(k))
+			);
+	}
+	return [...byLeague].sort((a, b) => a[0] - b[0]).map(([leagueId, markets]) => ({ leagueId, markets }));
+};
+
+/** A liga piac-felülírása; `null` = a globális piaclista érvényes. */
+export const leagueMarketOverride = (s: Pick<ISettings, 'leagueMarkets'>, leagueId: number): SettingsMarketKey[] | null =>
+	s.leagueMarkets.find((l) => l.leagueId === leagueId)?.markets ?? null;
+
+/** A ligára ténylegesen érvényes piacok: a felülírás, ennek hiányában a globális lista. */
+export const effectiveLeagueMarkets = (s: Pick<ISettings, 'leagueMarkets' | 'markets'>, leagueId: number): SettingsMarketKey[] =>
+	leagueMarketOverride(s, leagueId) ?? s.markets;
+
+/** Piac-felülírás beállítása (`null` = vissza a globálisra); liga-id szerint rendezett, új tömb. */
+export const withLeagueMarkets = (
+	overrides: readonly ISettingsLeagueMarkets[],
+	leagueId: number,
+	markets: readonly SettingsMarketKey[] | null
+): ISettingsLeagueMarkets[] =>
+	leagueMarkets([...overrides.filter((l) => l.leagueId !== leagueId), ...(markets ? [{ leagueId, markets }] : [])]) ?? [];
+
 export type NumberField = keyof typeof NUMBER_LIMITS;
 
 const inRange = (x: unknown, f: NumberField): x is number =>
@@ -208,6 +249,7 @@ export const sanitizeSettings = (raw: unknown): ISettings => {
 	return {
 		leagues: leagueIds(r.leagues) ?? d.leagues,
 		teamFilters: teamFilters(r.teamFilters) ?? d.teamFilters,
+		leagueMarkets: leagueMarkets(r.leagueMarkets) ?? d.leagueMarkets,
 		markets:
 			known(
 				r.markets,
@@ -300,13 +342,15 @@ export const estimateSettings = (s: ISettings, catalog: readonly ISettingsLeague
 			(estimateLeagueCallsPerRound({ fixturesPerRound: fixturesPerRound(l) }).total * ROUNDS_PER_WEEK) / 7
 		])
 	);
-	const outcomes = SETTINGS_MARKETS.filter((m) => s.markets.includes(m.key)).reduce((sum, m) => sum + m.outcomes, 0);
+	const outcomes = (keys: readonly SettingsMarketKey[]) =>
+		SETTINGS_MARKETS.filter((m) => keys.includes(m.key)).reduce((sum, m) => sum + m.outcomes, 0);
 	const snapshots = RETENTION_OPTIONS.find((o) => o.key === s.retention)!.snapshotsPerFixture;
+	// A sorszám meccs × kimenet szerint lineáris: ligánként a saját (felülírt vagy globális) piacaival súlyozunk (I18f).
 	const storage = estimateOddsStorage({
-		fixturesPerSeason: leagues.reduce((sum, l) => sum + fixturesPerSeason(l), 0),
+		fixturesPerSeason: leagues.reduce((sum, l) => sum + fixturesPerSeason(l) * outcomes(effectiveLeagueMarkets(s, l.id)), 0),
 		snapshotsPerFixture: snapshots,
 		bookmakers: s.bookmakers.length,
-		outcomes
+		outcomes: 1
 	});
 	return {
 		leagueDaily,
@@ -331,6 +375,8 @@ export const settingsWarnings = (s: ISettings, e: ISettingsEstimate): ISettingsW
 	const out: ISettingsWarning[] = [];
 	if (!s.leagues.length) out.push({ text: 'Nincs kiválasztott liga: nem lesz adat és ajánlás.', danger: true });
 	if (!s.markets.length) out.push({ text: 'Nincs kiválasztott piac: nem lesz ajánlás.', danger: true });
+	const silent = s.leagueMarkets.filter((l) => s.leagues.includes(l.leagueId) && !l.markets.length).length;
+	if (silent) out.push({ text: `${silent} követett ligához egy piac sincs kijelölve: ott nem lesz ajánlás.`, danger: false });
 	if (!s.bookmakers.length) out.push({ text: 'Nincs kiválasztott iroda: nem tárolunk oddsot.', danger: true });
 	else if (s.bookmakers.length < 5)
 		out.push({ text: 'Ötnél kevesebb iroda: a piaci konszenzus (5 iroda) csak a teljes válaszból számolható.', danger: false });

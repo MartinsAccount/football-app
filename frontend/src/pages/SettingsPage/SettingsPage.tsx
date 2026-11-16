@@ -24,6 +24,7 @@ import { cx, dangerBox, input, warningBox } from '../../components/ui/oeClasses'
 import SettingsNav from './components/SettingsNav';
 import SaveBar from './components/SaveBar';
 import TeamFilter from './components/TeamFilter';
+import LeagueMarkets from './components/LeagueMarkets';
 
 interface ISettingsPageProps {
 	MainStore?: MainStore;
@@ -157,7 +158,7 @@ const Section = ({ id, title, sub, children }: { id: SettingsSectionId; title: s
  * `/settings` – Beállítások (PRD 5.3, 5.8, 7.5; CHANGES 5.): szekció-menü, ligák (csak a hiányzó coverage), piacok és irodák,
  * tárolás, stratégia, megjelenés. A beállítások piszkozatként szerkeszthetők; a mentés-sáv mutatja a becslés változását.
  * A Megjelenés (téma) azonnal hat, nem része a piszkozatnak.
- * TODO(polish): a beállítás még nem hat az ajánlásokra (a `/` pillanatképe előre számolt); csapat-szűrő; ligánkénti piac-felülírás.
+ * TODO(polish): a beállítás még nem hat az ajánlásokra (a `/` pillanatképe előre számolt).
  */
 @inject('MainStore')
 @observer
@@ -354,6 +355,8 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 									/>
 								))}
 							</ul>
+							<h3 className="oe-label">Ligánkénti piacok</h3>
+							<LeagueMarkets store={this.store} />
 							<h3 className="oe-label">Fogadóirodák</h3>
 							<ul style={listStyle(halfBasis)}>
 								{SETTINGS_BOOKMAKERS.map((b) => (

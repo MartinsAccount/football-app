@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { RemoteSettingsShape, settingsFromRemote, settingsUpdateFrom } from './remote';
+import { effectiveLeagueMarkets, estimateSettings, settingsWarnings, withLeagueMarkets } from './settings';
 import { DEFAULT_SETTINGS, ISettings, sanitizeSettings, teamFilterMode, withTeamFilter } from './settings';
 
 const remote: RemoteSettingsShape = {
@@ -118,5 +119,66 @@ describe('team filters (I18c)', () => {
 		expect(teamFilterMode(s.teamFilters, 5)).toBe('exclude');
 		expect(teamFilterMode(s.teamFilters, 6)).toBeNull();
 		expect(sanitizeSettings({}).teamFilters).toEqual([]);
+	});
+});
+
+describe('league market overrides (I18f)', () => {
+	const withMarkets: RemoteSettingsShape = {
+		...remote,
+		followedLeagues: [
+			{ leagueId: 39, enabled: true, markets: null },
+			{ leagueId: 78, enabled: true, markets: ['8', 'Vegeredmeny', 'unknown'] },
+			{ leagueId: 140, enabled: false, markets: [] }
+		],
+		markets: [
+			{ id: 1, stored: true, code: 'Vegeredmeny' },
+			{ id: 5, stored: false, code: null },
+			{ id: 8, stored: true, code: 'MindketCsapatGol' }
+		]
+	};
+
+	it('maps id strings and market codes to keys; null = global, [] = none; old server keeps the local overrides', () => {
+		expect(settingsFromRemote(withMarkets).leagueMarkets).toEqual([
+			{ leagueId: 78, markets: ['h2h', 'btts'] },
+			{ leagueId: 140, markets: [] }
+		]);
+		const local = { ...DEFAULT_SETTINGS, leagueMarkets: [{ leagueId: 39, markets: ['ou25' as const] }] };
+		expect(settingsFromRemote(remote, local).leagueMarkets).toEqual(local.leagueMarkets);
+	});
+
+	it('upserts changed overrides as id strings (known DB markets only), null to reset, with the enabled flag', () => {
+		const saved = settingsFromRemote(withMarkets);
+		let draft = { ...saved, leagueMarkets: withLeagueMarkets(saved.leagueMarkets, 39, ['h2h', 'ou25']) };
+		draft = { ...draft, leagueMarkets: withLeagueMarkets(draft.leagueMarkets, 78, null) };
+		expect(settingsUpdateFrom(saved, draft, { ...withMarkets, markets: withMarkets.markets.slice(0, 1) })).toEqual({
+			followedLeagues: {
+				upsert: [
+					{ leagueId: 39, enabled: true, markets: ['1'] },
+					{ leagueId: 78, enabled: true, markets: null }
+				]
+			}
+		});
+		// liga-váltás + felülírás egy sorban; az érintetlen felülírás nem megy
+		const toggled = { ...saved, leagues: [39], leagueMarkets: withLeagueMarkets(saved.leagueMarkets, 140, ['btts']) };
+		expect(settingsUpdateFrom(saved, toggled, withMarkets)?.followedLeagues?.upsert).toEqual([
+			{ leagueId: 78, enabled: false },
+			{ leagueId: 140, enabled: false, markets: ['8'] }
+		]);
+	});
+
+	it('sanitize keeps valid overrides; effective markets and the storage estimate follow the override', () => {
+		const s = sanitizeSettings({
+			...DEFAULT_SETTINGS,
+			leagues: [39, 140],
+			leagueMarkets: [{ leagueId: 39, markets: ['btts', 'x'] }, { leagueId: -1, markets: [] }, { leagueId: 140 }]
+		});
+		expect(s.leagueMarkets).toEqual([{ leagueId: 39, markets: ['btts'] }]);
+		expect(effectiveLeagueMarkets(s, 39)).toEqual(['btts']);
+		expect(effectiveLeagueMarkets(s, 140)).toEqual(DEFAULT_SETTINGS.markets);
+		const base = estimateSettings({ ...s, leagueMarkets: [] }).storageBytes;
+		// 39 (20 csapat): 7 kimenet → 2; 140 (20 csapat) marad 7 → a sor (2 + 7) / 14 része
+		expect(estimateSettings(s).storageBytes).toBeCloseTo((base * 9) / 14);
+		const none = { ...s, leagueMarkets: withLeagueMarkets([], 39, []) };
+		expect(settingsWarnings(none, estimateSettings(none)).some((w) => w.text.startsWith('1 követett ligához'))).toBe(true);
 	});
 });

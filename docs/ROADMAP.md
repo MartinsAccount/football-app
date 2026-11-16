@@ -98,7 +98,8 @@
       becslés túllépi a keretet. Tárolt piacok és irodák kapcsolói (globálisan és ligánként), snapshot-megőrzés, és a **becsült
       tárhely szezononként** az 500 MB-hoz mérve. _Ellenőrzés:_ screenshot; unit-teszt a hívásköltség- és a tárhelybecslő
       függvényre. _Állapot:_ web kész (I18a settings-API, I18b liga-katalógus, I18c csapatszűrő – 01e47fd + I18c UI commit); mobil
-      kész (I18d); a szűrő alkalmazása kész (I18e: gyűjtés + ajánlás); hátra: ligánkénti piac-felülírás UI.
+      kész (I18d); a szűrő alkalmazása kész (I18e: gyűjtés + ajánlás); ligánkénti piac-felülírás UI kész (I18f, web); hátra: mobil
+      piac-felülírás (polish).
 - [ ] **2.4 Budget-panel:** a mai felhasznált és maradék hívások, jobonkénti bontás, a `/status`-szal egyeztetett érték.
       _Ellenőrzés:_ screenshot mock adattal.
 

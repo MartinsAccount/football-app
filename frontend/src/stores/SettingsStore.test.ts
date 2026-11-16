@@ -49,6 +49,16 @@ describe('SettingsStore', () => {
 		expect(storage.writes()).toBe(0);
 	});
 
+	it('edits a league market override from the global list and resets it (I18f)', () => {
+		const store = new SettingsStore(memory({ leagues: [39], markets: ['h2h', 'btts'] }));
+		store.toggleLeagueMarket(39, 'btts');
+		expect(store.draft.leagueMarkets).toEqual([{ leagueId: 39, markets: ['h2h'] }]);
+		expect(store.dirty).toBe(true);
+		store.setLeagueMarkets(39, null);
+		expect(store.draft.leagueMarkets).toEqual([]);
+		expect(store.dirty).toBe(false);
+	});
+
 	it('toggling back to the saved value is not dirty', () => {
 		const store = new SettingsStore(memory());
 		store.toggleLeague(39);

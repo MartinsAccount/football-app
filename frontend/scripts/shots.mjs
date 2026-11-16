@@ -10,6 +10,8 @@
 //   konzolhibákat. Kilépési kód 1, ha bármelyik oldalon görget vagy hibát dob.
 // - `--click "<css>"`: betöltés után az első illeszkedő elemre kattint (pl. `.oe-preset` → kitöltött szelvény); ha nincs
 //   ilyen elem, hibának számít.
+// - `--storage <json-fájl>`: `{ kulcs: érték }` localStorage-bejegyzések minden betöltés előtt (pl. `oe_settings` minta-állapot
+//   szerver nélkül; az objektum-érték JSON-ként íródik).
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
@@ -32,6 +34,7 @@ const { values: opt } = parseArgs({
 		cdpPort: { type: 'string', default: '9333' },
 		wait: { type: 'string', default: '2500' },
 		click: { type: 'string', default: '' },
+		storage: { type: 'string', default: '' },
 		edge: { type: 'string', default: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' }
 	}
 });
@@ -105,6 +108,15 @@ const MEASURE = `JSON.stringify({
 
 await send('Runtime.enable');
 await send('Page.enable');
+if (opt.storage) {
+	const entries = Object.entries(JSON.parse(fs.readFileSync(path.resolve(opt.storage), 'utf8'))).map(([k, val]) => [
+		k,
+		typeof val === 'string' ? val : JSON.stringify(val)
+	]);
+	await send('Page.addScriptToEvaluateOnNewDocument', {
+		source: `try { for (const [k, v] of ${JSON.stringify(entries)}) localStorage.setItem(k, v); } catch {}`
+	});
+}
 let failed = false;
 for (const { name, route } of pages)
 	for (const theme of list(opt.themes))
