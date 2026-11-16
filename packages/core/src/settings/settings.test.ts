@@ -6,7 +6,9 @@ import {
 	sameSettings,
 	sanitizeSettings,
 	SETTINGS_STORAGE_KEY,
-	settingsCodec
+	settingsCodec,
+	toggleSettingsItem,
+	withSettingsNumber
 } from './settings';
 
 describe('settingsCodec', () => {
@@ -42,5 +44,23 @@ describe('settingsCodec', () => {
 	it('migrates v1 as identity', () => {
 		const raw = { leagues: [39] };
 		expect(migrateSettings(raw)).toBe(raw);
+	});
+});
+
+describe('settings edits', () => {
+	it('toggles a list item and keeps the result valid', () => {
+		const off = toggleSettingsItem(DEFAULT_SETTINGS, 'leagues', 39);
+		expect(off.leagues).not.toContain(39);
+		expect(toggleSettingsItem(off, 'leagues', 39).leagues).toContain(39);
+		expect(toggleSettingsItem(DEFAULT_SETTINGS, 'markets', 'btts').markets).toEqual(['h2h', 'ou25']);
+		expect(toggleSettingsItem(DEFAULT_SETTINGS, 'bookmakers', 999).bookmakers).toEqual(DEFAULT_SETTINGS.bookmakers);
+	});
+
+	it('writes a number field only when it is in range and min < max', () => {
+		expect(withSettingsNumber(DEFAULT_SETTINGS, 'minOdds', 1.8)?.minOdds).toBe(1.8);
+		expect(withSettingsNumber(DEFAULT_SETTINGS, 'minOdds', 4)).toBeNull();
+		expect(withSettingsNumber(DEFAULT_SETTINGS, 'maxOdds', 1.2)).toBeNull();
+		expect(withSettingsNumber(DEFAULT_SETTINGS, 'evThreshold', 0.9)).toBeNull();
+		expect(withSettingsNumber(DEFAULT_SETTINGS, 'backfillReserve', 20)?.backfillReserve).toBe(20);
 	});
 });

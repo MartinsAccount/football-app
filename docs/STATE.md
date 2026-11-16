@@ -40,11 +40,10 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 **Mobil (ROADMAP 11):**
 
-M1–M8 kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
+M1–M9 kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
 
-1. **M9 Beállítások** – core `settingsCodec` + téma-preferencia (`themeCodec`), a Kapcsolat-képernyő mellé.
-2. **M10 Arbitrázs** – core `arbitrage/scan` nézet (`getArbitrage()` + `reviveArbitrageSnapshot`, SB4 óta van).
-3. **M11 Meccs-részlet** – `getOdds(fixtureId)` (odds-history), csapatnevek (DTO-bővítés).
+1. **M10 Arbitrázs** – core `arbitrage/scan` nézet (`getArbitrage()` + `reviveArbitrageSnapshot`, SB4 óta van).
+2. **M11 Meccs-részlet** – `getOdds(fixtureId)` (odds-history), csapatnevek (DTO-bővítés).
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).
@@ -109,11 +108,15 @@ tételek).
 | SB6 – Legacy FixturePage törlése       | (lásd git log: refactor(frontend): remove legacy FixturePage)                        | A routolatlan `FixturePage` (komponensek, `FixtureService`, `FixtureStore`) és az üres `DataService` törölve, `MainStore`-ból kivéve; `models.ts` marad (Odds/Arbitrázs importálja); ROADMAP 1.8 pipálva. Külső API-hívás csak az arbitrázs régi útján (8.3).                                                                                                                                                                                                                                                                                              |
 | M7 – Mobil Kiértékelés (11.7)          | (lásd git log: feat(mobile): add evaluation screen)                                  | core `evaluation/labels.ts` (EVAL_MARKETS, szezon/liga-név, fej-chipek, szegmensek, `goalRows`; a web `evaluationView` re-exportálja, teszt); `apps/mobile/src/app/evaluation.tsx`: `getBacktest()` + `loadWithCache` (`oe_cache_backtest`), piac- és szegmensválasztó, ítélet, 4 KPI, sikermutatók, kalibrációs tábla; fejléc-link; `tsc` + `expo export --platform android` zöld                                                                                                                                                                         |
 | M8 – Mobil Szelvény (11.7)             | (lásd git log: feat(mobile): add slip screen)                                        | core `slip/draft.ts` (`TIPPMIX_LABEL`, `draftTipFromItem`, `draftRows`/`draftLegs`, `buildSavedSlip`; teszt; a web re-használja a címkét); `apps/mobile/src/app/slip.tsx`: `getRecommendations()` + cache (`oe_cache_recommendations`), kész szelvények, tipp-toggle, odds-beírás státusszal, tét-lépcső, összesítő, mentés `savedSlipsCodec`-kel AsyncStorage-ba, mentett lista; `tsc` + `expo export` zöld                                                                                                                                               |
+| M9 – Mobil Beállítások (11.7)          | (lásd git log: feat(mobile): add settings screen)                                    | core `toggleSettingsItem`/`withSettingsNumber` (teszt); `apps/mobile/src/lib/preferences.tsx` (`PreferencesProvider`: `settingsCodec` + `themeCodec` AsyncStorage-ban); `src/app/preferences.tsx`: téma (azonnal), tét-alapegység, value-szűrő, ligák/piacok/irodák, tárolás, backfill, becslés + figyelmeztetések, Mentés/Elvetés/Alapértékek, Kapcsolat-link; `useRnTheme` a mentett preferenciát követi; Szelvény tét-lépcső a beállításból; `tsc` + `expo export` zöld                                                                                 |
 
 ## Polish backlog
 
-- M8: mobil Szelvény: fix tét-lépcső (M9 hozza a beállításból), mentett szelvény törlése/kiértékelése nincs, nincs screenshot; a
-  fejlécben már 3 link van → tab-navigáció kellene.
+- M9: mobil Beállítások: nincs szekció-menü és „elhagyod mentés nélkül?” jelzés; a web `SettingsStore` még saját
+  `toggle`/`setNumber`-t használ (→ core `toggleSettingsItem`/`withSettingsNumber`); a beállítás az ajánlásokra nem hat; a
+  checkbox pipája szöveg-karakter (nincs ikonkészlet); nincs screenshot.
+- M8: mobil Szelvény: mentett szelvény törlése/kiértékelése nincs, nincs screenshot; a fejlécben 3 link van → tab-navigáció
+  kellene.
 - M7: mobil Kiértékelés: kalibráció táblázatként (nincs diagram), pontossági/bontás-táblák és a ROI-sáv grafika hiányzik; nincs
   screenshot (emulátor/expo-web nincs a gépen; az expo-secure-store weben nem fut); a fejléc két linkje keskeny kijelzőn szűkös.
 - SB5: `RemoteData` betöltéskor csak egy kártya (skeleton nincs), oldalváltáskor újratölt (nincs cache); a 390 px-es Edge-headless
@@ -191,6 +194,11 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **M9 kész.** Mobil Beállítások (`src/app/preferences.tsx`, fejléc „Beállítások”); a Kapcsolat (`settings.tsx`) onnan linkkel.
+  App-szintű állapot: `src/lib/preferences.tsx` (`PreferencesProvider` a `_layout`-ban, `usePreferences()` → `settings`,
+  `saveSettings`, `themePreference`, `setThemePreference`; AsyncStorage, web-formátum). `useRnTheme` már a mentett preferenciát
+  követi (`useThemeName`). A Szelvény tét-lépcsője `stakeOptions(settings.stakeUnit)`. Következő: M10 Arbitrázs.
 
 - **M8 kész.** Mobil Szelvény-képernyő (`slip.tsx`) a core `slip/draft.ts`-re építve; mentés a web `oe_saved_slips` formátumában.
   Következő: M9 Beállítások (`settingsCodec` + `themeCodec`; a tét-lépcső innen jöjjön a Szelvénybe).

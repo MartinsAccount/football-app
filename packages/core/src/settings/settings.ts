@@ -164,6 +164,23 @@ export const parseNumberField = (field: NumberField, input: string): number | nu
 export const numberFieldText = (field: NumberField, value: number): string =>
 	String(field === 'evThreshold' ? Math.round(value * 1000) / 10 : value).replace('.', ',');
 
+/** Listás beállítás (liga / piac / iroda) egy elemének ki-be kapcsolása; az eredmény érvényes `ISettings`. */
+export const toggleSettingsItem = <K extends 'leagues' | 'markets' | 'bookmakers'>(
+	s: ISettings,
+	field: K,
+	item: ISettings[K][number]
+): ISettings => {
+	const xs = s[field] as unknown[];
+	return sanitizeSettings({ ...s, [field]: xs.includes(item) ? xs.filter((x) => x !== item) : [...xs, item] });
+};
+
+/** Számmező beírása; tartományon kívül vagy min. odds ≥ max. odds esetén null (a hívó jelzi a hibát). */
+export const withSettingsNumber = (s: ISettings, field: NumberField, value: number): ISettings | null => {
+	const next = { ...s, [field]: value };
+	if (!inRange(value, field) || next.minOdds >= next.maxOdds) return null;
+	return sanitizeSettings(next);
+};
+
 /** Tét-lépcső az alapegységből (DESIGN §7.6: 500 / 1 000 / 2 000 / 5 000 Ft az 1 000-es egységnél). */
 export const stakeOptions = (unit: number): number[] => [0.5, 1, 2, 5].map((k) => Math.round(unit * k));
 

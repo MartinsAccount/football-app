@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Link, useFocusEffect } from 'expo-router';
 import type { RecommendationsResponse } from '@football/contract';
@@ -21,6 +21,7 @@ import {
 	savedSlipsCodec,
 	saveStored,
 	slipTypeName,
+	stakeOptions,
 	summarizeSlip,
 	type CachedResult,
 	type ISavedSlip,
@@ -29,15 +30,15 @@ import {
 	type TransferStatus
 } from '@football/core';
 import { apiClientFor, loadConnection } from '@/lib/connection';
+import { usePreferences } from '@/lib/preferences';
 import { asyncKeyValueStorage, RECOMMENDATIONS_CACHE_KEY } from '@/lib/storage';
 import { useRnTheme } from '@/lib/theme';
 
-// TODO(polish): tét-lépcső a beállításokból (M9); mentett szelvény törlése / kiértékelése; kockázat-pill színezése.
+// TODO(polish): mentett szelvény törlése / kiértékelése; kockázat-pill színezése.
 
 type State = { loading: boolean; result?: CachedResult<RecommendationsResponse>; missingUrl?: boolean };
 type Theme = ReturnType<typeof useRnTheme>;
 
-const STAKES = [500, 1000, 2000, 5000];
 const PRESET_NAME: Record<SlipPresetKind, string> = { single: 'Szingli', double: 'Dupla', treble: 'Hármas' };
 const STATUS_TEXT: Record<TransferStatus, string> = {
 	valid: 'megéri',
@@ -53,7 +54,11 @@ export default function SlipScreen() {
 	const [state, setState] = useState<State>({ loading: true });
 	const [selected, setSelected] = useState<string[]>([]);
 	const [inputs, setInputs] = useState<Record<string, string>>({});
-	const [stake, setStake] = useState(STAKES[1]);
+	// Tét-lépcső a mentett alapegységből (Beállítások); egységváltáskor a tét visszaáll az alapegységre.
+	const { stakeUnit } = usePreferences().settings;
+	const stakes = useMemo(() => stakeOptions(stakeUnit), [stakeUnit]);
+	const [stake, setStake] = useState(stakeUnit);
+	useEffect(() => setStake(stakeUnit), [stakeUnit]);
 	const [saved, setSaved] = useState<ISavedSlip[]>([]);
 
 	const load = useCallback(async () => {
@@ -211,7 +216,7 @@ export default function SlipScreen() {
 					</View>
 
 					<View style={s.wrap}>
-						{STAKES.map((v) => (
+						{stakes.map((v) => (
 							<Pressable
 								key={v}
 								onPress={() => setStake(v)}
