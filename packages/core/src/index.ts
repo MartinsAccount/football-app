@@ -47,6 +47,7 @@ export * from './settings/remote';
 export * from './settings/teamFilter';
 export * from './theme/theme';
 export * from './backtest/backtest';
+export * from './backtest/blend';
 export * from './recommend/recommend';
 export * from './recommend/snapshot';
 export * from './ingest/tasks';

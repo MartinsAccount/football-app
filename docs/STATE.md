@@ -62,10 +62,12 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 34. ~~I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit (core)~~ kész (`elo-logit@1.0.0`, holdout LL 0,9905 vs. v0 0,9959).
 35. ~~I26 – 6.2b Dixon–Coles ML-illesztés + backtest v1~~ kész (`dixon-coles@1.0.0`, holdout 1X2 LL 0,9857; riport
     `docs/analysis/backtests/2026-11-16-model-v1.md`).
-36. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
+36. ~~I26b – 7.3 Piaci kombinálás (`w`) + EV-küszöb hangolása~~ kész (prioritás-módosítás az I26 negatív ROI-ja miatt; core
+    `backtest/blend.ts`, riport `docs/analysis/backtests/2026-11-16-blend.md`; validációs optimum w = 0 → élesítés 🔶).
+37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
-37. **I28 – 7.5b Double Chance + gólvonalak (1,5 / 3,5).** ugyanígy; a `market` referencia-sorok mockból. ~8 fájl.
-38. **I29 – 9.2a React 18 + MobX 6 (frontend).** `makeObservable` a store-okban, `createRoot`, a `legacy-peer-deps` megszűnik, ha
+38. **I28 – 7.5b Double Chance + gólvonalak (1,5 / 3,5).** ugyanígy; a `market` referencia-sorok mockból. ~8 fájl.
+39. **I29 – 9.2a React 18 + MobX 6 (frontend).** `makeObservable` a store-okban, `createRoot`, a `legacy-peer-deps` megszűnik, ha
     a mobx-react 7 engedi; screenshotok egyeznek. Ha > 10 fájl: store-onként bontva (9.2b).
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
@@ -193,23 +195,22 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 | I26 – 6.2b Dixon–Coles ML + backtest v1 | `68fa359` (core) + `3dd067f` (scriptek, riport) | core `model/dixonColesFit.ts`
 (`fitDixonColes`, `dixonColesPredict`, `dixonColesWalkForward`, `DIXON_COLES_VERSION`) + 7 teszt (paraméter-visszanyerés);
 `backtest.ts` `pickValueBet` export; db `scripts/backtestData.ts` (közös CSV-betöltő; v0/M1 kimenet bájtra azonos),
-`scripts/backtest-model-v1.ts` (`npm run backtest:v1 -w @football/db`) → `docs/analysis/backtests/2026-11-16-model-v1.md`; holdout 1X2
-LL M2 0,9857 / M1 0,9905 / v0 0,9959 / záró 0,9608; O/U M2 0,6791 / v0 0,6808 / záró 0,6652; pipeline változatlan |
+`scripts/backtest-model-v1.ts` (`npm run backtest:v1 -w @football/db`) → `docs/analysis/backtests/2026-11-16-model-v1.md`; holdout
+1X2 LL M2 0,9857 / M1 0,9905 / v0 0,9959 / záró 0,9608; O/U M2 0,6791 / v0 0,6808 / záró 0,6652; pipeline változatlan |
 
-| I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit | `9fb57a2` | terv
-`docs/plans/model-v1.md`; core `model/ordinalLogit.ts` (`fitOrdinalLogit`, `ordinalLogitProbabilities`, `eloLogitSamples`,
-`eloDiff`, `eloLogitPrediction`, `ELO_LOGIT_VERSION`) + 7 teszt; db `scripts/backtest-elo-logit.ts`
-(`npm run backtest:elo-logit -w @football/db`); holdout 2024 1X2 LL: M1 0,9905 / v0 0,9959 / nyitó 0,9640 / záró 0,9608; pipeline
-változatlan | | I24 – 8.3 Régi arbitrázs-út kivezetése | `e375c40` | törölve: `LegacyArbitragePage`, Arbitrázs
-`components/`/`models/`/`services/`/`stores/`, `FetchService(3)`, `ApiURLs`, `services/fixtures/`, `LocalStorageUtil`,
-`core/constants/{BetTypes,Bookmakers,constants}`, `core/models`; `MainStore` + `OddsContent` + `vite-env.d.ts` igazítva; terv
-`docs/plans/i24-arbitrage-legacy-removal.md`; screenshot `docs/plans/screens/i24-arbitrazs-dark-{1440,390}.png` | | I23b – 5.6 UI
-(web + mobil) | `09c8f25`, `3099abb` | core `slip/placedBetSync.ts` (`slipToPlacedBet`, `slipSyncText`, `ownBetsRows`,
-`ownBetsChip`), `ISavedSlip.sync/serverBetId`, láb `outcome`; web `SlipStore` (`RecordBet`, `lastSaved`), `SlipPanel` jelzés,
-`EvaluationPage/OwnBets.tsx`, Vite-proxy `bets`; mobil `slip.tsx`; screenshot
-`docs/plans/screens/i23b-kiertekeles-dark-{1440,390}.png` | | I23 – 5.6 Fogadás rögzítése (szerver) | `986708d` | core
-`evaluation/ownBets.ts` (`placedBetOutcome`, `settlePlacedBet`, `summarizeOwnBets`), db `SqlPlacedBetRepository` (`placedBets.ts`,
-`PlacedBetRefError`), server `placedBets.ts` + router `GET/POST /api/bets`, contract
+| I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit | `9fb57a2` | terv `docs/plans/model-v1.md`; core `model/ordinalLogit.ts`
+(`fitOrdinalLogit`, `ordinalLogitProbabilities`, `eloLogitSamples`, `eloDiff`, `eloLogitPrediction`, `ELO_LOGIT_VERSION`) + 7
+teszt; db `scripts/backtest-elo-logit.ts` (`npm run backtest:elo-logit -w @football/db`); holdout 2024 1X2 LL: M1 0,9905 / v0
+0,9959 / nyitó 0,9640 / záró 0,9608; pipeline változatlan | | I24 – 8.3 Régi arbitrázs-út kivezetése | `e375c40` | törölve:
+`LegacyArbitragePage`, Arbitrázs `components/`/`models/`/`services/`/`stores/`, `FetchService(3)`, `ApiURLs`,
+`services/fixtures/`, `LocalStorageUtil`, `core/constants/{BetTypes,Bookmakers,constants}`, `core/models`; `MainStore` +
+`OddsContent` + `vite-env.d.ts` igazítva; terv `docs/plans/i24-arbitrage-legacy-removal.md`; screenshot
+`docs/plans/screens/i24-arbitrazs-dark-{1440,390}.png` | | I23b – 5.6 UI (web + mobil) | `09c8f25`, `3099abb` | core
+`slip/placedBetSync.ts` (`slipToPlacedBet`, `slipSyncText`, `ownBetsRows`, `ownBetsChip`), `ISavedSlip.sync/serverBetId`, láb
+`outcome`; web `SlipStore` (`RecordBet`, `lastSaved`), `SlipPanel` jelzés, `EvaluationPage/OwnBets.tsx`, Vite-proxy `bets`; mobil
+`slip.tsx`; screenshot `docs/plans/screens/i23b-kiertekeles-dark-{1440,390}.png` | | I23 – 5.6 Fogadás rögzítése (szerver) |
+`986708d` | core `evaluation/ownBets.ts` (`placedBetOutcome`, `settlePlacedBet`, `summarizeOwnBets`), db `SqlPlacedBetRepository`
+(`placedBets.ts`, `PlacedBetRefError`), server `placedBets.ts` + router `GET/POST /api/bets`, contract
 `PlacedBetInput`/`PlacedBetDto`/`PlacedBetsResponse` + `listPlacedBets`/`createPlacedBet`; terv `docs/plans/i23-placed-bet.md`;
 migráció nem kellett (0004) |
 
@@ -413,11 +414,17 @@ migráció nem kellett (0004) |
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- **I26b kész (7.3).** Core `backtest/blend.ts` (`linearBlend`, `blend`, `blendScores`, `blendBets`, `chooseThreshold`); a
+  logit-keverés az élő `recommend.blendProbabilities`. Riport: `npm run backtest:blend -w @football/db` (~12 s) →
+  `docs/analysis/backtests/2026-11-16-blend.md`. Validáción (2023) a log-loss w = 0-nál minimális v0-ra és M2-re is → a modellek
+  nem adnak információt a nyitó piachoz; minden változat ROI-ja negatív a holdouton is. Az élő `DEFAULT_RECOMMENDATION_RULES` (w =
+  0,25, küszöb 5%) változatlan; javaslat a `docs/plans/model-v1.md`-ben (🔶 tulajdonos). Következő: I27 (BTTS).
+
 - **I26 kész (6.2b).** Core `model/dixonColesFit.ts` (`dixon-coles@1.0.0`: att/def csapatonként, μ/γ ligánként, ρ, ξ = 0,002/nap,
   ridge = 4, walk-forward napi újraillesztés). Riport: `npm run backtest:v1 -w @football/db` (~1 perc) →
-  `docs/analysis/backtests/2026-11-16-model-v1.md`. Holdout 1X2 LL: M2 0,9857 / M1 0,9905 / v0 0,9959 / záró 0,9608; O/U: M2 0,6791
-  / v0 0,6808 / záró 0,6652. Értéktipp-ROI mindenhol negatív → élesítés (6.5 🔶) a tulajdonosé, a pipeline a v0-t futtatja. A
-  CSV-betöltés közös: `packages/db/scripts/backtestData.ts`. Következő: I27 (BTTS piac végig).
+  `docs/analysis/backtests/2026-11-16-model-v1.md`. Holdout 1X2 LL: M2 0,9857 / M1 0,9905 / v0 0,9959 / záró 0,9608; O/U: M2
+  0,6791 / v0 0,6808 / záró 0,6652. Értéktipp-ROI mindenhol negatív → élesítés (6.5 🔶) a tulajdonosé, a pipeline a v0-t futtatja.
+  A CSV-betöltés közös: `packages/db/scripts/backtestData.ts`. Következő: I27 (BTTS piac végig).
 
 - **I24 kész (8.3).** A frontend már nem hív külső API-t: törölve a `LegacyArbitragePage` + `components/`/`models/`/`services/`/
   `stores/` (Arbitrázs), `FetchService(3)`, `ApiURLs`, `services/fixtures/`, `LocalStorageUtil`, a csak ezek által használt
