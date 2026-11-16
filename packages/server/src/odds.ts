@@ -1,4 +1,4 @@
-import { isQuoteStored, ODDS_PAGE_SIZE, resolveStoredScope, type StoredScope } from '@football/core';
+import { computeBestOdds, isQuoteStored, ODDS_PAGE_SIZE, resolveStoredScope, type StoredScope } from '@football/core';
 import {
 	parseSelection,
 	SqlRepository,
@@ -16,8 +16,8 @@ import { spent } from './reference';
  * `odds_early` / `odds_late` job (ROADMAP 3.5, architecture.md §7.2): a planner liga × meccsnap feladata (`{ league, season,
  * date, fixtures }`) → lapozott `/odds?league&season&date&page` (10 meccs/oldal, `getAllPages`) → `odds_snapshot` +
  * `odds_quote`. Csak a feladat meccsei és csak a tárolási kör (piac × iroda, `resolveStoredScope`); `captured_at` = a futás
- * ideje, `provider_updated_at` = az item `update`-je. Csak insert (meglévő kulcs no-op).
- * TODO(polish): `odds_best` (legjobb/átlag a teljes válaszból, iroda-szűrés előtt).
+ * ideje, `provider_updated_at` = az item `update`-je. Csak insert (meglévő kulcs no-op). `odds_best` (3.5b): a kör piacain a
+ * teljes válaszból (minden iroda, szűrés előtt) – `computeBestOdds`.
  */
 
 /** Egy item az API `/odds` válaszában. */
@@ -39,7 +39,8 @@ const isoOrNull = (s: string | undefined) => {
 
 /**
  * API `/odds` válasz → snapshot-bemenetek (tiszta). Csak a `fixtureIds` meccsei, meccsenként az első item; csak a kör
- * piac × irodája, `odd > 1`; ismétlődő (iroda, piac, kimenet, vonal) kulcsból az első. 0 tárolt quote → nincs snapshot.
+ * piac × irodája, `odd > 1`; ismétlődő (iroda, piac, kimenet, vonal) kulcsból az első. `best`: a kör piacain az összes
+ * irodából. Nincs a kör piacain jegyzés (üres `best`) → nincs snapshot; tárolt quote nélkül is lehet (csak `best`).
  */
 export function toOddsSnapshots(
 	response: readonly ApiOddsItem[],
@@ -52,11 +53,13 @@ export function toOddsSnapshots(
 		const fixtureId = item.fixture?.id;
 		if (typeof fixtureId !== 'number' || !wanted.has(fixtureId) || done.has(fixtureId)) continue;
 		done.add(fixtureId);
+		if (!opts.scope.followed) continue;
 		const seen = new Set<string>();
-		const quotes: OddsQuote[] = [];
+		// A kör piacain MINDEN iroda (a legjobb/átlaghoz), utána a tárolási szűrés (piac × iroda).
+		const all: OddsQuote[] = [];
 		for (const b of item.bookmakers ?? [])
 			for (const bet of b.bets ?? []) {
-				if (typeof b.id !== 'number' || typeof bet.id !== 'number' || !isQuoteStored(opts.scope, bet.id, b.id)) continue;
+				if (typeof b.id !== 'number' || typeof bet.id !== 'number' || !opts.scope.marketIds.includes(bet.id)) continue;
 				for (const v of bet.values ?? []) {
 					const odd = Number(v.odd);
 					if (v.value === undefined || !Number.isFinite(odd) || odd <= 1) continue;
@@ -64,17 +67,20 @@ export function toOddsSnapshots(
 					const key = `${b.id}|${bet.id}|${selection}|${line}`;
 					if (seen.has(key)) continue;
 					seen.add(key);
-					quotes.push({ bookmakerId: b.id, marketId: bet.id, selection, line, odd });
+					all.push({ bookmakerId: b.id, marketId: bet.id, selection, line, odd });
 				}
 			}
-		if (!quotes.length) continue;
+		const best = computeBestOdds(all);
+		const quotes = all.filter((q) => isQuoteStored(opts.scope, q.marketId, q.bookmakerId));
+		if (!best.length) continue;
 		out.push({
 			fixtureId,
 			capturedAt: opts.capturedAt.toISOString(),
 			providerUpdatedAt: isoOrNull(item.update),
 			source: 'api-football',
 			kind: opts.kind,
-			quotes
+			quotes,
+			best
 		});
 	}
 	return out;

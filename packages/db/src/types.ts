@@ -89,6 +89,19 @@ export interface OddsSnapshotInput {
 	source: OddsSource;
 	kind: OddsKind;
 	quotes: OddsQuote[];
+	/** `odds_best`: a teljes válaszból (iroda-szűrés előtt) számolt legjobb/átlag kimenetenként (ROADMAP 3.5b). */
+	best?: OddsBest[];
+}
+
+export interface OddsBest {
+	marketId: number;
+	selection: string;
+	line?: number | null;
+	maxOdd: number;
+	/** A legjobb iroda; ha nincs a `bookmaker` táblában, mentéskor `null` lesz. */
+	bookmakerId: number | null;
+	avgOdd: number | null;
+	nBooks: number;
 }
 
 export interface OddsSnapshot extends OddsSnapshotInput {
@@ -169,6 +182,7 @@ export const COUNTABLE_TABLES = [
 	'fixture',
 	'odds_snapshot',
 	'odds_quote',
+	'odds_best',
 	'model_version',
 	'prediction_run',
 	'prediction',

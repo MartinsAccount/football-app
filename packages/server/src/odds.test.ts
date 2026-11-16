@@ -47,7 +47,8 @@ describe('odds leképezés', () => {
 		const response = [
 			item(1, [
 				{ id: 16, bets },
-				{ id: 99, bets }
+				{ id: 99, bets },
+				{ id: 77, bets: [{ id: 1, values: [{ value: 'Home', odd: '2.50' }] }] }
 			]),
 			item(1, [{ id: 16, bets }]),
 			item(2, [{ id: 99, bets }]),
@@ -55,7 +56,10 @@ describe('odds leképezés', () => {
 		];
 		const capturedAt = new Date('2024-11-01T12:00:00Z');
 		const out = toOddsSnapshots(response, { fixtureIds: [1, 2], scope, capturedAt, kind: 'early' });
-		expect(out).toHaveLength(1);
+		expect(out).toHaveLength(2);
+		// 2. meccs: tárolt iroda nincs, de a kör piacain van jegyzés → csak `best`.
+		expect(out[1]).toMatchObject({ fixtureId: 2, quotes: [] });
+		expect(out[1].best).toHaveLength(3);
 		expect(out[0]).toMatchObject({
 			fixtureId: 1,
 			capturedAt: capturedAt.toISOString(),
@@ -67,6 +71,12 @@ describe('odds leképezés', () => {
 			{ bookmakerId: 16, marketId: 1, selection: 'Home', line: null, odd: 2.1 },
 			{ bookmakerId: 16, marketId: 1, selection: 'Draw', line: null, odd: 3.3 },
 			{ bookmakerId: 16, marketId: 5, selection: 'Over', line: 2.5, odd: 1.9 }
+		]);
+		// A nem tárolt iroda (99) is beszámít; a nem-kör piac (8) nem.
+		expect(out[0].best).toEqual([
+			{ marketId: 1, selection: 'Home', line: null, maxOdd: 2.5, bookmakerId: 77, avgOdd: (2.1 + 2.1 + 2.5) / 3, nBooks: 3 },
+			{ marketId: 1, selection: 'Draw', line: null, maxOdd: 3.3, bookmakerId: 16, avgOdd: 3.3, nBooks: 2 },
+			{ marketId: 5, selection: 'Over', line: 2.5, maxOdd: 1.9, bookmakerId: 16, avgOdd: 1.9, nBooks: 2 }
 		]);
 		expect(
 			toOddsSnapshots(response, { fixtureIds: [1], scope: { ...scope, followed: false }, capturedAt, kind: 'late' })
@@ -136,7 +146,12 @@ describe('odds a workerben (mock, friss memória-PGlite)', () => {
 			errors: [],
 			results: ids.length,
 			paging: { current: n, total: 2 },
-			response: ids.map((id) => item(id, [{ id: 16, bets }]))
+			response: ids.map((id) =>
+				item(id, [
+					{ id: 16, bets },
+					{ id: 77, bets: [{ id: 1, values: [{ value: 'Home', odd: '2.50' }] }] }
+				])
+			)
 		});
 		const params = { league: 39, season: 2024, date: '2024-11-30' };
 		const fixtures: MockFixtures = {
@@ -155,6 +170,12 @@ describe('odds a workerben (mock, friss memória-PGlite)', () => {
 		const rows = await snapshotRows(db);
 		expect(rows.map((r) => r.fixture_id)).toEqual(list.map((f) => f.id));
 		expect(rows.every((r) => r.kind === 'early' && r.quotes === 1)).toBe(true);
+		// odds_best: a nem tárolt, a `bookmaker` táblában nem szereplő iroda (77) a legjobb → bookmaker_id null.
+		const best = await db.query<{ max: number; bk: number | null; n: number }>(
+			'SELECT max_odd::float8 AS max, bookmaker_id::float8 AS bk, n_books AS n FROM odds_best'
+		);
+		expect(best.rows).toHaveLength(12);
+		expect(best.rows.every((r) => r.max === 2.5 && r.bk === null && r.n === 2)).toBe(true);
 	});
 
 	it('early (−30 h), majd late (−2 h) snapshot csak a tárolt piac × irodával; ismételt tick nem duplikál', async () => {
@@ -176,6 +197,21 @@ describe('odds a workerben (mock, friss memória-PGlite)', () => {
 		expect(rows).toHaveLength(day.length);
 		expect(rows.every((r) => r.kind === 'early' && r.provider_updated_at !== null)).toBe(true);
 		expect(rows.every((r) => r.markets.every((m) => m === 1 || m === 5))).toBe(true);
+		// odds_best: minden snapshotnak van; max_odd ≥ a tárolt quote-ok maximuma;
+		const best = (
+			await db.query<{ snaps: number; n: number; nulls: number; known: number; violations: number }>(
+				`SELECT count(DISTINCT b.snapshot_id)::int AS snaps, count(*)::int AS n,
+					count(*) FILTER (WHERE b.bookmaker_id IS NULL)::int AS nulls,
+					count(*) FILTER (WHERE b.bookmaker_id IS NOT NULL)::int AS known,
+					count(*) FILTER (WHERE b.max_odd < (SELECT max(q.odd) FROM odds_quote q WHERE q.snapshot_id = b.snapshot_id
+						AND q.market_id = b.market_id AND q.selection = b.selection AND q.line IS NOT DISTINCT FROM b.line))::int AS violations
+				 FROM odds_best b`
+			)
+		).rows[0];
+		expect(best.snaps).toBe(day.length);
+		expect(best.n).toBeGreaterThan(0);
+		expect(best.violations).toBe(0);
+		expect(best.nulls + best.known).toBe(best.n);
 
 		now = t0 - 2 * HOUR;
 		await run();

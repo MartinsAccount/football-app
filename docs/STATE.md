@@ -30,10 +30,10 @@ Floodlight v0.2 redesign: lezárva.
 8. ~~I8 – 3.3b `results` (mock)~~ kész.
 9. ~~I9 – 3.4 `standings` snapshot (mock)~~ kész.
 10. ~~I10 – 3.5 `odds_early` + `odds_late` snapshot (mock)~~ kész.
-11. **I11 – 3.5b `odds_best` + megőrzés:** az `odds.ts` handlerben a teljes válaszból (iroda-szűrés előtt, a kör piacain)
-    `odds_best` sorok (max, átlag, `n_books`, legjobb iroda – ha nincs a `bookmaker` táblában: null), tiszta függvény a
-    core-ban + unit-teszt (a szűrés nem változtatja a `max_odd`-ot). A megőrzési job (köztes snapshotok törlése) **törlés** →
-    CLAUDE.md 2. pont: BLOCKERS-be, ne valósítsd meg.
+11. ~~I11 – 3.5b `odds_best`~~ kész (a megőrzési job törlés → BLOCKERS).
+12. **I12 – 3.6 `injuries` (mock):** a planner `injuries` feladata (`ids` ≤ 20 meccs/hívás, T−24 h) → `/injuries?ids=…` →
+    sérültlista a meccshez kötve (Grep: `injur` a migrációkban; ha nincs tábla, additív migráció). Mock a mentett adatból (ha
+    nincs mentett `/injuries`: szintetikus, DECISIONS-be). Teszt friss memória-PGlite-on.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -140,16 +140,21 @@ fixtures_window (3.3a) | (lásd git log: feat(server): add fixtures_window inges
 hívás/feladat), `referenceMocks.ts` `withFixturesByIds` (ids-feloldás a mentett meccsekből); terv `docs/plans/i8-results.md` | |
 I9 – standings (3.4) | (lásd git log: feat(server): add standings snapshot ingest job) | `packages/server/src/standings.ts`
 (insert `ON CONFLICT DO NOTHING`), `referenceMocks.ts` `withStandings` (core `deriveStandings` a mentett meccsekből,
-visszajátszott időpontig); terv `docs/plans/i9-standings.md` | | I10 – odds (3.5) | (lásd git log: feat(server): add odds
-snapshot ingest jobs) | `packages/server/src/odds.ts` (`getAllPages`, stored kör, `insertOddsSnapshots`), `referenceMocks.ts`
-`withOdds`; terv `docs/plans/i10-odds.md` | `loadPlannerInput`), server `ingestWorker.ts`
-(`createIngestWorker`, `toFailureKind`, `createDbIngestWorker`); tick.ts + dev.ts bekötve; terv `docs/plans/ingest-worker.md` |
+visszajátszott időpontig); terv `docs/plans/i9-standings.md` | | I10 – odds (3.5) | (lásd git log: feat(server): add odds snapshot
+ingest jobs) | `packages/server/src/odds.ts` (`getAllPages`, stored kör, `insertOddsSnapshots`), `referenceMocks.ts` `withOdds`;
+terv `docs/plans/i10-odds.md` | `loadPlannerInput`), server `ingestWorker.ts` (`createIngestWorker`, `toFailureKind`,
+`createDbIngestWorker`); tick.ts + dev.ts bekötve; terv `docs/plans/ingest-worker.md` | | I11 – odds_best (3.5b) | (lásd git log:
+feat(server): store odds_best) | core `odds/best.ts` (`computeBestOdds`), `odds.ts` (kör piacai × minden iroda → best, utána
+szűrés), db `OddsSnapshotInput.best` + `insertBest` (ismeretlen iroda → null); megőrzés: BLOCKERS |
 
 ## Polish backlog
 
-- I10: a mock-odds szintetikus (a 2021-es Unibet-blokkok ciklikusan a nap meccseire képezve) – valódi `/odds` válasz mentése
-  (💸 1 hívás/oldal) a 7 napos megőrzésen belüli meccsre; a dev-tick (falióra 2026) nem ütemez odds-feladatot, mert a DB-ben a
-  mentett (2024-es) meccsek vannak – csak a tesztek (2024-es órával) futtatják.
+- I11: az `odds_best` nem olvasható vissza (`getLatestOdds`/`listOdds` nem adja, nincs DTO) – az odds-history/CLV szelet köti be;
+  a mock-odds csak 1–2 irodát hoz, így a best ma ≈ a tárolt quote.
+
+- I10: a mock-odds szintetikus (a 2021-es Unibet-blokkok ciklikusan a nap meccseire képezve) – valódi `/odds` válasz mentése (💸 1
+  hívás/oldal) a 7 napos megőrzésen belüli meccsre; a dev-tick (falióra 2026) nem ütemez odds-feladatot, mert a DB-ben a mentett
+  (2024-es) meccsek vannak – csak a tesztek (2024-es órával) futtatják.
 
 - I9: a mock-tabla `form` és `description` (BL/EK/kiesés zóna) mezője `null` (a mentett meccslistából nem képezhető); a
   holtverseny a core közelítése (pont → gólkülönbség → rúgott gól), nem ligánkénti H2H; valódi `/standings` válasz mentése (💸 1
@@ -266,9 +271,15 @@ snapshot ingest jobs) | `packages/server/src/odds.ts` (`getAllPages`, stored kö
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- **I11 kész (3.5b, csak `odds_best`).** `toOddsSnapshots` (`packages/server/src/odds.ts`): követett ligán a kör piacain minden
+  iroda jegyzése → core `computeBestOdds` (kulcs: piac, kimenet, vonal; max + iroda, átlag, `n_books`) → `best`; az `odds_quote`
+  csak `isQuoteStored`. Snapshot akkor íródik, ha van `best` (tárolt quote nélkül is). db: `insertBest` a `insertOddsSnapshots`
+  tranzakciójában, csak új snapshotra; ismeretlen iroda → `bookmaker_id` null, ismeretlen piac → kimarad; `odds_best` a
+  `COUNTABLE_TABLES`-ben. Megőrzés (`odds_retention`) BLOCKERS. Következő: I12 `injuries` (3.6).
+
 - **I10 kész (3.5).** `createOddsHandler(db, 'early'|'late')` (`packages/server/src/odds.ts`): a planner
-  `{ league, season, date, fixtures }` feladata → `client.getAllPages('/odds', { league, season, date }, { maxPages: ⌈n/10⌉ })`
-  → `toOddsSnapshots` (csak a feladat meccsei, `resolveStoredScope` + `isQuoteStored`, `parseSelection`, odd > 1, dedupe;
+  `{ league, season, date, fixtures }` feladata → `client.getAllPages('/odds', { league, season, date }, { maxPages: ⌈n/10⌉ })` →
+  `toOddsSnapshots` (csak a feladat meccsei, `resolveStoredScope` + `isQuoteStored`, `parseSelection`, odd > 1, dedupe;
   `captured_at = now`, `provider_updated_at = update`) → `SqlRepository.insertOddsSnapshots` (meglévő kulcs no-op). Mock:
   `withOdds(map, saved, odds)` a `/odds?date&league&season[&page]` kulcsra; `loadIngestMocks` adja. Következő: I11 `odds_best`.
 

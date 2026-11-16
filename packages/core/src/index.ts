@@ -7,6 +7,7 @@ export * from './arbitrage/scan';
 export * from './arbitrage/view';
 export * from './odds/value';
 export * from './odds/history';
+export * from './odds/best';
 export * from './model/market';
 export * from './model/elo';
 export * from './model/poisson';

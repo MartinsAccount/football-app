@@ -122,13 +122,14 @@
       lásd git log: feat(server): add standings snapshot ingest job. `form`/`description`: polish.
 - [x] **3.5 `odds_early` + `odds_late` snapshot:** **lapozással** (10/oldal), csak az elemzett piacokkal, a `provider_updated_at`
       mentésével; a `late` a nap első kezdése előtt ≤ 3 órával. _Ellenőrzés:_ mock: többoldalas válasz esetén is minden meccs
-      bekerül; snapshotonként csak beszúrás történik. Kész (mock): `packages/server/src/odds.ts` + `referenceMocks.ts`
-      `withOdds` (a mentett irodablokkok a nap meccseire képezve) — lásd git log: feat(server): add odds snapshot ingest jobs.
-      A tárolási szűrés (stored piac × iroda) már itt; `odds_best`: 3.5b.
-- [ ] **3.5b Tárolási szűrés + megőrzés:** a snapshot mentésekor előbb az `odds_best` (legjobb/átlag) számolódik a teljes
-      válaszból, utána csak a `stored` piacok × irodák kerülnek az `odds_quote`-ba; napi karbantartó job: lejátszott meccsnél csak
-      a nyitó + záró snapshot marad (`odds_retention`). _Ellenőrzés:_ unit-teszt: a szűrés nem változtatja a `max_odd`-ot; mock: a
-      karbantartás után meccsenként ≤ 2 snapshot.
+      bekerül; snapshotonként csak beszúrás történik. Kész (mock): `packages/server/src/odds.ts` + `referenceMocks.ts` `withOdds`
+      (a mentett irodablokkok a nap meccseire képezve) — lásd git log: feat(server): add odds snapshot ingest jobs. A tárolási
+      szűrés (stored piac × iroda) már itt; `odds_best`: 3.5b.
+- [~] **3.5b Tárolási szűrés + megőrzés:** (`odds_best` + szűrés kész, lásd git log: feat(server): store odds*best; megőrzés:
+  BLOCKERS) a snapshot mentésekor előbb az `odds_best` (legjobb/átlag) számolódik a teljes válaszból, utána csak a `stored` piacok
+  × irodák kerülnek az `odds_quote`-ba; napi karbantartó job: lejátszott meccsnél csak a nyitó + záró snapshot marad
+  (`odds_retention`). \_Ellenőrzés:* unit-teszt: a szűrés nem változtatja a `max_odd`-ot; mock: a karbantartás után meccsenként ≤
+  2 snapshot.
 - [ ] **3.6 `injuries`** `ids`-szel (max. 20 meccs / hívás), T−24 órával. _Ellenőrzés:_ mock: a sérültlista a meccshez kötve
       tárolódik.
 - [ ] **3.7 💸 Élesítés + 1 hét mérés:** a tényleges hívás/nap vs. a becslés; a kihagyott késői snapshotok aránya; a tapasztalatok

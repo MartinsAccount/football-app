@@ -10,6 +10,7 @@ import {
 	type League,
 	type Market,
 	type ModelVersion,
+	type OddsBest,
 	type OddsSnapshot,
 	type OddsSnapshotInput,
 	type Prediction,
@@ -311,8 +312,37 @@ export class SqlRepository implements Repository {
 				.filter((r) => createdIds.has(r.id))
 				.flatMap((r) => unique[r.ord - 1].quotes.map((q) => ({ ...q, snapshotId: r.id })));
 			await this.insertQuotes(quotes);
+			await this.insertBest(
+				ids.rows
+					.filter((r) => createdIds.has(r.id))
+					.flatMap((r) => (unique[r.ord - 1].best ?? []).map((b) => ({ ...b, snapshotId: r.id })))
+			);
 			return { created: createdIds.size, existing: list.length - createdIds.size, quotes: quotes.length };
 		});
+	}
+
+	/** `odds_best`: ismeretlen piac → kimarad, ismeretlen iroda → `bookmaker_id` null. */
+	private async insertBest(rows: Array<OddsBest & { snapshotId: number }>) {
+		if (!rows.length) return;
+		await this.db.query(
+			`INSERT INTO odds_best (snapshot_id, market_id, selection, line, max_odd, bookmaker_id, avg_odd, n_books)
+			 SELECT r.snapshot_id, r.market_id, r.selection, r.line, r.max_odd, b.id, r.avg_odd, r.n_books
+			 FROM unnest($1::bigint[], $2::bigint[], $3::text[], $4::numeric[], $5::numeric[], $6::bigint[], $7::numeric[], $8::smallint[])
+				AS r(snapshot_id, market_id, selection, line, max_odd, bookmaker_id, avg_odd, n_books)
+			 JOIN market m ON m.id = r.market_id
+			 LEFT JOIN bookmaker b ON b.id = r.bookmaker_id
+			 ON CONFLICT DO NOTHING`,
+			[
+				rows.map((r) => r.snapshotId),
+				rows.map((r) => r.marketId),
+				rows.map((r) => r.selection),
+				rows.map((r) => r.line ?? null),
+				rows.map((r) => r.maxOdd),
+				rows.map((r) => r.bookmakerId),
+				rows.map((r) => r.avgOdd),
+				rows.map((r) => r.nBooks)
+			]
+		);
 	}
 
 	private async insertQuotes(quotes: Array<OddsSnapshotInput['quotes'][number] & { snapshotId: number }>) {
