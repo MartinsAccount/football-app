@@ -40,9 +40,11 @@ nem találunk ki: a terv „Hiányzó adat” blokkjai rejtve. Üzleti logika / 
 
 **Mobil (ROADMAP 11):**
 
-M1–M10 kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
+M1–M10 és M11a kész. Következő: **11.7+ Expo-képernyők** (`apps/mobile`, egy képernyő = egy szelet):
 
-1. **M11 Meccs-részlet** – `getOdds(fixtureId)` (odds-history), csapatnevek (DTO-bővítés).
+1. **M11b Meccs-részlet képernyő** – core `odds/history.ts` (legjobb odd időbeli sora piac/kimenetenként, teszttel) + Expo
+   `src/app/match/[id].tsx` (`getFixture` + `getOddsHistory`, `loadWithCache`), a Meccsek sorából `Link`, csapatnevek a listában
+   is. Terv: `docs/plans/m11-match-detail.md`. (M11a adat-rész kész.)
 
 Nincs nyitott szelet a redesign-fázisban. Következő: a ROADMAP következő nyitott szelete (vagy a lenti „Nyitott hiányzó adat”
 tételek).
@@ -111,6 +113,8 @@ tételek).
 
 ## Polish backlog
 
+- M11a: `/api/odds/:id/history` lapozás/limit nélkül adja az összes snapshotot (meccsenként kevés); `/api/fixtures/:id` nem ad
+  ligát/szezont névvel.
 - M10: mobil Arbitrázs: nincs iroda-szűrő; az Arbitrázs a Beállításokból nyílik (fejléc → tab-navigáció kell); a lábak táblája
   egyenlő oszlopokkal (hosszú irodanév tör); nincs screenshot.
 - M9: mobil Beállítások: nincs szekció-menü és „elhagyod mentés nélkül?” jelzés; a web `SettingsStore` még saját
@@ -196,6 +200,9 @@ tételek).
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- **M11a kész.** Contract: `getFixture(id)`, `getOddsHistory(id)` (`/api/fixtures/:id`, `/api/odds/:id/history`),
+  `FixtureDto.homeTeamName/awayTeamName` (opcionális; a lista is adja). Repo: `listTeams(ids?)`, `listOdds(fixtureId)`. Következő:
+  M11b képernyő (terv: `docs/plans/m11-match-detail.md`).
 - **M10 kész.** Mobil Arbitrázs (`src/app/arbitrage.tsx`, a Beállítások aljáról linkelve – a fejlécbe nem fért 4. link).
   Nézet-logika a core `arbitrage/view.ts`-ben (`arbitrageRows`, `arbitrageTiles`, `ARB_BAND_OPTIONS`, `defaultArbitrageFilter`…);
   a web `arbitrageView.ts` csak alias-re-export. Cache: `ARBITRAGE_CACHE_KEY` (drótforma, olvasáskor `reviveArbitrageSnapshot`).

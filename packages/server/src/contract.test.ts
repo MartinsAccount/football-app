@@ -64,6 +64,22 @@ describe('contract ↔ server', () => {
 		expect((await api.getOdds(101)).snapshot).toBeNull();
 	});
 
+	it('listFixtures and getFixture carry the team names', async () => {
+		const [f] = (await api.listFixtures({ limit: 1 })).fixtures;
+		expect(f).toMatchObject({ id: 100, homeTeamName: 'Home FC', awayTeamName: 'Away FC' });
+		expect(await api.getFixture(101)).toMatchObject({ id: 101, homeTeamName: 'Away FC', awayTeamName: 'Home FC' });
+		await expect(api.getFixture(999)).rejects.toMatchObject({ status: 404, error: 'not-found' });
+	});
+
+	it('getOddsHistory returns every snapshot in capture order', async () => {
+		const history = await api.getOddsHistory(100);
+		expect(history.fixtureId).toBe(100);
+		expect(history.snapshots.map((s) => s.capturedAt)).toEqual(['2024-08-17T08:00:00Z']);
+		expect(history.snapshots[0].quotes[0]).toMatchObject({ bookmakerId: 8, odd: 2.1 });
+		expect((await api.getOddsHistory(101)).snapshots).toEqual([]);
+		await expect(api.getOddsHistory(999)).rejects.toMatchObject({ status: 404, error: 'not-found' });
+	});
+
 	it('getBudget returns the day usage', async () => {
 		expect(await api.getBudget()).toMatchObject({ day: '2026-11-12', used: 0, remaining: expect.any(Number) });
 	});

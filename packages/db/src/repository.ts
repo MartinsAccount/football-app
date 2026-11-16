@@ -27,6 +27,8 @@ export interface Repository {
 	upsertLeagues(rows: League[]): Promise<UpsertResult>;
 	upsertSeasons(rows: Season[]): Promise<UpsertResult>;
 	upsertTeams(rows: Team[]): Promise<UpsertResult>;
+	/** Csapatok id szerint rendezve; `ids` megadásával csak azok (az ismeretlen id kimarad). */
+	listTeams(ids?: number[]): Promise<Team[]>;
 	upsertTeamAliases(rows: TeamAlias[]): Promise<UpsertResult>;
 	listTeamAliases(source: string): Promise<TeamAlias[]>;
 	upsertBookmakers(rows: Bookmaker[]): Promise<UpsertResult>;
@@ -41,6 +43,8 @@ export interface Repository {
 	/** Köteges változat (egy tranzakció, fix számú lekérdezés); `quotes` = a beírt quote-sorok száma. */
 	insertOddsSnapshots(snapshots: OddsSnapshotInput[]): Promise<{ created: number; existing: number; quotes: number }>;
 	getLatestOdds(fixtureId: number): Promise<OddsSnapshot | null>;
+	/** Egy meccs összes snapshotja időrendben (odds-history); üres tömb, ha nincs. */
+	listOdds(fixtureId: number): Promise<OddsSnapshot[]>;
 
 	ensureModelVersion(version: ModelVersion): Promise<void>;
 	createPredictionRun(run: PredictionRunInput): Promise<number>;

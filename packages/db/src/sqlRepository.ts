@@ -220,6 +220,15 @@ export class SqlRepository implements Repository {
 		await this.upsert(MODEL_VERSION, [version]);
 	}
 
+	async listTeams(ids?: number[]): Promise<Team[]> {
+		const { rows } = await this.db.query<Team>(
+			`SELECT ${num('id')} AS "id", name AS "name", code AS "code", country AS "country", logo_url AS "logoUrl"
+			 FROM team${ids ? ' WHERE id = ANY($1::bigint[])' : ''} ORDER BY id`,
+			ids ? [ids] : []
+		);
+		return rows;
+	}
+
 	async getFixture(id: number): Promise<Fixture | null> {
 		const { rows } = await this.db.query<Fixture>(`${FIXTURE_SELECT} WHERE id = $1`, [id]);
 		return rows[0] ?? null;
@@ -323,22 +332,32 @@ export class SqlRepository implements Repository {
 	}
 
 	async getLatestOdds(fixtureId: number): Promise<OddsSnapshot | null> {
+		return (await this.selectOddsSnapshots(fixtureId, 'DESC', 1))[0] ?? null;
+	}
+
+	async listOdds(fixtureId: number): Promise<OddsSnapshot[]> {
+		return this.selectOddsSnapshots(fixtureId, 'ASC');
+	}
+
+	/** Egy meccs snapshotjai `captured_at` szerint; a quote-ok egyetlen második lekérdezéssel. */
+	private async selectOddsSnapshots(fixtureId: number, order: 'ASC' | 'DESC', limit?: number): Promise<OddsSnapshot[]> {
 		const { rows } = await this.db.query<Omit<OddsSnapshot, 'quotes'>>(
 			`SELECT ${num('id')} AS "id", ${num('fixture_id')} AS "fixtureId", ${iso('captured_at')} AS "capturedAt",
 				CASE WHEN provider_updated_at IS NULL THEN NULL ELSE ${iso('provider_updated_at')} END AS "providerUpdatedAt",
 				source AS "source", kind AS "kind"
-			 FROM odds_snapshot WHERE fixture_id = $1 ORDER BY captured_at DESC, id DESC LIMIT 1`,
+			 FROM odds_snapshot WHERE fixture_id = $1 ORDER BY captured_at ${order}, id ${order}${limit ? ` LIMIT ${limit}` : ''}`,
 			[fixtureId]
 		);
-		const snap = rows[0];
-		if (!snap) return null;
-		const quotes = await this.db.query<OddsSnapshot['quotes'][number]>(
-			`SELECT ${num('bookmaker_id')} AS "bookmakerId", ${num('market_id')} AS "marketId", selection AS "selection",
-				${num('line')} AS "line", ${num('odd')} AS "odd"
-			 FROM odds_quote WHERE snapshot_id = $1 ORDER BY market_id, line NULLS FIRST, selection, bookmaker_id`,
-			[snap.id]
+		if (!rows.length) return [];
+		const quotes = await this.db.query<OddsSnapshot['quotes'][number] & { snapshotId: number }>(
+			`SELECT ${num('snapshot_id')} AS "snapshotId", ${num('bookmaker_id')} AS "bookmakerId", ${num('market_id')} AS "marketId",
+				selection AS "selection", ${num('line')} AS "line", ${num('odd')} AS "odd"
+			 FROM odds_quote WHERE snapshot_id = ANY($1::bigint[]) ORDER BY market_id, line NULLS FIRST, selection, bookmaker_id`,
+			[rows.map((r) => r.id)]
 		);
-		return { ...snap, quotes: quotes.rows };
+		const bySnapshot = new Map<number, OddsSnapshot['quotes']>(rows.map((r) => [r.id, []]));
+		for (const { snapshotId, ...q } of quotes.rows) bySnapshot.get(snapshotId)!.push(q);
+		return rows.map((r) => ({ ...r, quotes: bySnapshot.get(r.id)! }));
 	}
 
 	async createPredictionRun(run: PredictionRunInput): Promise<number> {

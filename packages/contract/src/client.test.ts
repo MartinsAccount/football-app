@@ -29,6 +29,8 @@ describe('createApiClient', () => {
 		const api = createApiClient({ baseUrl: 'https://x.test/', fetch: mockFetch(200, {}, calls) });
 		await api.listFixtures({ league: 39 });
 		await api.getOdds(100);
+		await api.getFixture(100);
+		await api.getOddsHistory(100);
 		await api.getBudget();
 		await api.getRecommendations();
 		await api.getBacktest();
@@ -36,6 +38,8 @@ describe('createApiClient', () => {
 		expect(calls.map((c) => c.url)).toEqual([
 			'https://x.test/api/fixtures?league=39',
 			'https://x.test/api/odds/100',
+			'https://x.test/api/fixtures/100',
+			'https://x.test/api/odds/100/history',
 			'https://x.test/api/budget',
 			'https://x.test/api/recommendations',
 			'https://x.test/api/backtest',

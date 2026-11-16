@@ -29,7 +29,13 @@ export interface FixtureDto {
 	ftHome?: number | null;
 	ftAway?: number | null;
 	referee?: string | null;
+	/** A csapat neve a `team` táblából (M11a); `null`, ha a csapat nincs importálva. Régi szervernél hiányozhat. */
+	homeTeamName?: string | null;
+	awayTeamName?: string | null;
 }
+
+/** `GET /api/fixtures/:id` → egy meccs csapatnevekkel (404, ha nincs). */
+export type FixtureResponse = FixtureDto;
 
 /** `GET /api/fixtures` → lapozott, kezdési idő szerint rendezett lista. */
 export interface FixturesResponse {
@@ -75,6 +81,12 @@ export interface OddsSnapshotDto {
 export interface OddsResponse {
 	fixtureId: number;
 	snapshot: OddsSnapshotDto | null;
+}
+
+/** `GET /api/odds/:fixtureId/history` → a meccs összes odds-pillanatképe időrendben (üres tömb, ha nincs). */
+export interface OddsHistoryResponse {
+	fixtureId: number;
+	snapshots: OddsSnapshotDto[];
 }
 
 /** `GET /api/budget` → a mai (UTC) API-Football hívás-keret. */

@@ -4,7 +4,9 @@ import type {
 	BacktestResponse,
 	BudgetResponse,
 	FixtureQuery,
+	FixtureResponse,
 	FixturesResponse,
+	OddsHistoryResponse,
 	OddsResponse,
 	RecommendationsResponse
 } from './dto';
@@ -45,7 +47,10 @@ export class ApiError extends Error {
 
 export interface ApiClient {
 	listFixtures(query?: FixtureQuery): Promise<FixturesResponse>;
+	getFixture(fixtureId: number): Promise<FixtureResponse>;
 	getOdds(fixtureId: number): Promise<OddsResponse>;
+	/** A meccs összes odds-pillanatképe időrendben (meccs-részlet, odds-mozgás). */
+	getOddsHistory(fixtureId: number): Promise<OddsHistoryResponse>;
 	getBudget(): Promise<BudgetResponse>;
 	getRecommendations(): Promise<RecommendationsResponse>;
 	getBacktest(): Promise<BacktestResponse>;
@@ -111,6 +116,8 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 
 	return {
 		listFixtures: (query) => get<FixturesResponse>(`/api/fixtures${buildFixtureQuery(query)}`),
+		getFixture: (fixtureId) => get<FixtureResponse>(`/api/fixtures/${encodeURIComponent(String(fixtureId))}`),
+		getOddsHistory: (fixtureId) => get<OddsHistoryResponse>(`/api/odds/${encodeURIComponent(String(fixtureId))}/history`),
 		getOdds: (fixtureId) => get<OddsResponse>(`/api/odds/${encodeURIComponent(String(fixtureId))}`),
 		getBudget: () => get<BudgetResponse>('/api/budget'),
 		getRecommendations: () => get<RecommendationsResponse>('/api/recommendations'),

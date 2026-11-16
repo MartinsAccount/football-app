@@ -121,6 +121,22 @@ describe('odds snapshots', () => {
 		expect(await repo.getLatestOdds(101)).toBeNull();
 	});
 
+	it('lists the odds history in capture order, each snapshot with its own quotes', async () => {
+		const { repo } = await seeded();
+		await repo.insertOddsSnapshot({ ...SNAPSHOT, capturedAt: '2024-08-17T12:00:00Z', quotes: [SNAPSHOT.quotes[0]] });
+		await repo.insertOddsSnapshot(SNAPSHOT);
+		const history = await repo.listOdds(100);
+		expect(history.map((s) => s.capturedAt)).toEqual([SNAPSHOT.capturedAt, '2024-08-17T12:00:00Z']);
+		expect(history.map((s) => s.quotes.length)).toEqual([SNAPSHOT.quotes.length, 1]);
+		expect(await repo.listOdds(101)).toEqual([]);
+	});
+
+	it('lists teams, optionally by id', async () => {
+		const { repo } = await seeded();
+		expect((await repo.listTeams()).map((t) => t.name)).toEqual(['Home FC', 'Away FC']);
+		expect(await repo.listTeams([2, 999])).toEqual([{ id: 2, name: 'Away FC', code: null, country: null, logoUrl: null }]);
+	});
+
 	it('batch insert: same semantics as the single path, duplicates and existing keys are no-ops', async () => {
 		const { repo } = await seeded();
 		await repo.insertOddsSnapshot(SNAPSHOT);

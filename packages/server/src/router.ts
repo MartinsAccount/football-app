@@ -1,7 +1,16 @@
 import { utcDay, type BudgetStore } from '@football/api-client';
-import type { FixtureFilter, Repository } from '@football/db';
+import type { Fixture, FixtureFilter, Repository } from '@football/db';
 import { authorize, type AuthConfig } from './auth';
-import type { ApiErrorBody, ApiErrorCode, BudgetResponse, FixturesResponse, OddsResponse } from '@football/contract';
+import type {
+	ApiErrorBody,
+	ApiErrorCode,
+	BudgetResponse,
+	FixtureDto,
+	FixtureResponse,
+	FixturesResponse,
+	OddsHistoryResponse,
+	OddsResponse
+} from '@football/contract';
 import type { SnapshotSource } from './snapshots';
 
 /**
@@ -10,7 +19,7 @@ import type { SnapshotSource } from './snapshots';
  * Az API-Football kulcs csak szerveroldali env-ben él; ez a réteg nem is látja.
  */
 export interface ApiDeps {
-	repo: Pick<Repository, 'listFixtures' | 'getFixture' | 'getLatestOdds'>;
+	repo: Pick<Repository, 'listFixtures' | 'getFixture' | 'getLatestOdds' | 'listOdds' | 'listTeams'>;
 	budget: Pick<BudgetStore, 'usage'>;
 	now?: () => Date;
 	/** Hozzáférés-védelem (ADR-0005). Hiányában nincs ellenőrzés – a belépési pontok `authConfigFromEnv`-vel adják át. */
@@ -76,6 +85,23 @@ export function parseFixtureQuery(q: URLSearchParams): { filter: FixtureFilter; 
 	};
 }
 
+/** Meccsek → DTO a csapatnevekkel (egy `listTeams` hívás a teljes lapra; ismeretlen csapat → `null`). */
+async function withTeamNames(repo: Pick<Repository, 'listTeams'>, fixtures: Fixture[]): Promise<FixtureDto[]> {
+	if (!fixtures.length) return [];
+	const ids = [...new Set(fixtures.flatMap((f) => [f.homeTeamId, f.awayTeamId]))];
+	const names = new Map((await repo.listTeams(ids)).map((t) => [t.id, t.name]));
+	return fixtures.map((f) => ({
+		...f,
+		homeTeamName: names.get(f.homeTeamId) ?? null,
+		awayTeamName: names.get(f.awayTeamId) ?? null
+	}));
+}
+
+const fixtureIdParam = (raw: string): number => {
+	if (!/^\d+$/.test(raw)) throw new BadRequest('a fixtureId pozitív egész szám legyen');
+	return Number(raw);
+};
+
 /** Ma még elkölthető hívás: ugyanaz a szabály, mint az `api_budget_reserve()`-ben (limit − tartalék − used, és a `/status` szerinti maradék). */
 export function remainingCalls(u: { used: number; limit: number; reserve: number; syncedRemaining: number | null }): number {
 	const local = u.limit - u.reserve - u.used;
@@ -102,16 +128,26 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 					total: all.length,
 					limit,
 					offset,
-					fixtures: all.slice(offset, offset + limit)
+					fixtures: await withTeamNames(deps.repo, all.slice(offset, offset + limit))
 				} satisfies FixturesResponse);
 			}
 
-			const odds = /^\/api\/odds\/([^/]+)$/.exec(path);
-			if (odds) {
-				if (!/^\d+$/.test(odds[1])) throw new BadRequest('a fixtureId pozitív egész szám legyen');
-				const fixtureId = Number(odds[1]);
+			const one = /^\/api\/fixtures\/([^/]+)$/.exec(path);
+			if (one) {
+				const fixtureId = fixtureIdParam(one[1]);
 				const fixture = await deps.repo.getFixture(fixtureId);
 				if (!fixture) return fail(404, 'not-found', `Nincs ilyen meccs: ${fixtureId}`);
+				const [dto] = await withTeamNames(deps.repo, [fixture]);
+				return json(200, dto satisfies FixtureResponse);
+			}
+
+			const odds = /^\/api\/odds\/([^/]+)(\/history)?$/.exec(path);
+			if (odds) {
+				const fixtureId = fixtureIdParam(odds[1]);
+				const fixture = await deps.repo.getFixture(fixtureId);
+				if (!fixture) return fail(404, 'not-found', `Nincs ilyen meccs: ${fixtureId}`);
+				if (odds[2])
+					return json(200, { fixtureId, snapshots: await deps.repo.listOdds(fixtureId) } satisfies OddsHistoryResponse);
 				return json(200, { fixtureId, snapshot: await deps.repo.getLatestOdds(fixtureId) } satisfies OddsResponse);
 			}
 
