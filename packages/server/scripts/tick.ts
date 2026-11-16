@@ -1,5 +1,5 @@
 // Lokális ütemező (ROADMAP 1.7, a Vercel-schedule helyett): `npm run tick -w @football/server [-- <dataDir> | --pg]
-// [--every <perc>]`. Egy tick (planner + worker; `reference` + `fixtures_window` + `results` handler mock-adatból, ROADMAP 3.2–3.3b) a `cron_run` naplóval és az advisory lockkal; `--every 15` → 15 percenként,
+// [--every <perc>]`. Egy tick (planner + worker; `reference` + `fixtures_window` + `results` + `standings` handler mock-adatból, ROADMAP 3.2–3.4) a `cron_run` naplóval és az advisory lockkal; `--every 15` → 15 percenként,
 // Ctrl+C-ig. A végén kiírja a legutóbbi futásokat. 0 külső API-Football-hívás.
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';

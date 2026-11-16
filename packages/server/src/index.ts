@@ -24,8 +24,13 @@ export {
 	buildReferenceMocks,
 	fixturesByIdsEnvelope,
 	replayDay,
-	withFixturesByIds
+	replayInstant,
+	standingsEnvelope,
+	withFixturesByIds,
+	withStandings
 } from './referenceMocks';
+export { createStandingsHandler, insertStandingSnapshot, toStandingRows } from './standings';
+export type { ApiStandingsItem, StandingSnapshotRow } from './standings';
 export { createResultsHandler, parseResultIds, RESULTS_MAX_IDS } from './results';
 export { createFixturesWindowHandler, toFixtureRows } from './fixturesWindow';
 export type { IngestWorkerDeps, TaskHandler, TaskHandlerContext } from './ingestWorker';

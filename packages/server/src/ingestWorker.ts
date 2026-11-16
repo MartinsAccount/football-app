@@ -21,11 +21,12 @@ import { createFixturesWindowHandler } from './fixturesWindow';
 import { createReferenceHandler } from './reference';
 import { createResultsHandler } from './results';
 import { remainingCalls } from './router';
+import { createStandingsHandler } from './standings';
 
 /**
  * Ingest-worker a tickben (ROADMAP 3.1b, architecture.md §7.1–§7.3): lejárt → `skipped`, beragadt `running` → `pending`,
  * planner → `enqueue` (dedupe), majd prioritásos végrehajtás a napi maradék kereten belül. A szabályok a core-ban
- * (`ingest/tasks.ts`, `ingest/queue.ts`); a job-végrehajtók kindonkénti handlerek (3.2: `reference`, 3.3a: `fixtures_window`, 3.3b: `results`), a többi még no-op.
+ * (`ingest/tasks.ts`, `ingest/queue.ts`); a job-végrehajtók kindonkénti handlerek (3.2: `reference`, 3.3a: `fixtures_window`, 3.3b: `results`, 3.4: `standings`), a többi még no-op.
  */
 
 export interface TaskHandlerContext {
@@ -109,7 +110,7 @@ export function createIngestWorker(deps: IngestWorkerDeps): TickWorker {
 
 /**
  * Lokális/dev bekötés: DB-tár + `api_budget_day` + mock kliens (0 élő hívás). A `reference` jobok (3.2) a `fixtures`
- * mock-térképből töltik a törzsadatot, a `fixtures_window` (3.3a) a meccseket, a `results` (3.3b) az eredményeket (`loadIngestMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
+ * mock-térképből töltik a törzsadatot, a `fixtures_window` (3.3a) a meccseket, a `results` (3.3b) az eredményeket, a `standings` (3.4) a tabellát (`loadIngestMocks`); ami hiányzik, az `mock-missing` → végleges hiba. Élő kliens
  * és a többi handler a 3.3b+ szeletekben (💸).
  */
 export function createDbIngestWorker(
@@ -125,6 +126,7 @@ export function createDbIngestWorker(
 			reference: createReferenceHandler(db),
 			fixtures_window: createFixturesWindowHandler(db),
 			results: createResultsHandler(db),
+			standings: createStandingsHandler(db),
 			...opts.handlers
 		},
 		maxTasks: opts.maxTasks

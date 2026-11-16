@@ -28,10 +28,10 @@ Floodlight v0.2 redesign: lezárva.
 6. ~~I6 – 3.2 `reference` jobok (mock)~~ kész.
 7. ~~I7 – 3.3a `fixtures_window` (mock)~~ kész.
 8. ~~I8 – 3.3b `results` (mock)~~ kész.
-9. **I9 – 3.4 `standings` snapshot (mock):** a planner `standings` feladata (forduló előtti UTC-nap) → `standing_snapshot`.
-   Mentett `/standings` válasz nincs (`data/history/api-football` csak meccslista): a mock a mentett meccsekből számolt tabella
-   legyen (a kért időpont előtti `FT` meccsekből), vagy – ha ez kitalált adatnak minősül – DECISIONS-sor + 1 élő hívás mentése (≤
-   20/nap).
+9. ~~I9 – 3.4 `standings` snapshot (mock)~~ kész.
+10. **I10 – 3.5 `odds_early` + `odds_late` snapshot (mock):** a planner odds-feladatai → `/odds?league&season&date&page`
+    lapozással (10/oldal), csak az elemzett piacok, `provider_updated_at` mentése, snapshotonként csak insert. Mock: a mentett
+    `backend/stores/*-odds.json` válaszokból (több oldalra bontva); ha a dátum-kulcs nem képezhető, DECISIONS-sor.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -135,11 +135,17 @@ tételek).
 fixtures_window (3.3a) | (lásd git log: feat(server): add fixtures_window ingest job) | `packages/server/src/fixturesWindow.ts`
 (upsert, null nem ír felül), `referenceMocks.ts` `loadIngestMocks` (visszajátszás); terv `docs/plans/i7-fixtures-window.md` | | I8
 – results (3.3b) | (lásd git log: feat(server): add results ingest job) | `packages/server/src/results.ts` (`fixtures?ids`, 1
-hívás/feladat), `referenceMocks.ts` `withFixturesByIds` (ids-feloldás a mentett meccsekből); terv `docs/plans/i8-results.md` |
-`loadPlannerInput`), server `ingestWorker.ts` (`createIngestWorker`, `toFailureKind`, `createDbIngestWorker`); tick.ts + dev.ts
-bekötve; terv `docs/plans/ingest-worker.md` |
+hívás/feladat), `referenceMocks.ts` `withFixturesByIds` (ids-feloldás a mentett meccsekből); terv `docs/plans/i8-results.md` | |
+I9 – standings (3.4) | (lásd git log: feat(server): add standings snapshot ingest job) | `packages/server/src/standings.ts`
+(insert `ON CONFLICT DO NOTHING`), `referenceMocks.ts` `withStandings` (core `deriveStandings` a mentett meccsekből,
+visszajátszott időpontig); terv `docs/plans/i9-standings.md` | `loadPlannerInput`), server `ingestWorker.ts`
+(`createIngestWorker`, `toFailureKind`, `createDbIngestWorker`); tick.ts + dev.ts bekötve; terv `docs/plans/ingest-worker.md` |
 
 ## Polish backlog
+
+- I9: a mock-tabla `form` és `description` (BL/EK/kiesés zóna) mezője `null` (a mentett meccslistából nem képezhető); a
+  holtverseny a core közelítése (pont → gólkülönbség → rúgott gól), nem ligánkénti H2H; valódi `/standings` válasz mentése (💸 1
+  hívás) a zónákhoz.
 
 - I8: a `fixtures?ids` válasz statisztikái/eseményei (`fixture_team_stats`, `fixture_event`) nincsenek feldolgozva (a mentett
   adatban nincs ilyen, `TODO(polish)` a `results.ts`-ben); a dev-tickben a visszajátszott (2024-es dátumú) meccsekre nem tervez
@@ -251,6 +257,13 @@ bekötve; terv `docs/plans/ingest-worker.md` |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I9 kész (3.4).** `createStandingsHandler(db)` (`packages/server/src/standings.ts`): a planner `standings` feladata
+  (`{ league, season }`, forduló előtti UTC-nap 00:00-tól) → 1 hívás `/standings` → `upsertTeams` + `upsertSeasonTeams` (`season`
+  sor) + insert a `standing_snapshot`-ba `captured_at = now`-val (`ON CONFLICT DO NOTHING`). Mock:
+  `withStandings(map, saved, clock)` – Proxy, a `/standings?league&season` kulcsra a core `deriveStandings`-szel számol a
+  `replayInstant(clock())` előtt befejezett mentett meccsekből; `loadIngestMocks(root, now, clock)` ezt is adja. Következő: I10
+  odds-snapshot (3.5).
 
 - **I8 kész (3.3b).** `createResultsHandler(db)` (`packages/server/src/results.ts`): a planner `results` feladata (`ids` ≤ 20,
 

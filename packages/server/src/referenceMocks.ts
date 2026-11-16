@@ -1,6 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fixtureKey, type ApiEnvelope, type MockFixtures } from '@football/api-client';
+import { deriveStandings, type PlayedMatch } from '@football/core';
+import type { ApiStandingsItem } from './standings';
 
 /**
  * Mock-válaszok a `reference` jobokhoz (ROADMAP 3.2) a mentett API-adatból, 0 élő hívással:
@@ -10,9 +12,13 @@ import { fixtureKey, type ApiEnvelope, type MockFixtures } from '@football/api-c
  */
 
 interface SavedFixtureItem {
-	fixture?: { id?: number; date?: string };
-	league?: { id?: number; season?: number; country?: string };
-	teams?: { home?: { id?: number; name?: string; logo?: string }; away?: { id?: number; name?: string; logo?: string } };
+	fixture?: { id?: number; date?: string; status?: { short?: string } };
+	league?: { id?: number; season?: number; country?: string; name?: string };
+	goals?: { home?: number | null; away?: number | null };
+	teams?: {
+		home?: { id?: number; name?: string; logo?: string | null };
+		away?: { id?: number; name?: string; logo?: string | null };
+	};
 }
 interface SavedOddsItem {
 	bookmakers?: { id?: number; name?: string; bets?: { id?: number; name?: string }[] }[];
@@ -154,6 +160,68 @@ export function withFixturesByIds(map: MockFixtures, items: readonly ById[]): Mo
 	});
 }
 
+const FINISHED = new Set(['FT', 'AET', 'PEN']);
+const STANDINGS_PREFIX = '/standings?';
+
+/**
+ * `/standings?league&season` envelope a mentett meccsekből (3.4; mentett `/standings` válasz nincs): a core `deriveStandings`
+ * az `asOf` (a mentett szezonba visszajátszott időpont) előtt befejezett meccsekből, API-alakra képezve. Minden mentett csapat
+ * szerepel (meccs nélkül 0 ponttal). TODO(polish): `form` és `description` (zóna) – a mentett adatból nem képezhető, `null`.
+ */
+export function standingsEnvelope(league: number, season: number, asOf: string, items: readonly SavedFixtureItem[]) {
+	const matches: PlayedMatch[] = [];
+	const teams = new Map<number, { id: number; name: string; logo: string | null }>();
+	for (const i of items) {
+		const [h, a] = [i.teams?.home, i.teams?.away];
+		for (const t of [h, a])
+			if (t && typeof t.id === 'number' && t.name) teams.set(t.id, { id: t.id, name: t.name, logo: t.logo ?? null });
+		const [gh, ga] = [i.goals?.home, i.goals?.away];
+		if (!FINISHED.has(i.fixture?.status?.short ?? '') || typeof gh !== 'number' || typeof ga !== 'number') continue;
+		if (typeof i.fixture?.id !== 'number' || !i.fixture.date || typeof h?.id !== 'number' || typeof a?.id !== 'number') continue;
+		matches.push({ id: i.fixture.id, kickoff: i.fixture.date, homeTeamId: h.id, awayTeamId: a.id, homeGoals: gh, awayGoals: ga });
+	}
+	const group = items.find((i) => i.league?.name)?.league?.name ?? null;
+	const table = deriveStandings(matches, asOf, [...teams.keys()]).map((r) => ({
+		rank: r.position,
+		team: teams.get(r.teamId)!,
+		points: r.points,
+		goalsDiff: r.goalDiff,
+		group,
+		form: null,
+		description: null,
+		all: { played: r.played, win: r.won, draw: r.drawn, lose: r.lost, goals: { for: r.goalsFor, against: r.goalsAgainst } }
+	}));
+	const response: ApiStandingsItem[] = table.length ? [{ league: { id: league, season, standings: [table] } }] : [];
+	return envelope('standings', { league: String(league), season: String(season) }, response);
+}
+
+/** A `now` időpont a mentett szezonba vetítve (`replayDay` + a nap ideje), ISO. */
+export const replayInstant = (now: Date, season: number) =>
+	`${replayDay(isoDay(now.getTime()), season)}${now.toISOString().slice(10)}`;
+
+/**
+ * A mock-térkép kiegészítése `/standings?league&season` feloldással: a tabella a `clock()` pillanatának visszajátszott
+ * időpontjáig számol (a kulcsban nincs dátum). Ismeretlen liga×szezon → `undefined` (`mock-missing`).
+ */
+export function withStandings(
+	map: MockFixtures,
+	fixtures: readonly { league: number; season: number; items: readonly SavedFixtureItem[] }[],
+	clock: () => Date = () => new Date()
+): MockFixtures {
+	return new Proxy(map, {
+		get(target, key, receiver) {
+			const own: unknown = Reflect.get(target, key, receiver);
+			if (own !== undefined || typeof key !== 'string' || !key.startsWith(STANDINGS_PREFIX)) return own;
+			const qs = new URLSearchParams(key.slice(STANDINGS_PREFIX.length));
+			if ([...qs.keys()].length !== 2) return undefined;
+			const league = Number(qs.get('league'));
+			const season = Number(qs.get('season'));
+			const saved = fixtures.find((f) => f.league === league && f.season === season);
+			return saved ? standingsEnvelope(league, season, replayInstant(clock(), season), saved.items) : undefined;
+		}
+	});
+}
+
 /** Tömb, `{ response: [] }` (API-envelope) vagy `{ odds: [] }` (backend/stores) alak. */
 const asItems = <T>(json: unknown): T[] => {
 	if (Array.isArray(json)) return json as T[];
@@ -196,16 +264,24 @@ async function loadSavedFixtures(root: string) {
 
 /**
  * Az ingest-worker teljes mock-térképe: `reference` (3.2) + `fixtures_window` (3.3a) a `now` előtti 1 és utáni 30 napra +
- * `results` (3.3b) `ids` szerint az összes mentett meccsből.
+ * `results` (3.3b) `ids` szerint az összes mentett meccsből + `standings` (3.4) a `clock` visszajátszott pillanatáig.
  * TODO(polish): 30 napnál tovább futó dev-szervernél a későbbi napok kulcsa hiányzik (`mock-missing`) – újraindítás kell.
  */
-export async function loadIngestMocks(root: string, now = new Date()): Promise<MockFixtures> {
+export async function loadIngestMocks(
+	root: string,
+	now = new Date(),
+	clock: () => Date = () => new Date()
+): Promise<MockFixtures> {
 	const start = Date.parse(isoDay(now.getTime())) - DAY_MS;
 	const days = Array.from({ length: 32 }, (_, i) => isoDay(start + i * DAY_MS));
 	const saved = await loadSavedFixtures(root);
 	const map = { ...(await loadReferenceMocks(root)), ...buildFixturesWindowMocks(saved, days) };
-	return withFixturesByIds(
-		map,
-		saved.flatMap((f) => f.items)
+	return withStandings(
+		withFixturesByIds(
+			map,
+			saved.flatMap((f) => f.items)
+		),
+		saved,
+		clock
 	);
 }
