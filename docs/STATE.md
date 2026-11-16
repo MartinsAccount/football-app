@@ -31,9 +31,14 @@ Floodlight v0.2 redesign: lezárva.
 9. ~~I9 – 3.4 `standings` snapshot (mock)~~ kész.
 10. ~~I10 – 3.5 `odds_early` + `odds_late` snapshot (mock)~~ kész.
 11. ~~I11 – 3.5b `odds_best`~~ kész (a megőrzési job törlés → BLOCKERS).
-12. **I12 – 3.6 `injuries` (mock):** a planner `injuries` feladata (`ids` ≤ 20 meccs/hívás, T−24 h) → `/injuries?ids=…` →
-    sérültlista a meccshez kötve (Grep: `injur` a migrációkban; ha nincs tábla, additív migráció). Mock a mentett adatból (ha
-    nincs mentett `/injuries`: szintetikus, DECISIONS-be). Teszt friss memória-PGlite-on.
+12. ~~I12 – 3.6 `injuries` (mock)~~ kész.
+13. **I13 – 4.3 `standing_derived`:** pont-idejű tabella a meccsekből (`as_of`) a core `deriveStandings`-szel, DB-be írva (Grep:
+    `standing_derived` a migrációkban; ha nincs tábla, additív migráció). Teszt: szezonvégi derived tabella = ismert tabella.
+14. **I14 – 5.2 Predikció-pipeline:** `derive` lépés az odds-snapshot után → `model_version`, `prediction_run`, `prediction`
+    (append-only). Teszt: ugyanarra a snapshotra két futás két run, a régi sor nem változik (memória-PGlite).
+15. **I15 – 5.3 Kiértékelő job:** a `results` után `evaluation` (core `evaluation/` képletei); mock: PST → void.
+16. **I16 – 2.2 Liga-katalógus:** `reference` `/leagues` + `coverage` tárolás (mentett `/leagues` válasz nincs → `mock-missing`
+    vagy a 3.6 mintája, DECISIONS).
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -145,9 +150,16 @@ ingest jobs) | `packages/server/src/odds.ts` (`getAllPages`, stored kör, `inser
 terv `docs/plans/i10-odds.md` | `loadPlannerInput`), server `ingestWorker.ts` (`createIngestWorker`, `toFailureKind`,
 `createDbIngestWorker`); tick.ts + dev.ts bekötve; terv `docs/plans/ingest-worker.md` | | I11 – odds_best (3.5b) | (lásd git log:
 feat(server): store odds_best) | core `odds/best.ts` (`computeBestOdds`), `odds.ts` (kör piacai × minden iroda → best, utána
-szűrés), db `OddsSnapshotInput.best` + `insertBest` (ismeretlen iroda → null); megőrzés: BLOCKERS |
+szűrés), db `OddsSnapshotInput.best` + `insertBest` (ismeretlen iroda → null); megőrzés: BLOCKERS | | I12 – injuries (3.6) | (lásd
+git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.ts` (insert `captured_at = now`,
+`ON CONFLICT DO NOTHING`), `referenceMocks.ts` `withInjuries` (csak mentett `injuries-*.json`, ma nincs → `mock-missing`); terv
+`docs/plans/i12-injuries.md` |
 
 ## Polish backlog
+
+- I12: nincs valódi `/injuries` válasz a repóban (a teszt szintetikus) – mentés (💸 1 hívás, 2022–2024-es meccsnap, `ids`) →
+  `data/history/api-football/injuries-<...>.json`, a `loadIngestMocks` magától felveszi; soronkénti INSERT; a sérültlista nincs a
+  read API-ban/UI-ban (lefedettség-chip, 7.1 feature).
 
 - I11: az `odds_best` nem olvasható vissza (`getLatestOdds`/`listOdds` nem adja, nincs DTO) – az odds-history/CLV szelet köti be;
   a mock-odds csak 1–2 irodát hoz, így a best ma ≈ a tárolt quote.
@@ -270,6 +282,12 @@ szűrés), db `OddsSnapshotInput.best` + `insertBest` (ismeretlen iroda → null
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I12 kész (3.6).** `createInjuriesHandler(db)` (`packages/server/src/injuries.ts`): a planner `injuries` feladata (`{ ids }` ≤
+  20, T−24 h) → 1 hívás `/injuries?ids=a-b-c` → `toInjuryRows` (csak a kért meccsek) → `upsertTeams` + `insertInjuries`
+  (`injury_report`, `captured_at = now`, FK-hiányos sor kimarad). Mock: `withInjuries(map, items)` csak mentett elemekre válaszol
+  (ismeretlen köteg → `mock-missing`, nem üres lista); a teszt `SYNTHETIC` kézi elemeket ad. Következő: I13 `standing_derived`
+  (4.3).
 
 - **I11 kész (3.5b, csak `odds_best`).** `toOddsSnapshots` (`packages/server/src/odds.ts`): követett ligán a kör piacain minden
   iroda jegyzése → core `computeBestOdds` (kulcs: piac, kimenet, vonal; max + iroda, átlag, `n_books`) → `best`; az `odds_quote`

@@ -2,6 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fixtureKey, type ApiEnvelope, type MockFixtures } from '@football/api-client';
 import { deriveStandings, type PlayedMatch } from '@football/core';
+import type { ApiInjuryItem } from './injuries';
 import type { ApiOddsItem } from './odds';
 import type { ApiStandingsItem } from './standings';
 
@@ -157,6 +158,41 @@ export function withFixturesByIds(map: MockFixtures, items: readonly ById[]): Mo
 			const qs = new URLSearchParams(key.slice('/fixtures?'.length));
 			const ids = qs.get('ids');
 			return [...qs.keys()].length === 1 && ids ? fixturesByIdsEnvelope(ids, items) : undefined;
+		}
+	});
+}
+
+const INJURIES_PREFIX = '/injuries?';
+
+/**
+ * `/injuries?ids=<a-b-c>` envelope mentett sérült-elemekből (3.6): a kért meccsek elemei (meccsenként a mentett sorrendben);
+ * > 20 id → API-szerű `errors`. A repóban nincs mentett `/injuries` válasz, ezért a valódi forrás üres → a dev-tick
+ * `mock-missing`-gel zár; a teszt kézi, egyértelműen szintetikus elemeket ad át (DECISIONS 3.6).
+ */
+export function injuriesByIdsEnvelope(ids: string, items: readonly ApiInjuryItem[]) {
+	const list = ids.split('-').map(Number);
+	if (list.length > 20) return { ...envelope('injuries', { ids }, []), errors: { ids: 'Maximum of 20 fixtures ids' } };
+	return envelope(
+		'injuries',
+		{ ids },
+		list.flatMap((id) => items.filter((i) => i.fixture?.id === id))
+	);
+}
+
+/**
+ * A mock-térkép kiegészítése `/injuries?ids=…` feloldással. Csak azokra a meccsekre válaszol, amelyekhez van mentett elem;
+ * ha a kötegből egyikhez sincs, `undefined` (`mock-missing`) – így a hiányzó adatot nem rejti el egy üres („nincs sérült”) lista.
+ */
+export function withInjuries(map: MockFixtures, items: readonly ApiInjuryItem[]): MockFixtures {
+	const known = new Set(items.map((i) => i.fixture?.id));
+	return new Proxy(map, {
+		get(target, key, receiver) {
+			const own: unknown = Reflect.get(target, key, receiver);
+			if (own !== undefined || typeof key !== 'string' || !key.startsWith(INJURIES_PREFIX)) return own;
+			const qs = new URLSearchParams(key.slice(INJURIES_PREFIX.length));
+			const ids = qs.get('ids');
+			if ([...qs.keys()].length !== 1 || !ids) return undefined;
+			return ids.split('-').some((id) => known.has(Number(id))) ? injuriesByIdsEnvelope(ids, items) : undefined;
 		}
 	});
 }
@@ -325,6 +361,13 @@ async function loadSavedOdds(root: string) {
 	return (await readJsonFiles(join(root, 'backend', 'stores'), /-odds\.json$/)).flatMap(({ json }) => asItems<ApiOddsItem>(json));
 }
 
+/** Mentett `/injuries` válaszok: `data/history/api-football/injuries-*.json` (ma nincs ilyen fájl → üres). */
+async function loadSavedInjuries(root: string) {
+	return (await readJsonFiles(join(root, 'data', 'history', 'api-football'), /^injuries-.+.json$/)).flatMap(({ json }) =>
+		asItems<ApiInjuryItem>(json)
+	);
+}
+
 async function loadSavedFixtures(root: string) {
 	return (await readJsonFiles(join(root, 'data', 'history', 'api-football'), /^fixtures-(\d+)-(\d+)\.json$/)).map(
 		({ match, json }) => ({ league: Number(match[1]), season: Number(match[2]), items: asItems<SavedFixtureItem>(json) })
@@ -334,7 +377,7 @@ async function loadSavedFixtures(root: string) {
 /**
  * Az ingest-worker teljes mock-térképe: `reference` (3.2) + `fixtures_window` (3.3a) a `now` előtti 1 és utáni 30 napra +
  * `results` (3.3b) `ids` szerint az összes mentett meccsből + `standings` (3.4) a `clock` visszajátszott pillanatáig + `odds`
- * (3.5) a mentett meccsnapokra (`withOdds`).
+ * (3.5) a mentett meccsnapokra (`withOdds`) + `injuries` (3.6) a mentett `/injuries` válaszokból (`withInjuries`).
  * TODO(polish): 30 napnál tovább futó dev-szervernél a későbbi napok kulcsa hiányzik (`mock-missing`) – újraindítás kell.
  */
 export async function loadIngestMocks(
@@ -346,16 +389,19 @@ export async function loadIngestMocks(
 	const days = Array.from({ length: 32 }, (_, i) => isoDay(start + i * DAY_MS));
 	const saved = await loadSavedFixtures(root);
 	const map = { ...(await loadReferenceMocks(root)), ...buildFixturesWindowMocks(saved, days) };
-	return withOdds(
-		withStandings(
-			withFixturesByIds(
-				map,
-				saved.flatMap((f) => f.items)
+	return withInjuries(
+		withOdds(
+			withStandings(
+				withFixturesByIds(
+					map,
+					saved.flatMap((f) => f.items)
+				),
+				saved,
+				clock
 			),
 			saved,
-			clock
+			await loadSavedOdds(root)
 		),
-		saved,
-		await loadSavedOdds(root)
+		await loadSavedInjuries(root)
 	);
 }

@@ -130,8 +130,9 @@
   × irodák kerülnek az `odds_quote`-ba; napi karbantartó job: lejátszott meccsnél csak a nyitó + záró snapshot marad
   (`odds_retention`). \_Ellenőrzés:* unit-teszt: a szűrés nem változtatja a `max_odd`-ot; mock: a karbantartás után meccsenként ≤
   2 snapshot.
-- [ ] **3.6 `injuries`** `ids`-szel (max. 20 meccs / hívás), T−24 órával. _Ellenőrzés:_ mock: a sérültlista a meccshez kötve
-      tárolódik.
+- [x] **3.6 `injuries`** `ids`-szel (max. 20 meccs / hívás), T−24 órával. _Ellenőrzés:_ mock: a sérültlista a meccshez kötve
+      tárolódik. Kész (mock): `packages/server/src/injuries.ts` + `referenceMocks.ts` `withInjuries` (mentett `/injuries` nincs →
+      szintetikus tesztadat, DECISIONS) — lásd git log: feat(server): add injuries ingest job.
 - [ ] **3.7 💸 Élesítés + 1 hét mérés:** a tényleges hívás/nap vs. a becslés; a kihagyott késői snapshotok aránya; a tapasztalatok
       visszavezetése az [`api-football.md` §6](api/api-football.md#6-hívás-budget) fejezetbe. _Ellenőrzés:_ rövid mérési riport a
       `docs/plans/ingestion-measurement.md`-ben; a napi max. ≤ 100.

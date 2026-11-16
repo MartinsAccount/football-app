@@ -23,11 +23,13 @@ export {
 	buildFixturesWindowMocks,
 	buildReferenceMocks,
 	fixturesByIdsEnvelope,
+	injuriesByIdsEnvelope,
 	oddsEnvelope,
 	replayDay,
 	replayInstant,
 	standingsEnvelope,
 	withFixturesByIds,
+	withInjuries,
 	withOdds,
 	withStandings
 } from './referenceMocks';
@@ -35,6 +37,8 @@ export { createOddsHandler, parseOddsParams, toOddsSnapshots } from './odds';
 export type { ApiOddsItem } from './odds';
 export { createStandingsHandler, insertStandingSnapshot, toStandingRows } from './standings';
 export type { ApiStandingsItem, StandingSnapshotRow } from './standings';
+export { createInjuriesHandler, insertInjuries, toInjuryRows } from './injuries';
+export type { ApiInjuryItem, InjuryRow } from './injuries';
 export { createResultsHandler, parseResultIds, RESULTS_MAX_IDS } from './results';
 export { createFixturesWindowHandler, toFixtureRows } from './fixturesWindow';
 export type { IngestWorkerDeps, TaskHandler, TaskHandlerContext } from './ingestWorker';

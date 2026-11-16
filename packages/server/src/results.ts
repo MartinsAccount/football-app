@@ -13,12 +13,12 @@ import { spent, upsertTeams } from './reference';
 export const RESULTS_MAX_IDS = 20;
 
 /** A feladat `ids` paramétere → rendezett, egyedi egész id-k (a rendezés stabil API-/mock-kulcsot ad). */
-export function parseResultIds(raw: unknown): number[] {
+export function parseResultIds(raw: unknown, kind = 'results'): number[] {
 	const list = Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split('-') : [];
 	const ids = [...new Set(list.map(Number))].sort((a, b) => a - b);
 	if (!ids.length || ids.some((id) => !Number.isInteger(id) || id <= 0))
-		throw new Error(`results: invalid ids ${JSON.stringify(raw)}`);
-	if (ids.length > RESULTS_MAX_IDS) throw new Error(`results: ${ids.length} ids > ${RESULTS_MAX_IDS}`);
+		throw new Error(`${kind}: invalid ids ${JSON.stringify(raw)}`);
+	if (ids.length > RESULTS_MAX_IDS) throw new Error(`${kind}: ${ids.length} ids > ${RESULTS_MAX_IDS}`);
 	return ids;
 }
 
