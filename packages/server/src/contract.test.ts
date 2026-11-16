@@ -3,10 +3,11 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SqlBudgetStore } from '@football/api-client';
 import { reviveArbitrageSnapshot } from '@football/core';
-import { ApiError, createApiClient, type ApiClient, type FetchLike } from '@football/contract';
-import { openMemoryRepository } from '@football/db';
+import { ApiError, createApiClient, type ApiClient, type FetchLike, type SettingsUpdate } from '@football/contract';
+import { openMemoryRepository, SqlSettingsRepository } from '@football/db';
 import { hashToken } from './auth';
 import { createApiHandler, type ApiHandler } from './router';
+import { DEFAULT_SETTING_VALUES, settingValuesFrom } from './settings';
 import { fileSnapshotSource, SNAPSHOT_FILES, type SnapshotSource } from './snapshots';
 
 /** Szerződés-teszt: a `@football/contract` kliense a valódi handlert hívja (in-memory repo), hálózat nélkül. */
@@ -138,5 +139,106 @@ describe('snapshot endpoints (SB4)', () => {
 		await expect(empty.getBacktest()).rejects.toMatchObject({ status: 404, error: 'not-found' });
 		const none = await clientFor();
 		await expect(none.getRecommendations()).rejects.toMatchObject({ status: 404, error: 'not-found' });
+	});
+});
+
+describe('settings API (I3)', () => {
+	let client: ApiClient;
+	let h: ApiHandler;
+	beforeAll(async () => {
+		const { db, repo } = await openMemoryRepository();
+		await repo.upsertLeagues([
+			{ id: 39, name: 'Premier League', country: 'England', type: 'league' },
+			{ id: 140, name: 'La Liga', country: 'Spain', type: 'league' },
+			{ id: 61, name: 'Ligue 1', country: 'France', type: 'league' }
+		]);
+		await repo.upsertTeams([{ id: 33, name: 'Manchester United' }]);
+		await repo.upsertBookmakers([
+			{ id: 8, name: 'Bet365', stored: true },
+			{ id: 4, name: 'Pinnacle', stored: false }
+		]);
+		await repo.upsertMarkets([
+			{ id: 1, name: 'Match Winner', code: 'Vegeredmeny' },
+			{ id: 5, name: 'Goals Over/Under' }
+		]);
+		h = createApiHandler({ repo, budget: new SqlBudgetStore(db), settings: new SqlSettingsRepository(db) });
+		client = createApiClient({ baseUrl: 'http://localhost', fetch: (url, init) => h(new Request(url, init)) });
+	});
+
+	it('GET returns the migration-seeded values, defaults for the rest', async () => {
+		const s = await client.getSettings();
+		expect(s.values).toEqual({
+			...DEFAULT_SETTING_VALUES,
+			evThreshold: 0.05,
+			minOdds: 1.3,
+			maxOdds: 5,
+			retention: 'opening-closing'
+		});
+		expect(s.followedLeagues).toEqual([]);
+		expect(s.bookmakers.map((b) => [b.id, b.stored])).toEqual([
+			[4, false],
+			[8, true]
+		]);
+		expect(s.markets.find((m) => m.id === 1)).toMatchObject({ code: 'Vegeredmeny' });
+	});
+
+	it('PUT applies a partial update and returns the new state', async () => {
+		const s = await client.updateSettings({
+			values: { evThreshold: 0.05, retention: 'all', stakeMode: 'fractional-kelly' },
+			followedLeagues: { upsert: [{ leagueId: 39, priority: 2, markets: ['Vegeredmeny', '5'] }, { leagueId: 140 }] },
+			teamFilters: { upsert: [{ teamId: 33, mode: 'exclude' }] },
+			markets: [{ id: 5, stored: true }],
+			bookmakers: [{ id: 4, stored: true }]
+		});
+		expect(s.values).toMatchObject({ evThreshold: 0.05, retention: 'all', minOdds: 1.3 });
+		expect(s.followedLeagues.map((l) => [l.leagueId, l.priority, l.markets])).toEqual([
+			[39, 2, ['Vegeredmeny', '5']],
+			[140, 0, null]
+		]);
+		expect(s.teamFilters).toEqual([{ teamId: 33, mode: 'exclude' }]);
+		expect(s.bookmakers.every((b) => b.stored)).toBe(true);
+
+		const again = await client.updateSettings({ followedLeagues: { remove: [140], upsert: [{ leagueId: 39, enabled: false }] } });
+		expect(again.followedLeagues).toMatchObject([{ leagueId: 39, enabled: false, priority: 2, markets: ['Vegeredmeny', '5'] }]);
+		expect((await client.getSettings()).values.evThreshold).toBe(0.05);
+	});
+
+	it('invalid PUT → 400 bad-request and nothing is written', async () => {
+		const before = await client.getSettings();
+		const bad: unknown[] = [
+			{ followedLeagues: { upsert: [{ leagueId: 61, markets: ['Ismeretlen'] }] }, values: { evThreshold: 0.1 } },
+			{ values: { evThreshold: 2 } },
+			{ values: { minOdds: 5, maxOdds: 3 } },
+			{ values: { stakeUnit: 1234 } },
+			{ values: { foo: 1 } },
+			{ markets: [{ id: 999, stored: true }] },
+			{ teamFilters: { upsert: [{ teamId: 1, mode: 'maybe' }] } },
+			{ followedLeagues: { upsert: [{ leagueId: -1 }] } },
+			{ followedLeagues: { upsert: [{ leagueId: 999 }] }, values: { evThreshold: 0.1 } },
+			{ teamFilters: { upsert: [{ teamId: 404, mode: 'include' }] } },
+			{ values: { stakeMode: 'martingale' } },
+			{ unknown: true },
+			[]
+		];
+		for (const body of bad)
+			await expect(client.updateSettings(body as SettingsUpdate)).rejects.toMatchObject({ status: 400, error: 'bad-request' });
+		const res = await h(new Request('http://localhost/api/settings', { method: 'PUT', body: '{nem json' }));
+		expect(res.status).toBe(400);
+		expect(await client.getSettings()).toEqual(before);
+	});
+
+	it('stored invalid values fall back to defaults', () => {
+		expect(settingValuesFrom({ ev_threshold: 'x', min_odds: 3, max_odds: 2, odds_retention: false, unit_ft: 7 })).toEqual({
+			...DEFAULT_SETTING_VALUES,
+			retention: 'all'
+		});
+	});
+
+	it('PUT only on /api/settings; without a settings repo → 404', async () => {
+		expect((await h(new Request('http://localhost/api/budget', { method: 'PUT', body: '{}' }))).status).toBe(405);
+		expect((await h(new Request('http://localhost/api/settings', { method: 'DELETE' }))).status).toBe(405);
+		const { db, repo } = await openMemoryRepository();
+		const bare = createApiHandler({ repo, budget: new SqlBudgetStore(db) });
+		expect((await bare(new Request('http://localhost/api/settings'))).status).toBe(404);
 	});
 });

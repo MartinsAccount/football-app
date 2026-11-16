@@ -8,7 +8,9 @@ import type {
 	FixturesResponse,
 	OddsHistoryResponse,
 	OddsResponse,
-	RecommendationsResponse
+	RecommendationsResponse,
+	SettingsResponse,
+	SettingsUpdate
 } from './dto';
 
 /**
@@ -22,7 +24,10 @@ export interface FetchResponseLike {
 	status: number;
 	text(): Promise<string>;
 }
-export type FetchLike = (url: string, init: { method: string; headers: Record<string, string> }) => Promise<FetchResponseLike>;
+export type FetchLike = (
+	url: string,
+	init: { method: string; headers: Record<string, string>; body?: string }
+) => Promise<FetchResponseLike>;
 
 export interface ApiClientOptions {
 	/** Pl. `https://app.example.com` vagy `''` (azonos origin). A végéről a `/` levágódik. */
@@ -56,6 +61,10 @@ export interface ApiClient {
 	getBacktest(): Promise<BacktestResponse>;
 	/** Drótforma (`sum: null`); a hívó `reviveArbitrageSnapshot`-tal alakítja vissza. */
 	getArbitrage(): Promise<ArbitrageResponse>;
+	/** A teljes beállítás-állapot (értékek, követett ligák, csapatszűrők, tárolt piacok/irodák). */
+	getSettings(): Promise<SettingsResponse>;
+	/** Részleges frissítés (`PUT`); a válasz a frissített állapot. Érvénytelen elem → `ApiError` 400, semmi sem íródik. */
+	updateSettings(update: SettingsUpdate): Promise<SettingsResponse>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -87,14 +96,19 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 	// A globális fetch-et hívás közben, a globalThis-en hívjuk (néhány környezet "Illegal invocation"-t dob leválasztva).
 	const doFetch: FetchLike | undefined = options.fetch ?? (g.fetch ? (url, init) => g.fetch!(url, init) : undefined);
 
-	async function get<T>(path: string): Promise<T> {
+	async function request<T>(method: 'GET' | 'PUT', path: string, payload?: unknown): Promise<T> {
 		if (!doFetch) throw new ApiError(0, 'network', 'Nincs elérhető fetch');
 		const headers: Record<string, string> = { accept: 'application/json' };
 		if (options.token) headers.authorization = `Bearer ${options.token}`;
+		const init: { method: string; headers: Record<string, string>; body?: string } = { method, headers };
+		if (payload !== undefined) {
+			headers['content-type'] = 'application/json';
+			init.body = JSON.stringify(payload);
+		}
 
 		let res: FetchResponseLike;
 		try {
-			res = await doFetch(baseUrl + path, { method: 'GET', headers });
+			res = await doFetch(baseUrl + path, init);
 		} catch (e) {
 			throw new ApiError(0, 'network', e instanceof Error ? e.message : String(e));
 		}
@@ -113,6 +127,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 		if (body === undefined) throw new ApiError(res.status, 'invalid-response', 'A válasz nem JSON');
 		return body as T;
 	}
+	const get = <T>(path: string) => request<T>('GET', path);
 
 	return {
 		listFixtures: (query) => get<FixturesResponse>(`/api/fixtures${buildFixtureQuery(query)}`),
@@ -122,6 +137,8 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 		getBudget: () => get<BudgetResponse>('/api/budget'),
 		getRecommendations: () => get<RecommendationsResponse>('/api/recommendations'),
 		getBacktest: () => get<BacktestResponse>('/api/backtest'),
-		getArbitrage: () => get<ArbitrageResponse>('/api/arbitrage')
+		getArbitrage: () => get<ArbitrageResponse>('/api/arbitrage'),
+		getSettings: () => get<SettingsResponse>('/api/settings'),
+		updateSettings: (update) => request<SettingsResponse>('PUT', '/api/settings', update)
 	};
 }

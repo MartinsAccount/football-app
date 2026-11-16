@@ -17,6 +17,15 @@ export type {
 	ArbitrageOpportunityDto,
 	ArbitrageFixtureDto,
 	ArbitrageResponse,
+	RetentionDto,
+	SettingValuesDto,
+	FollowedLeagueDto,
+	FollowedLeagueInputDto,
+	TeamFilterDto,
+	StoredFlagDto,
+	MarketFlagDto,
+	SettingsResponse,
+	SettingsUpdate,
 	ApiErrorCode,
 	ApiErrorBody
 } from './dto';

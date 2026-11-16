@@ -1,5 +1,5 @@
 import { utcDay, type BudgetStore } from '@football/api-client';
-import type { Fixture, FixtureFilter, Repository } from '@football/db';
+import type { Fixture, FixtureFilter, Repository, SettingsRepository } from '@football/db';
 import { authorize, type AuthConfig } from './auth';
 import type {
 	ApiErrorBody,
@@ -9,9 +9,11 @@ import type {
 	FixtureResponse,
 	FixturesResponse,
 	OddsHistoryResponse,
-	OddsResponse
+	OddsResponse,
+	SettingsResponse
 } from '@football/contract';
 import type { SnapshotSource } from './snapshots';
+import { applySettingsUpdate, readSettings, SettingsValidationError } from './settings';
 
 /**
  * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
@@ -28,6 +30,8 @@ export interface ApiDeps {
 	snapshots?: SnapshotSource;
 	/** Ütemező (`/api/cron/*`, `createCronHandler`): saját `CRON_SECRET`-védelme van, az app-auth nem vonatkozik rá. */
 	cron?: (req: Request) => Promise<Response>;
+	/** Beállítás-API (`GET/PUT /api/settings`, I3). Hiányában a végpont 404-et ad. */
+	settings?: SettingsRepository;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -121,8 +125,22 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 			const auth = await authorize(req, deps.auth);
 			if (!auth.ok) return fail(401, 'unauthorized', auth.message, { 'www-authenticate': 'Bearer' });
 		}
-		if (req.method !== 'GET') return fail(405, 'method', 'Csak GET engedélyezett');
+		const isSettings = path === '/api/settings';
+		if (req.method !== 'GET' && !(isSettings && req.method === 'PUT'))
+			return fail(405, 'method', isSettings ? 'Csak GET vagy PUT engedélyezett' : 'Csak GET engedélyezett');
 		try {
+			if (isSettings) {
+				if (!deps.settings) return fail(404, 'not-found', 'A beállítás-API nincs bekötve');
+				if (req.method === 'GET') return json(200, (await readSettings(deps.settings)) satisfies SettingsResponse);
+				let body: unknown;
+				try {
+					body = JSON.parse(await req.text());
+				} catch {
+					throw new BadRequest('A törzs nem érvényes JSON');
+				}
+				return json(200, (await applySettingsUpdate(deps.settings, body)) satisfies SettingsResponse);
+			}
+
 			if (path === '/api/fixtures') {
 				const { filter, limit, offset } = parseFixtureQuery(url.searchParams);
 				// TODO(polish): LIMIT/OFFSET SQL-ben, ha a lista nagy lesz (most a repo a teljes szűrt listát adja).
@@ -170,7 +188,7 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 
 			return fail(404, 'not-found', `Ismeretlen végpont: ${path}`);
 		} catch (e) {
-			if (e instanceof BadRequest) return fail(400, 'bad-request', e.message);
+			if (e instanceof BadRequest || e instanceof SettingsValidationError) return fail(400, 'bad-request', e.message);
 			console.error('[api]', e);
 			return fail(500, 'internal', 'Szerverhiba');
 		}

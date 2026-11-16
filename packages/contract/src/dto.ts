@@ -118,6 +118,78 @@ export type ArbitrageFixtureDto = Omit<ArbitrageFixture, 'opportunities'> & { op
  */
 export type ArbitrageResponse = Omit<ArbitrageSnapshot, 'fixtures'> & { fixtures: ArbitrageFixtureDto[] };
 
+// --- Beállítás-API (ROADMAP 2.1b, I3). ---
+
+/** Snapshot-megőrzés (core `Retention`). */
+export type RetentionDto = 'opening-closing' | 'all';
+
+/** Típusos skalár-beállítások (`setting` tábla); a hiányzó kulcs a core `DEFAULT_SETTINGS` értékét kapja. */
+export interface SettingValuesDto {
+	/** EV-küszöb arányként (0,03 = 3%). */
+	evThreshold: number;
+	minOdds: number;
+	maxOdds: number;
+	/** Tét-alapegység Ft-ban (`unit_ft`). */
+	stakeUnit: number;
+	/** Tét-mód (strategy.md: flat az alap, tört-Kelly opcionális). */
+	stakeMode: 'flat' | 'fractional-kelly';
+	/** Backfill csak akkor indul, ha a napi `used` e plafon alatt van (architecture §7). */
+	backfillCap: number;
+	/** Napi hívás-tartalék a backfillnek. */
+	backfillReserve: number;
+	retention: RetentionDto;
+}
+
+export interface FollowedLeagueDto {
+	leagueId: number;
+	enabled: boolean;
+	priority: number;
+	/** Ligánkénti piac-felülírás (piackód vagy id szövegként); `null` = globális `market.stored`. */
+	markets: string[] | null;
+	addedAt: string;
+}
+
+export interface FollowedLeagueInputDto {
+	leagueId: number;
+	enabled?: boolean;
+	priority?: number;
+	/** Megadva felülír (`null` = vissza a globálisra); elhagyva a meglévő érték marad. */
+	markets?: string[] | null;
+}
+
+export interface TeamFilterDto {
+	teamId: number;
+	mode: 'include' | 'exclude';
+}
+
+export interface StoredFlagDto {
+	id: number;
+	name: string;
+	stored: boolean;
+}
+
+export interface MarketFlagDto extends StoredFlagDto {
+	code: string | null;
+}
+
+/** `GET /api/settings` (és a `PUT` válasza) → a teljes beállítás-állapot. */
+export interface SettingsResponse {
+	values: SettingValuesDto;
+	followedLeagues: FollowedLeagueDto[];
+	teamFilters: TeamFilterDto[];
+	markets: MarketFlagDto[];
+	bookmakers: StoredFlagDto[];
+}
+
+/** `PUT /api/settings` törzse: minden ág opcionális; érvénytelen elem → 400, és semmi sem íródik. */
+export interface SettingsUpdate {
+	values?: Partial<SettingValuesDto>;
+	followedLeagues?: { upsert?: FollowedLeagueInputDto[]; remove?: number[] };
+	teamFilters?: { upsert?: TeamFilterDto[]; remove?: number[] };
+	markets?: { id: number; stored: boolean }[];
+	bookmakers?: { id: number; stored: boolean }[];
+}
+
 /** Hibakódok, amelyeket a server az `{ error, message }` törzsben ad. */
 export type ApiErrorCode = 'bad-request' | 'unauthorized' | 'not-found' | 'method' | 'internal';
 

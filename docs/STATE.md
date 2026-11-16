@@ -22,8 +22,7 @@ Floodlight v0.2 redesign: lezárva.
 
 1. ~~I1 – 1.7 Ütemező váz lokálisan~~ kész (Vercel-schedule: BLOCKERS).
 2. ~~I2 – 2.1a Beállítás-repository + tárolási feloldó~~ kész.
-3. **I3 – 2.1b Beállítás-API:** `GET/PUT /api/settings` (+ followed leagues) a serverben, contract DTO + kliensmetódus,
-   szerződés-teszt; a web/mobil átkötése külön szelet (később).
+3. ~~I3 – 2.1b Beállítás-API~~ kész (web/mobil átkötése: külön szelet, később).
 4. **I4 – 3.1a Feladatsor-mag (core, tiszta):** planner-szabályok (§7.1 táblázat) → `TaskPlan[]` `dedupe_key`-jel, esedékes
    feladat kiválasztása prioritás szerint, deadline → `skipped`, visszalépés (`attempts`), plan/kvótahiba nem ismétlődik.
 5. **I5 – 3.1b Worker a tickben:** `SqlTaskStore` (`ingest_task` upsert `ON CONFLICT (dedupe_key) DO NOTHING`, claim, lezárás), a
@@ -123,11 +122,14 @@ tételek).
 | I1 – Ütemező váz (1.7, lokális)        | (lásd git log: feat(server): add cron tick skeleton)                                 | `0006_cron_run.sql` (`cron_run` napló: running/ok/locked/error); db `SqlCronStore` (`pg_try_advisory_lock` kulcs `CRON_LOCK_KEY`, `startRun`/`finishRun`/`logLocked`/`listRuns`); server `cron.ts`: `createTickRunner` (inFlight-őr + advisory lock, no-op worker, hiba → `error` sor + unlock), `cronAuthorize` (Bearer `CRON_SECRET`), `createCronHandler` (`GET                                                                                                                                                                                         | POST /api/cron/tick`, a router az app-auth előtt adja át); `npm run tick -w @football/server [-- --pg] [--every 15]`; Vercel-schedule: BLOCKERS |
 | M11b – Mobil Meccs-részlet (11.7)      | (lásd git log: feat(mobile): add match detail screen)                                | core `odds/history.ts` (`oddsHistoryMarkets`: piac/kimenet → legjobb odd időrendben, nyitó → legutóbbi, `formatOddsChange`/`formatOddsPath`; teszt); `src/app/match/[id].tsx` (`getFixture` + `getOddsHistory` párhuzamosan, `loadWithCache` meccsenkénti kulccsal, offline-jelzés); Meccsek sora csapatnévvel + `Link`; `tsc` + `expo export` zöld                                                                                                                                                                                                        |
 | I2 – Beállítás-repository (2.1a)       | (lásd git log: feat(db): add settings repository)                                    | db `SqlSettingsRepository` (`settings.ts`: követett liga / csapatszűrő upsert + egyedi törlés, `setting` jsonb get/set, `market`/`bookmaker` `stored` jelző, `loadStoredScopeInput`); core `storage/storedScope.ts` (`resolveStoredScope`, `resolveStoredScopes`, `isQuoteStored`); PGlite- + unit-teszt; séma nem változott                                                                                                                                                                                                                               |
+| I3 – Beállítás-API (2.1b)              | (lásd git log: feat(server): add settings API)                                       | server `settings.ts` (`readSettings`, `parseSettingsUpdate`, `applySettingsUpdate`), router `GET/PUT /api/settings` (`deps.settings`), Node-híd törzs-továbbítás; contract `SettingsResponse`/`SettingsUpdate` + `getSettings`/`updateSettings`; db `findMissingRefs` (FK-előellenőrzés); szerződés-teszt (PGlite)                                                                                                                                                                                                                                         |
 
 ## Polish backlog
 
-- I2: a `setting` kulcsai nincsenek típusos sémával validálva (az I3 API-ban kell); a `followed_league.markets` elemei nincsenek a
-  `market.code`-hoz ellenőrizve íráskor (a feloldó csendben kihagyja az ismeretlent).
+- I3: a PUT nem egy tranzakcióban ír (a validálás és az FK-előellenőrzés előre fut, csak DB-hiba hagyhat félig alkalmazott
+  frissítést); a core `ISettings` (web/mobil localStorage) és a szerver `SettingValuesDto` még két külön alak (a `leagues` /
+  `markets` / `bookmakers` listák a DB-ben `followed_league` / `stored` jelzők) – az átkötő szelet egyesíti; a migráció
+  alapértékei (min. odds 1,3, max. 5, EV 5%) eltérnek a core `DEFAULT_SETTINGS`-től.
 
 - I1: a tick a teljes futás végén válaszol (külső pinger 30 s timeoutjához azonnali 202 + háttérfutás kellene, `TODO(polish)`); a
   `cron_run` sorok megőrzése/törlése nincs (a 3.5b karbantartó jobba); a tick-napló nincs a UI-ban (2.4 Budget-panel).
@@ -221,6 +223,14 @@ tételek).
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I3 kész (2.1b).** `GET/PUT /api/settings` (`packages/server/src/settings.ts`, router `deps.settings` – hiányában 404; dev.ts
+  bekötve). Contract: `SettingsResponse` / `SettingsUpdate`, `api.getSettings()` / `api.updateSettings(update)` (PUT, JSON;
+  `FetchLike` init kapott `body?`). PUT-ágak: `values` (részleges), `followedLeagues{upsert,remove}`,
+  `teamFilters{upsert,remove}`, `markets[{id,stored}]`, `bookmakers[...]`; minden előbb validálódik (ismeretlen
+  mező/piackód/liga/csapat, tartomány, min<max) → 400 `bad-request`, semmi sem íródik. `setting`-kulcsok a 0005-ös alapsorokéi
+  (`unit_ft`, `stake_mode`, `backfill_cap`, `odds_retention` = bool) + új `backfill_reserve`. A Node-híd (`node.ts`) már
+  továbbítja a kérés törzsét. Következő: I4.
 
 - **I2 kész (2.1a).** `new SqlSettingsRepository(db)` (`packages/db/src/settings.ts`): `listFollowedLeagues`,
   `upsertFollowedLeague({ leagueId, enabled?, priority?, markets? })` (a meg nem adott mező marad; `markets: null` = globális),

@@ -6,7 +6,7 @@ import { createServer } from 'node:http';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SqlBudgetStore } from '@football/api-client';
-import { openTarget, parseTargetArgs, SqlCronStore } from '@football/db';
+import { openTarget, parseTargetArgs, SqlCronStore, SqlSettingsRepository } from '@football/db';
 import { createApiHandler } from '../src/router';
 import { toNodeListener } from '../src/node';
 import { authConfigFromEnv } from '../src/auth';
@@ -37,6 +37,7 @@ createServer(
 		createApiHandler({
 			repo,
 			budget: new SqlBudgetStore(db),
+			settings: new SqlSettingsRepository(db),
 			auth,
 			snapshots: fileSnapshotSource(join(ROOT, 'data')),
 			// Ütemező (1.7): `CRON_SECRET` env; hiányában lokálisan nyitott. Lokális ütemezés: `npm run tick -- --every 15`.
@@ -45,6 +46,6 @@ createServer(
 	)
 ).listen(port, () =>
 	console.log(
-		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,recommendations,backtest,arbitrage,cron/tick} ← ${label}`
+		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,settings,recommendations,backtest,arbitrage,cron/tick} ← ${label}`
 	)
 );

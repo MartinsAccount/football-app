@@ -54,6 +54,11 @@ export interface SettingsRepository {
 	listBookmakers(): Promise<StoredFlagRow[]>;
 	setMarketStored(id: number, stored: boolean): Promise<boolean>;
 	setBookmakerStored(id: number, stored: boolean): Promise<boolean>;
+	/** A megadott liga-/csapat-id-k közül azok, amelyek nincsenek a `league` / `team` táblában (FK-ellenőrzés íráselőtt). */
+	findMissingRefs(refs: {
+		leagueIds: readonly number[];
+		teamIds: readonly number[];
+	}): Promise<{ leagueIds: number[]; teamIds: number[] }>;
 	/** A core `resolveStoredScope` bemenete egy lekérésben. */
 	loadStoredScopeInput(): Promise<StoredScopeInput>;
 }
@@ -143,6 +148,21 @@ export class SqlSettingsRepository implements SettingsRepository {
 	async setBookmakerStored(id: number, stored: boolean): Promise<boolean> {
 		const { rows } = await this.db.query(`UPDATE bookmaker SET stored = $2 WHERE id = $1 RETURNING id`, [id, stored]);
 		return rows.length > 0;
+	}
+
+	async findMissingRefs(refs: {
+		leagueIds: readonly number[];
+		teamIds: readonly number[];
+	}): Promise<{ leagueIds: number[]; teamIds: number[] }> {
+		const missing = async (table: 'league' | 'team', ids: readonly number[]): Promise<number[]> => {
+			if (!ids.length) return [];
+			const { rows } = await this.db.query<{ id: number }>(
+				`SELECT x::float8 AS id FROM unnest($1::bigint[]) AS x WHERE NOT EXISTS (SELECT 1 FROM ${table} t WHERE t.id = x) ORDER BY x`,
+				[[...new Set(ids)]]
+			);
+			return rows.map((r) => r.id);
+		};
+		return { leagueIds: await missing('league', refs.leagueIds), teamIds: await missing('team', refs.teamIds) };
 	}
 
 	async loadStoredScopeInput(): Promise<StoredScopeInput> {

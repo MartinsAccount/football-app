@@ -1,6 +1,16 @@
 export { createApiHandler, parseFixtureQuery, remainingCalls, DEFAULT_LIMIT, MAX_LIMIT } from './router';
 export type { ApiDeps, ApiHandler } from './router';
 export { toNodeListener } from './node';
+export {
+	applySettingsUpdate,
+	parseSettingsUpdate,
+	readSettings,
+	settingValuesFrom,
+	DEFAULT_SETTING_VALUES,
+	SETTING_KEYS,
+	SettingsValidationError
+} from './settings';
+export type { SettingsUpdateContext } from './settings';
 export { fileSnapshotSource, SNAPSHOT_FILES } from './snapshots';
 export type { SnapshotSource } from './snapshots';
 export { authorize, authConfigFromEnv, hashToken } from './auth';
