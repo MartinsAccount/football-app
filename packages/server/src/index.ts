@@ -19,6 +19,13 @@ export type { CronConfig, TickDeps, TickOutcome, TickWorker } from './cron';
 export type { AuthConfig, AuthResult, Authorizer } from './auth';
 export { createDbIngestWorker, createIngestWorker, noopHandler, toFailureKind } from './ingestWorker';
 export { createReferenceHandler, toMarketRows, toNamedRows, toTeamRows } from './reference';
-export { buildFixturesWindowMocks, buildReferenceMocks, replayDay } from './referenceMocks';
+export {
+	buildFixturesWindowMocks,
+	buildReferenceMocks,
+	fixturesByIdsEnvelope,
+	replayDay,
+	withFixturesByIds
+} from './referenceMocks';
+export { createResultsHandler, parseResultIds, RESULTS_MAX_IDS } from './results';
 export { createFixturesWindowHandler, toFixtureRows } from './fixturesWindow';
 export type { IngestWorkerDeps, TaskHandler, TaskHandlerContext } from './ingestWorker';

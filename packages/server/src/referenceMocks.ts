@@ -10,7 +10,7 @@ import { fixtureKey, type ApiEnvelope, type MockFixtures } from '@football/api-c
  */
 
 interface SavedFixtureItem {
-	fixture?: { date?: string };
+	fixture?: { id?: number; date?: string };
 	league?: { id?: number; season?: number; country?: string };
 	teams?: { home?: { id?: number; name?: string; logo?: string }; away?: { id?: number; name?: string; logo?: string } };
 }
@@ -119,6 +119,41 @@ export function buildFixturesWindowMocks(
 	return out;
 }
 
+const IDS_PREFIX = '/fixtures?ids=';
+type ById = { fixture?: { id?: number } };
+
+/**
+ * `/fixtures?ids=<a-b-c>` envelope a mentett meccsekből (`results`, 3.3b): a kért sorrendben, a hiányzó id kimarad; > 20 id →
+ * API-szerű `errors` (a kliens hibát dob).
+ */
+export function fixturesByIdsEnvelope<T extends ById>(ids: string, items: readonly T[]) {
+	const byId = new Map<number, T>();
+	for (const i of items) if (typeof i.fixture?.id === 'number') byId.set(i.fixture.id, i);
+	const list = ids.split('-').map(Number);
+	if (list.length > 20) return { ...envelope('fixtures', { ids }, []), errors: { ids: 'Maximum of 20 fixtures ids' } };
+	return envelope(
+		'fixtures',
+		{ ids },
+		list.flatMap((id) => byId.get(id) ?? [])
+	);
+}
+
+/**
+ * A statikus mock-térkép kiegészítése `ids` szerinti feloldással (a `results` köteg összetétele előre nem ismert, a mock-kliens
+ * kulcs szerint olvas). A térkép saját kulcsa elsőbbséget élvez; csak a `/fixtures?ids=…` (egyetlen paraméter) alakra válaszol.
+ */
+export function withFixturesByIds(map: MockFixtures, items: readonly ById[]): MockFixtures {
+	return new Proxy(map, {
+		get(target, key, receiver) {
+			const own: unknown = Reflect.get(target, key, receiver);
+			if (own !== undefined || typeof key !== 'string' || !key.startsWith(IDS_PREFIX)) return own;
+			const qs = new URLSearchParams(key.slice('/fixtures?'.length));
+			const ids = qs.get('ids');
+			return [...qs.keys()].length === 1 && ids ? fixturesByIdsEnvelope(ids, items) : undefined;
+		}
+	});
+}
+
 /** Tömb, `{ response: [] }` (API-envelope) vagy `{ odds: [] }` (backend/stores) alak. */
 const asItems = <T>(json: unknown): T[] => {
 	if (Array.isArray(json)) return json as T[];
@@ -160,11 +195,17 @@ async function loadSavedFixtures(root: string) {
 }
 
 /**
- * Az ingest-worker teljes mock-térképe: `reference` (3.2) + `fixtures_window` (3.3a) a `now` előtti 1 és utáni 30 napra.
+ * Az ingest-worker teljes mock-térképe: `reference` (3.2) + `fixtures_window` (3.3a) a `now` előtti 1 és utáni 30 napra +
+ * `results` (3.3b) `ids` szerint az összes mentett meccsből.
  * TODO(polish): 30 napnál tovább futó dev-szervernél a későbbi napok kulcsa hiányzik (`mock-missing`) – újraindítás kell.
  */
 export async function loadIngestMocks(root: string, now = new Date()): Promise<MockFixtures> {
 	const start = Date.parse(isoDay(now.getTime())) - DAY_MS;
 	const days = Array.from({ length: 32 }, (_, i) => isoDay(start + i * DAY_MS));
-	return { ...(await loadReferenceMocks(root)), ...buildFixturesWindowMocks(await loadSavedFixtures(root), days) };
+	const saved = await loadSavedFixtures(root);
+	const map = { ...(await loadReferenceMocks(root)), ...buildFixturesWindowMocks(saved, days) };
+	return withFixturesByIds(
+		map,
+		saved.flatMap((f) => f.items)
+	);
 }

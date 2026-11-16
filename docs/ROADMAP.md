@@ -112,10 +112,11 @@
 - [x] **3.2 `reference` jobok:** `teams` (liga × szezon), `odds/bookmakers`, `odds/bets` → `market.analyzed`. _Ellenőrzés:_ mock
       módban kitöltött törzsadat. Kész (mock): `packages/server/src/reference.ts` + `referenceMocks.ts` — lásd git log:
       feat(server): add reference ingest jobs.
-- [ ] **3.3 `fixtures_window` + `results`:** a következő 7 nap meccsei ligánként; meccs után `fixtures?ids` (max. 20) az
+- [x] **3.3 `fixtures_window` + `results`:** a következő 7 nap meccsei ligánként; meccs után `fixtures?ids` (max. 20) az
       eredménnyel, statisztikával és eseményekkel; második kör +26 órával. _Ellenőrzés:_ mock: státuszváltás `NS` → `FT`, az
-      eredmény betöltődik, a hívásszám ≤ ⌈n/20⌉. Részben: 3.3a `fixtures_window` (mock) – `packages/server/src/fixturesWindow.ts`
-      — lásd git log: feat(server): add fixtures_window ingest job.
+      eredmény betöltődik, a hívásszám ≤ ⌈n/20⌉. Kész (mock): 3.3a `fixtures_window` – `packages/server/src/fixturesWindow.ts`
+      (lásd git log: feat(server): add fixtures_window ingest job); 3.3b `results` – `packages/server/src/results.ts` (lásd git
+      log: feat(server): add results ingest job). Statisztika/események: polish (a mentett adatban nincs).
 - [ ] **3.4 `standings` snapshot** a forduló előtti napon. _Ellenőrzés:_ mock: a snapshot a megfelelő időpontban keletkezik.
 - [ ] **3.5 `odds_early` + `odds_late` snapshot:** **lapozással** (10/oldal), csak az elemzett piacokkal, a `provider_updated_at`
       mentésével; a `late` a nap első kezdése előtt ≤ 3 órával. _Ellenőrzés:_ mock: többoldalas válasz esetén is minden meccs
