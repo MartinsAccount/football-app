@@ -62,7 +62,7 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 34. ~~I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit (core)~~ kész (`elo-logit@1.0.0`, holdout LL 0,9905 vs. v0 0,9959).
 35. ~~I26 – 6.2b Dixon–Coles ML-illesztés + backtest v1~~ kész (`dixon-coles@1.0.0`, holdout 1X2 LL 0,9857; riport
     `docs/analysis/backtests/2026-11-16-model-v1.md`).
-36. ~~I26b – 7.3 Piaci kombinálás (`w`) + EV-küszöb hangolása~~ kész (prioritás-módosítás az I26 negatív ROI-ja miatt; core
+36. ~~I26b – 7.3 Piaci kombinálás (`w`) + EV-küszöb hangolása~~ kész (`0c10896`; prioritás-módosítás az I26 negatív ROI-ja miatt; core
     `backtest/blend.ts`, riport `docs/analysis/backtests/2026-11-16-blend.md`; validációs optimum w = 0 → élesítés 🔶).
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
