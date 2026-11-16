@@ -1,8 +1,10 @@
-import { EvaluationSummary, formatDecimal, formatEv, marketLabel, ProbabilityScore } from '@football/core';
+import { formatDecimal, formatEv } from '../format/format';
+import { marketLabel } from '../odds/history';
+import type { EvaluationSummary, ProbabilityScore } from './dbSummary';
 
 /**
- * Az „Élő (DB)” blokk nézet-modellje (ROADMAP 5.5, I17b) a `GET /api/evaluation` összesítéséből (core `summarizeEvaluations`).
- * Csak formáz; a KPI-k a backtest-nézet `kpis()`-ét használják (ugyanaz a `BetSummary`).
+ * Az „Élő (DB)” blokk nézet-modellje (ROADMAP 5.5, I17b; I17c óta a core-ban, web + mobil közös) a `GET /api/evaluation` összesítéséből (core `summarizeEvaluations`).
+ * Csak formáz; a KPI-k a backtest-nézet KPI-jait használják (ugyanaz a `BetSummary`).
  */
 
 const count = (n: number): string => formatDecimal(n, 0);

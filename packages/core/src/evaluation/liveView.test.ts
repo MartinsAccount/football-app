@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { EvaluationRecord, summarizeEvaluations } from '@football/core';
-import { liveChips, liveMarketRows, modelOptions } from './liveEvaluationView';
+import { summarizeEvaluations, type EvaluationRecord } from './dbSummary';
+import { liveChips, liveMarketRows, modelOptions } from './liveView';
 
 const rec = (o: Partial<EvaluationRecord> = {}): EvaluationRecord => ({
 	runId: 1,

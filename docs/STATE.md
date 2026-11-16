@@ -38,10 +38,7 @@ Floodlight v0.2 redesign: lezárva.
 16. ~~I16 – 2.2 Liga-katalógus~~ kész.
 17. ~~I17 – 5.5 Kiértékelő olvasó-API DB-ből~~ kész (`GET /api/evaluation?model=`).
 18. ~~I17b – 5.5 Kiértékelés-oldal bekötése (web)~~ kész (`LiveEvaluation` „Élő (DB)” blokk).
-19. **I17c – 5.5 mobil „Élő (DB)” blokk:** `apps/mobile/src/app/evaluation.tsx` alá ugyanaz a blokk
-    `client.getEvaluation(model?)`-ból (KPI-k + piac-sorok `marketLabel`-lel, modellverzió-chipek, üres állapot); a web
-    `liveEvaluationView.ts` formázói a core-ba emelhetők (`evaluation/labels.ts`), hogy a mobil is használja.
-    `cd apps/mobile && npx tsc --noEmit`.
+19. ~~I17c – 5.5 mobil „Élő (DB)” blokk~~ kész (formázók: core `evaluation/liveView.ts`).
 20. **I18 – 2.3 Beállítások UI:** ligák a `league`/`season` katalógusból, `coverage` jelzések, becsült napi hívásköltség.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
@@ -170,9 +167,14 @@ evaluation read API) | core `evaluation/dbSummary.ts` (`summarizeEvaluations`, `
 `loadEvaluationRecords`, `GET /api/evaluation?model=`, contract `getEvaluation`; terv `docs/plans/evaluation-db-api.md` | | I17b –
 Kiértékelés „Élő (DB)” blokk (web) | (lásd git log: feat(ui): add live DB evaluation block) | `EvaluationPage/LiveEvaluation.tsx`,
 `liveEvaluationView.ts` (+teszt), Vite-proxy `/api/evaluation`; screenshot
-`docs/plans/screens/I17b-evaluation-dark-{1440,390}.png` |
+`docs/plans/screens/I17b-evaluation-dark-{1440,390}.png` | | I17c – „Élő (DB)” blokk (mobil) | (lásd git log: feat(mobile): add
+live DB evaluation block) | core `evaluation/liveView.ts` (+teszt, a web `liveEvaluationView.ts`-ből emelve), mobil
+`evaluation.tsx` `LiveEvaluation`, `evaluationCacheKey(model)`; screenshot nincs (emulátor nélkül) |
 
 ## Polish backlog
+
+- I17c: a mobil „Élő (DB)” blokk csak akkor látszik, ha a backtest-pillanatkép betölt (külön render-ág kellene); a piac-tábla
+  „Csoport” oszlopa mobilon elhagyva; nincs screenshot (emulátor nélkül); a modell-chipek sok verziónál tördelődnek (választó?).
 
 - I17b: az „Élő (DB)” blokk csak KPI + piac-tábla; kalibrációs grafikon, ítélet-sáv és sikermutatók a DB-adatból még nincsenek; a
   modellverzió-választó a szekciófejben elcsúszva ül (saját sor / jobbra igazítás); csak sötét téma screenshot, adat nélküli
@@ -319,6 +321,11 @@ Kiértékelés „Élő (DB)” blokk (web) | (lásd git log: feat(ui): add live
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I17c kész (mobil).** A web `liveEvaluationView.ts` formázói (`ALL_MODELS`, `modelOptions`, `liveChips`, `liveMarketRows`) most
+  a core `evaluation/liveView.ts`-ben (index exportálja), a web `LiveEvaluation.tsx` onnan importál. Mobil: `evaluation.tsx` alján
+  `LiveEvaluation` (hook), `loadWithCache` + `evaluationCacheKey(model)` (`src/lib/storage.ts`), modellverzió-chipek, üres
+  állapot, offline-sáv; a lehúzás újratölti (`reload` számláló). Következő: I18 (Beállítások UI).
 
 - **I17b kész (web).** `/evaluation` alján `LiveEvaluation` (osztálykomponens, saját betöltés): `readApi.getEvaluation(model)`,
   modellverzió-`select` (`modelOptions`: '' = mind), `records === 0` → EmptyState, különben `KpiRow(kpis(bets))` + piac-tábla

@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Link, useFocusEffect } from 'expo-router';
-import type { BacktestResponse } from '@football/contract';
+import type { BacktestResponse, EvaluationSummaryResponse } from '@football/contract';
 import {
+	ALL_MODELS,
 	calibrationFlags,
 	EN_DASH,
 	EVAL_MARKETS,
@@ -15,7 +16,10 @@ import {
 	formatPercent,
 	formatPp,
 	goalRows,
+	liveChips,
+	liveMarketRows,
 	loadWithCache,
+	modelOptions,
 	roiInterval,
 	segmentOptions,
 	selectSegment,
@@ -26,11 +30,12 @@ import {
 	type VerdictTone
 } from '@football/core';
 import { apiClientFor, loadConnection } from '@/lib/connection';
-import { asyncKeyValueStorage, BACKTEST_CACHE_KEY } from '@/lib/storage';
+import { asyncKeyValueStorage, BACKTEST_CACHE_KEY, evaluationCacheKey } from '@/lib/storage';
 import { useRnTheme } from '@/lib/theme';
 
 // TODO(polish): kalibrációs diagram (pontok az átló körül) a táblázat helyett; pontossági (Brier/log-loss) és bontás-táblák.
 // TODO(polish): ROI-intervallum sáv grafikusan (a web `ciScale`-je alapján).
+// TODO(polish): az „Élő (DB)” blokk akkor is látsszon, ha a backtest-pillanatkép nem tölthető be.
 
 type State = { loading: boolean; result?: CachedResult<BacktestResponse>; missingUrl?: boolean };
 type Theme = ReturnType<typeof useRnTheme>;
@@ -43,9 +48,11 @@ export default function EvaluationScreen() {
 	const [state, setState] = useState<State>({ loading: true });
 	const [market, setMarket] = useState<BacktestMarket>('h2h');
 	const [segment, setSegment] = useState('all');
+	const [reload, setReload] = useState(0);
 
 	const load = useCallback(async () => {
 		setState((s) => ({ ...s, loading: true }));
+		setReload((n) => n + 1);
 		const connection = await loadConnection();
 		if (!connection.baseUrl) {
 			setState({ loading: false, missingUrl: true });
@@ -186,7 +193,105 @@ export default function EvaluationScreen() {
 						);
 					})}
 			</View>
+
+			<LiveEvaluation reload={reload} />
 		</ScrollView>
+	);
+}
+
+/**
+ * „Élő (DB)” blokk (ROADMAP 5.5, I17c): a kiértékelő job DB-eredményei (`GET /api/evaluation?model=`), a web I17b blokkjának
+ * párja; a formázók a core `liveView`-ból. Cache modellverziónként (`evaluationCacheKey`), a lehúzás (`reload`) újratölt.
+ */
+function LiveEvaluation({ reload }: { reload: number }) {
+	const t = useRnTheme();
+	const s = styles(t);
+	const [model, setModel] = useState(ALL_MODELS);
+	const [result, setResult] = useState<CachedResult<EvaluationSummaryResponse>>();
+
+	useEffect(() => {
+		let alive = true;
+		setResult(undefined);
+		void (async () => {
+			const connection = await loadConnection();
+			if (!connection.baseUrl) return;
+			const client = apiClientFor(connection);
+			const r = await loadWithCache(asyncKeyValueStorage, evaluationCacheKey(model), () =>
+				client.getEvaluation(model || undefined)
+			);
+			if (alive) setResult(r);
+		})();
+		return () => {
+			alive = false;
+		};
+	}, [model, reload]);
+
+	const data = result && result.source !== 'none' ? result.data : undefined;
+	const options = data ? modelOptions(data) : [{ value: model, label: model || 'Minden verzió' }];
+
+	return (
+		<View style={s.live}>
+			<Text style={s.section}>Élő (DB)</Text>
+			<Text style={s.muted}>
+				{data && data.records ? liveChips(data).join(' · ') : 'a kiértékelő job eredményei a tárolt predikciókon'}
+			</Text>
+			<View style={s.wrap}>
+				{options.map((o) => (
+					<Choice key={o.value} label={o.label} active={o.value === model} onPress={() => setModel(o.value)} />
+				))}
+			</View>
+			{!result ? (
+				<ActivityIndicator color={t.color.accent.default} />
+			) : result.source === 'none' ? (
+				<View style={s.card}>
+					<Text style={s.body2}>Nem sikerült betölteni: {errorText(result.error)}</Text>
+				</View>
+			) : (
+				<>
+					{result.source === 'cache' ? (
+						<Text style={s.offline}>offline – utolsó frissítés: {formatKickoff(new Date(result.savedAt))}</Text>
+					) : null}
+					{!result.data.records ? (
+						<View style={s.card}>
+							<Text style={s.title}>Még nincs élő kiértékelés</Text>
+							<Text style={s.body2}>
+								A lejátszott meccsek predikcióit a kiértékelő job pontozza; az első lefutás után itt látod a tippek találati
+								arányát, a hozamot és a Brier-pontszámot piaconként.
+							</Text>
+						</View>
+					) : (
+						<>
+							<Kpis bets={result.data.bets} />
+							<View style={s.card}>
+								<View style={s.calRow}>
+									{['Piac', 'Brier', 'Log-loss', 'Tipp', 'ROI'].map((h, i) => (
+										<Text key={h} style={[s.calCell, i === 0 && s.marketCell, s.muted]}>
+											{h}
+										</Text>
+									))}
+								</View>
+								{liveMarketRows(result.data).map((r) => (
+									<View key={r.key} style={s.calRow}>
+										<Text style={[s.calCell, s.marketCell, r.total && s.strong]}>{r.label}</Text>
+										<Text style={s.calCell}>{r.brier}</Text>
+										<Text style={s.calCell}>{r.logLoss}</Text>
+										<Text style={s.calCell}>{r.bets}</Text>
+										<Text
+											style={[
+												s.calCell,
+												r.roiTone ? { color: r.roiTone === 'positive' ? t.color.signal.positive : t.color.signal.negative } : null
+											]}
+										>
+											{r.roi}
+										</Text>
+									</View>
+								))}
+							</View>
+						</>
+					)}
+				</>
+			)}
+		</View>
 	);
 }
 
@@ -309,6 +414,9 @@ const styles = (t: Theme) =>
 			overflow: 'hidden'
 		},
 		calRow: { flexDirection: 'row', gap: t.space[2] },
+		live: { gap: t.space[4] },
+		marketCell: { flex: 1.6 },
+		strong: { fontWeight: '700' },
 		calCell: { flex: 1, color: t.color.text.primary, fontSize: t.font.size.small, fontVariant: ['tabular-nums'] },
 		title: { color: t.color.text.primary, fontSize: t.font.size.lead, fontWeight: '700' },
 		body: { color: t.color.text.primary, fontSize: t.font.size.body, textAlign: 'center' },

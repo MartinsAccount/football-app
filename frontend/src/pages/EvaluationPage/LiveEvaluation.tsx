@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { EvaluationSummary } from '@football/core';
+import { ALL_MODELS, EvaluationSummary, liveChips, liveMarketRows, modelOptions } from '@football/core';
 import { v } from '../../design/tokens/tokens';
 import EmptyState from '../../components/PageIntro/EmptyState';
 import { loadErrorText } from '../../components/PageIntro/RemoteData';
@@ -8,7 +8,6 @@ import { readApi } from '../../services/readApi';
 import { vars } from './CalibrationChart';
 import { KpiRow } from './EvaluationSections';
 import { kpis } from './evaluationView';
-import { ALL_MODELS, liveChips, liveMarketRows, modelOptions } from './liveEvaluationView';
 
 const LIVE_GRID = vars({ '--cols': 'minmax(0, 1.4fr) repeat(5, minmax(0, 1fr))', '--min': v('size.main-basis') });
 

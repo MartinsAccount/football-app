@@ -22,3 +22,6 @@ export const ARBITRAGE_CACHE_KEY = 'oe_cache_arbitrage';
 
 /** Meccsenkénti cache-kulcs a meccs-részlethez (`/api/fixtures/:id` + `/api/odds/:id/history`). */
 export const matchCacheKey = (fixtureId: number): string => `oe_cache_match_${fixtureId}`;
+
+/** Az utolsó sikeres `/api/evaluation?model=` válasz kulcsa, modellverziónként (üres = minden verzió). */
+export const evaluationCacheKey = (model: string): string => (model ? `oe_cache_evaluation_${model}` : 'oe_cache_evaluation');
