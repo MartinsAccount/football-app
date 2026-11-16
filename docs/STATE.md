@@ -178,7 +178,7 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
   keret-tónust (csak a sáv); a `/status` időpontja a Budapest-időt mutatja, a nap UTC.
 
 - I18f: mobilon nincs ligánkénti piac-felülírás UI (a core már átviszi); az ajánlás nem szűr a liga piacaira (csak a tárolás
-  `resolveStoredScope` és a becslés); a h2h/ou25/btts-en kívüli felülírás-elem a webes oda-vissza úton elveszik; csak sötét téma
+  `resolveStoredScope` és a becslés); csak sötét téma
   screenshot.
 
 - I18e: a UI nem jelzi, hogy egy ajánlás a szűrő miatt maradt el; a kiértékelés nem bontja szét a `teamFilterBlocked` sorokat; az

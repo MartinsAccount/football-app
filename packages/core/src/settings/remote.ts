@@ -47,12 +47,22 @@ const KEY_BY_ID = new Map(Object.entries(SETTINGS_MARKET_IDS).map(([k, id]) => [
 
 /**
  * `followed_league.markets` → piac-kulcsok (I18f). Elem: id szövegként („8”) vagy `market.code`; a h2h/ou25/btts-re nem
- * leképezhető elem kimarad (a webes felület csak ezt a hármat kezeli).
+ * leképezhető elem kimarad (a webes felület csak ezt a hármat kezeli) – az `extra` őrzi meg a mentéshez.
  */
-export const leagueMarketsFromRemote = (raw: readonly string[], markets: RemoteSettingsShape['markets']): SettingsMarketKey[] => {
+export const leagueMarketsFromRemote = (raw: readonly string[], markets: RemoteSettingsShape['markets']): SettingsMarketKey[] =>
+	splitLeagueMarkets(raw, markets).markets;
+
+/** Mint a `leagueMarketsFromRemote`, plusz a le nem képezhető elemek (`extra`), eredeti sorrendben. */
+export const splitLeagueMarkets = (
+	raw: readonly string[],
+	markets: RemoteSettingsShape['markets']
+): { markets: SettingsMarketKey[]; extra: string[] } => {
 	const byCode = new Map(markets.filter((m) => m.code != null).map((m) => [m.code as string, m.id]));
 	const keys = raw.map((x) => KEY_BY_ID.get(/^\d+$/.test(x) ? Number(x) : byCode.get(x) ?? -1));
-	return SETTINGS_MARKETS.map((m) => m.key).filter((k) => keys.includes(k));
+	return {
+		markets: SETTINGS_MARKETS.map((m) => m.key).filter((k) => keys.includes(k)),
+		extra: raw.filter((_, i) => keys[i] === undefined)
+	};
 };
 
 /**
@@ -68,7 +78,9 @@ export const settingsFromRemote = (remote: RemoteSettingsShape, fallback: ISetti
 		teamFilters: remote.teamFilters ?? fallback.teamFilters,
 		leagueMarkets: remote.followedLeagues.flatMap((l): ISettingsLeagueMarkets[] => {
 			if (l.markets === undefined) return fallback.leagueMarkets.filter((o) => o.leagueId === l.leagueId);
-			return l.markets === null ? [] : [{ leagueId: l.leagueId, markets: leagueMarketsFromRemote(l.markets, remote.markets) }];
+			if (l.markets === null) return [];
+			const { markets: keys, extra } = splitLeagueMarkets(l.markets, remote.markets);
+			return [{ leagueId: l.leagueId, markets: keys, ...(extra.length ? { extra } : {}) }];
 		}),
 		markets: SETTINGS_MARKETS.map((m) => m.key).filter(
 			(k) => markets.get(SETTINGS_MARKET_IDS[k]) ?? fallback.markets.includes(k)
@@ -106,6 +118,7 @@ export const settingsUpdateFrom = (
 	// Piac-felülírás (I18f): változott → `markets` (id szövegként, csak a DB-ben létező piacok; `null` = vissza a globálisra).
 	// Az `enabled` mindig megy vele, hogy egy még nem követett liga sora ne jöjjön létre követettként.
 	const override = (s: ISettings, id: number) => s.leagueMarkets.find((o) => o.leagueId === id)?.markets ?? null;
+	const extra = (s: ISettings, id: number) => s.leagueMarkets.find((o) => o.leagueId === id)?.extra ?? [];
 	const overrideIds = [...new Set([...saved.leagueMarkets, ...draft.leagueMarkets].map((o) => o.leagueId))].sort((a, b) => a - b);
 	const knownMarkets = new Set(remote.markets.map((m) => m.id));
 	for (const id of overrideIds) {
@@ -115,12 +128,14 @@ export const settingsUpdateFrom = (
 		upsert.set(id, {
 			leagueId: id,
 			enabled: draft.leagues.includes(id),
-			markets:
-				after &&
-				after
+			markets: after && [
+				...after
 					.map((k) => SETTINGS_MARKET_IDS[k])
 					.filter((m) => knownMarkets.has(m))
-					.map(String)
+					.map(String),
+				// A felületen nem kezelt elemek változatlanul visszamennek (különben a PUT csendben törölné őket).
+				...extra(draft, id)
+			]
 		});
 	}
 	if (upsert.size) out.followedLeagues = { upsert: [...upsert.values()] };

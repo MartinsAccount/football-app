@@ -127,6 +127,8 @@ export interface ISettingsTeamFilter {
 export interface ISettingsLeagueMarkets {
 	leagueId: number;
 	markets: SettingsMarketKey[];
+	/** A szerver felülírásának a h2h/ou25/btts-re nem leképezhető elemei (id/kód szövegként): mentéskor változatlanul visszamennek. */
+	extra?: string[];
 }
 
 export interface ISettings {
@@ -201,17 +203,21 @@ export const withTeamFilter = (
 /** Érvényes piac-felülírások: pozitív egész liga-id, ismert piacok (katalógus-sorrendben); ugyanarra a ligára az utolsó nyer. */
 const leagueMarkets = (xs: unknown): ISettingsLeagueMarkets[] | null => {
 	if (!Array.isArray(xs)) return null;
-	const byLeague = new Map<number, SettingsMarketKey[]>();
+	const byLeague = new Map<number, ISettingsLeagueMarkets>();
 	for (const x of xs) {
-		const o = (x && typeof x === 'object' ? x : {}) as { leagueId?: unknown; markets?: unknown };
+		const o = (x && typeof x === 'object' ? x : {}) as { leagueId?: unknown; markets?: unknown; extra?: unknown };
 		const markets = o.markets;
-		if (Number.isInteger(o.leagueId) && (o.leagueId as number) > 0 && Array.isArray(markets))
-			byLeague.set(
-				o.leagueId as number,
-				SETTINGS_MARKETS.map((m) => m.key).filter((k) => markets.includes(k))
-			);
+		if (Number.isInteger(o.leagueId) && (o.leagueId as number) > 0 && Array.isArray(markets)) {
+			const leagueId = o.leagueId as number;
+			const extra = Array.isArray(o.extra) ? o.extra.filter((e): e is string => typeof e === 'string') : [];
+			byLeague.set(leagueId, {
+				leagueId,
+				markets: SETTINGS_MARKETS.map((m) => m.key).filter((k) => markets.includes(k)),
+				...(extra.length ? { extra } : {})
+			});
+		}
 	}
-	return [...byLeague].sort((a, b) => a[0] - b[0]).map(([leagueId, markets]) => ({ leagueId, markets }));
+	return [...byLeague].sort((a, b) => a[0] - b[0]).map(([, o]) => o);
 };
 
 /** A liga piac-felülírása; `null` = a globális piaclista érvényes. */
@@ -222,13 +228,20 @@ export const leagueMarketOverride = (s: Pick<ISettings, 'leagueMarkets'>, league
 export const effectiveLeagueMarkets = (s: Pick<ISettings, 'leagueMarkets' | 'markets'>, leagueId: number): SettingsMarketKey[] =>
 	leagueMarketOverride(s, leagueId) ?? s.markets;
 
-/** Piac-felülírás beállítása (`null` = vissza a globálisra); liga-id szerint rendezett, új tömb. */
+/**
+ * Piac-felülírás beállítása (`null` = vissza a globálisra, ilyenkor az `extra` is elvész); liga-id szerint rendezett, új tömb.
+ * A meglévő felülírás `extra` elemei (a felületen nem kezelt piacok) megmaradnak.
+ */
 export const withLeagueMarkets = (
 	overrides: readonly ISettingsLeagueMarkets[],
 	leagueId: number,
 	markets: readonly SettingsMarketKey[] | null
-): ISettingsLeagueMarkets[] =>
-	leagueMarkets([...overrides.filter((l) => l.leagueId !== leagueId), ...(markets ? [{ leagueId, markets }] : [])]) ?? [];
+): ISettingsLeagueMarkets[] => {
+	const extra = overrides.find((l) => l.leagueId === leagueId)?.extra;
+	return (
+		leagueMarkets([...overrides.filter((l) => l.leagueId !== leagueId), ...(markets ? [{ leagueId, markets, extra }] : [])]) ?? []
+	);
+};
 
 export type NumberField = keyof typeof NUMBER_LIMITS;
 

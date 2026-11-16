@@ -139,7 +139,7 @@ describe('league market overrides (I18f)', () => {
 
 	it('maps id strings and market codes to keys; null = global, [] = none; old server keeps the local overrides', () => {
 		expect(settingsFromRemote(withMarkets).leagueMarkets).toEqual([
-			{ leagueId: 78, markets: ['h2h', 'btts'] },
+			{ leagueId: 78, markets: ['h2h', 'btts'], extra: ['unknown'] },
 			{ leagueId: 140, markets: [] }
 		]);
 		const local = { ...DEFAULT_SETTINGS, leagueMarkets: [{ leagueId: 39, markets: ['ou25' as const] }] };
@@ -164,6 +164,17 @@ describe('league market overrides (I18f)', () => {
 			{ leagueId: 78, enabled: false },
 			{ leagueId: 140, enabled: false, markets: ['8'] }
 		]);
+	});
+
+	it('keeps the unhandled override items on save (no silent data loss); reset to global drops them', () => {
+		const saved = settingsFromRemote(withMarkets);
+		const draft = { ...saved, leagueMarkets: withLeagueMarkets(saved.leagueMarkets, 78, ['btts']) };
+		expect(draft.leagueMarkets.find((o) => o.leagueId === 78)).toEqual({ leagueId: 78, markets: ['btts'], extra: ['unknown'] });
+		expect(settingsUpdateFrom(saved, draft, withMarkets)?.followedLeagues?.upsert).toEqual([
+			{ leagueId: 78, enabled: true, markets: ['8', 'unknown'] }
+		]);
+		expect(sanitizeSettings(JSON.parse(JSON.stringify(draft))).leagueMarkets).toEqual(draft.leagueMarkets);
+		expect(withLeagueMarkets(draft.leagueMarkets, 78, null).find((o) => o.leagueId === 78)).toBeUndefined();
 	});
 
 	it('sanitize keeps valid overrides; effective markets and the storage estimate follow the override', () => {
