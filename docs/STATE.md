@@ -47,8 +47,7 @@ Floodlight v0.2 redesign: lezárva.
 25. ~~I18f – 2.3 ligánkénti piac-felülírás UI (web)~~ kész (core `ISettings.leagueMarkets`, `LeagueMarkets.tsx`).
 26. ~~I19 – 2.4 Budget-panel~~ kész (`GET /api/budget` jobs/status/cron, core `budgetView`, web `BudgetChip` a fejlécben).
 27. ~~I20 – 5.7 Odds-history nézet (web)~~ kész (`/match/:id`, core `odds/matchView`).
-28. I20b – Ajánlás/arbitrázs pillanatkép DB fixture-id-val: a `recommendations`/`arbitrage` generátor (packages/db/scripts) a
-    CSV-sorszám helyett a párosított DB `fixture.id`-t írja (S11b párosítás), így a TipCard „Odds-mozgás” linkje működik.
+28. ~~I20b – pillanatkép DB fixture-id-val~~ kész (`src/import/csvFixtureIds.ts`, S11b-párosítás).
 29. I21 – Budget-panel mobilon (a core `budgetView` kész; Beállítások vagy fejléc).
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
@@ -169,22 +168,20 @@ git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.
 /api/evaluation?model=`, contract `getEvaluation`; terv `docs/plans/evaluation-db-api.md`| | I17b – Kiértékelés „Élő (DB)” blokk (web) | (lásd git log: feat(ui): add live DB evaluation block) |`EvaluationPage/LiveEvaluation.tsx`, `liveEvaluationView.ts`(+teszt), Vite-proxy`/api/evaluation`; screenshot `docs/plans/screens/I17b-evaluation-dark-{1440,390}.png`| | I17c – „Élő (DB)” blokk (mobil) | (lásd git log: feat(mobile): add live DB evaluation block) | core`evaluation/liveView.ts`(+teszt, a web`liveEvaluationView.ts`-ből emelve), mobil `evaluation.tsx` `LiveEvaluation`, `evaluationCacheKey(model)`; screenshot nincs (emulátor nélkül) | | I18a – Beállítások ↔ settings-API (web) | (lásd git log: feat(ui): sync settings page with the settings API) | core `settings/remote.ts` (`settingsFromRemote`, `settingsUpdateFrom`, `SETTINGS_MARKET_IDS`; +teszt), `SettingsStore` `ISettingsRemote`+`syncStatus`/`saving`/`saveError`, MainStore → `readApi`, Vite-proxy `/api/settings`→ :5100, szinkron-pill + SaveBar-hiba; terv`docs/plans/i18-settings-ui.md`; screenshot `docs/plans/screens/I18a-settings-dark-{1440,390}.png`| | I18b – Liga-katalógus a Beállításokban | a9ac420 (server) + (lásd git log: feat(ui): list leagues from the league catalog API) | server`leagues.ts` (`loadLeagueCatalog`, `toCoverageDto`; +PGlite-teszt), router `GET
 /api/leagues`, contract `LeagueDto`/`listLeagues`; core `leagueCatalog`(kézi jelöltek + DB csapatszám/coverage + adatos/követett DB-ligák),`estimateSettings(s,
 catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e`null`, `sanitizeSettings`bármely pozitív egész liga-id-t elfogad;`SettingsStore.loadCatalog`/`leagues`; Vite-proxy `leagues`; screenshot `docs/plans/screens/I18b-settings-dark-{1440,390}.png`| | I18c – Csapatszűrő (web) | 01e47fd (server) + (lásd git log: feat(ui): add team filter to the settings page) | server`loadLeagueTeams`+ router`GET
-/api/leagues/:id/teams`(season_team → fixture-tartalék, osztályozó nélkül), contract`LeagueTeamDto`/`LeagueTeamsResponse`/`listLeagueTeams`; a katalógus csapatszáma már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); core `ISettings.teamFilters`, `teamFilterMode`, `withTeamFilter`, remote diff (upsert/remove); web `SettingsStore` `teamsByLeague`/`loadTeams`/`setTeamFilter`, `TeamFilter.tsx`(Mind/Csak/Kizár szegmens), új szekció „Csapatszűrő”; screenshot`docs/plans/screens/I18c-settings-dark-{1440,390}.png`| | I18d – Mobil Beállítások ↔ API | (lásd git log: feat(mobile): sync preferences with the settings API) |`PreferencesProvider`: `sync()`(GET`/api/settings`+`/api/leagues`, fókuszkor is), `saveSettings` PUT csak a diffet (`settingsUpdateFrom`), AsyncStorage gyorsítótár; `syncStatus`sor a képernyő tetején; Ligák a core`leagueCatalog`-ból, a becslés ezzel; új `components/TeamFilterSection.tsx`(Mind/Csak/Kizár,`listLeagueTeams`) | | I18e – Csapatszűrő alkalmazása | (lásd git log: feat: apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `teamFilterAllows`, `NO_TEAM_FILTER`); planner `PlannerInput.teamFilter`→`odds\*\*`/`injuries`csak megengedett meccsre; db`SqlSettingsRepository.loadTeamFilterIndex()` (`season_team`∪`fixture`), `loadPlannerInput`hozza; server`runPredictions`: kiszűrt meccsen nincs ajánlás, naplózás marad (`features.teamFilterBlocked`) | | I18f – Ligánkénti piac-felülírás (web) | (lásd git log: feat(ui): league market overrides) | core `ISettings.leagueMarkets`+`remote.ts`leképezés (tesztek), store`setLeagueMarkets`/`toggleLeagueMarket`, `LeagueMarkets.tsx`; screenshot `docs/plans/screens/I18f-settings-dark-{1440,390}.png`
-| I19 – 2.4 Budget-panel | `acb8bb2` (server/core) + feat(ui): budget panel | `GET /api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png` |
-| I20 – 5.7 Odds-history (web) | `056c327` | core `odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png` |
-|
+/api/leagues/:id/teams`(season_team → fixture-tartalék, osztályozó nélkül), contract`LeagueTeamDto`/`LeagueTeamsResponse`/`listLeagueTeams`; a katalógus csapatszáma már nem számolja a „Relegation Round” meccseket (Bundesliga/Ligue 1: 18); core `ISettings.teamFilters`, `teamFilterMode`, `withTeamFilter`, remote diff (upsert/remove); web `SettingsStore` `teamsByLeague`/`loadTeams`/`setTeamFilter`, `TeamFilter.tsx`(Mind/Csak/Kizár szegmens), új szekció „Csapatszűrő”; screenshot`docs/plans/screens/I18c-settings-dark-{1440,390}.png`| | I18d – Mobil Beállítások ↔ API | (lásd git log: feat(mobile): sync preferences with the settings API) |`PreferencesProvider`: `sync()`(GET`/api/settings`+`/api/leagues`, fókuszkor is), `saveSettings` PUT csak a diffet (`settingsUpdateFrom`), AsyncStorage gyorsítótár; `syncStatus`sor a képernyő tetején; Ligák a core`leagueCatalog`-ból, a becslés ezzel; új `components/TeamFilterSection.tsx`(Mind/Csak/Kizár,`listLeagueTeams`) | | I18e – Csapatszűrő alkalmazása | (lásd git log: feat: apply team filter) | core `settings/teamFilter.ts` (`buildTeamFilterIndex`, `teamFilterAllows`, `NO_TEAM_FILTER`); planner `PlannerInput.teamFilter`→`odds\*\*`/`injuries`csak megengedett meccsre; db`SqlSettingsRepository.loadTeamFilterIndex()` (`season_team`∪`fixture`), `loadPlannerInput`hozza; server`runPredictions`: kiszűrt meccsen nincs ajánlás, naplózás marad (`features.teamFilterBlocked`) | | I18f – Ligánkénti piac-felülírás (web) | (lásd git log: feat(ui): league market overrides) | core `ISettings.leagueMarkets`+`remote.ts`leképezés (tesztek), store`setLeagueMarkets`/`toggleLeagueMarket`, `LeagueMarkets.tsx`; screenshot `docs/plans/screens/I18f-settings-dark-{1440,390}.png`| I19 – 2.4 Budget-panel |`acb8bb2`(server/core) + feat(ui): budget panel |`GET
+/api/budget` jobonként/`/status`/cron, core `budgetView`, web `BudgetChip`; screenshot `docs/plans/screens/i19-budget-{dark,light}-{1440,390}.png`| | I20b – pillanatkép DB fixture-id | fix(db): snapshot fixture ids |`csvFixtureIds.ts` (`loadCsvFixtureIds`, `fixtureIdFor`, teszt); újragenerált `recommendations-v0`/`arbitrage-v0`(csak`fixtureId`változott); backtest bájtra azonos | | I20 – 5.7 Odds-history (web) |`056c327`| core`odds/matchView` (`withoutAggregateQuotes`, `bookmakerName`, `selectionResult`, `matchResultText`, `peakPoint`, `sparkline`), `formatDateTime`; web `pages/MatchPage` (`/match/:id`), TipCard link; screenshot `docs/plans/screens/i20-match-{dark,light}-{1440,390}.png`
+| |
 
 ## Polish backlog
 
 - I20: sparkline pontjelölő/tooltip nélkül, kimenetenként külön y-skála; a TipCard link sima `<a>` (teljes újratöltés); a
-  pillanatkép-lista forrás (`source`) nélkül; nincs vissza-link; az ajánlás-pillanatkép id-ja nem DB-id → 404 (I20b).
+  pillanatkép-lista forrás (`source`) nélkül; nincs vissza-link.
 
 - I19: a Budget-panel kívül kattintásra nem zár, nyitva nem frissül magától; mobilon nincs; a pötty színe nem követi a
   keret-tónust (csak a sáv); a `/status` időpontja a Budapest-időt mutatja, a nap UTC.
 
 - I18f: mobilon nincs ligánkénti piac-felülírás UI (a core már átviszi); az ajánlás nem szűr a liga piacaira (csak a tárolás
-  `resolveStoredScope` és a becslés); csak sötét téma
-  screenshot.
+  `resolveStoredScope` és a becslés); csak sötét téma screenshot.
 
 - I18e: a UI nem jelzi, hogy egy ajánlás a szűrő miatt maradt el; a kiértékelés nem bontja szét a `teamFilterBlocked` sorokat; az
   include-liga a csapat összes (régi) ligáját is érinti (kupa, kiesés előtti liga) – szezonra szűkíthető.
@@ -353,8 +350,14 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
-- **I20 kész.** Web `/match/:id` (`pages/MatchPage/MatchPage.tsx` + `OddsSparkline.tsx`): `getFixture` + `getOddsHistory`
-  (+ `getSettings` az iroda-nevekhez, hibánál core katalógus). Core `odds/matchView.ts` (ál-irodák kiszűrése, elszámolás a
+- **I20b kész.** A `recommendations`/`arbitrage` generátor a `packages/db/src/import/csvFixtureIds.ts`-sel (S11b `matchCsvRows` a
+  mentett `data/history/api-football` fájlokon, DB nélkül) a DB/API-Football meccs-id-t írja (pl. 866 → 1224234 Bochum–Augsburg).
+  Párosítatlan célsor → hiba. Csak a `fixtureId` mezők változtak (2 ajánlás, 88 arbitrázs-meccs, sorrend azonos); mind a 88 id
+  megvan a `.data/pglite`-ban (másolaton ellenőrizve). Backtest bájtra azonos. A böngészőben mentett szelvény régi id-kat tarthat
+  (localStorage) — ürítés után rendben. Következő: I21.
+
+- **I20 kész.** Web `/match/:id` (`pages/MatchPage/MatchPage.tsx` + `OddsSparkline.tsx`): `getFixture` + `getOddsHistory` (+
+  `getSettings` az iroda-nevekhez, hibánál core katalógus). Core `odds/matchView.ts` (ál-irodák kiszűrése, elszámolás a
   végeredményből, sparkline-geometria), `formatDateTime`. A TipCard lenyitott részén link; a pillanatkép-id-k nem DB-id-k → 404
   üzenet, javítás: I20b. Screenshot: a `.data/pglite` scratchpad-másolatán futó szerver, `/match/1208338` (Man City – Palace).
   Következő: I20b.

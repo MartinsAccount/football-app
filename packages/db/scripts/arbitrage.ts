@@ -1,15 +1,18 @@
 // Arbitrázs-pillanatkép (S23, ROADMAP 8.1): a mentett football-data CSV „nyitó” oddsaiból irodák közti
 // arbitrázs-pásztázás 1X2-re és Gól 2,5-re, a core `scanMarket`-tel. 0 élő hívás, nincs DB, determinisztikus.
 // Futtatás: `npm run arbitrage -w @football/db` → `data/arbitrage/arbitrage-v0.json`.
+// A `fixtureId` a DB (API-Football) meccs-id-ja az S11b-párosításból (I20b).
 // TODO(polish): DB `odds_snapshot`-ból (api-football `early`/`late`), a beállított ligákra/irodákra (ROADMAP 8.1/8.3).
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { scanMarket, type ArbitrageFixture, type ArbitrageQuote, type ArbitrageSnapshot } from '@football/core';
+import { fixtureIdFor, loadCsvFixtureIds } from '../src/import/csvFixtureIds';
 import { csvKickoffUtc, OPENING_OFFSET_MS, parseFootballDataCsv } from '../src/import/footballData';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const CSV_DIR = join(ROOT, 'data', 'history', 'football-data');
+const API_DIR = join(ROOT, 'data', 'history', 'api-football');
 const OUT_DIR = join(ROOT, 'data', 'arbitrage');
 const OUT_JSON = join(OUT_DIR, 'arbitrage-v0.json');
 
@@ -58,18 +61,18 @@ const MARKETS = [
 ];
 
 const fixtures: ArbitrageFixture[] = [];
+const CSV_FILES = /^[A-Z0-9]+-2425\.csv$/;
+const dbFixtureIds = loadCsvFixtureIds(CSV_DIR, API_DIR, CSV_FILES);
 const files = readdirSync(CSV_DIR)
-	.filter((f) => /^[A-Z0-9]+-2425\.csv$/.test(f))
+	.filter((f) => CSV_FILES.test(f))
 	.sort();
-let id = 0;
 for (const file of files) {
 	const div = file.split('-')[0];
 	for (const row of parseFootballDataCsv(readFileSync(join(CSV_DIR, file), 'utf8'))) {
-		id++;
 		const kickoff = csvKickoffUtc(row.date, row.time);
 		if (kickoff <= NOW || kickoff >= UNTIL) continue;
 		fixtures.push({
-			fixtureId: id,
+			fixtureId: fixtureIdFor(dbFixtureIds, row),
 			league: LEAGUE_NAME[div] ?? div,
 			kickoff,
 			home: row.home,
@@ -92,7 +95,8 @@ for (const file of files) {
 		});
 	}
 }
-fixtures.sort((a, b) => a.kickoff.localeCompare(b.kickoff) || a.fixtureId - b.fixtureId);
+// Stabil rendezés kezdésre: azonos kezdésnél a CSV-sorrend marad (a DB-id nem sorrend-kulcs).
+fixtures.sort((a, b) => a.kickoff.localeCompare(b.kickoff));
 
 const snapshot: ArbitrageSnapshot = {
 	generatedAt: NOW, // determinisztikus kimenet (a 2. futás nem változtat a fájlon)

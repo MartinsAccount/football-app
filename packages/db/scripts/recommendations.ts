@@ -1,7 +1,8 @@
 // Ajánlás-pillanatkép (S18, ROADMAP 5.4): egy mentett hétvége (2025-04-12/13, top 5 liga) meccseire `elo-poisson` predikció +
 // piaci kombinálás + §5 szűrők, a football-data CSV-kből. 0 élő hívás, nincs DB, determinisztikus.
 // Futtatás: `npm run recommendations -w @football/db` → `data/recommendations/recommendations-v0.json`.
-// TODO(polish): DB-ből (prediction_run/prediction) olvasni, ha a 5.2 predikció-pipeline kész; API-Football csapatnevek és fixture-id.
+// A `fixtureId` a DB (API-Football) meccs-id-ja az S11b-párosításból (I20b), így a TipCard `/match/:id` linkje működik.
+// TODO(polish): DB-ből (prediction_run/prediction) olvasni, ha a 5.2 predikció-pipeline kész; API-Football csapatnevek.
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,10 +28,12 @@ import {
 	type SnapshotTeam,
 	type StandingRow
 } from '@football/core';
-import { csvKickoffUtc, parseFootballDataCsv } from '../src/import/footballData';
+import { fixtureIdFor, loadCsvFixtureIds } from '../src/import/csvFixtureIds';
+import { csvKickoffUtc, parseFootballDataCsv, type CsvMatchRow } from '../src/import/footballData';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const CSV_DIR = join(ROOT, 'data', 'history', 'football-data');
+const API_DIR = join(ROOT, 'data', 'history', 'api-football');
 const OUT_DIR = join(ROOT, 'data', 'recommendations');
 const OUT_JSON = join(OUT_DIR, 'recommendations-v0.json');
 
@@ -66,6 +69,7 @@ interface CsvMatch extends PlayedMatch {
 	season: number;
 	odds: Record<string, number>;
 	played: boolean;
+	row: CsvMatchRow;
 }
 
 const teamIds = new Map<string, number>();
@@ -94,11 +98,13 @@ for (const file of readdirSync(CSV_DIR)
 			played: row.goalsHome !== null && row.goalsAway !== null,
 			league: div,
 			season: 2000 + Number(yy.slice(0, 2)),
-			odds: row.odds
+			odds: row.odds,
+			row
 		});
 	}
 }
 
+const dbFixtureIds = loadCsvFixtureIds(CSV_DIR, API_DIR);
 const nowMs = Date.parse(NOW);
 // Pont-idejű: csak a „most” előtt lejátszott meccsek látszanak (a szombati eredmények a vasárnapi predikciónál sem).
 const history = all.filter((m) => m.played && Date.parse(m.kickoff) < nowMs).sort((a, b) => a.kickoff.localeCompare(b.kickoff));
@@ -186,7 +192,7 @@ for (const m of targets) {
 	if (!pick) continue;
 	const factorTexts = pred.explanation.map((f) => f.text);
 	items.push({
-		fixtureId: m.id,
+		fixtureId: fixtureIdFor(dbFixtureIds, m.row),
 		league: LEAGUE_NAME[m.league] ?? m.league,
 		leagueSize: table.length,
 		kickoff: m.kickoff,
