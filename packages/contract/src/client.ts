@@ -8,6 +8,7 @@ import type {
 	FixtureResponse,
 	FixturesResponse,
 	LeaguesResponse,
+	LeagueTeamsResponse,
 	OddsHistoryResponse,
 	OddsResponse,
 	RecommendationsResponse,
@@ -71,6 +72,8 @@ export interface ApiClient {
 	updateSettings(update: SettingsUpdate): Promise<SettingsResponse>;
 	/** A liga-katalógus (`league` + aktuális `season` + `coverage` + csapatszám). */
 	listLeagues(): Promise<LeaguesResponse>;
+	/** Egy liga csapatai (a csapatszűrőhöz); ismeretlen liga → üres lista. */
+	listLeagueTeams(leagueId: number): Promise<LeagueTeamsResponse>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -148,6 +151,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 		getArbitrage: () => get<ArbitrageResponse>('/api/arbitrage'),
 		getSettings: () => get<SettingsResponse>('/api/settings'),
 		updateSettings: (update) => request<SettingsResponse>('PUT', '/api/settings', update),
-		listLeagues: () => get<LeaguesResponse>('/api/leagues')
+		listLeagues: () => get<LeaguesResponse>('/api/leagues'),
+		listLeagueTeams: (leagueId) => get<LeagueTeamsResponse>(`/api/leagues/${encodeURIComponent(String(leagueId))}/teams`)
 	};
 }

@@ -202,7 +202,7 @@ export interface LeagueDto {
 	logoUrl: string | null;
 	/** Aktuális szezon: `is_current`, ennek hiányában a legnagyobb év; `null`, ha nincs szezon-sor. */
 	season: number | null;
-	/** Csapatszám: a `season_team`-ből (legutóbbi kitöltött szezon), ennek hiányában a meccsek csapataiból; `null` = ismeretlen. */
+	/** Csapatszám: a `season_team`-ből (legutóbbi kitöltött szezon), ennek hiányában a meccsek csapataiból (osztályozó nélkül); `null` = ismeretlen. */
 	teamCount: number | null;
 	/** Az aktuális szezon lefedettsége; `null` = nincs tárolt coverage (nem találunk ki). */
 	coverage: LeagueCoverageDto | null;
@@ -211,6 +211,23 @@ export interface LeagueDto {
 /** `GET /api/leagues` (I18b): a liga-katalógus név szerint rendezve. */
 export interface LeaguesResponse {
 	leagues: LeagueDto[];
+}
+
+/** Egy csapat a liga csapatlistájából (`team` tábla). */
+export interface LeagueTeamDto {
+	id: number;
+	name: string;
+	logoUrl: string | null;
+}
+
+/**
+ * `GET /api/leagues/:id/teams` (I18c): a liga csapatai név szerint – a `season_team` legutóbbi kitöltött szezonjából, ennek
+ * hiányában a meccsek legutóbbi szezonjából (osztályozó nélkül). `season: null` + üres lista = nincs adat.
+ */
+export interface LeagueTeamsResponse {
+	leagueId: number;
+	season: number | null;
+	teams: LeagueTeamDto[];
 }
 
 /** `PUT /api/settings` törzse: minden ág opcionális; érvénytelen elem → 400, és semmi sem íródik. */

@@ -30,6 +30,8 @@ export type {
 	LeagueCoverageDto,
 	LeagueDto,
 	LeaguesResponse,
+	LeagueTeamDto,
+	LeagueTeamsResponse,
 	ApiErrorCode,
 	ApiErrorBody
 } from './dto';

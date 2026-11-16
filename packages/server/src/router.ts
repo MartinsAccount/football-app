@@ -12,6 +12,7 @@ import type {
 	FixturesResponse,
 	LeagueDto,
 	LeaguesResponse,
+	LeagueTeamsResponse,
 	OddsHistoryResponse,
 	OddsResponse,
 	SettingsResponse
@@ -40,6 +41,8 @@ export interface ApiDeps {
 	evaluations?: () => Promise<EvaluationRecord[]>;
 	/** Liga-katalógus (`GET /api/leagues`, I18b): `loadLeagueCatalog(db)`. Hiányában 404. */
 	leagues?: () => Promise<LeagueDto[]>;
+	/** Egy liga csapatai (`GET /api/leagues/:id/teams`, I18c): `loadLeagueTeams(db, id)`. Hiányában 404. */
+	leagueTeams?: (leagueId: number) => Promise<LeagueTeamsResponse>;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -196,6 +199,14 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 			if (path === '/api/leagues') {
 				if (!deps.leagues) return fail(404, 'not-found', 'A liga-katalógus nincs bekötve');
 				return json(200, { leagues: await deps.leagues() } satisfies LeaguesResponse);
+			}
+
+			const leagueTeams = /^\/api\/leagues\/([^/]+)\/teams$/.exec(path);
+			if (leagueTeams) {
+				if (!deps.leagueTeams) return fail(404, 'not-found', 'A csapatlista nincs bekötve');
+				if (!/^\d+$/.test(leagueTeams[1]) || Number(leagueTeams[1]) < 1)
+					throw new BadRequest('a liga-id pozitív egész szám legyen');
+				return json(200, (await deps.leagueTeams(Number(leagueTeams[1]))) satisfies LeagueTeamsResponse);
 			}
 
 			const snapshot = /^\/api\/(recommendations|backtest|arbitrage)$/.exec(path);
