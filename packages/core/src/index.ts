@@ -37,6 +37,7 @@ export * from './storage/keyValue';
 export * from './storage/cachedResponse';
 export * from './storage/storedScope';
 export * from './settings/settings';
+export * from './settings/remote';
 export * from './theme/theme';
 export * from './backtest/backtest';
 export * from './recommend/recommend';

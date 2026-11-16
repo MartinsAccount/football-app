@@ -1,5 +1,6 @@
 import { reaction } from 'mobx';
 import { DEFAULT_SETTINGS, ISettings } from '../pages/SettingsPage/settingsView';
+import type { RemoteSettingsShape, RemoteSettingsUpdate } from '@football/core';
 import { ISettingsStorage, SettingsStore } from './SettingsStore';
 import { memorySlipStorage, SlipStore } from './SlipStore';
 
@@ -80,5 +81,78 @@ describe('SettingsStore', () => {
 		settings.save();
 		expect(slip.stakeOptions).toEqual([1000, 2000, 4000, 10000]);
 		expect(slip.stake).toBe(2000);
+	});
+
+	describe('with the settings API (I18a)', () => {
+		const response = (over: Partial<RemoteSettingsShape> = {}): RemoteSettingsShape => ({
+			values: { evThreshold: 0.05, minOdds: 1.3, maxOdds: 5, stakeUnit: 2000, backfillReserve: 10, retention: 'opening-closing' },
+			followedLeagues: [{ leagueId: 39, enabled: true }],
+			markets: [{ id: 1, stored: true }],
+			bookmakers: [{ id: 8, stored: true }],
+			...over
+		});
+
+		it('loads the server state as saved, caches it locally, and PUTs only the diff', async () => {
+			const storage = memory({ leagues: [140] });
+			const sent: RemoteSettingsUpdate[] = [];
+			const store = new SettingsStore(storage, {
+				load: async () => response(),
+				update: async (u) => {
+					sent.push(u);
+					return response({
+						followedLeagues: [
+							{ leagueId: 39, enabled: true },
+							{ leagueId: 140, enabled: true }
+						]
+					});
+				}
+			});
+			expect(store.syncStatus).toBe('loading');
+			await store.sync();
+			expect(store.syncStatus).toBe('synced');
+			expect(store.saved.leagues).toEqual([39]);
+			expect(store.draft.stakeUnit).toBe(2000);
+			expect((storage.saved() as ISettings).leagues).toEqual([39]);
+
+			store.toggleLeague(140);
+			await store.save();
+			expect(sent).toEqual([{ followedLeagues: { upsert: [{ leagueId: 140, enabled: true }] } }]);
+			expect(store.saved.leagues).toEqual([39, 140]);
+			expect(store.dirty).toBe(false);
+		});
+
+		it('keeps the draft and reports the error when the PUT fails', async () => {
+			const store = new SettingsStore(memory(), {
+				load: async () => response(),
+				update: async () => {
+					throw new Error('ismeretlen liga');
+				}
+			});
+			await store.sync();
+			store.toggleLeague(140);
+			await store.save();
+			expect(store.saveError).toBe('ismeretlen liga');
+			expect(store.dirty).toBe(true);
+			expect(store.saving).toBe(false);
+		});
+
+		it('falls back to local-only saving when the server is unreachable', async () => {
+			const storage = memory({ leagues: [140] });
+			const store = new SettingsStore(storage, {
+				load: async () => {
+					throw new Error('offline');
+				},
+				update: async () => {
+					throw new Error('unreachable');
+				}
+			});
+			await store.sync();
+			expect(store.syncStatus).toBe('offline');
+			expect(store.saved.leagues).toEqual([140]);
+			store.toggleLeague(39);
+			await store.save();
+			expect(store.saveError).toBeNull();
+			expect((storage.saved() as ISettings).leagues).toEqual([39, 140]);
+		});
 	});
 });

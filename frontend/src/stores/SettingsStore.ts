@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx';
+import { action, computed, flow, observable } from 'mobx';
 import {
 	estimateSettings,
 	ISettings,
@@ -14,6 +14,10 @@ import {
 	loadStoredSync,
 	saveStoredSync,
 	settingsCodec,
+	settingsFromRemote,
+	settingsUpdateFrom,
+	RemoteSettingsShape,
+	RemoteSettingsUpdate,
 	stakeOptions
 } from '@football/core';
 import { webStorage } from '../shared/storage/webStorage';
@@ -36,6 +40,15 @@ export const localSettingsStorage: ISettingsStorage = {
 	}
 };
 
+/** A szerver `GET/PUT /api/settings` (I3) – a web a `readApi`-val köti be (MainStore); tesztben hamisítvány. */
+export interface ISettingsRemote {
+	load(): Promise<RemoteSettingsShape>;
+	update(update: RemoteSettingsUpdate): Promise<RemoteSettingsShape>;
+}
+
+/** `off`: nincs szerver bekötve · `loading` · `synced`: a szerver az igazság · `offline`: nem érhető el, csak localStorage. */
+export type SettingsSyncStatus = 'off' | 'loading' | 'synced' | 'offline';
+
 const toggle = <T>(xs: T[], x: T): T[] => (xs.includes(x) ? xs.filter((y) => y !== x) : [...xs, x]);
 
 /**
@@ -46,11 +59,34 @@ const toggle = <T>(xs: T[], x: T): T[] => (xs.includes(x) ? xs.filter((y) => y !
 export class SettingsStore {
 	@observable.ref saved: ISettings;
 	@observable.ref draft: ISettings;
+	@observable syncStatus: SettingsSyncStatus = 'off';
+	@observable saving = false;
+	@observable saveError: string | null = null;
+	/** Az utolsó szerver-válasz (a PUT-diffhez: mely piac/iroda sor létezik a DB-ben). */
+	private remoteState: RemoteSettingsShape | null = null;
 
-	constructor(private storage: ISettingsStorage = localSettingsStorage) {
+	constructor(private storage: ISettingsStorage = localSettingsStorage, private remote?: ISettingsRemote) {
 		this.saved = sanitizeSettings(storage.load());
 		this.draft = this.saved;
+		if (remote) this.sync();
 	}
+
+	/** Szerver-állapot betöltése; a localStorage gyorsítótár marad (első festés, offline). Szerkesztett piszkozatot nem ír felül. */
+	sync = flow(function* (this: SettingsStore) {
+		if (!this.remote) return;
+		this.syncStatus = 'loading';
+		try {
+			const res: RemoteSettingsShape = yield this.remote.load();
+			const untouched = !this.dirty;
+			this.remoteState = res;
+			this.saved = settingsFromRemote(res, this.saved);
+			if (untouched) this.draft = this.saved;
+			this.storage.save(this.saved);
+			this.syncStatus = 'synced';
+		} catch {
+			this.syncStatus = 'offline';
+		}
+	});
 
 	@computed get dirty(): boolean {
 		return !sameSettings(this.saved, this.draft);
@@ -100,12 +136,31 @@ export class SettingsStore {
 	/** Alapértékek a piszkozatba (mentés kell hozzá). */
 	reset = () => this.update(sanitizeSettings(null));
 
-	@action save = () => {
-		this.saved = this.draft;
+	/** Mentés: szinkron állapotban PUT (csak a különbség), a válasz lesz a mentett; offline / bekötés nélkül csak localStorage. */
+	save = flow(function* (this: SettingsStore) {
+		this.saveError = null;
+		if (this.remote && this.remoteState && this.syncStatus === 'synced') {
+			const update = settingsUpdateFrom(this.saved, this.draft, this.remoteState);
+			if (update) {
+				this.saving = true;
+				try {
+					const res: RemoteSettingsShape = yield this.remote.update(update);
+					this.remoteState = res;
+					this.saved = settingsFromRemote(res, this.draft);
+				} catch (e) {
+					this.saveError = e instanceof Error ? e.message : String(e);
+					return;
+				} finally {
+					this.saving = false;
+				}
+			} else this.saved = this.draft;
+		} else this.saved = this.draft;
+		this.draft = this.saved;
 		this.storage.save(this.saved);
-	};
+	});
 
 	@action discard = () => {
 		this.draft = this.saved;
+		this.saveError = null;
 	};
 }

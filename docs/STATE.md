@@ -39,7 +39,12 @@ Floodlight v0.2 redesign: lezárva.
 17. ~~I17 – 5.5 Kiértékelő olvasó-API DB-ből~~ kész (`GET /api/evaluation?model=`).
 18. ~~I17b – 5.5 Kiértékelés-oldal bekötése (web)~~ kész (`LiveEvaluation` „Élő (DB)” blokk).
 19. ~~I17c – 5.5 mobil „Élő (DB)” blokk~~ kész (formázók: core `evaluation/liveView.ts`).
-20. **I18 – 2.3 Beállítások UI:** ligák a `league`/`season` katalógusból, `coverage` jelzések, becsült napi hívásköltség.
+20. ~~I18a – 2.3 Beállítások ↔ `/api/settings` (web)~~ kész.
+21. **I18b – 2.3 Liga-katalógus a Beállításokban:** `GET /api/leagues` (`league` + aktuális `season` + `coverage`, csapatszám a
+    `season_team`-ből) server + contract (`listLeagues`); a web Ligák-lista és a `missingCoverage` ebből (a kézi `SETTINGS_LEAGUES`
+    tartalék), a becslés a katalógus csapatszámával. Terv: `docs/plans/i18-settings-ui.md`.
+22. **I18c – 2.3 Csapatszűrő UI:** `team_filter` include/exclude a követett ligák csapataiból (web), a `teamFilters` a PUT-ban.
+23. **I18d – mobil Beállítások ↔ `/api/settings`:** a core `settings/remote.ts` a `PreferencesProvider`-ben.
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -169,9 +174,17 @@ Kiértékelés „Élő (DB)” blokk (web) | (lásd git log: feat(ui): add live
 `liveEvaluationView.ts` (+teszt), Vite-proxy `/api/evaluation`; screenshot
 `docs/plans/screens/I17b-evaluation-dark-{1440,390}.png` | | I17c – „Élő (DB)” blokk (mobil) | (lásd git log: feat(mobile): add
 live DB evaluation block) | core `evaluation/liveView.ts` (+teszt, a web `liveEvaluationView.ts`-ből emelve), mobil
-`evaluation.tsx` `LiveEvaluation`, `evaluationCacheKey(model)`; screenshot nincs (emulátor nélkül) |
+`evaluation.tsx` `LiveEvaluation`, `evaluationCacheKey(model)`; screenshot nincs (emulátor nélkül) | | I18a – Beállítások ↔ settings-API (web) | (lásd git log: feat(ui): sync settings page with the settings API) | core
+`settings/remote.ts` (`settingsFromRemote`, `settingsUpdateFrom`, `SETTINGS_MARKET_IDS`; +teszt), `SettingsStore` `ISettingsRemote` +
+`syncStatus`/`saving`/`saveError`, MainStore → `readApi`, Vite-proxy `/api/settings` → :5100, szinkron-pill + SaveBar-hiba; terv
+`docs/plans/i18-settings-ui.md`; screenshot `docs/plans/screens/I18a-settings-dark-{1440,390}.png` |
 
 ## Polish backlog
+
+- I18a: offline mentés csak helyi (újrakapcsolódáskor nincs feltöltés/ütközés-feloldás); a DB-ben hiányzó piac/iroda sor
+  csak helyben jelölhető (a `reference` job tölti); friss DB-ben 0 követett liga → üres lista + figyelmeztetés (nincs „alap 5
+  liga” seed); a nem katalógusbeli liga bejelölése 400-at ad (I18b szűri); a `stakeMode`/`backfillCap` nincs a UI-ban; csak
+  sötét téma screenshot.
 
 - I17c: a mobil „Élő (DB)” blokk csak akkor látszik, ha a backtest-pillanatkép betölt (külön render-ág kellene); a piac-tábla
   „Csoport” oszlopa mobilon elhagyva; nincs screenshot (emulátor nélkül); a modell-chipek sok verziónál tördelődnek (választó?).
@@ -321,6 +334,11 @@ live DB evaluation block) | core `evaluation/liveView.ts` (+teszt, a web `liveEv
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I18a kész.** A web `SettingsStore` a `MainStore`-ban `readApi.getSettings/updateSettings`-szel szinkronizál (`sync()` flow,
+  `syncStatus`), a localStorage csak gyorsítótár; a `save()` most flow (Promise), PUT csak a diffet (`settingsUpdateFrom`). A lap
+  szövegmezői `reaction`-nel követik a `saved`-et. Következő: I18b (liga-katalógus API: router `/api/leagues` ág + contract).
+  Screenshot: CDP-script (headless Edge, `Emulation.setDeviceMetricsOverride`), mindkét dev-szerver (:5100, :3000) kell.
 
 - **I17c kész (mobil).** A web `liveEvaluationView.ts` formázói (`ALL_MODELS`, `modelOptions`, `liveChips`, `liveMarketRows`) most
   a core `evaluation/liveView.ts`-ben (index exportálja), a web `LiveEvaluation.tsx` onnan importál. Mobil: `evaluation.tsx` alján

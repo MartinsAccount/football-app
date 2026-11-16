@@ -1,9 +1,11 @@
 import React, { Component, CSSProperties, ReactNode } from 'react';
+import { IReactionDisposer, reaction } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import { formatDecimal, formatFt, formatPercent } from '@football/core';
 import PageHead from '../../components/PageIntro/PageHead';
 import { v } from '../../design/tokens/tokens';
 import { MainStore } from '../../stores/MainStore';
+import type { SettingsSyncStatus } from '../../stores/SettingsStore';
 import {
 	DAILY_CALL_LIMIT,
 	missingCoverage,
@@ -41,6 +43,14 @@ const NUMBER_FIELDS: { field: NumberField; label: string; hint: string }[] = [
 ];
 
 const MB = 1024 * 1024;
+
+/** Szinkron-jelző a fejben (I18a): a szerver az igazság, a localStorage csak gyorsítótár. */
+const SYNC_LABEL: Record<SettingsSyncStatus, string | null> = {
+	off: null,
+	loading: 'Szerver: betöltés…',
+	synced: 'Szerverrel szinkronban',
+	offline: 'Szerver nem érhető el – csak helyi mentés'
+};
 
 const tilesStyle: CSSProperties = {
 	display: 'grid',
@@ -158,12 +168,20 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 
 	state: ISettingsPageState = { texts: this.initialTexts(), invalid: {}, active: SETTINGS_SECTIONS[0].id };
 
+	private disposeSync?: IReactionDisposer;
+
 	componentDidMount() {
 		window.addEventListener('scroll', this.onScroll, { passive: true });
+		// A szerver-betöltés és az (aszinkron) mentés után a szövegmezők a piszkozatot kövessék (I18a).
+		this.disposeSync = reaction(
+			() => this.store.saved,
+			() => !this.store.dirty && this.resync()
+		);
 	}
 
 	componentWillUnmount() {
 		window.removeEventListener('scroll', this.onScroll);
+		this.disposeSync?.();
 	}
 
 	/** Aktív menüpont: az utolsó szekció, amelynek a teteje a képernyő felső harmadába ért (a lap alján az utolsó). */
@@ -215,13 +233,10 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 		this.resync();
 	};
 
-	save = () => {
-		this.store.save();
-		this.resync();
-	};
+	save = () => this.store.save();
 
 	render() {
-		const { draft: s, estimate: e, warnings, dirty, diff } = this.store;
+		const { draft: s, estimate: e, warnings, dirty, diff, syncStatus, saving, saveError } = this.store;
 		const theme = this.props.MainStore!.ThemeStore;
 		const { texts, invalid, active } = this.state;
 		const tiles = [
@@ -263,7 +278,16 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 						`${s.bookmakers.length} / ${SETTINGS_BOOKMAKERS.length} iroda`,
 						`keret: ${DAILY_CALL_LIMIT} hívás/nap`
 					]}
-					notice={dirty ? <span className="oe-pill oe-pill--warning">Nem mentett változások</span> : undefined}
+					notice={
+						<>
+							{SYNC_LABEL[syncStatus] && (
+								<span className={cx('oe-pill', syncStatus === 'offline' && 'oe-pill--warning')} role="status">
+									{SYNC_LABEL[syncStatus]}
+								</span>
+							)}
+							{dirty && <span className="oe-pill oe-pill--warning">Nem mentett változások</span>}
+						</>
+					}
 				/>
 
 				<section className="flex flex-col gap-sp-6" aria-label="Becslés">
@@ -413,7 +437,7 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 					</div>
 				</div>
 
-				{dirty && <SaveBar diff={diff} onDiscard={this.discard} onSave={this.save} />}
+				{dirty && <SaveBar diff={diff} saving={saving} error={saveError} onDiscard={this.discard} onSave={this.save} />}
 			</>
 		);
 	}

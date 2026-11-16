@@ -2,7 +2,8 @@ import { action, flow, observable, reaction } from 'mobx';
 import { ArbitrageStore } from '../pages/ArbitragePage/stores/ArbitrageStore';
 import { OddsStore } from '../pages/OddsPage/stores/OddsStore';
 import { FetchService } from '../services/FetchService';
-import { SettingsStore } from './SettingsStore';
+import { readApi } from '../services/readApi';
+import { localSettingsStorage, SettingsStore } from './SettingsStore';
 import { SlipStore } from './SlipStore';
 import { ThemeStore } from './ThemeStore';
 
@@ -29,7 +30,11 @@ export class MainStore {
 		this.OddsStore = new OddsStore(this);
 		this.ArbitrageStore = new ArbitrageStore(this);
 		this.ThemeStore = new ThemeStore();
-		this.SettingsStore = new SettingsStore();
+		// A szerver (`/api/settings`, :5100) az igazság; a localStorage gyorsítótár / offline tartalék (ROADMAP 2.3, I18a).
+		this.SettingsStore = new SettingsStore(localSettingsStorage, {
+			load: () => readApi.getSettings(),
+			update: (u) => readApi.updateSettings(u)
+		});
 		this.SlipStore = new SlipStore(undefined, () => this.SettingsStore.stakeOptions);
 		// Alapegység mentésekor (nem a piszkozatban) a tét az új egységre áll (a régi lépcső eleme már nem választható).
 		reaction(
