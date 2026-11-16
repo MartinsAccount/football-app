@@ -19,6 +19,7 @@ import type {
 } from '@football/contract';
 import type { SnapshotSource } from './snapshots';
 import { applySettingsUpdate, readSettings, SettingsValidationError } from './settings';
+import { EMPTY_BUDGET_DETAILS, type BudgetDetails } from './budget';
 
 /**
  * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
@@ -43,6 +44,8 @@ export interface ApiDeps {
 	leagues?: () => Promise<LeagueDto[]>;
 	/** Egy liga csapatai (`GET /api/leagues/:id/teams`, I18c): `loadLeagueTeams(db, id)`. Hiányában 404. */
 	leagueTeams?: (leagueId: number) => Promise<LeagueTeamsResponse>;
+	/** Budget-panel (`GET /api/budget`, I19): `loadBudgetDetails(db, day)`. Hiányában üres bontás. */
+	budgetDetails?: (day: string) => Promise<BudgetDetails>;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -186,7 +189,8 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 			if (path === '/api/budget') {
 				const day = utcDay(now());
 				const u = await deps.budget.usage(day);
-				return json(200, { day, ...u, remaining: remainingCalls(u) } satisfies BudgetResponse);
+				const details = deps.budgetDetails ? await deps.budgetDetails(day) : EMPTY_BUDGET_DETAILS;
+				return json(200, { day, ...u, remaining: remainingCalls(u), ...details } satisfies BudgetResponse);
 			}
 
 			if (path === '/api/evaluation') {

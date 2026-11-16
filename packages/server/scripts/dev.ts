@@ -16,6 +16,7 @@ import { loadIngestMocks } from '../src/referenceMocks';
 import { fileSnapshotSource } from '../src/snapshots';
 import { loadEvaluationRecords } from '../src/evaluation';
 import { loadLeagueCatalog, loadLeagueTeams } from '../src/leagues';
+import { loadBudgetDetails } from '../src/budget';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const args = parseTargetArgs(process.argv.slice(2));
@@ -45,6 +46,7 @@ createServer(
 			evaluations: () => loadEvaluationRecords(db),
 			leagues: () => loadLeagueCatalog(db),
 			leagueTeams: (id) => loadLeagueTeams(db, id),
+			budgetDetails: (day) => loadBudgetDetails(db, day),
 			auth,
 			snapshots: fileSnapshotSource(join(ROOT, 'data')),
 			// Ütemező (1.7): `CRON_SECRET` env; hiányában lokálisan nyitott. Lokális ütemezés: `npm run tick -- --every 15`.

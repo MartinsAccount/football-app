@@ -33,6 +33,7 @@ export * from './evaluation/labels';
 export * from './evaluation/dbSummary';
 export * from './evaluation/liveView';
 export * from './budget/budget';
+export * from './budget/budgetView';
 export * from './storage/keyValue';
 export * from './storage/cachedResponse';
 export * from './storage/storedScope';

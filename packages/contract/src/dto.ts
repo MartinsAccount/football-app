@@ -90,14 +90,42 @@ export interface OddsHistoryResponse {
 	snapshots: OddsSnapshotDto[];
 }
 
-/** `GET /api/budget` → a mai (UTC) API-Football hívás-keret. */
+/** A mai hívások egy jobra (`ingest_task.kind`; feladat nélküli hívás: `manual`) az `api_call_log`-ból (I19). */
+export interface BudgetJobDto {
+	job: string;
+	/** Élő (kvótát fogyasztó) hívás. */
+	live: number;
+	/** Mock hívás (nem fogy a kvótából). */
+	mock: number;
+}
+
+/** A legutóbbi mai `/status`-lekérés (nem fogy a kvótából); nincs ilyen → mindkettő `null`. */
+export interface BudgetStatusCheckDto {
+	checkedAt: string | null; // ISO
+	/** A `/status` válaszkor a fejléc szerinti napi maradék (ha volt). */
+	remainingAtCheck: number | null;
+}
+
+/** A mai ütemező-futások (`cron_run`). */
+export interface BudgetCronDto {
+	runs: number;
+	calls: number;
+	lastAt: string | null; // ISO
+	lastStatus: string | null;
+}
+
+/** `GET /api/budget` → a mai (UTC) API-Football hívás-keret + jobonkénti bontás (I19, ROADMAP 2.4). */
 export interface BudgetResponse {
 	day: string; // YYYY-MM-DD
 	used: number;
 	limit: number;
 	reserve: number;
+	/** `api_budget_day.synced_remaining`: a `/status` szerinti maradék, azóta minden foglalással csökkentve. */
 	syncedRemaining: number | null;
 	remaining: number;
+	jobs: BudgetJobDto[];
+	status: BudgetStatusCheckDto;
+	cron: BudgetCronDto;
 }
 
 // --- Pillanatkép-végpontok (SB4). A forrás ma a mentett `data/*/*-v0.json`, később DB-tábla. A típusok a `@football/core`
