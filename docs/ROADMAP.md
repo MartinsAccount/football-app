@@ -229,7 +229,7 @@
 - [x] **11.4 Hordozható állapot:** `5554718` + `5e8f7c4` — Settings/Slip/Theme tiszta logikája a core-ba, async `KeyValueStorage`.
 - [x] **11.5 `packages/theme`:** RN-téma a `tokens.json`-ból. (ff5e4fd)
 - [x] **11.6 Expo-váz `apps/mobile`:** egy képernyő (Ajánlások) a contract-kliensen, offline cache. (0379a0b)
-- [ ] **11.7+ Expo-képernyők** fokozatosan (Kiértékelés ✓ M7, Szelvény, Beállítások, Arbitrázs); APK-build (EAS).
+- [ ] **11.7+ Expo-képernyők** fokozatosan (Kiértékelés ✓ M7, Szelvény ✓ M8, Beállítások, Arbitrázs); APK-build (EAS).
 
 ## Parkoló (nem-célok, újranyitható)
 

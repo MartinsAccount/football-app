@@ -1,14 +1,6 @@
-import { formatAge, formatDateRange, RecommendationItem, RecommendationSnapshot, SnapshotOutcome } from '@football/core';
+import { formatAge, formatDateRange, RecommendationItem, RecommendationSnapshot, TIPPMIX_LABEL } from '@football/core';
 import { ITip } from '../../components/TipCard/tipView';
 
-/** Piac + kimenet Tippmix-nyelven (DESIGN §7.4). */
-const TIPPMIX_LABEL: Record<SnapshotOutcome, string> = {
-	Home: 'Végeredmény · 1',
-	Draw: 'Végeredmény · X',
-	Away: 'Végeredmény · 2',
-	Over: 'Gólok száma 2,5 · Felett',
-	Under: 'Gólok száma 2,5 · Alatt'
-};
 const MARKET_NAME: Record<RecommendationItem['market'], string> = { h2h: 'Match Winner', ou25: 'Over/Under 2.5' };
 
 /** Pillanatkép-tétel → TipCard nézet-modell (ISO szöveg → Date). */

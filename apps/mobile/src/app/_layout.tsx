@@ -22,6 +22,9 @@ export default function RootLayout() {
 						title: 'Meccsek',
 						headerRight: () => (
 							<View style={{ flexDirection: 'row', gap: t.space[8] }}>
+								<Link href="/slip" style={{ color: t.color.accent.text, fontSize: t.font.size.body }}>
+									Szelvény
+								</Link>
 								<Link href="/evaluation" style={{ color: t.color.accent.text, fontSize: t.font.size.body }}>
 									Kiértékelés
 								</Link>
@@ -32,6 +35,7 @@ export default function RootLayout() {
 						)
 					}}
 				/>
+				<Stack.Screen name="slip" options={{ title: 'Szelvény' }} />
 				<Stack.Screen name="evaluation" options={{ title: 'Kiértékelés' }} />
 				<Stack.Screen name="settings" options={{ title: 'Kapcsolat' }} />
 			</Stack>
