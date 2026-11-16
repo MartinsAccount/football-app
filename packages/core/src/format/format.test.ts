@@ -1,6 +1,7 @@
 import {
 	formatAge,
 	formatDateRange,
+	formatDateTime,
 	formatDayHeading,
 	formatDecimal,
 	formatSignedInt,
@@ -103,6 +104,10 @@ describe('format (DESIGN §8)', () => {
 		expect(formatAge(30 * h + 59_000)).toBe(`30${NB}órás`);
 		expect(formatAge(47 * h)).toBe(`47${NB}órás`);
 		expect(formatAge(72 * h)).toBe(`3${NB}napos`);
+	});
+
+	it('dátum és idő Budapest szerint', () => {
+		expect(formatDateTime(new Date('2025-04-12T11:30:00Z'))).toBe('2025. ápr. 12. 13:30');
 	});
 
 	it('dátumtartomány rövid hónapnévvel, nagykötőjellel', () => {

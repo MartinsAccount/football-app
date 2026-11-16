@@ -172,7 +172,7 @@
       modellverzió-szűrővel kész (I17b); mobil blokk kész (I17c). Hátra: kalibrációs görbe/ítélet DB-ből, liga-/piacszűrő, idősor.
 - [ ] **5.6 Fogadás rögzítése:** `placed_bet` (Tippmix-odds, tét); „saját” ROI a modell ROI-ja mellett. _Ellenőrzés:_ integrációs
       teszt; screenshot.
-- [ ] **5.7 Odds-history nézet:** egy meccs snapshotjai, az odds mozgása, a legjobb iroda, a kimenetel. _Ellenőrzés:_ screenshot a
+- [x] **5.7 Odds-history nézet:** egy meccs snapshotjai, az odds mozgása, a legjobb iroda, a kimenetel. _Ellenőrzés:_ screenshot a
       legacy-json és az élő snapshotokkal.
 
 ## 6. Ajánlómotor v1 (Elo + Poisson / Dixon–Coles)

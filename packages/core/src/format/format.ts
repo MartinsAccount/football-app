@@ -164,6 +164,12 @@ export const formatDateRange = (a: Date, b: Date, timeZone: string = DEFAULT_TIM
 	return `${head}. ${EN_DASH} ${tail}`;
 };
 
+/** Dátum és idő (pillanatkép-időbélyeg): `2025. ápr. 12. 13:30`. */
+export const formatDateTime = (date: Date, timeZone: string = DEFAULT_TIME_ZONE): string => {
+	const p = zonedParts(date, timeZone);
+	return `${p.year}. ${MONTH_SHORT[p.month - 1]} ${p.day}. ${p.hour}:${p.minute}`;
+};
+
 /** Előjeles tizedes tört: `+`, valódi `−`, a nullára kerekített érték előjel nélkül. `0.0396` (3) → `+0,040`. */
 export const formatSignedDecimal = (value: number, decimals = 1): string => formatSigned(value, decimals);
 

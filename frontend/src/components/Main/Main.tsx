@@ -5,6 +5,7 @@ import RecommendationsPage from '../../pages/RecommendationsPage/Recommendations
 import EvaluationPage from '../../pages/EvaluationPage/EvaluationPage';
 import SettingsPage from '../../pages/SettingsPage/SettingsPage';
 import ArbitragePage from '../../pages/ArbitragePage/ArbitragePage';
+import MatchPage from '../../pages/MatchPage/MatchPage';
 
 // Route-ok a PRD 5.8 szerint. A régi /odds és /fixtures a Ma oldalra irányít (az odds-mozgás és a
 // meccs-statisztika a TipCard MatchDetails részébe olvad, ROADMAP H). A régi /legacy/* nézetek az M1
@@ -27,6 +28,7 @@ class Main extends Component {
 						<Route path="/arbitrage">
 							<ArbitragePage />
 						</Route>
+						<Route path="/match/:id" render={({ match }) => <MatchPage id={Number(match.params.id)} />} />
 						<Redirect from="/odds" to="/" />
 						<Redirect from="/fixtures" to="/" />
 						<Redirect to="/" />

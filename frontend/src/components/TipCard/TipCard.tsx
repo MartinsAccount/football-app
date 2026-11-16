@@ -88,6 +88,10 @@ class TipCard extends Component<ITipCardProps> {
 						</div>
 					)}
 					{children}
+					{/* Meccs-részlet (I20). Sima <a>: a kártya Router nélkül is renderelhető (teszt); TODO(polish): router-Link. */}
+					<a className="oe-linkbtn inline-flex min-h-touch items-center self-start" href={`/match/${tip.fixtureId}`}>
+						Odds-mozgás és pillanatképek
+					</a>
 					<div className="oe-tip__source">
 						Forrás: {oddsAt}
 						{tip.stakeUnits !== undefined && ` · tét ${tip.stakeUnits}${NBSP}egység`} · {tip.modelVersion}
