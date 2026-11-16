@@ -1,7 +1,9 @@
+import { isVoidStatus } from '@football/core';
 import type { SqlExecutor, StoredTask } from '@football/db';
 import { toFixtureRows, upsertFixtureRows, type ApiFixtureItem } from './fixturesWindow';
 import type { TaskHandler } from './ingestWorker';
 import { spent, upsertTeams } from './reference';
+import { evaluateFixtures } from './evaluation';
 import { refreshStandingDerived } from './standingDerived';
 
 /**
@@ -9,6 +11,7 @@ import { refreshStandingDerived } from './standingDerived';
  * státusza és eredménye (`NS` → `FT`). Feladatonként pontosan 1 hívás, így a hívásszám ≤ ⌈n/20⌉. A kört (kezdés +3 h, majd
  * +26 h, ha még nem végleges) a core planner adja. Csak upsert; a válaszból hiányzó meccs nem hiba. Ha a válaszban
  * van befejezett meccs, az érintett liga×szezon pont-idejű tabelláit (`standing_derived`, 4.3) újraszámolja (0 hívás).
+ * Utána a lezárt (vagy PST/CANC/ABD → void) meccsek predikcióit kiértékeli (`evaluation`, 5.3, 0 hívás).
  * TODO(polish): statisztika és események (`fixture_team_stats`, `fixture_event`) a válaszból – a mentett adatban nincs ilyen.
  */
 
@@ -27,7 +30,7 @@ export function parseResultIds(raw: unknown, kind = 'results'): number[] {
 
 /** A `results` kind végrehajtója a `createIngestWorker` `handlers` térképére. */
 export function createResultsHandler(db: SqlExecutor): TaskHandler {
-	return async (task: StoredTask, { client }) => {
+	return async (task: StoredTask, { client, now }) => {
 		if (!client) throw new Error('results: API client missing');
 		const ids = parseResultIds(task.params.ids);
 		const env = await client.get<ApiFixtureItem>('/fixtures', { ids: ids.join('-') }, { taskId: task.id });
@@ -42,6 +45,12 @@ export function createResultsHandler(db: SqlExecutor): TaskHandler {
 			const [league, season] = key.split(':').map(Number);
 			await refreshStandingDerived(db, league, season);
 		}
+		const settled = fixtures.filter((f) => (FINISHED.has(f.status) && f.goalsHome !== null) || isVoidStatus(f.status));
+		await evaluateFixtures(
+			db,
+			settled.map((f) => f.id),
+			{ now }
+		);
 		return { calls: spent(client, 1) };
 	};
 }

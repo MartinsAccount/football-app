@@ -156,10 +156,11 @@
       odds. _Ellenőrzés:_ unit-tesztek ismert oddsokra (a Σp = 1, a margin helyes).
 - [x] **5.2 Predikció-pipeline:** a `derive` lépés az odds-snapshot után; `model_version`, `prediction_run`, `prediction`
       (append-only, `features`, `explanation`, `warnings`). _Ellenőrzés:_ integrációs teszt: ugyanarra a snapshotra két futás két
-      külön run-t ad, és a régi sor nem változik. Kész: `packages/server/src/predictions.ts` — lásd git log:
-      feat(server): add prediction pipeline.
-- [ ] **5.3 Kiértékelő job:** a `results` után `evaluation` (win/loss/void, profit, Brier, log-loss, CLV a záró-közeli
-      snapshottal). _Ellenőrzés:_ unit-tesztek a képletekre; mock: a PST státuszú meccs void.
+      külön run-t ad, és a régi sor nem változik. Kész: `packages/server/src/predictions.ts` — lásd git log: feat(server): add
+      prediction pipeline.
+- [x] **5.3 Kiértékelő job:** a `results` után `evaluation` (win/loss/void, profit, Brier, log-loss, CLV a záró-közeli
+      snapshottal). _Ellenőrzés:_ unit-tesztek a képletekre; mock: a PST státuszú meccs void. Kész:
+      `packages/server/src/evaluation.ts` — lásd git log: feat(server): add evaluation job.
 - [x] **5.4 Ajánlások oldal (kezdőoldal):** a mai és holnapi tételek a PRD 6. fejezetében felsorolt mezőkkel; az adatok kora; a
       minimális vállalható odds. _Ellenőrzés:_ screenshot mock adattal; az oldal betöltése 0 külső hívás.
 - [ ] **5.5 Kiértékelő dashboard:** találati arány vs. várt, ROI (flat), Brier, log-loss, kalibrációs görbe, CLV; modellverzió-,

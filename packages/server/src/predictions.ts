@@ -38,6 +38,9 @@ const MARKETS = [
 	{ id: 5, code: 'ou25', selections: ['Over', 'Under'], line: 2.5 }
 ] as const;
 
+/** A pipeline piacai (a kiértékelő job is ezt a kimenet-sorrendet használja). */
+export const PREDICTION_MARKETS = MARKETS;
+
 export interface PredictionRunOptions {
 	now: Date;
 	trigger?: 'schedule' | 'manual' | 'backtest';

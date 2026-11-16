@@ -34,7 +34,7 @@ Floodlight v0.2 redesign: lezárva.
 12. ~~I12 – 3.6 `injuries` (mock)~~ kész.
 13. ~~I13 – 4.3 `standing_derived`~~ kész.
 14. ~~I14 – 5.2 Predikció-pipeline~~ kész.
-15. **I15 – 5.3 Kiértékelő job:** a `results` után `evaluation` (core `evaluation/` képletei); mock: PST → void.
+15. ~~I15 – 5.3 Kiértékelő job~~ kész.
 16. **I16 – 2.2 Liga-katalógus:** `reference` `/leagues` + `coverage` tárolás (mentett `/leagues` válasz nincs → `mock-missing`
     vagy a 3.6 mintája, DECISIONS).
 
@@ -151,17 +151,23 @@ feat(server): store odds_best) | core `odds/best.ts` (`computeBestOdds`), `odds.
 szűrés), db `OddsSnapshotInput.best` + `insertBest` (ismeretlen iroda → null); megőrzés: BLOCKERS | | I12 – injuries (3.6) | (lásd
 git log: feat(server): add injuries ingest job) | `packages/server/src/injuries.ts` (insert `captured_at = now`,
 `ON CONFLICT DO NOTHING`), `referenceMocks.ts` `withInjuries` (csak mentett `injuries-*.json`, ma nincs → `mock-missing`); terv
-`docs/plans/i12-injuries.md` | | I13 – standing_derived (4.3) | (lásd git log: feat(server): add derived point-in-time standings) |
-migráció 0007, `packages/server/src/standingDerived.ts` (`refreshStandingDerived`, meccsnap-`as_of`, `unnest`-upsert), a `results`
-job hívja; terv `docs/plans/i13-standing-derived.md` |
-| I14 – predikció-pipeline (5.2) | (lásd git log: feat(server): add prediction pipeline) | `packages/server/src/predictions.ts`
-(`runPredictions`, `withPredictions` az odds-handlerek után, `ensureModelVersion`); terv `docs/plans/i14-prediction-pipeline.md` |
+`docs/plans/i12-injuries.md` | | I13 – standing_derived (4.3) | (lásd git log: feat(server): add derived point-in-time standings)
+| migráció 0007, `packages/server/src/standingDerived.ts` (`refreshStandingDerived`, meccsnap-`as_of`, `unnest`-upsert), a
+`results` job hívja; terv `docs/plans/i13-standing-derived.md` | | I14 – predikció-pipeline (5.2) | (lásd git log: feat(server):
+add prediction pipeline) | `packages/server/src/predictions.ts` (`runPredictions`, `withPredictions` az odds-handlerek után,
+`ensureModelVersion`); terv `docs/plans/i14-prediction-pipeline.md` | | I15 – kiértékelő job (5.3) | (lásd git log: feat(server):
+add evaluation job) | `packages/server/src/evaluation.ts` (`evaluateFixtures`, `buildEvaluationRows`), a `results` handler hívja;
+terv `docs/plans/i15-evaluation-job.md` |
 
 ## Polish backlog
 
+- I15: ázsiai vonalak (half_win/half_loss) nincsenek; a záró odds csak a tárolt quote-okból (`odds_best` nincs bekötve); a
+  kiértékelt sor eredmény-korrekciókor nem frissül; Brier/log-loss csoportonként ismétlődik (aggregáláskor dedup); nincs olvasó
+  API.
+
 - I14: a feature-snapshot kimenetenként ismétlődik a `features` jsonb-ben (külön tábla); az `odds_best` (minden iroda) nincs
-  bekötve, csak a tárolt quote-ok; `minBookmakers: 5` a kevés tárolt irodával szinte sosem ad ajánlást; a teljes történet
-  minden futásnál betöltődik (liga/időablak-szűrés); nincs olvasó API (az `/api/recommendations` még a JSON-pillanatkép).
+  bekötve, csak a tárolt quote-ok; `minBookmakers: 5` a kevés tárolt irodával szinte sosem ad ajánlást; a teljes történet minden
+  futásnál betöltődik (liga/időablak-szűrés); nincs olvasó API (az `/api/recommendations` még a JSON-pillanatkép).
 
 - I13: `standing_derived` – H2H-tiebreak és pontlevonás nincs; nincs olvasó API/DTO; minden results-futás a teljes szezont
   újraszámolja (inkrementális lehetne); nincs a `COUNTABLE_TABLES`-ben.
@@ -292,17 +298,23 @@ job hívja; terv `docs/plans/i13-standing-derived.md` |
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- **I15 kész (5.3).** `evaluateFixtures(db, fixtureIds, { now })` (`packages/server/src/evaluation.ts`): FT/AET/PEN (rendes
+  játékidő: `ft_*`, különben `goals_*`) vagy PST/CANC/ABD (→ void) meccsek még ki nem értékelt predikcióira 1-1 `evaluation` sor
+  (meglévő 0004-es séma); flat profit a `best_odd`-ra; Brier/log-loss a piac eloszlására (a csoport minden során ugyanaz); CLV a
+  kezdés előtti utolsó snapshot quote-maximumához. `ON CONFLICT DO NOTHING` → idempotens. A `results` handler hívja (`ctx.now`).
+  Következő: I16 liga-katalógus (2.2), utána 5.5 kiértékelő dashboard DB-ből.
+
 - **I14 kész (5.2).** `runPredictions(db, fixtureIds, { now, trigger? })` (`packages/server/src/predictions.ts`): NS/TBD meccsek
   (kezdés > now), történet = befejezett meccsek kezdés < now, odds = legutóbbi snapshot (`captured_at ≤ now`) `odds_quote`-jai
-  (piac 1 és 5/2.5), tabella = `standing_derived` utolsó `as_of` ≤ meccsnap éjfele. Kimenetenként 1 `prediction` sor
-  (`p_model` = piaccal kombinált p, `features` = teljes snapshot), egy CTE-ben a `prediction_run`-nal; nincs sor → nincs run.
-  `withPredictions` köti az `odds_early`/`odds_late` handler után. Következő: I15 kiértékelő job (5.3).
+  (piac 1 és 5/2.5), tabella = `standing_derived` utolsó `as_of` ≤ meccsnap éjfele. Kimenetenként 1 `prediction` sor (`p_model` =
+  piaccal kombinált p, `features` = teljes snapshot), egy CTE-ben a `prediction_run`-nal; nincs sor → nincs run. `withPredictions`
+  köti az `odds_early`/`odds_late` handler után. Következő: I15 kiértékelő job (5.3).
 
-- **I13 kész (4.3).** Tábla `standing_derived` (migráció 0007; PK liga, szezon, `as_of`, csapat). `refreshStandingDerived(db,
-  league, season, asOfs?)` (`packages/server/src/standingDerived.ts`): a `fixture` FT/AET/PEN meccseiből core `deriveStandings`,
-  alapból minden meccsnap UTC-éjfelére + az utolsó meccsnap utáni éjfélre (= aktuális tabella); upsert, `season` sor nélkül 0.
-  A `results` handler befejezett meccs után hívja. Teszt: a mentett PL 2024 végtabellája = a hivatalos 2024/25 végeredmény.
-  Következő: I14 predikció-pipeline (5.2).
+- **I13 kész (4.3).** Tábla `standing_derived` (migráció 0007; PK liga, szezon, `as_of`, csapat).
+  `refreshStandingDerived(db, league, season, asOfs?)` (`packages/server/src/standingDerived.ts`): a `fixture` FT/AET/PEN
+  meccseiből core `deriveStandings`, alapból minden meccsnap UTC-éjfelére + az utolsó meccsnap utáni éjfélre (= aktuális tabella);
+  upsert, `season` sor nélkül 0. A `results` handler befejezett meccs után hívja. Teszt: a mentett PL 2024 végtabellája = a
+  hivatalos 2024/25 végeredmény. Következő: I14 predikció-pipeline (5.2).
 
 - **I12 kész (3.6).** `createInjuriesHandler(db)` (`packages/server/src/injuries.ts`): a planner `injuries` feladata (`{ ids }` ≤
   20, T−24 h) → 1 hívás `/injuries?ids=a-b-c` → `toInjuryRows` (csak a kért meccsek) → `upsertTeams` + `insertInjuries`
