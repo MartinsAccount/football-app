@@ -17,3 +17,5 @@ export { authorize, authConfigFromEnv, hashToken } from './auth';
 export { createCronHandler, createTickRunner, cronAuthorize, cronConfigFromEnv, noopWorker, TICK_BUDGET_MS } from './cron';
 export type { CronConfig, TickDeps, TickOutcome, TickWorker } from './cron';
 export type { AuthConfig, AuthResult, Authorizer } from './auth';
+export { createDbIngestWorker, createIngestWorker, noopHandler, toFailureKind } from './ingestWorker';
+export type { IngestWorkerDeps, TaskHandler, TaskHandlerContext } from './ingestWorker';

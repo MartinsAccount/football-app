@@ -34,3 +34,5 @@ export {
 	parseFootballDataCsv
 } from './import/footballData';
 export type { CsvMatchRow, MatchResult } from './import/footballData';
+export { DEFAULT_PLANNER_SEASON, EST_CALLS_PARAM, loadPlannerInput, SqlTaskStore } from './ingestTasks';
+export type { StoredTask, TaskStore } from './ingestTasks';
