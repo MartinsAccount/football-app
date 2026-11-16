@@ -20,6 +20,8 @@ import {
 	presetCandidates,
 	savedSlipsCodec,
 	saveStored,
+	slipSyncText,
+	slipToPlacedBet,
 	slipTypeName,
 	stakeOptions,
 	summarizeSlip,
@@ -94,8 +96,18 @@ export default function SlipScreen() {
 
 	const toggle = (id: string) => setSelected((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
 	const save = async () => {
-		const slip = buildSavedSlip(chosen, inputs, stake);
-		if (!slip) return;
+		const built = buildSavedSlip(chosen, inputs, stake);
+		if (!built) return;
+		// I23b: szingli → `POST /api/bets`; kombinált/hiba → csak helyben (DECISIONS). TODO(polish): újrapróbálás.
+		const bet = slipToPlacedBet(built);
+		let slip: ISavedSlip = { ...built, sync: 'local' };
+		if (bet) {
+			const connection = await loadConnection();
+			slip = await apiClientFor(connection)
+				.createPlacedBet(bet)
+				.then((dto) => ({ ...built, sync: 'server' as const, serverBetId: dto.id }))
+				.catch(() => ({ ...built, sync: 'failed' as const }));
+		}
 		const next = [slip, ...(await loadStored(asyncKeyValueStorage, savedSlipsCodec))];
 		await saveStored(asyncKeyValueStorage, savedSlipsCodec, next);
 		setSaved(next);
@@ -265,6 +277,7 @@ export default function SlipScreen() {
 					<Text style={s.muted}>
 						{formatKickoff(new Date(slip.savedAt))} · {formatPercent(slip.probability)} · EV {formatEv(slip.ev)}
 					</Text>
+					<Text style={s.muted}>{slipSyncText(slip.sync)}</Text>
 					{slip.legs.map((l) => (
 						<Text key={l.tipId} style={s.body2}>
 							{l.pairing} · {l.tippmixLabel} · {formatOdds(l.tippmixOdds)}
