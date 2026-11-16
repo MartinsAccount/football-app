@@ -100,8 +100,8 @@
       függvényre. _Állapot:_ web kész (I18a settings-API, I18b liga-katalógus, I18c csapatszűrő – 01e47fd + I18c UI commit); mobil
       kész (I18d); a szűrő alkalmazása kész (I18e: gyűjtés + ajánlás); ligánkénti piac-felülírás UI kész (I18f, web); hátra: mobil
       piac-felülírás (polish).
-- [x] **2.4 Budget-panel:** _(I19: `acb8bb2` + web; I21: mobil `/budget`)_ a mai felhasznált és maradék hívások, jobonkénti bontás, a `/status`-szal
-      egyeztetett érték. _Ellenőrzés:_ screenshot mock adattal.
+- [x] **2.4 Budget-panel:** _(I19: `acb8bb2` + web; I21: mobil `/budget`)_ a mai felhasznált és maradék hívások, jobonkénti
+      bontás, a `/status`-szal egyeztetett érték. _Ellenőrzés:_ screenshot mock adattal.
 
 ## 3. Ingestion (a budgeten belül)
 
