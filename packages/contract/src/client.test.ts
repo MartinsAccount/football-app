@@ -37,6 +37,7 @@ describe('createApiClient', () => {
 		await api.getArbitrage();
 		await api.getEvaluation();
 		await api.getEvaluation('elo@1 b');
+		await api.listLeagues();
 		expect(calls.map((c) => c.url)).toEqual([
 			'https://x.test/api/fixtures?league=39',
 			'https://x.test/api/odds/100',
@@ -47,7 +48,8 @@ describe('createApiClient', () => {
 			'https://x.test/api/backtest',
 			'https://x.test/api/arbitrage',
 			'https://x.test/api/evaluation',
-			'https://x.test/api/evaluation?model=elo%401%20b'
+			'https://x.test/api/evaluation?model=elo%401%20b',
+			'https://x.test/api/leagues'
 		]);
 	});
 

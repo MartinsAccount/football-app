@@ -15,6 +15,7 @@ import { createDbIngestWorker } from '../src/ingestWorker';
 import { loadIngestMocks } from '../src/referenceMocks';
 import { fileSnapshotSource } from '../src/snapshots';
 import { loadEvaluationRecords } from '../src/evaluation';
+import { loadLeagueCatalog } from '../src/leagues';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const args = parseTargetArgs(process.argv.slice(2));
@@ -42,6 +43,7 @@ createServer(
 			budget: new SqlBudgetStore(db),
 			settings: new SqlSettingsRepository(db),
 			evaluations: () => loadEvaluationRecords(db),
+			leagues: () => loadLeagueCatalog(db),
 			auth,
 			snapshots: fileSnapshotSource(join(ROOT, 'data')),
 			// Ütemező (1.7): `CRON_SECRET` env; hiányában lokálisan nyitott. Lokális ütemezés: `npm run tick -- --every 15`.
@@ -54,6 +56,6 @@ createServer(
 	)
 ).listen(port, () =>
 	console.log(
-		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,settings,evaluation,recommendations,backtest,arbitrage,cron/tick} ← ${label}`
+		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,settings,leagues,evaluation,recommendations,backtest,arbitrage,cron/tick} ← ${label}`
 	)
 );

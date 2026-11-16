@@ -10,6 +10,8 @@ import type {
 	FixtureDto,
 	FixtureResponse,
 	FixturesResponse,
+	LeagueDto,
+	LeaguesResponse,
 	OddsHistoryResponse,
 	OddsResponse,
 	SettingsResponse
@@ -36,6 +38,8 @@ export interface ApiDeps {
 	settings?: SettingsRepository;
 	/** Kiértékelő dashboard (`GET /api/evaluation?model=`, I17): a kiértékelt predikciók forrása. Hiányában 404. */
 	evaluations?: () => Promise<EvaluationRecord[]>;
+	/** Liga-katalógus (`GET /api/leagues`, I18b): `loadLeagueCatalog(db)`. Hiányában 404. */
+	leagues?: () => Promise<LeagueDto[]>;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -187,6 +191,11 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				// TODO(polish): SQL-aggregálás, ha sok a sor (most a teljes lista a core-ban összesül).
 				const modelVersion = url.searchParams.get('model')?.trim() || null;
 				return json(200, summarizeEvaluations(await deps.evaluations(), { modelVersion }) satisfies EvaluationSummaryResponse);
+			}
+
+			if (path === '/api/leagues') {
+				if (!deps.leagues) return fail(404, 'not-found', 'A liga-katalógus nincs bekötve');
+				return json(200, { leagues: await deps.leagues() } satisfies LeaguesResponse);
 			}
 
 			const snapshot = /^\/api\/(recommendations|backtest|arbitrage)$/.exec(path);

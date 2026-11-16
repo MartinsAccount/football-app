@@ -185,6 +185,34 @@ export interface SettingsResponse {
 	bookmakers: StoredFlagDto[];
 }
 
+/** API-Football liga-lefedettség (a `season.coverage` jsonb-ből); `null` = a tárolt válasz nem hozta ezt a jelzőt. */
+export interface LeagueCoverageDto {
+	odds: boolean | null;
+	injuries: boolean | null;
+	/** `fixtures.statistics_fixtures`. */
+	statistics: boolean | null;
+}
+
+/** Egy liga a katalógusból (`league` + aktuális `season`). */
+export interface LeagueDto {
+	id: number;
+	name: string;
+	country: string | null;
+	type: 'league' | 'cup' | null;
+	logoUrl: string | null;
+	/** Aktuális szezon: `is_current`, ennek hiányában a legnagyobb év; `null`, ha nincs szezon-sor. */
+	season: number | null;
+	/** Csapatszám: a `season_team`-ből (legutóbbi kitöltött szezon), ennek hiányában a meccsek csapataiból; `null` = ismeretlen. */
+	teamCount: number | null;
+	/** Az aktuális szezon lefedettsége; `null` = nincs tárolt coverage (nem találunk ki). */
+	coverage: LeagueCoverageDto | null;
+}
+
+/** `GET /api/leagues` (I18b): a liga-katalógus név szerint rendezve. */
+export interface LeaguesResponse {
+	leagues: LeagueDto[];
+}
+
 /** `PUT /api/settings` törzse: minden ág opcionális; érvénytelen elem → 400, és semmi sem íródik. */
 export interface SettingsUpdate {
 	values?: Partial<SettingValuesDto>;

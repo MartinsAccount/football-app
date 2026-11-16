@@ -27,6 +27,9 @@ export type {
 	MarketFlagDto,
 	SettingsResponse,
 	SettingsUpdate,
+	LeagueCoverageDto,
+	LeagueDto,
+	LeaguesResponse,
 	ApiErrorCode,
 	ApiErrorBody
 } from './dto';

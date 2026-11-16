@@ -7,6 +7,7 @@ import type {
 	FixtureQuery,
 	FixtureResponse,
 	FixturesResponse,
+	LeaguesResponse,
 	OddsHistoryResponse,
 	OddsResponse,
 	RecommendationsResponse,
@@ -68,6 +69,8 @@ export interface ApiClient {
 	getSettings(): Promise<SettingsResponse>;
 	/** Részleges frissítés (`PUT`); a válasz a frissített állapot. Érvénytelen elem → `ApiError` 400, semmi sem íródik. */
 	updateSettings(update: SettingsUpdate): Promise<SettingsResponse>;
+	/** A liga-katalógus (`league` + aktuális `season` + `coverage` + csapatszám). */
+	listLeagues(): Promise<LeaguesResponse>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -144,6 +147,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 			get<EvaluationSummaryResponse>(`/api/evaluation${model ? `?model=${encodeURIComponent(model)}` : ''}`),
 		getArbitrage: () => get<ArbitrageResponse>('/api/arbitrage'),
 		getSettings: () => get<SettingsResponse>('/api/settings'),
-		updateSettings: (update) => request<SettingsResponse>('PUT', '/api/settings', update)
+		updateSettings: (update) => request<SettingsResponse>('PUT', '/api/settings', update),
+		listLeagues: () => get<LeaguesResponse>('/api/leagues')
 	};
 }
