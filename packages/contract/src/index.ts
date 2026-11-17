@@ -45,6 +45,9 @@ export type {
 	ProfileResponse,
 	ProfilePickDto,
 	ProfilePicksResponse,
+	DrawWatchItemDto,
+	DrawsResponse,
+	DrawsQuery,
 	ApiErrorCode,
 	ApiErrorBody
 } from './dto';

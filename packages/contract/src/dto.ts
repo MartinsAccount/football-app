@@ -12,7 +12,8 @@ import type {
 	QuizAnswer,
 	QuizQuestion,
 	SettledPlacedBet,
-	RecommendationSnapshot
+	RecommendationSnapshot,
+	DrawFactor
 } from '@football/core';
 
 /**
@@ -360,4 +361,38 @@ export type ProfilePickDto = ImitatedPick & { fixtureId: number };
 export interface ProfilePicksResponse {
 	status: OwnerProfileStatus;
 	picks: ProfilePickDto[];
+}
+
+/** Egy meccs a döntetlen-figyelőben (D2): p(X) rangsor + magyarázat, NEM értéktipp. */
+export interface DrawWatchItemDto {
+	fixtureId: number;
+	league: { id: number; name: string };
+	kickoff: string;
+	home: { id: number; name: string };
+	away: { id: number; name: string };
+	/** A `draw-logreg` modell p(X)-e. */
+	pDraw: number;
+	/** Piaci fair p(X) (kezdés előtti odds, irodák konszenzusa, marzs nélkül). */
+	pMarket: number;
+	/** A legjobb X-odds ugyanabban az odds-pillanatképben; hiányában `null`. */
+	drawOdds: number | null;
+	/** A top 3 magyarázó tényező |hozzájárulás| szerint (magyar címke + indoklás, log-odds). */
+	factors: DrawFactor[];
+}
+
+/** `GET /api/draws?from&to&limit`: a [from, to) ablak meccsei p(X) szerint csökkenőben. */
+export interface DrawsResponse {
+	modelVersion: string;
+	from: string;
+	to: string;
+	/** Hány meccsre volt elég adat (odds + gólmodell) a rangsorhoz, a limit előtt. */
+	analyzed: number;
+	items: DrawWatchItemDto[];
+}
+
+/** A `GET /api/draws` paraméterei (ISO időpontok). */
+export interface DrawsQuery {
+	from?: string;
+	to?: string;
+	limit?: number;
 }

@@ -25,6 +25,8 @@ import type {
 	PlacedBetDto,
 	PlacedBetsResponse,
 	ProfilePicksResponse,
+	DrawsQuery,
+	DrawsResponse,
 	ProfileResponse,
 	QuizAnswerResponse,
 	QuizNextResponse,
@@ -35,6 +37,7 @@ import { applySettingsUpdate, readSettings, SettingsValidationError } from './se
 import { EMPTY_BUDGET_DETAILS, type BudgetDetails } from './budget';
 import { parsePlacedBetInput, PlacedBetValidationError, readPlacedBets } from './placedBets';
 import { parsePickIds, QuizValidationError, type QuizService } from './quiz';
+import { DrawsValidationError, parseDrawsQuery } from './draws';
 
 /**
  * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
@@ -65,6 +68,8 @@ export interface ApiDeps {
 	placedBets?: PlacedBetRepository;
 	/** Saját stílus (`GET /api/quiz/next`, `POST /api/quiz/answer`, `GET /api/profile`, Q2): `createQuizService(db)`. Hiányában 404. */
 	quiz?: QuizService;
+	/** Döntetlen-figyelő (`GET /api/draws?from&to&limit`, D2): `(q) => loadDrawWatch(db, q)`. Hiányában 404. */
+	draws?: (query: Required<DrawsQuery>) => Promise<DrawsResponse>;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -211,6 +216,11 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				} satisfies QuizNextResponse);
 			}
 
+			if (path === '/api/draws') {
+				if (!deps.draws) return fail(404, 'not-found', 'A döntetlen-figyelő nincs bekötve');
+				return json(200, (await deps.draws(parseDrawsQuery(url.searchParams, now()))) satisfies DrawsResponse);
+			}
+
 			if (path === '/api/fixtures') {
 				const { filter, limit, offset } = parseFixtureQuery(url.searchParams);
 				// TODO(polish): LIMIT/OFFSET SQL-ben, ha a lista nagy lesz (most a repo a teljes szűrt listát adja).
@@ -284,7 +294,8 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				e instanceof SettingsValidationError ||
 				e instanceof PlacedBetValidationError ||
 				e instanceof PlacedBetRefError ||
-				e instanceof QuizValidationError
+				e instanceof QuizValidationError ||
+				e instanceof DrawsValidationError
 			)
 				return fail(400, 'bad-request', e.message);
 			console.error('[api]', e);

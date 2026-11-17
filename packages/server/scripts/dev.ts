@@ -17,6 +17,7 @@ import { fileSnapshotSource, withDbArbitrage } from '../src/snapshots';
 import { loadArbitrageSnapshot } from '../src/arbitrage';
 import { loadEvaluationRecords } from '../src/evaluation';
 import { createQuizService } from '../src/quiz';
+import { loadDrawWatch } from '../src/draws';
 import { loadLeagueCatalog, loadLeagueTeams } from '../src/leagues';
 import { loadBudgetDetails } from '../src/budget';
 
@@ -47,6 +48,7 @@ createServer(
 			settings: new SqlSettingsRepository(db),
 			placedBets: new SqlPlacedBetRepository(db),
 			quiz: createQuizService(db),
+			draws: (q) => loadDrawWatch(db, q),
 			evaluations: () => loadEvaluationRecords(db),
 			leagues: () => loadLeagueCatalog(db),
 			leagueTeams: (id) => loadLeagueTeams(db, id),
@@ -64,6 +66,6 @@ createServer(
 	)
 ).listen(port, () =>
 	console.log(
-		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,settings,leagues[/:id/teams],evaluation,bets,recommendations,backtest,arbitrage,cron/tick} ← ${label}`
+		`[api] http://localhost:${port}/api/{fixtures,odds/:fixtureId,budget,settings,leagues[/:id/teams],evaluation,bets,draws,recommendations,backtest,arbitrage,cron/tick} ← ${label}`
 	)
 );

@@ -2,7 +2,8 @@
 // Tanítás 2022/23, validáció 2023/24 (λ, EV-küszöb, top-hányad küszöbe), holdout 2024/25 egyszer (végső modell: 2022+2023-on
 // újraillesztve a választott λ-val). Jellemzők walk-forward: Dixon–Coles (I26 hiperparaméterek), Elo, döntetlen-történet.
 // 0 élő hívás, nincs DB, determinisztikus. Futtatás: `npm run backtest:draws -w @football/db`
-// → `docs/analysis/backtests/2026-11-17-draws.md`.
+// → `docs/analysis/backtests/2026-11-17-draws.md` + a rögzített végső súlyok: `packages/core/src/draw/weights.ts` (D2).
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import {
@@ -27,6 +28,7 @@ import {
 import { loadBacktestMatches, ROOT } from './backtestData';
 
 const OUT_MD = join(ROOT, 'docs', 'analysis', 'backtests', '2026-11-17-draws.md');
+const OUT_WEIGHTS = join(ROOT, 'packages', 'core', 'src', 'draw', 'weights.ts');
 const TRAIN = 2022;
 const VALIDATION = 2023;
 const HOLDOUT = 2024;
@@ -265,7 +267,30 @@ const md = [
 
 mkdirSync(dirname(OUT_MD), { recursive: true });
 writeFileSync(OUT_MD, md);
-console.log(`→ ${OUT_MD} (${(Date.now() - t0) / 1000}s)`);
+// D2: a szerver ezt a rögzített modellt használja (futás közben nem illeszt).
+const weightsTs = [
+	'// Generált fájl (`npm run backtest:draws -w @football/db`), kézzel ne szerkeszd.',
+	`// A \`${DRAW_MODEL_VERSION}\` végső modellje: ${TRAIN}/${TRAIN + 1} + ${VALIDATION}/${
+		VALIDATION + 1
+	} (football-data.co.uk CSV, top 5 liga), λ = ${best.lambda}`,
+	`// (a ${VALIDATION}/${VALIDATION + 1}-as validáción választva). Riport: docs/analysis/backtests/2026-11-17-draws.md.`,
+	"import type { DrawModel } from './model';",
+	'',
+	'export const DRAW_MODEL_FITTED: DrawModel = {',
+	`\tversion: '${finalModel.version}',`,
+	`\tlambda: ${finalModel.lambda},`,
+	'\t// [konstans, logit(p_piac), ...DRAW_FACTOR_KEYS]',
+	'\tweights: [',
+	finalModel.weights.map((w) => `\t\t${String(w)}`).join(',\n'),
+	'\t],',
+	`\ttrainSize: ${finalModel.trainSize},`,
+	`\tconverged: ${finalModel.converged}`,
+	'};',
+	''
+].join('\n');
+writeFileSync(OUT_WEIGHTS, weightsTs);
+execFileSync('npx', ['prettier', '--write', OUT_WEIGHTS], { cwd: ROOT, stdio: 'ignore', shell: true });
+console.log(`→ ${OUT_MD}, ${OUT_WEIGHTS} (${(Date.now() - t0) / 1000}s)`);
 console.log(`λ=${best.lambda} holdout LL modell=${f4(ll.model.logLoss)} piac=${f4(ll.market.logLoss)} dc=${f4(ll.dc.logLoss)}`);
 for (const b of holdBets)
 	console.log(`${b.label}: n=${b.s.n} hit=${pct(b.s.hitRate)} roi=${pct(b.s.roi)} clv=${pct(b.s.meanClv, 2)}`);

@@ -12,6 +12,8 @@ import {
 	type DrawSourceMatch
 } from './features';
 import { drawScores, fitDrawModel, predictDraw, topShareCutoff } from './model';
+import { drawFeaturesAt, rankDraws } from './watch';
+import { DRAW_MODEL_FITTED } from './weights';
 import { sigmoid } from '../profile/logreg';
 
 // Determinisztikus PRNG (mulberry32).
@@ -147,5 +149,52 @@ describe('drawScores / topShareCutoff', () => {
 		expect(topShareCutoff(ps, 0.1)).toBe(0.4);
 		expect(topShareCutoff(ps, 0.2)).toBe(0.35);
 		expect(topShareCutoff([], 0.1)).toBe(Infinity);
+	});
+});
+
+describe('drawFeaturesAt / rankDraws (D2)', () => {
+	const played = (id: number, day: number, h: number, a: number, hg: number, ag: number) => ({
+		id,
+		kickoff: `2024-01-${String(day).padStart(2, '0')}T15:00:00Z`,
+		homeTeamId: h,
+		awayTeamId: a,
+		homeGoals: hg,
+		awayGoals: ag,
+		league: '39'
+	});
+	const target = (id: number, day: number, pMarket: number) => ({
+		id,
+		kickoff: `2024-01-${String(day).padStart(2, '0')}T15:00:00Z`,
+		homeTeamId: 1,
+		awayTeamId: 2,
+		league: '39',
+		pMarket
+	});
+	const pred = { pDraw: 0.28, lambdaHome: 1.3, lambdaAway: 1.1 };
+	const history = [played(1, 2, 1, 2, 1, 1), played(2, 9, 2, 1, 0, 0), played(3, 20, 1, 2, 3, 0)];
+
+	it('pont-idejű: csak a kezdés előtt befejezett meccseket látja', () => {
+		const f = drawFeaturesAt(history, [target(10, 10, 0.27), target(11, 1, 0.27)], new Map([10, 11].map((id) => [id, pred])));
+		expect(f.get(11)!.leagueDrawRate).toBeCloseTo(0.26, 12); // még semmi nem játszódott le
+		expect(f.get(10)!.teamDrawRate).toBeGreaterThan(f.get(10)!.leagueDrawRate); // 2 döntetlen, a 20-i győzelem nem látszik
+		expect(f.get(10)!.expectedGoals).toBeCloseTo(2.4, 12);
+	});
+
+	it('modell-predikció vagy érvényes piaci p nélkül kimarad', () => {
+		const f = drawFeaturesAt(history, [target(10, 10, 0.27), target(12, 10, 0)], new Map([[12, pred]]));
+		expect(f.size).toBe(0);
+	});
+
+	it('p(X) szerint rendez, limitál, legfeljebb 3 tényezőt ad; a rögzített modell a piac közelében marad', () => {
+		const feats = new Map([
+			[1, { ...base, pMarket: 0.22 }],
+			[2, { ...base, pMarket: 0.31, eloGap: 20, expectedGoals: 2.2 }],
+			[3, { ...base, pMarket: 0.27 }]
+		]);
+		const r = rankDraws(DRAW_MODEL_FITTED, feats, { limit: 2 });
+		expect(r.map((x) => x.id)).toEqual([2, 3]);
+		expect(r[0].factors.length).toBeLessThanOrEqual(3);
+		expect(r[0].factors.length).toBeGreaterThan(0);
+		for (const x of r) expect(Math.abs(x.pDraw - x.pMarket)).toBeLessThan(0.08);
 	});
 });

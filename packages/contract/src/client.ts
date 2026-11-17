@@ -16,6 +16,8 @@ import type {
 	PlacedBetsResponse,
 	ProfileResponse,
 	ProfilePicksResponse,
+	DrawsResponse,
+	DrawsQuery,
 	QuizAnswerInput,
 	QuizAnswerResponse,
 	QuizNextResponse,
@@ -94,6 +96,8 @@ export interface ApiClient {
 	getProfile(): Promise<ProfileResponse>;
 	/** „Te ezt raknád” a megadott meccsekre (legfeljebb 100). „Kevés adat” → `picks: []`. */
 	getProfilePicks(fixtureIds: readonly number[]): Promise<ProfilePicksResponse>;
+	/** Döntetlen-figyelő (D2): a [from, to) ablak meccsei p(X) szerint; alap: most → +3 nap, 10 elem. */
+	getDraws(query?: DrawsQuery): Promise<DrawsResponse>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -178,6 +182,14 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 		getQuizQuestion: (seed) => get<QuizNextResponse>(`/api/quiz/next${seed === undefined ? '' : `?seed=${seed}`}`),
 		answerQuiz: (input) => request<QuizAnswerResponse>('POST', '/api/quiz/answer', input),
 		getProfile: () => get<ProfileResponse>('/api/profile'),
-		getProfilePicks: (fixtureIds) => get<ProfilePicksResponse>(`/api/profile/picks?ids=${fixtureIds.join(',')}`)
+		getProfilePicks: (fixtureIds) => get<ProfilePicksResponse>(`/api/profile/picks?ids=${fixtureIds.join(',')}`),
+		getDraws: (query = {}) => {
+			const q = new URLSearchParams();
+			if (query.from) q.set('from', query.from);
+			if (query.to) q.set('to', query.to);
+			if (query.limit !== undefined) q.set('limit', String(query.limit));
+			const s = q.toString();
+			return get<DrawsResponse>(`/api/draws${s ? `?${s}` : ''}`);
+		}
 	};
 }

@@ -59,3 +59,5 @@ export * from './profile/profile';
 export * from './profile/quizView';
 export * from './draw/features';
 export * from './draw/model';
+export * from './draw/watch';
+export * from './draw/weights';
