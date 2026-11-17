@@ -28,3 +28,6 @@ export const evaluationCacheKey = (model: string): string => (model ? `oe_cache_
 
 /** Az utolsó sikeres `/api/budget` válasz kulcsa (I21). */
 export const BUDGET_CACHE_KEY = 'oe_cache_budget';
+
+/** Az utolsó sikeres `/api/draws` válasz kulcsa (D3). */
+export const DRAWS_CACHE_KEY = 'oe_cache_draws';

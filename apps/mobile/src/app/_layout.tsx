@@ -52,6 +52,7 @@ function AppStack() {
 				<Stack.Screen name="arbitrage" options={{ title: 'Arbitrázs' }} />
 				<Stack.Screen name="budget" options={{ title: 'API-keret' }} />
 				<Stack.Screen name="quiz" options={{ title: 'Saját stílus' }} />
+				<Stack.Screen name="draws" options={{ title: 'Döntetlen-esélyek' }} />
 				<Stack.Screen name="settings" options={{ title: 'Kapcsolat' }} />
 				<Stack.Screen name="match/[id]" options={{ title: 'Meccs' }} />
 			</Stack>

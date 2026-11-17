@@ -277,6 +277,10 @@ export default function PreferencesScreen() {
 			<Link href="/quiz" style={s.link}>
 				Saját stílus (kvíz lejátszott meccsekről)
 			</Link>
+			{/* D3: a döntetlen-figyelő is saját képernyő, ugyanígy (DECISIONS 2026-11-17). */}
+			<Link href="/draws" style={s.link}>
+				Döntetlen-esélyek (p(X)-rangsor, nem értéktipp)
+			</Link>
 		</ScrollView>
 	);
 }

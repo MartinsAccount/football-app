@@ -73,7 +73,7 @@ CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil A
 (`git log --grep=Q3b`). 36d. ~~Q4 – 12.4 mobil `quiz`~~ kész (`git log --grep=Q4`). 36e. ~~Q5 – 12.5 „Te ezt raknád”~~ kész (Q5a `d61a79c` szerver+contract+core; Q5b `git log
 --grep=Q5b` web+mobil). 36f. ~~D1 – 12.6 core `draw/` + `backtest:draws`~~ kész (`git log --grep=D1`; `draw-logreg@1.0.0`, riport
 `docs/analysis/backtests/2026-11-17-draws.md`). 36g. ~~D2 – 12.7 `GET /api/draws` + web blokk~~ kész (D2a `e1ae827`, D2b
-`git log --grep=D2b`). 36h. **D3 – 12.8** mobil blokk (`client.getDraws`, a web `drawWatchView` → core-ba emelhető).
+`git log --grep=D2b`). 36h. ~~D3 – 12.8 mobil blokk~~ kész (`git log --grep=D3`). **A ROADMAP 12 kész.**
 
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
@@ -239,11 +239,12 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 + `getProfilePicks`; core `ownerPickChip`/`OUTCOME_TO_PICK`; web `TipCard` `ownerPick` slot + `OwnerPickChip`; mobil index-sor csip;
 screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
 | D2 – 12.7 Döntetlen-esélyek | `e1ae827` + `git log --grep=D2b` | core `draw/weights.ts` (`DRAW_MODEL_FITTED`, a `backtest:draws` generálja), `draw/watch.ts` (`drawFeaturesAt`, `rankDraws`); server `draws.ts` `GET /api/draws?from&to&limit` (DC-illesztés kérésenként, ~0,6 s); contract `DrawsResponse` + `getDraws`; web Ma-oldal `DrawWatch` blokk (top 10, tényező-csipek, „nem értéktipp” megjegyzés); screenshot `docs/plans/screens/d2-ma-{1440,390}.png` |
+| D3 – 12.8 Döntetlen-esélyek mobil | `git log --grep=D3` | core `draw/drawWatchView.ts` (a webről emelve; csip-címke `<tényező>: emeli/csökkenti` + `DRAW_FACTOR_LEGEND`); mobil `draws.tsx` (link a Beállítások alján, `loadWithCache` `oe_cache_draws`); web `DrawWatch` a core-ból; screenshot `docs/plans/screens/d3-ma-{1440,390}.png` |
 
 ## Polish backlog
 
-- D2: `/api/draws` minden kérésre DC-t illeszt (~0,6 s) – napi cache; a tényező-indok csak `title`-tooltip; a nyíl a piachoz
-  képesti korrekció iránya (pl. „↑ Gólmodell”, ha a DC kisebb p(X)-et ad – a negatív súly miatt), ez magyarázatra szorulhat.
+- D2/D3: `/api/draws` minden kérésre DC-t illeszt (~0,6 s) – napi cache; a weben a tényező-indok csak `title`-tooltip (mobilon a
+  csip alatti sor); a mobil a szerver alap-ablakát kéri (most → +3 nap), mentett 2025-ös adattal üres; nincs mobil screenshot.
 
 - Q5: a „Te ezt raknád” indok csak `title`-tooltip (érintésre nem nyílik); a mobil index meccslistán nincs egyezés-jelzés (nincs
   ajánlás-lista a mobilon); a picks-hívás minden betöltéskor újraépíti a profilt (~0,6 s) – cache, ha lassú lesz.
@@ -449,6 +450,10 @@ screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **D3 kész (12.8) – a ROADMAP 12 kész.** Nézet-modell: core `draw/drawWatchView.ts` (`drawRows`, `drawSubtitle`, szerkezeti
+  `DrawWatchViewInput`, mert a core nem függhet a contracttól); a csip `direction: 'up'|'down'` + `aria`. Mobil: `/draws` képernyő
+  (Beállítások alján link). Következő: 37 (I27 BTTS).
 
 - **D2 kész (12.7).** `GET /api/draws?from&to&limit` (alap most → +3 nap, 10; max 31 nap / 50) → `{ modelVersion, from, to,
   analyzed, items: [{ fixtureId, league, kickoff, home, away, pDraw, pMarket, drawOdds, factors(top 3) }] }`. Súlyok:

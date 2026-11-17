@@ -1,8 +1,8 @@
 import React, { Component, CSSProperties } from 'react';
 import type { DrawsResponse } from '@football/contract';
 import { v } from '../../design/tokens/tokens';
+import { DRAW_FACTOR_LEGEND, DRAW_NOTE, DRAW_REPORT_PATH, drawRows, drawSubtitle } from '@football/core';
 import { readApi } from '../../services/readApi';
-import { DRAW_NOTE, DRAW_REPORT_PATH, drawRows, drawSubtitle } from './drawWatchView';
 
 const DAY = 86_400_000;
 
@@ -75,9 +75,8 @@ class DrawWatch extends Component<IDrawWatchProps, IDrawWatchState> {
 								<div style={titleStyle}>{r.title}</div>
 								<div className="oe-chips" style={chipsStyle}>
 									{r.factors.map((f) => (
-										<span key={f.key} className="oe-pill" title={f.detail}>
+										<span key={f.key} className="oe-pill" title={f.detail} aria-label={f.aria}>
 											{f.label}
-											<span className="sr-only">: {f.detail}</span>
 										</span>
 									))}
 								</div>
@@ -93,8 +92,8 @@ class DrawWatch extends Component<IDrawWatchProps, IDrawWatchState> {
 					))}
 				</ol>
 				<p className="oe-muted" style={noteStyle} title={DRAW_REPORT_PATH}>
-					{DRAW_NOTE} A modell ({res.modelVersion}) a 2024/25-ös backtestben nem verte kimutathatóan a piaci rangsort; riport:{' '}
-					<code>{DRAW_REPORT_PATH}</code>
+					{DRAW_FACTOR_LEGEND} {DRAW_NOTE} A modell ({res.modelVersion}) a 2024/25-ös backtestben nem verte kimutathatóan a piaci
+					rangsort; riport: <code>{DRAW_REPORT_PATH}</code>
 				</p>
 			</section>
 		);
