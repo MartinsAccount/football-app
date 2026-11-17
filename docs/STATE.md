@@ -70,8 +70,8 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös
 CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`584c50d`). 36c.
 ~~Q3 – 12.3 web `/quiz`~~ kész (`ec6751b`). 36c2. ~~Q3b – `/api/profile` + `/api/quiz/next` kötegelt betöltés~~ kész
-(`git log --grep=Q3b`). 36d. **Q4 – 12.4 mobil `quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5 – 12.5** „Te ezt
-raknád” jelölés az ajánlás-listán (web + mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script →
+(`git log --grep=Q3b`). 36d. ~~Q4 – 12.4 mobil `quiz`~~ kész (`git log --grep=Q4`). 36e. **Q5 – 12.5** „Te ezt raknád” jelölés az
+ajánlás-listán (web + mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script →
 `docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 –
 12.8** mobil blokk.
 
@@ -232,12 +232,15 @@ upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `lo
 `docs/plans/screens/q3-quiz-{dark,answered-light}-{1440,390}.png` | | Q3b – kvíz/profil gyorsítás | `git log --grep=Q3b` | server
 `quiz.ts` `loadQuizQuestions` (4 lekérdezés/köteg: fejlécek, nyitó odds, liga-szezon meccsek, csapat-meccsek; memóriában
 core-függvények); `profile()` egy köteg, `next()` 8-as kötegek; teszt: köteg = egyenkénti; mérés (30 válasz, PGlite-másolat):
-profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos |
+profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 – 12.4 Mobil kvíz | `git log --grep=Q4` | core
+`profile/quizView.ts` (+ teszt; a webről áthelyezve, contract-DTO-k szerkezeti tükrével, `RESULT_LETTER` is itt); mobil
+`apps/mobile/src/app/quiz.tsx` („Saját stílus”, link a Beállítások alján); `expo export` OK |
 
 ## Polish backlog
 
 - Q3: billentyű-gyorsgombok (1/X/2/O/U/S), válasz-előzmények, a súlyok teljes listája lenyitóban; 390 px-en a fejléc-nav 2 sorba
   tör (5 menüpont). A kvíz nem szűr a követett ligákra; a `migrate.test` TABLES listájában nincs `owner_answer`.
+- Q4 mobil kvíz: nincs eszköz-screenshot; a profil nem tölt újra fókuszkor; válasz-előzmények; mobil tab-navigáció.
 
 - I26: M2 feljutó csapatai att = def = 0-ról indulnak (ligaátlag; másodosztályos adat nincs) – feljutó-prior (pl. a kieső csapatok
   átlaga) javíthatna; a Hesse-közelítés a τ kereszttagjait elhagyja (lassabb konvergencia, eredmény ugyanaz); a v1-riport fájlneve
@@ -436,6 +439,10 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **Q4 kész (12.4).** A kvíz-nézetlogika a core-ban: `packages/core/src/profile/quizView.ts` (`answerRows`, `answerVerdict`,
+  `profileProgress`, `RESULT_LETTER`…; a web `tipView` innen re-exportálja). Mobil `quiz.tsx`: kérdés-kártya, tipp azonnal beküld,
+  bizalom előtte, verdikt + „Következő”, profilblokk alatta; link a Beállítások alján. Következő: 36e (Q5 „Te ezt raknád”).
 
 - **Q3b kész.** `loadQuizQuestions(db, ids)` → `Map<id, QuizQuestion>` kötegelt (a `loadQuizQuestion` ennek egyelemű esete);
   profil 30 válasznál ~0,6 s. A `next()` maradék ideje (~0,2 s) a jelölt-id lekérdezés (`TODO(polish)` a kódban). Következő: 36d.

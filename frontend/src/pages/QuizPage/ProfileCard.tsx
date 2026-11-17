@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react';
 import type { ProfileResponse } from '@football/contract';
 import { card } from '../../components/ui/oeClasses';
-import { crossValidationTiles, profileProgress, profileStatus, sourcesText } from './quizView';
+import { crossValidationTiles, profileProgress, profileStatus, sourcesText } from '@football/core';
 
 const vars = (o: Record<string, string>): CSSProperties => o as CSSProperties;
 

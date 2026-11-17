@@ -1,4 +1,4 @@
-import { formatPercent, formatScore, MatchResult, NBSP } from '@football/core';
+import { formatPercent, formatScore, MatchResult, NBSP, RESULT_LETTER } from '@football/core';
 
 /** Egy forma-bejegyzés egy csapat szemszögéből (DESIGN §7.4–7.5). */
 export interface IFormEntry {
@@ -65,7 +65,7 @@ export interface ITip {
 	stakeUnits?: number;
 }
 
-export const RESULT_LETTER: Record<MatchResult, string> = { W: 'Gy', D: 'D', L: 'V' };
+export { RESULT_LETTER };
 export const RESULT_CHIP_CLASS: Record<MatchResult, string> = { W: 'oe-chip--win', D: 'oe-chip--draw', L: 'oe-chip--loss' };
 
 const CONFIDENCE_LABEL: Record<Confidence, string> = { low: 'alacsony', medium: 'közepes', high: 'magas' };

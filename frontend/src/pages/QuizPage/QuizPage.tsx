@@ -19,7 +19,7 @@ import {
 	quizFormAria,
 	SKIP_BUTTON,
 	tablePositionText
-} from './quizView';
+} from '@football/core';
 
 type Loadable<T> = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; data: T };
 

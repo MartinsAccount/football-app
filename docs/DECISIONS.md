@@ -272,3 +272,5 @@
 | 2026-11-17 | Q3: menüpont | „Saját stílus” a Kiértékelés után | a cél a profil, nem a kvíz maga | igen |
 | 2026-11-17 | Q3b: kvíz/profil kötegelés módja | `loadQuizQuestions`: 4 SQL (fejlécek, nyitó odds `unnest`-tel, liga-szezonok `(league_id, season) IN unnest`, az érintett csapatok összes lejátszott meccse), a forma/tabella memóriában | kevés lekérdezés, a core függvények változatlanok; a csapat-meccsek teljes betöltése sok adatnál nőhet (akkor ablakolás) | nem |
 | 2026-11-17 | Q3b: `next()` jelöltpróbálás | 8-as kötegekben a seedelt kezdőindextől, az első használható jelölt | ugyanaz a kimenet, mint egyenként; a legtöbbször az első jó, a köteg kicsi | nem |
+| 2026-11-17 | Q4: kvíz-nézetlogika helye | core `profile/quizView.ts`, a contract-DTO-k szerkezeti tükrével (`QuizAnswerView`, `QuizResultView`, `ProfileSourcesView`) | a core nem függhet a contracttól; a web és a mobil ugyanazt a szöveget adja | nem |
+| 2026-11-17 | Q4: mobil kvíz-link | a Beállítások aljára, mint az Arbitrázs/API-keret | a fejlécben már 3 link van | igen (tab-navigáció) |

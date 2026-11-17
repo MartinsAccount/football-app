@@ -1,7 +1,9 @@
-import type { OwnerProfile, ProfileCrossValidation, QuizQuestion } from '@football/core';
-import type { QuizAnswerResponse } from '@football/contract';
+import { describe, expect, it } from 'vitest';
+import type { OwnerProfile, ProfileCrossValidation } from './profile';
+import type { QuizQuestion } from './types';
 import {
 	answerRows,
+	type QuizAnswerView,
 	answerVerdict,
 	crossValidationTiles,
 	profileProgress,
@@ -50,8 +52,8 @@ describe('quizView', () => {
 	});
 
 	it('answerVerdict: talált / nem talált / kihagyás', () => {
-		const res = (pick: QuizAnswerResponse['answer']['pick'], correct: boolean | null): QuizAnswerResponse => ({
-			answer: { fixtureId: 100, pick, answeredAt: '2026-11-17T10:00:00Z' },
+		const res = (pick: QuizAnswerView['answer']['pick'], correct: boolean | null): QuizAnswerView => ({
+			answer: { pick },
 			result: { homeGoals: 2, awayGoals: 1, outcome: '1', over25: true },
 			correct
 		});

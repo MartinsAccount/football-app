@@ -273,6 +273,10 @@ export default function PreferencesScreen() {
 			<Link href="/budget" style={s.link}>
 				API-keret (mai hívások, jobonként)
 			</Link>
+			{/* Q4: a kvíz is ide kerül, a fejlécben nincs hely (DECISIONS 2026-11-17). */}
+			<Link href="/quiz" style={s.link}>
+				Saját stílus (kvíz lejátszott meccsekről)
+			</Link>
 		</ScrollView>
 	);
 }

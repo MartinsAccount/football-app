@@ -1,19 +1,35 @@
-import {
-	formatDateTime,
-	formatOdds,
-	formatPairing,
-	formatPercent,
-	formatScore,
-	MIN_PROFILE_SAMPLES,
-	type MatchResult,
-	type OwnerProfile,
-	type ProfileCrossValidation,
-	type QuizPick,
-	type QuizQuestion,
-	type QuizTeam
-} from '@football/core';
-import type { ProfileResponse, QuizAnswerResponse, QuizResultDto } from '@football/contract';
-import { RESULT_LETTER } from '../../components/TipCard/tipView';
+import type { MatchResult } from '../features/types';
+import { formatDateTime, formatOdds, formatPairing, formatPercent, formatScore } from '../format/format';
+import { MIN_PROFILE_SAMPLES, type OwnerProfile, type ProfileCrossValidation } from './profile';
+import type { QuizAnswer, QuizPick, QuizQuestion, QuizTeam } from './types';
+
+// Platformfüggetlen kvíz-szövegek/formázók (ROADMAP 12.3–12.4): a web `/quiz` és a mobil `quiz` képernyő közös nézet-logikája.
+// A contract DTO-it szerkezetileg tükrözi (a core nem függ a contracttól).
+
+/** Forma-betű: Győzelem / Döntetlen / Vereség. */
+export const RESULT_LETTER: Record<MatchResult, string> = { W: 'Gy', D: 'D', L: 'V' };
+
+/** A meccs valós kimenete (= contract `QuizResultDto`). */
+export interface QuizResultView {
+	homeGoals: number;
+	awayGoals: number;
+	outcome: '1' | 'X' | '2';
+	over25: boolean;
+}
+
+/** A válasz-végpont válasza (= contract `QuizAnswerResponse`, szerkezetileg). */
+export interface QuizAnswerView {
+	answer: Pick<QuizAnswer, 'pick'>;
+	result: QuizResultView;
+	correct: boolean | null;
+}
+
+/** A profil forrásai (= contract `ProfileResponse['sources']`). */
+export interface ProfileSourcesView {
+	quiz: number;
+	placedBets: number;
+	ignored: number;
+}
 
 /** A kvíz-válasz gombjai: tipp vagy kihagyás. */
 export type QuizChoice = QuizPick | 'skip';
@@ -86,7 +102,7 @@ export const quizFormAria = (team: QuizTeam): string =>
 		: `${team.name}: nincs forma-adat`;
 
 /** „Valós eredmény: Arsenal – Chelsea 2–0 (1, több mint 2,5 gól)” */
-export const resultText = (q: QuizQuestion, r: QuizResultDto): string =>
+export const resultText = (q: QuizQuestion, r: QuizResultView): string =>
 	`${questionTitle(q)} ${formatScore(r.homeGoals, r.awayGoals)} (${r.outcome}, ${
 		r.over25 ? 'több mint 2,5 gól' : 'legfeljebb 2 gól'
 	})`;
@@ -96,7 +112,7 @@ export type QuizTone = 'positive' | 'negative' | 'neutral';
 /** Visszajelzés a válasz után: cím, szöveg, hangulat (`.oe-verdict[data-tone]`). */
 export const answerVerdict = (
 	q: QuizQuestion,
-	res: QuizAnswerResponse
+	res: QuizAnswerView
 ): { title: string; text: string; tone: QuizTone; icon: string } => {
 	const text = `Valós eredmény: ${resultText(q, res.result)}. A tipped: ${PICK_TEXT[res.answer.pick]}.`;
 	if (res.correct === null) return { title: 'Kihagytad', text, tone: 'neutral', icon: '–' };
@@ -134,7 +150,7 @@ export const crossValidationTiles = (
 		: null;
 
 /** Forrás-sor: „12 kvízválasz · 3 saját fogadás · 1 kihagyott minta” (a 0-s tagok nélkül, a kvíz mindig). */
-export const sourcesText = (s: ProfileResponse['sources']): string =>
+export const sourcesText = (s: ProfileSourcesView): string =>
 	[
 		`${s.quiz} kvízválasz`,
 		s.placedBets ? `${s.placedBets} saját fogadás` : null,

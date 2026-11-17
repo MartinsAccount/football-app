@@ -56,3 +56,4 @@ export * from './profile/types';
 export * from './profile/logreg';
 export * from './profile/features';
 export * from './profile/profile';
+export * from './profile/quizView';
