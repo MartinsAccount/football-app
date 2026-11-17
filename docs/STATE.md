@@ -69,8 +69,8 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 
 36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös
 CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`584c50d`). 36c.
-~~Q3 – 12.3 web `/quiz`~~ kész (`HASH`). 36d. **Q4 – 12.4 mobil `quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5 –
-12.5** „Te ezt raknád” jelölés az ajánlás-listán (web + mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg,
+~~Q3 – 12.3 web `/quiz`~~ kész (`ec6751b`). 36d. **Q4 – 12.4 mobil `quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5
+– 12.5** „Te ezt raknád” jelölés az ajánlás-listán (web + mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg,
 `backtest:draws` script → `docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web
 „Döntetlen-esélyek” blokk. 36h. **D3 – 12.8** mobil blokk.
 
@@ -226,7 +226,7 @@ migráció nem kellett (0004) | | Q2 – 12.2 Kvíz/profil API | `584c50d` | db 
 upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `loadQuizQuestion`, `parseQuizAnswer`,
 `placedBetPick`, `seededIndex`) + router `GET /api/quiz/next[?seed=]`, `POST /api/quiz/answer`, `GET /api/profile`; contract
 `QuizNextResponse`/`QuizAnswerResponse`/`ProfileResponse` + `getQuizQuestion`/`answerQuiz`/`getProfile`; Vite-proxy `quiz/`,
-`profile`; dev.ts bekötve | | Q3 – 12.3 Web kvíz-oldal | `HASH` | `frontend/src/pages/QuizPage/` (`QuizPage.tsx`,
+`profile`; dev.ts bekötve | | Q3 – 12.3 Web kvíz-oldal | `ec6751b` | `frontend/src/pages/QuizPage/` (`QuizPage.tsx`,
 `ProfileCard.tsx`, `quizView.ts` + teszt), route `/quiz`, menüpont „Saját stílus”; screenshot
 `docs/plans/screens/q3-quiz-{dark,answered-light}-{1440,390}.png` |
 

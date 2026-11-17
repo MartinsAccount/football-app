@@ -266,7 +266,7 @@
 
 - [x] **12.1 (Q1)** core profil-mag: kvíz-jellemzők, logreg, profil-szöveg, utánzó pontszám. (`28dc22a`)
 - [x] **12.2 (Q2)** DB-tábla + kvíz/profil API. (`584c50d`)
-- [x] **12.3 (Q3)** web kvíz-oldal + profilkártya. (`HASH`)
+- [x] **12.3 (Q3)** web kvíz-oldal + profilkártya. (`ec6751b`)
 - [ ] **12.4 (Q4)** mobil kvíz-képernyő.
 - [ ] **12.5 (Q5)** „Te ezt raknád” jelölés az ajánlásokon.
 - [ ] **12.6 (D1)** core döntetlen-modell + backtest-riport.
