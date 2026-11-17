@@ -71,8 +71,8 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`584c50d`). 36c.
 ~~Q3 – 12.3 web `/quiz`~~ kész (`ec6751b`). 36c2. ~~Q3b – `/api/profile` + `/api/quiz/next` kötegelt betöltés~~ kész
 (`git log --grep=Q3b`). 36d. ~~Q4 – 12.4 mobil `quiz`~~ kész (`git log --grep=Q4`). 36e. ~~Q5 – 12.5 „Te ezt raknád”~~ kész (Q5a `d61a79c` szerver+contract+core; Q5b `git log
---grep=Q5b` web+mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script →
-`docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 –
+--grep=Q5b` web+mobil). 36f. ~~D1 – 12.6 core `draw/` + `backtest:draws`~~ kész (`git log --grep=D1`; `draw-logreg@1.0.0`, riport
+`docs/analysis/backtests/2026-11-17-draws.md`). 36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 –
 12.8** mobil blokk.
 
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
@@ -445,6 +445,12 @@ screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **D1 kész (12.6).** core `draw/`: `buildDrawSamples(matches, dcMap)` (walk-forward jellemzők), `fitDrawModel`, `predictDraw` →
+  `{ pDraw, pMarket, factors[{ key, label, detail, contribution }] }` (magyar). Holdout 2024: LL 0,5510 vs. piac 0,5524 (csak
+  2022-n tanítva 0,5527 – rosszabb); felső 10%: 33,0% találat, ROI +3,3% ± 10,4% (piaci rangsor: 37,2%, +14,8%) → nincs
+  kimutatható előny. D2: a modell a 2022+2023 CSV-ből illeszthető (λ = 30) vagy a riport súlyai rögzíthetők; a figyelő
+  rangsoroljon + magyarázzon, értéktippet ne adjon. Következő: 36g (D2 `/api/draws` + web blokk).
 
 - **Q5 kész (12.5).** `GET /api/profile/picks?ids=1,2` → `{ status, picks: [{ fixtureId, pick, probability, factors }] }`
   (a kvíz `loadQuizQuestions`-ét használja közelgő meccsekre is: kezdés előtti legkorábbi odds); „kevés adat” → `[]`. Web: a Ma

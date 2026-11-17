@@ -278,3 +278,8 @@
 | 2026-11-17 | Q5: mobil hely | az index meccslista le nem játszott soraira csip, egyezés-jelzés nélkül | a mobilon nincs ajánlás-lista; a legkisebb visszafordítható lépés | igen (mobil ajánlás-nézet) |
 | 2026-11-17 | Q5: indok megjelenítése | 3 fő tényező ↑/↓ a csip `title`-jében + sr-only szöveg | kis, nem hangos állapot (DESIGN); a részletes nézet polish | igen |
 | 2026-11-17 | Q5: szeletbontás | Q5a szerver+contract+core, Q5b web+mobil | 10 fájl fölött | nem |
+| 2026-11-17 | D1: hogyan használja a logreg a piacot | `logit(p_piac)` büntetés nélküli oszlop, a tényezők a piachoz/referenciához képesti eltérések, L2-vel büntetve | λ → ∞ = kalibrált piac; a core `profile/logreg.ts` újrahasznosítva | nem |
+| 2026-11-17 | D1: DC-predikció 2022 elején | az első 28 nap bemelegítés (nincs DC-illesztés, nincs minta) | a `fitDixonColes` tanítómeccs nélkül hibát dob | nem |
+| 2026-11-17 | D1: végső modell és top-N küszöb | λ a 2023-as validáción (2022-n tanítva), a végső modell 2022+2023-on újraillesztve; a felső 10/20% küszöbe a 2023-as p(X)-kvantilis | a holdout semmit nem hangol; több tanítóadat a végső modellnek | igen |
+| 2026-11-17 | D1: döntetlen-történet simítása | csapat: 10 pszeudo-meccs a liga felé, liga: 50 pszeudo-meccs 26% felé; Elo: abszolút (különbség + hazai előny) | egyszerű, nem hangolt alapértékek | igen |
+| 2026-11-17 | D1: eredmény | holdout LL 0,5510 vs. piac 0,5524 (csak 2022-n tanítva 0,5527 – rosszabb); top-N ROI a hibahatáron belül → a D2/D3 figyelő rangsorol + magyaráz, értéktippet nem ad | őszinte riport: kimutatható előny nincs | igen |
