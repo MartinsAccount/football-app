@@ -70,8 +70,8 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös
 CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`584c50d`). 36c.
 ~~Q3 – 12.3 web `/quiz`~~ kész (`ec6751b`). 36c2. ~~Q3b – `/api/profile` + `/api/quiz/next` kötegelt betöltés~~ kész
-(`git log --grep=Q3b`). 36d. ~~Q4 – 12.4 mobil `quiz`~~ kész (`git log --grep=Q4`). 36e. **Q5 – 12.5** „Te ezt raknád” jelölés az
-ajánlás-listán (web + mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script →
+(`git log --grep=Q3b`). 36d. ~~Q4 – 12.4 mobil `quiz`~~ kész (`git log --grep=Q4`). 36e. ~~Q5 – 12.5 „Te ezt raknád”~~ kész (Q5a `d61a79c` szerver+contract+core; Q5b `git log
+--grep=Q5b` web+mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script →
 `docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 –
 12.8** mobil blokk.
 
@@ -234,9 +234,15 @@ upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `lo
 core-függvények); `profile()` egy köteg, `next()` 8-as kötegek; teszt: köteg = egyenkénti; mérés (30 válasz, PGlite-másolat):
 profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 – 12.4 Mobil kvíz | `git log --grep=Q4` | core
 `profile/quizView.ts` (+ teszt; a webről áthelyezve, contract-DTO-k szerkezeti tükrével, `RESULT_LETTER` is itt); mobil
-`apps/mobile/src/app/quiz.tsx` („Saját stílus”, link a Beállítások alján); `expo export` OK |
+`apps/mobile/src/app/quiz.tsx` („Saját stílus”, link a Beállítások alján); `expo export` OK | | Q5 – 12.5 „Te ezt raknád” | `d61a79c`
++ `git log --grep=Q5b` | server `picks(ids)` + `GET /api/profile/picks?ids=` (`parsePickIds`, max. 100), contract `ProfilePicksResponse`
++ `getProfilePicks`; core `ownerPickChip`/`OUTCOME_TO_PICK`; web `TipCard` `ownerPick` slot + `OwnerPickChip`; mobil index-sor csip;
+screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
 
 ## Polish backlog
+
+- Q5: a „Te ezt raknád” indok csak `title`-tooltip (érintésre nem nyílik); a mobil index meccslistán nincs egyezés-jelzés (nincs
+  ajánlás-lista a mobilon); a picks-hívás minden betöltéskor újraépíti a profilt (~0,6 s) – cache, ha lassú lesz.
 
 - Q3: billentyű-gyorsgombok (1/X/2/O/U/S), válasz-előzmények, a súlyok teljes listája lenyitóban; 390 px-en a fejléc-nav 2 sorba
   tör (5 menüpont). A kvíz nem szűr a követett ligákra; a `migrate.test` TABLES listájában nincs `owner_answer`.
@@ -439,6 +445,10 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **Q5 kész (12.5).** `GET /api/profile/picks?ids=1,2` → `{ status, picks: [{ fixtureId, pick, probability, factors }] }`
+  (a kvíz `loadQuizQuestions`-ét használja közelgő meccsekre is: kezdés előtti legkorábbi odds); „kevés adat” → `[]`. Web: a Ma
+  oldal `componentDidMount`-ban kéri, hibánál nincs csip. Mobil: index meccslista (le nem játszott meccsek). Következő: 36f (D1).
 
 - **Q4 kész (12.4).** A kvíz-nézetlogika a core-ban: `packages/core/src/profile/quizView.ts` (`answerRows`, `answerVerdict`,
   `profileProgress`, `RESULT_LETTER`…; a web `tipView` innen re-exportálja). Mobil `quiz.tsx`: kérdés-kártya, tipp azonnal beküld,

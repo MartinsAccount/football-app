@@ -268,7 +268,7 @@
 - [x] **12.2 (Q2)** DB-tábla + kvíz/profil API. (`584c50d`)
 - [x] **12.3 (Q3)** web kvíz-oldal + profilkártya. (`ec6751b`)
 - [x] **12.4 (Q4)** mobil kvíz-képernyő. (`git log --grep=Q4`)
-- [ ] **12.5 (Q5)** „Te ezt raknád” jelölés az ajánlásokon.
+- [x] **12.5 (Q5)** „Te ezt raknád” jelölés az ajánlásokon. (`d61a79c` + Q5b)
 - [ ] **12.6 (D1)** core döntetlen-modell + backtest-riport.
 - [ ] **12.7 (D2)** `/api/draws` + web blokk.
 - [ ] **12.8 (D3)** mobil blokk.

@@ -15,6 +15,8 @@ interface ITipCardProps {
 	onToggleExpand: (tip: ITip) => void;
 	/** „Most” a relatív időpontokhoz (teszt / fixture-mód). */
 	now?: Date;
+	/** „Te ezt raknád” csip a piac-sor alatt (Q5); hiányában nincs. */
+	ownerPick?: ReactNode;
 	/** Lenyitott tartalom az indoklás után (MatchDetails: `.oe-details` rács). */
 	children?: ReactNode;
 }
@@ -28,7 +30,7 @@ class TipCard extends Component<ITipCardProps> {
 	toggleExpand = () => this.props.onToggleExpand(this.props.tip);
 
 	render() {
-		const { tip, selected, expanded, blockedReason, now, children } = this.props;
+		const { tip, selected, expanded, blockedReason, now, children, ownerPick } = this.props;
 		const detailsId = `tip-details-${tip.id}`;
 		const { market, badge } = tipMarketParts(tip.tippmixLabel, tip.outcome);
 		const oddsAt = `${tip.bookmaker} · ${formatKickoff(tip.oddsAt, now)}`;
@@ -43,6 +45,7 @@ class TipCard extends Component<ITipCardProps> {
 						<div className="oe-tip__market">
 							{market} <span className="oe-badge">{badge}</span>
 						</div>
+						{ownerPick}
 					</div>
 					<div className="oe-tip__ev">
 						<div className="oe-tip__ev-label">várható érték</div>

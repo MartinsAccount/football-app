@@ -1,12 +1,13 @@
 import React, { Component, CSSProperties } from 'react';
 import { inject, observer } from 'mobx-react';
-import { RecommendationSnapshot } from '@football/core';
+import { RecommendationSnapshot, type ImitatedPick } from '@football/core';
 import PageIntro from '../../components/PageIntro/PageIntro';
 import EmptyState from '../../components/PageIntro/EmptyState';
 import DataState from '../../components/PageIntro/DataState';
 import MatchDetails from '../../components/MatchDetails/MatchDetails';
 import SlipPanel from '../../components/SlipPanel/SlipPanel';
 import TipCard from '../../components/TipCard/TipCard';
+import OwnerPickChip from '../../components/TipCard/OwnerPickChip';
 import { ITip } from '../../components/TipCard/tipView';
 import { v } from '../../design/tokens/tokens';
 import { MainStore } from '../../stores/MainStore';
@@ -16,6 +17,9 @@ import { dataState, groupTipsByDay, ITipDay } from './recommendationsView';
 
 const splitStyle: CSSProperties = { paddingBottom: v('space.14') };
 
+const ownerPick = (pick: ImitatedPick | undefined, outcome: string) =>
+	pick ? <OwnerPickChip pick={pick} outcome={outcome} /> : undefined;
+
 interface IRecommendationsPageProps {
 	MainStore?: MainStore;
 	snapshot: RecommendationSnapshot;
@@ -23,6 +27,8 @@ interface IRecommendationsPageProps {
 
 interface IRecommendationsPageState {
 	expandedId: string | null;
+	/** „Te ezt raknád” meccsenként (Q5); a profil betöltéséig / „kevés adat” esetén üres. */
+	ownerPicks: Map<number, ImitatedPick>;
 }
 
 /**
@@ -40,8 +46,19 @@ class RecommendationsView extends Component<IRecommendationsPageProps, IRecommen
 	dataRow = dataState(this.snapshot);
 	// Az első kártya nyitva indul (DESIGN-referencia).
 	state: IRecommendationsPageState = {
-		expandedId: this.days.find((d) => d.tips.length)?.tips[0].id ?? null
+		expandedId: this.days.find((d) => d.tips.length)?.tips[0].id ?? null,
+		ownerPicks: new Map()
 	};
+
+	componentDidMount() {
+		const ids = [...new Set(this.allTips.map((t) => t.fixtureId))];
+		if (!ids.length) return;
+		// A csip kiegészítő: hiba esetén egyszerűen nem jelenik meg (az ajánlás-lista attól még működik).
+		readApi
+			.getProfilePicks(ids)
+			.then((res) => this.setState({ ownerPicks: new Map(res.picks.map((p) => [p.fixtureId, p])) }))
+			.catch(() => undefined);
+	}
 
 	get slip() {
 		return this.props.MainStore!.SlipStore;
@@ -53,7 +70,7 @@ class RecommendationsView extends Component<IRecommendationsPageProps, IRecommen
 	toggleExpand = (tip: ITip) => this.setState(({ expandedId }) => ({ expandedId: expandedId === tip.id ? null : tip.id }));
 
 	renderDay(day: ITipDay) {
-		const { expandedId } = this.state;
+		const { expandedId, ownerPicks } = this.state;
 		const { slip } = this;
 		const headingId = `tips-${day.key}`;
 		return (
@@ -76,6 +93,7 @@ class RecommendationsView extends Component<IRecommendationsPageProps, IRecommen
 								selected={slip.isSelected(tip.id)}
 								blockedReason={slip.blockedReason(tip)}
 								expanded={expandedId === tip.id}
+								ownerPick={ownerPick(ownerPicks.get(tip.fixtureId), tip.outcome)}
 								onToggleSlip={this.toggleSlip}
 								onToggleExpand={this.toggleExpand}
 							>

@@ -1,16 +1,22 @@
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { Link, useFocusEffect } from 'expo-router';
-import type { FixtureDto, FixturesResponse } from '@football/contract';
-import { formatKickoff, formatPairing, formatScore, loadWithCache, type CachedResult } from '@football/core';
+import type { FixtureDto, FixturesResponse, ProfilePickDto } from '@football/contract';
+import { formatKickoff, formatPairing, formatScore, loadWithCache, ownerPickChip, type CachedResult } from '@football/core';
 import { apiClientFor, loadConnection } from '@/lib/connection';
 import { asyncKeyValueStorage, FIXTURES_CACHE_KEY } from '@/lib/storage';
 import { useRnTheme } from '@/lib/theme';
 
-// TODO(polish): ajánlás-nézet (tipp, EV, indoklás), ha az olvasó API ad ajánlás-végpontot; addig a meccslista.
+// TODO(polish): ajánlás-nézet (tipp, EV, indoklás) a `/api/recommendations`-ből; addig a meccslista + „Te ezt raknád” csip (Q5).
 const QUERY = { limit: 50 };
 
-type State = { loading: boolean; result?: CachedResult<FixturesResponse>; missingUrl?: boolean };
+type State = {
+	loading: boolean;
+	result?: CachedResult<FixturesResponse>;
+	missingUrl?: boolean;
+	/** „Te ezt raknád” (Q5) a még le nem játszott meccsekre; „kevés adat” / hiba esetén üres. */
+	picks?: Map<number, ProfilePickDto>;
+};
 
 const errorText = (error: unknown): string => (error instanceof Error ? error.message : 'Ismeretlen hiba');
 
@@ -28,6 +34,16 @@ export default function FixturesScreen() {
 		const client = apiClientFor(connection);
 		const result = await loadWithCache(asyncKeyValueStorage, FIXTURES_CACHE_KEY, () => client.listFixtures(QUERY));
 		setState({ loading: false, result });
+		if (result.source === 'none') return;
+		const open = result.data.fixtures.filter((f) => f.goalsHome == null).map((f) => f.id);
+		if (!open.length) return;
+		// A csip kiegészítő: hiba esetén nem jelenik meg. TODO(polish): az ajánlás-kimenettel való egyezés jelzése, ha a mobilon lesz ajánlás-lista.
+		try {
+			const res = await client.getProfilePicks(open);
+			setState((st) => ({ ...st, picks: new Map(res.picks.map((p) => [p.fixtureId, p])) }));
+		} catch {
+			// offline / régi szerver
+		}
 	}, []);
 
 	useFocusEffect(
@@ -82,16 +98,17 @@ export default function FixturesScreen() {
 				</View>
 			}
 			ListEmptyComponent={<Text style={s.muted}>Nincs meccs.</Text>}
-			renderItem={({ item }) => <FixtureRow fixture={item} />}
+			renderItem={({ item }) => <FixtureRow fixture={item} pick={state.picks?.get(item.id)} />}
 		/>
 	);
 }
 
-function FixtureRow({ fixture: f }: { fixture: FixtureDto }) {
+function FixtureRow({ fixture: f, pick }: { fixture: FixtureDto; pick?: ProfilePickDto }) {
 	const s = styles(useRnTheme());
 	const played = f.goalsHome != null && f.goalsAway != null;
 	// Csapatnév, ha a szerver adja (M11a); különben `#id`.
 	const pairing = formatPairing(f.homeTeamName ?? `#${f.homeTeamId}`, f.awayTeamName ?? `#${f.awayTeamId}`);
+	const chip = pick ? ownerPickChip(pick) : null;
 	return (
 		<Link href={`/match/${f.id}`} asChild>
 			<Pressable accessibilityRole="link" accessibilityLabel={`${pairing} részletei`} style={s.card}>
@@ -103,6 +120,11 @@ function FixtureRow({ fixture: f }: { fixture: FixtureDto }) {
 					<Text style={s.title}>{pairing}</Text>
 					{played ? <Text style={s.score}>{formatScore(f.goalsHome!, f.goalsAway!)}</Text> : null}
 				</View>
+				{chip ? (
+					<Text style={s.pick} accessibilityLabel={chip.aria}>
+						{chip.label}
+					</Text>
+				) : null}
 			</Pressable>
 		</Link>
 	);
@@ -125,6 +147,16 @@ const styles = (t: ReturnType<typeof useRnTheme>) =>
 		title: { color: t.color.text.primary, fontSize: t.font.size.lead, fontWeight: '600', flexShrink: 1 },
 		score: { color: t.color.text.primary, fontSize: t.font.size['num-s'], fontWeight: '700' },
 		meta: { color: t.color.text.muted, fontSize: t.font.size.small },
+		pick: {
+			alignSelf: 'flex-start',
+			color: t.color.text.secondary,
+			fontSize: t.font.size.small,
+			borderColor: t.color.border.default,
+			borderWidth: 1,
+			borderRadius: t.radius.pill,
+			paddingHorizontal: t.space[6],
+			paddingVertical: t.space[2]
+		},
 		body: { color: t.color.text.primary, fontSize: t.font.size.body, textAlign: 'center' },
 		muted: { color: t.color.text.muted, fontSize: t.font.size.small },
 		link: { color: t.color.accent.text, fontSize: t.font.size.body },

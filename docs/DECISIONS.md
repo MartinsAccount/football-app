@@ -274,3 +274,7 @@
 | 2026-11-17 | Q3b: `next()` jelöltpróbálás | 8-as kötegekben a seedelt kezdőindextől, az első használható jelölt | ugyanaz a kimenet, mint egyenként; a legtöbbször az első jó, a köteg kicsi | nem |
 | 2026-11-17 | Q4: kvíz-nézetlogika helye | core `profile/quizView.ts`, a contract-DTO-k szerkezeti tükrével (`QuizAnswerView`, `QuizResultView`, `ProfileSourcesView`) | a core nem függhet a contracttól; a web és a mobil ugyanazt a szöveget adja | nem |
 | 2026-11-17 | Q4: mobil kvíz-link | a Beállítások aljára, mint az Arbitrázs/API-keret | a fejlécben már 3 link van | igen (tab-navigáció) |
+| 2026-11-17 | Q5: melyik meccsekre adjon utánzott tippet a szerver | `GET /api/profile/picks?ids=…` – a kliens küldi a meccs-id-ket (max. 100) | nem köti az ajánlás-pillanatképhez; web és mobil más listát mutat | nem |
+| 2026-11-17 | Q5: mobil hely | az index meccslista le nem játszott soraira csip, egyezés-jelzés nélkül | a mobilon nincs ajánlás-lista; a legkisebb visszafordítható lépés | igen (mobil ajánlás-nézet) |
+| 2026-11-17 | Q5: indok megjelenítése | 3 fő tényező ↑/↓ a csip `title`-jében + sr-only szöveg | kis, nem hangos állapot (DESIGN); a részletes nézet polish | igen |
+| 2026-11-17 | Q5: szeletbontás | Q5a szerver+contract+core, Q5b web+mobil | 10 fájl fölött | nem |
