@@ -72,8 +72,8 @@ CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil A
 ~~Q3 – 12.3 web `/quiz`~~ kész (`ec6751b`). 36c2. ~~Q3b – `/api/profile` + `/api/quiz/next` kötegelt betöltés~~ kész
 (`git log --grep=Q3b`). 36d. ~~Q4 – 12.4 mobil `quiz`~~ kész (`git log --grep=Q4`). 36e. ~~Q5 – 12.5 „Te ezt raknád”~~ kész (Q5a `d61a79c` szerver+contract+core; Q5b `git log
 --grep=Q5b` web+mobil). 36f. ~~D1 – 12.6 core `draw/` + `backtest:draws`~~ kész (`git log --grep=D1`; `draw-logreg@1.0.0`, riport
-`docs/analysis/backtests/2026-11-17-draws.md`). 36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 –
-12.8** mobil blokk.
+`docs/analysis/backtests/2026-11-17-draws.md`). 36g. ~~D2 – 12.7 `GET /api/draws` + web blokk~~ kész (D2a `e1ae827`, D2b
+`git log --grep=D2b`). 36h. **D3 – 12.8** mobil blokk (`client.getDraws`, a web `drawWatchView` → core-ba emelhető).
 
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
@@ -238,8 +238,12 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 + `git log --grep=Q5b` | server `picks(ids)` + `GET /api/profile/picks?ids=` (`parsePickIds`, max. 100), contract `ProfilePicksResponse`
 + `getProfilePicks`; core `ownerPickChip`/`OUTCOME_TO_PICK`; web `TipCard` `ownerPick` slot + `OwnerPickChip`; mobil index-sor csip;
 screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
+| D2 – 12.7 Döntetlen-esélyek | `e1ae827` + `git log --grep=D2b` | core `draw/weights.ts` (`DRAW_MODEL_FITTED`, a `backtest:draws` generálja), `draw/watch.ts` (`drawFeaturesAt`, `rankDraws`); server `draws.ts` `GET /api/draws?from&to&limit` (DC-illesztés kérésenként, ~0,6 s); contract `DrawsResponse` + `getDraws`; web Ma-oldal `DrawWatch` blokk (top 10, tényező-csipek, „nem értéktipp” megjegyzés); screenshot `docs/plans/screens/d2-ma-{1440,390}.png` |
 
 ## Polish backlog
+
+- D2: `/api/draws` minden kérésre DC-t illeszt (~0,6 s) – napi cache; a tényező-indok csak `title`-tooltip; a nyíl a piachoz
+  képesti korrekció iránya (pl. „↑ Gólmodell”, ha a DC kisebb p(X)-et ad – a negatív súly miatt), ez magyarázatra szorulhat.
 
 - Q5: a „Te ezt raknád” indok csak `title`-tooltip (érintésre nem nyílik); a mobil index meccslistán nincs egyezés-jelzés (nincs
   ajánlás-lista a mobilon); a picks-hívás minden betöltéskor újraépíti a profilt (~0,6 s) – cache, ha lassú lesz.
@@ -445,6 +449,11 @@ screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **D2 kész (12.7).** `GET /api/draws?from&to&limit` (alap most → +3 nap, 10; max 31 nap / 50) → `{ modelVersion, from, to,
+  analyzed, items: [{ fixtureId, league, kickoff, home, away, pDraw, pMarket, drawOdds, factors(top 3) }] }`. Súlyok:
+  `packages/core/src/draw/weights.ts` (generált, `npm run backtest:draws -w @football/db`). Web: Ma oldal alján `DrawWatch`
+  (a pillanatkép `now`-jától 2 nap). Következő: 36h (D3 mobil blokk).
 
 - **D1 kész (12.6).** core `draw/`: `buildDrawSamples(matches, dcMap)` (walk-forward jellemzők), `fitDrawModel`, `predictDraw` →
   `{ pDraw, pMarket, factors[{ key, label, detail, contribution }] }` (magyar). Holdout 2024: LL 0,5510 vs. piac 0,5524 (csak

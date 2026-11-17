@@ -14,6 +14,7 @@ import { MainStore } from '../../stores/MainStore';
 import RemoteData from '../../components/PageIntro/RemoteData';
 import { readApi } from '../../services/readApi';
 import { dataState, groupTipsByDay, ITipDay } from './recommendationsView';
+import DrawWatch from './DrawWatch';
 
 const splitStyle: CSSProperties = { paddingBottom: v('space.14') };
 
@@ -127,6 +128,7 @@ class RecommendationsView extends Component<IRecommendationsPageProps, IRecommen
 						) : (
 							this.days.map((day) => this.renderDay(day))
 						)}
+						<DrawWatch now={now} />
 					</div>
 					<SlipPanel store={this.slip} now={now} presetTips={this.allTips} />
 				</div>
