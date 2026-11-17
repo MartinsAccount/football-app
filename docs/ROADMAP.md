@@ -269,9 +269,11 @@
 - [x] **12.3 (Q3)** web kvíz-oldal + profilkártya. (`ec6751b`)
 - [x] **12.4 (Q4)** mobil kvíz-képernyő. (`git log --grep=Q4`)
 - [x] **12.5 (Q5)** „Te ezt raknád” jelölés az ajánlásokon. (`d61a79c` + Q5b)
-- [x] **12.6 (D1)** core döntetlen-modell + backtest-riport. (`git log --grep=D1`; `draw-logreg@1.0.0`, riport `docs/analysis/backtests/2026-11-17-draws.md`)
+- [x] **12.6 (D1)** core döntetlen-modell + backtest-riport. (`git log --grep=D1`; `draw-logreg@1.0.0`, riport
+      `docs/analysis/backtests/2026-11-17-draws.md`)
 - [x] **12.7 (D2)** `/api/draws` + web blokk. (`e1ae827` + `git log --grep=D2b`; `DrawWatch` a Ma oldalon)
-- [x] **12.8 (D3)** mobil blokk. (`git log --grep=D3`; `draws` képernyő a Beállításokból, core `draw/drawWatchView.ts`) – a ROADMAP 12 kész.
+- [x] **12.8 (D3)** mobil blokk. (`git log --grep=D3`; `draws` képernyő a Beállításokból, core `draw/drawWatchView.ts`) – a
+      ROADMAP 12 kész.
 
 ## Parkoló (nem-célok, újranyitható)
 

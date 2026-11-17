@@ -70,10 +70,11 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös
 CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`584c50d`). 36c.
 ~~Q3 – 12.3 web `/quiz`~~ kész (`ec6751b`). 36c2. ~~Q3b – `/api/profile` + `/api/quiz/next` kötegelt betöltés~~ kész
-(`git log --grep=Q3b`). 36d. ~~Q4 – 12.4 mobil `quiz`~~ kész (`git log --grep=Q4`). 36e. ~~Q5 – 12.5 „Te ezt raknád”~~ kész (Q5a `d61a79c` szerver+contract+core; Q5b `git log
---grep=Q5b` web+mobil). 36f. ~~D1 – 12.6 core `draw/` + `backtest:draws`~~ kész (`git log --grep=D1`; `draw-logreg@1.0.0`, riport
-`docs/analysis/backtests/2026-11-17-draws.md`). 36g. ~~D2 – 12.7 `GET /api/draws` + web blokk~~ kész (D2a `e1ae827`, D2b
-`git log --grep=D2b`). 36h. ~~D3 – 12.8 mobil blokk~~ kész (`git log --grep=D3`). **A ROADMAP 12 kész.**
+(`git log --grep=Q3b`). 36d. ~~Q4 – 12.4 mobil `quiz`~~ kész (`git log --grep=Q4`). 36e. ~~Q5 – 12.5 „Te ezt raknád”~~ kész (Q5a
+`d61a79c` szerver+contract+core; Q5b `git log --grep=Q5b` web+mobil). 36f. ~~D1 – 12.6 core `draw/` + `backtest:draws`~~ kész
+(`git log --grep=D1`; `draw-logreg@1.0.0`, riport `docs/analysis/backtests/2026-11-17-draws.md`). 36g. ~~D2 – 12.7
+`GET /api/draws` + web blokk~~ kész (D2a `e1ae827`, D2b `git log --grep=D2b`). 36h. ~~D3 – 12.8 mobil blokk~~ kész
+(`git log --grep=D3`). **A ROADMAP 12 kész.**
 
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
@@ -234,12 +235,20 @@ upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `lo
 core-függvények); `profile()` egy köteg, `next()` 8-as kötegek; teszt: köteg = egyenkénti; mérés (30 válasz, PGlite-másolat):
 profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 – 12.4 Mobil kvíz | `git log --grep=Q4` | core
 `profile/quizView.ts` (+ teszt; a webről áthelyezve, contract-DTO-k szerkezeti tükrével, `RESULT_LETTER` is itt); mobil
-`apps/mobile/src/app/quiz.tsx` („Saját stílus”, link a Beállítások alján); `expo export` OK | | Q5 – 12.5 „Te ezt raknád” | `d61a79c`
-+ `git log --grep=Q5b` | server `picks(ids)` + `GET /api/profile/picks?ids=` (`parsePickIds`, max. 100), contract `ProfilePicksResponse`
-+ `getProfilePicks`; core `ownerPickChip`/`OUTCOME_TO_PICK`; web `TipCard` `ownerPick` slot + `OwnerPickChip`; mobil index-sor csip;
-screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
-| D2 – 12.7 Döntetlen-esélyek | `e1ae827` + `git log --grep=D2b` | core `draw/weights.ts` (`DRAW_MODEL_FITTED`, a `backtest:draws` generálja), `draw/watch.ts` (`drawFeaturesAt`, `rankDraws`); server `draws.ts` `GET /api/draws?from&to&limit` (DC-illesztés kérésenként, ~0,6 s); contract `DrawsResponse` + `getDraws`; web Ma-oldal `DrawWatch` blokk (top 10, tényező-csipek, „nem értéktipp” megjegyzés); screenshot `docs/plans/screens/d2-ma-{1440,390}.png` |
-| D3 – 12.8 Döntetlen-esélyek mobil | `git log --grep=D3` | core `draw/drawWatchView.ts` (a webről emelve; csip-címke `<tényező>: emeli/csökkenti` + `DRAW_FACTOR_LEGEND`); mobil `draws.tsx` (link a Beállítások alján, `loadWithCache` `oe_cache_draws`); web `DrawWatch` a core-ból; screenshot `docs/plans/screens/d3-ma-{1440,390}.png` |
+`apps/mobile/src/app/quiz.tsx` („Saját stílus”, link a Beállítások alján); `expo export` OK | | Q5 – 12.5 „Te ezt raknád” |
+`d61a79c`
+
+- `git log --grep=Q5b` | server `picks(ids)` + `GET /api/profile/picks?ids=` (`parsePickIds`, max. 100), contract
+  `ProfilePicksResponse`
+- `getProfilePicks`; core `ownerPickChip`/`OUTCOME_TO_PICK`; web `TipCard` `ownerPick` slot + `OwnerPickChip`; mobil index-sor
+  csip; screenshot `docs/plans/screens/q5-web-{1440,390}.png` | | D2 – 12.7 Döntetlen-esélyek | `e1ae827` + `git log --grep=D2b` |
+  core `draw/weights.ts` (`DRAW_MODEL_FITTED`, a `backtest:draws` generálja), `draw/watch.ts` (`drawFeaturesAt`, `rankDraws`);
+  server `draws.ts` `GET /api/draws?from&to&limit` (DC-illesztés kérésenként, ~0,6 s); contract `DrawsResponse` + `getDraws`; web
+  Ma-oldal `DrawWatch` blokk (top 10, tényező-csipek, „nem értéktipp” megjegyzés); screenshot
+  `docs/plans/screens/d2-ma-{1440,390}.png` | | D3 – 12.8 Döntetlen-esélyek mobil | `git log --grep=D3` | core
+  `draw/drawWatchView.ts` (a webről emelve; csip-címke `<tényező>: emeli/csökkenti` + `DRAW_FACTOR_LEGEND`); mobil `draws.tsx`
+  (link a Beállítások alján, `loadWithCache` `oe_cache_draws`); web `DrawWatch` a core-ból; screenshot
+  `docs/plans/screens/d3-ma-{1440,390}.png` |
 
 ## Polish backlog
 
@@ -455,10 +464,10 @@ screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
   `DrawWatchViewInput`, mert a core nem függhet a contracttól); a csip `direction: 'up'|'down'` + `aria`. Mobil: `/draws` képernyő
   (Beállítások alján link). Következő: 37 (I27 BTTS).
 
-- **D2 kész (12.7).** `GET /api/draws?from&to&limit` (alap most → +3 nap, 10; max 31 nap / 50) → `{ modelVersion, from, to,
-  analyzed, items: [{ fixtureId, league, kickoff, home, away, pDraw, pMarket, drawOdds, factors(top 3) }] }`. Súlyok:
-  `packages/core/src/draw/weights.ts` (generált, `npm run backtest:draws -w @football/db`). Web: Ma oldal alján `DrawWatch`
-  (a pillanatkép `now`-jától 2 nap). Következő: 36h (D3 mobil blokk).
+- **D2 kész (12.7).** `GET /api/draws?from&to&limit` (alap most → +3 nap, 10; max 31 nap / 50) →
+  `{ modelVersion, from, to, analyzed, items: [{ fixtureId, league, kickoff, home, away, pDraw, pMarket, drawOdds, factors(top 3) }] }`.
+  Súlyok: `packages/core/src/draw/weights.ts` (generált, `npm run backtest:draws -w @football/db`). Web: Ma oldal alján
+  `DrawWatch` (a pillanatkép `now`-jától 2 nap). Következő: 36h (D3 mobil blokk).
 
 - **D1 kész (12.6).** core `draw/`: `buildDrawSamples(matches, dcMap)` (walk-forward jellemzők), `fitDrawModel`, `predictDraw` →
   `{ pDraw, pMarket, factors[{ key, label, detail, contribution }] }` (magyar). Holdout 2024: LL 0,5510 vs. piac 0,5524 (csak
@@ -466,9 +475,9 @@ screenshot `docs/plans/screens/q5-web-{1440,390}.png` |
   kimutatható előny. D2: a modell a 2022+2023 CSV-ből illeszthető (λ = 30) vagy a riport súlyai rögzíthetők; a figyelő
   rangsoroljon + magyarázzon, értéktippet ne adjon. Következő: 36g (D2 `/api/draws` + web blokk).
 
-- **Q5 kész (12.5).** `GET /api/profile/picks?ids=1,2` → `{ status, picks: [{ fixtureId, pick, probability, factors }] }`
-  (a kvíz `loadQuizQuestions`-ét használja közelgő meccsekre is: kezdés előtti legkorábbi odds); „kevés adat” → `[]`. Web: a Ma
-  oldal `componentDidMount`-ban kéri, hibánál nincs csip. Mobil: index meccslista (le nem játszott meccsek). Következő: 36f (D1).
+- **Q5 kész (12.5).** `GET /api/profile/picks?ids=1,2` → `{ status, picks: [{ fixtureId, pick, probability, factors }] }` (a kvíz
+  `loadQuizQuestions`-ét használja közelgő meccsekre is: kezdés előtti legkorábbi odds); „kevés adat” → `[]`. Web: a Ma oldal
+  `componentDidMount`-ban kéri, hibánál nincs csip. Mobil: index meccslista (le nem játszott meccsek). Következő: 36f (D1).
 
 - **Q4 kész (12.4).** A kvíz-nézetlogika a core-ban: `packages/core/src/profile/quizView.ts` (`answerRows`, `answerVerdict`,
   `profileProgress`, `RESULT_LETTER`…; a web `tipView` innen re-exportálja). Mobil `quiz.tsx`: kérdés-kártya, tipp azonnal beküld,
