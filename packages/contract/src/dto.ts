@@ -5,6 +5,10 @@ import type {
 	BacktestReport,
 	EvaluationSummary,
 	OwnBetsSummary,
+	OwnerProfile,
+	ProfileCrossValidation,
+	QuizAnswer,
+	QuizQuestion,
 	SettledPlacedBet,
 	RecommendationSnapshot
 } from '@football/core';
@@ -307,4 +311,42 @@ export type PlacedBetDto = SettledPlacedBet;
 export interface PlacedBetsResponse {
 	bets: PlacedBetDto[];
 	summary: OwnBetsSummary;
+}
+
+/** `GET /api/quiz/next[?seed=]` (ROADMAP 12.2): egy még meg nem válaszolt, lejátszott meccs nyitó adatai; `null`, ha elfogyott. */
+export interface QuizNextResponse {
+	question: QuizQuestion | null;
+}
+
+/** `POST /api/quiz/answer` törzse: `pick` = `1 | X | 2 | over | under | skip`, `confidence` 1–3 (opcionális). */
+export type QuizAnswerInput = QuizAnswer;
+
+/** A meccs valós kimenete (a válasz után mutatható). */
+export interface QuizResultDto {
+	homeGoals: number;
+	awayGoals: number;
+	outcome: '1' | 'X' | '2';
+	/** Gólösszeg > 2,5. */
+	over25: boolean;
+}
+
+/** `POST /api/quiz/answer` válasza: a mentett válasz + a valós eredmény; `correct` `null` skip-nél. */
+export interface QuizAnswerResponse {
+	answer: QuizAnswer & { answeredAt: string };
+	result: QuizResultDto;
+	correct: boolean | null;
+}
+
+/** `GET /api/profile`: a tulajdonos-profil (kvíz + egylábú saját fogadások) és a keresztvalidált egyezés vs. favorit-baseline. */
+export interface ProfileResponse {
+	profile: OwnerProfile;
+	crossValidation: ProfileCrossValidation;
+	sources: {
+		/** Felhasznált kvízválaszok (skip-pel együtt). */
+		quiz: number;
+		/** Leképezhető (1X2 / O/U 2,5) saját fogadások olyan meccsekre, amelyekre nincs kvízválasz. */
+		placedBets: number;
+		/** Kihagyott minták (nincs nyitó 1X2 odds, vagy a fogadás nem képezhető le). */
+		ignored: number;
+	};
 }

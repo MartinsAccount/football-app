@@ -46,7 +46,7 @@ export default defineConfig({
 		// Olvasó API (@football/server, :5100) – a legacy Express (:5000) csak az arbitrázsnak marad (ROADMAP 1.8).
 		// A kulcs sorrendje számít: az első illeszkedő nyer.
 		proxy: {
-			'^/api/(fixtures|odds/|budget|settings|leagues|recommendations|backtest|evaluation|arbitrage|bets)':
+			'^/api/(fixtures|odds/|budget|settings|leagues|recommendations|backtest|evaluation|arbitrage|bets|quiz/|profile)':
 				'http://localhost:5100',
 			'/api': 'http://localhost:5000'
 		}

@@ -64,18 +64,15 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
     `docs/analysis/backtests/2026-11-16-model-v1.md`).
 36. ~~I26b – 7.3 Piaci kombinálás (`w`) + EV-küszöb hangolása~~ kész (`0c10896`; prioritás-módosítás az I26 negatív ROI-ja miatt;
     core `backtest/blend.ts`, riport `docs/analysis/backtests/2026-11-16-blend.md`; validációs optimum w = 0 → élesítés 🔶).
-**Saját stílus + döntetlen-figyelő (ROADMAP 12, tulajdonosi kérés 2026-11-17 – ELŐRE sorolva):** terv
-`docs/plans/owner-style-and-draws.md`. Az élő ajánlási szabályok maradnak (DECISIONS 2026-11-17).
+    **Saját stílus + döntetlen-figyelő (ROADMAP 12, tulajdonosi kérés 2026-11-17 – ELŐRE sorolva):** terv
+    `docs/plans/owner-style-and-draws.md`. Az élő ajánlási szabályok maradnak (DECISIONS 2026-11-17).
 
-36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös CV).
-36b. **Q2 – 12.2** db `0008_owner_answer.sql` (additív) + repo; server `GET /api/quiz/next`, `POST /api/quiz/answer`,
-    `GET /api/profile`; contract DTO-k; Vite-proxy.
-36c. **Q3 – 12.3 web `/quiz`** kérdés-kártya, válaszgombok, eredmény a válasz után, profilkártya; screenshot 1440/390.
-36d. **Q4 – 12.4 mobil `quiz`** képernyő (link a fejlécből/Beállításokból).
-36e. **Q5 – 12.5** „Te ezt raknád” jelölés az ajánlás-listán (web + mobil).
-36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script → `docs/analysis/backtests/2026-11-17-draws.md`.
-36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk.
-36h. **D3 – 12.8** mobil blokk.
+36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös
+CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`HASH`). 36c. **Q3 –
+12.3 web `/quiz`** kérdés-kártya, válaszgombok, eredmény a válasz után, profilkártya; screenshot 1440/390. 36d. **Q4 – 12.4 mobil
+`quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5 – 12.5** „Te ezt raknád” jelölés az ajánlás-listán (web + mobil).
+36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script → `docs/analysis/backtests/2026-11-17-draws.md`. 36g.
+**D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 – 12.8** mobil blokk.
 
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
@@ -225,9 +222,16 @@ teszt; db `scripts/backtest-elo-logit.ts` (`npm run backtest:elo-logit -w @footb
 `986708d` | core `evaluation/ownBets.ts` (`placedBetOutcome`, `settlePlacedBet`, `summarizeOwnBets`), db `SqlPlacedBetRepository`
 (`placedBets.ts`, `PlacedBetRefError`), server `placedBets.ts` + router `GET/POST /api/bets`, contract
 `PlacedBetInput`/`PlacedBetDto`/`PlacedBetsResponse` + `listPlacedBets`/`createPlacedBet`; terv `docs/plans/i23-placed-bet.md`;
-migráció nem kellett (0004) |
+migráció nem kellett (0004) | | Q2 – 12.2 Kvíz/profil API | `HASH` | db `0008_owner_answer.sql` (additív, PK `fixture_id` =
+upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `loadQuizQuestion`, `parseQuizAnswer`,
+`placedBetPick`, `seededIndex`) + router `GET /api/quiz/next[?seed=]`, `POST /api/quiz/answer`, `GET /api/profile`; contract
+`QuizNextResponse`/`QuizAnswerResponse`/`ProfileResponse` + `getQuizQuestion`/`answerQuiz`/`getProfile`; Vite-proxy `quiz/`,
+`profile`; dev.ts bekötve |
 
 ## Polish backlog
+
+- Q2: `/api/quiz/next` minden jelölt id-t betölt, `/api/profile` mintánként ~4 lekérdezés – sok adatnál SQL-mintavétel/kötegelés.
+  A kvíz nem szűr a követett ligákra; a `migrate.test` TABLES listájában nincs `owner_answer`.
 
 - I26: M2 feljutó csapatai att = def = 0-ról indulnak (ligaátlag; másodosztályos adat nincs) – feljutó-prior (pl. a kieső csapatok
   átlaga) javíthatna; a Hesse-közelítés a τ kereszttagjait elhagyja (lassabb konvergencia, eredmény ugyanaz); a v1-riport fájlneve
@@ -427,11 +431,12 @@ migráció nem kellett (0004) |
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
-- **Q1 kész (12.1).** Core `profile/`: `QuizQuestion`/`QuizAnswer`/`ProfileSample` (types.ts), `profileFeatures(q, pick)` +
-  `PROFILE_FEATURES` (15 nevesített jellemző, magyar címke + profil-frázis), `fitLogisticRegression` (L2, Newton), `buildOwnerProfile`
-  (`MIN_PROFILE_SAMPLES = 20` nem-skip, alatta 'kevés adat'), `imitatePick`, `crossValidateProfile` (vs. `favouritePick`).
-  Liga és modell-EV még nem jellemző (DECISIONS); a Q2 DTO-ja a `QuizQuestion`-t töltse a DB-ből (forma: utolsó 5 W/D/L, tabellahely
-  a meccs előtt – `features/standings`). Következő: 36b (Q2).
+- **Q2 kész (12.2).** API: `client.getQuizQuestion(seed?)` → `{ question: QuizQuestion | null }` (lejátszott, nyitó 1X2-s, még nem
+  válaszolt meccs; nyitó odds: `opening_csv` > kezdés előtti legkorábbi snapshot, iroda: CSV-átlag > B365 > PS); `answerQuiz` →
+  `{ answer, result: { homeGoals, awayGoals, outcome, over25 }, correct }` (újraválasz felülír; nem lejátszott → 400);
+  `getProfile` → `{ profile, crossValidation, sources: { quiz, placedBets, ignored } }`. Q1 core: `packages/core/src/profile/`.
+  Következő: 36c (Q3 web `/quiz`): kérdés-kártya (odds, forma, tabellahely), válaszgombok + bizalom, eredmény a válasz után,
+  profilkártya.
 
 - **I26b kész (7.3).** Core `backtest/blend.ts` (`linearBlend`, `blend`, `blendScores`, `blendBets`, `chooseThreshold`); a
   logit-keverés az élő `recommend.blendProbabilities`. Riport: `npm run backtest:blend -w @football/db` (~12 s) →

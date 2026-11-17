@@ -38,6 +38,11 @@ export type {
 	PlacedBetInput,
 	PlacedBetDto,
 	PlacedBetsResponse,
+	QuizNextResponse,
+	QuizAnswerInput,
+	QuizResultDto,
+	QuizAnswerResponse,
+	ProfileResponse,
 	ApiErrorCode,
 	ApiErrorBody
 } from './dto';

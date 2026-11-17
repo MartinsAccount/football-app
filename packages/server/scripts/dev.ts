@@ -16,6 +16,7 @@ import { loadIngestMocks } from '../src/referenceMocks';
 import { fileSnapshotSource, withDbArbitrage } from '../src/snapshots';
 import { loadArbitrageSnapshot } from '../src/arbitrage';
 import { loadEvaluationRecords } from '../src/evaluation';
+import { createQuizService } from '../src/quiz';
 import { loadLeagueCatalog, loadLeagueTeams } from '../src/leagues';
 import { loadBudgetDetails } from '../src/budget';
 
@@ -45,6 +46,7 @@ createServer(
 			budget: new SqlBudgetStore(db),
 			settings: new SqlSettingsRepository(db),
 			placedBets: new SqlPlacedBetRepository(db),
+			quiz: createQuizService(db),
 			evaluations: () => loadEvaluationRecords(db),
 			leagues: () => loadLeagueCatalog(db),
 			leagueTeams: (id) => loadLeagueTeams(db, id),

@@ -14,6 +14,10 @@ import type {
 	PlacedBetDto,
 	PlacedBetInput,
 	PlacedBetsResponse,
+	ProfileResponse,
+	QuizAnswerInput,
+	QuizAnswerResponse,
+	QuizNextResponse,
 	RecommendationsResponse,
 	SettingsResponse,
 	SettingsUpdate
@@ -81,6 +85,12 @@ export interface ApiClient {
 	listPlacedBets(): Promise<PlacedBetsResponse>;
 	/** Egy megtett tipp rögzítése (`POST`); hibás bemenet vagy ismeretlen meccs/piac/predikció → `ApiError` 400. */
 	createPlacedBet(input: PlacedBetInput): Promise<PlacedBetDto>;
+	/** Következő kvízkérdés; `seed` megadásával determinisztikus. Elfogyott → `question: null`. */
+	getQuizQuestion(seed?: number): Promise<QuizNextResponse>;
+	/** Kvízválasz mentése (upsert); a válasz a meccs valós eredménye. Hibás bemenet / nem lejátszott meccs → `ApiError` 400. */
+	answerQuiz(input: QuizAnswerInput): Promise<QuizAnswerResponse>;
+	/** A tulajdonos-profil (top 3 tulajdonság, CV-egyezés vs. favorit). */
+	getProfile(): Promise<ProfileResponse>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -161,6 +171,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 		listLeagues: () => get<LeaguesResponse>('/api/leagues'),
 		listLeagueTeams: (leagueId) => get<LeagueTeamsResponse>(`/api/leagues/${encodeURIComponent(String(leagueId))}/teams`),
 		listPlacedBets: () => get<PlacedBetsResponse>('/api/bets'),
-		createPlacedBet: (input) => request<PlacedBetDto>('POST', '/api/bets', input)
+		createPlacedBet: (input) => request<PlacedBetDto>('POST', '/api/bets', input),
+		getQuizQuestion: (seed) => get<QuizNextResponse>(`/api/quiz/next${seed === undefined ? '' : `?seed=${seed}`}`),
+		answerQuiz: (input) => request<QuizAnswerResponse>('POST', '/api/quiz/answer', input),
+		getProfile: () => get<ProfileResponse>('/api/profile')
 	};
 }

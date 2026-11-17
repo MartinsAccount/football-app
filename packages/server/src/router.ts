@@ -24,12 +24,16 @@ import type {
 	OddsResponse,
 	PlacedBetDto,
 	PlacedBetsResponse,
+	ProfileResponse,
+	QuizAnswerResponse,
+	QuizNextResponse,
 	SettingsResponse
 } from '@football/contract';
 import type { SnapshotSource } from './snapshots';
 import { applySettingsUpdate, readSettings, SettingsValidationError } from './settings';
 import { EMPTY_BUDGET_DETAILS, type BudgetDetails } from './budget';
 import { parsePlacedBetInput, PlacedBetValidationError, readPlacedBets } from './placedBets';
+import { QuizValidationError, type QuizService } from './quiz';
 
 /**
  * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
@@ -58,6 +62,8 @@ export interface ApiDeps {
 	budgetDetails?: (day: string) => Promise<BudgetDetails>;
 	/** Fogadás-rögzítés (`GET/POST /api/bets`, I23): `SqlPlacedBetRepository`. Hiányában 404. A modell-oldal az `evaluations`-ből. */
 	placedBets?: PlacedBetRepository;
+	/** Saját stílus (`GET /api/quiz/next`, `POST /api/quiz/answer`, `GET /api/profile`, Q2): `createQuizService(db)`. Hiányában 404. */
+	quiz?: QuizService;
 }
 
 export type ApiHandler = (req: Request) => Promise<Response>;
@@ -153,7 +159,14 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 		}
 		const isSettings = path === '/api/settings';
 		const isBets = path === '/api/bets';
-		if (req.method !== 'GET' && !(isSettings && req.method === 'PUT') && !(isBets && req.method === 'POST'))
+		const isQuizAnswer = path === '/api/quiz/answer';
+		if (isQuizAnswer && req.method !== 'POST') return fail(405, 'method', 'Csak POST engedélyezett');
+		if (
+			req.method !== 'GET' &&
+			!(isSettings && req.method === 'PUT') &&
+			!(isBets && req.method === 'POST') &&
+			!(isQuizAnswer && req.method === 'POST')
+		)
 			return fail(
 				405,
 				'method',
@@ -182,6 +195,17 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 					);
 				const created = await deps.placedBets.insert(parsePlacedBetInput(await readJson()));
 				return json(201, settlePlacedBet(created) satisfies PlacedBetDto);
+			}
+
+			if (isQuizAnswer || path === '/api/quiz/next' || path === '/api/profile') {
+				if (!deps.quiz) return fail(404, 'not-found', 'A kvíz/profil API nincs bekötve');
+				if (isQuizAnswer) return json(200, (await deps.quiz.answer(await readJson())) satisfies QuizAnswerResponse);
+				if (path === '/api/profile') return json(200, (await deps.quiz.profile()) satisfies ProfileResponse);
+				const rawSeed = url.searchParams.get('seed');
+				if (rawSeed !== null && !/^-?\d{1,9}$/.test(rawSeed)) throw new BadRequest("a 'seed' egész szám legyen");
+				return json(200, {
+					question: await deps.quiz.next(rawSeed === null ? null : Number(rawSeed))
+				} satisfies QuizNextResponse);
 			}
 
 			if (path === '/api/fixtures') {
@@ -256,7 +280,8 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				e instanceof BadRequest ||
 				e instanceof SettingsValidationError ||
 				e instanceof PlacedBetValidationError ||
-				e instanceof PlacedBetRefError
+				e instanceof PlacedBetRefError ||
+				e instanceof QuizValidationError
 			)
 				return fail(400, 'bad-request', e.message);
 			console.error('[api]', e);

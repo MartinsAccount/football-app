@@ -38,3 +38,5 @@ export { DEFAULT_PLANNER_SEASON, EST_CALLS_PARAM, loadPlannerInput, SqlTaskStore
 export type { StoredTask, TaskStore } from './ingestTasks';
 export { PlacedBetRefError, SqlPlacedBetRepository } from './placedBets';
 export type { PlacedBetInput, PlacedBetRepository } from './placedBets';
+export { SqlOwnerAnswerRepository } from './ownerAnswers';
+export type { OwnerAnswerRecord, OwnerAnswerRepository } from './ownerAnswers';
