@@ -69,10 +69,11 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 
 36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös
 CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`584c50d`). 36c.
-~~Q3 – 12.3 web `/quiz`~~ kész (`ec6751b`). 36d. **Q4 – 12.4 mobil `quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5
-– 12.5** „Te ezt raknád” jelölés az ajánlás-listán (web + mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg,
-`backtest:draws` script → `docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web
-„Döntetlen-esélyek” blokk. 36h. **D3 – 12.8** mobil blokk.
+~~Q3 – 12.3 web `/quiz`~~ kész (`ec6751b`). 36c2. ~~Q3b – `/api/profile` + `/api/quiz/next` kötegelt betöltés~~ kész
+(`git log --grep=Q3b`). 36d. **Q4 – 12.4 mobil `quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5 – 12.5** „Te ezt
+raknád” jelölés az ajánlás-listán (web + mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script →
+`docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 –
+12.8** mobil blokk.
 
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
@@ -228,12 +229,13 @@ upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `lo
 `QuizNextResponse`/`QuizAnswerResponse`/`ProfileResponse` + `getQuizQuestion`/`answerQuiz`/`getProfile`; Vite-proxy `quiz/`,
 `profile`; dev.ts bekötve | | Q3 – 12.3 Web kvíz-oldal | `ec6751b` | `frontend/src/pages/QuizPage/` (`QuizPage.tsx`,
 `ProfileCard.tsx`, `quizView.ts` + teszt), route `/quiz`, menüpont „Saját stílus”; screenshot
-`docs/plans/screens/q3-quiz-{dark,answered-light}-{1440,390}.png` |
+`docs/plans/screens/q3-quiz-{dark,answered-light}-{1440,390}.png` | | Q3b – kvíz/profil gyorsítás | `git log --grep=Q3b` | server
+`quiz.ts` `loadQuizQuestions` (4 lekérdezés/köteg: fejlécek, nyitó odds, liga-szezon meccsek, csapat-meccsek; memóriában
+core-függvények); `profile()` egy köteg, `next()` 8-as kötegek; teszt: köteg = egyenkénti; mérés (30 válasz, PGlite-másolat):
+profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos |
 
 ## Polish backlog
 
-- Q2: `/api/quiz/next` minden jelölt id-t betölt, `/api/profile` mintánként ~4 lekérdezés – sok adatnál SQL-mintavétel/kötegelés.
-  **Mérve (Q3): 28 válasznál a `/api/profile` ~20 s a helyi PGlite-on** → a profilkártya lassan frissül; kötegelt lekérdezés kell.
 - Q3: billentyű-gyorsgombok (1/X/2/O/U/S), válasz-előzmények, a súlyok teljes listája lenyitóban; 390 px-en a fejléc-nav 2 sorba
   tör (5 menüpont). A kvíz nem szűr a követett ligákra; a `migrate.test` TABLES listájában nincs `owner_answer`.
 
@@ -434,6 +436,9 @@ upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `lo
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **Q3b kész.** `loadQuizQuestions(db, ids)` → `Map<id, QuizQuestion>` kötegelt (a `loadQuizQuestion` ennek egyelemű esete);
+  profil 30 válasznál ~0,6 s. A `next()` maradék ideje (~0,2 s) a jelölt-id lekérdezés (`TODO(polish)` a kódban). Következő: 36d.
 
 - **Q3 kész (12.3).** Web `/quiz` (menü „Saját stílus”): `pages/QuizPage/` komponens-state (mint `OwnBets`, nincs MobX-store); a
   tipp-gomb azonnal beküld (bizalom előtte, opcionális), utána `.oe-verdict` + „Következő”; a profil minden válasz után újratölt

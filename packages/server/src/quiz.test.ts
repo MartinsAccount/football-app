@@ -1,7 +1,15 @@
 import { SqlBudgetStore } from '@football/api-client';
 import { createApiClient, type ApiClient } from '@football/contract';
 import { openMemoryRepository, type SqlExecutor } from '@football/db';
-import { createQuizService, loadQuizQuestion, parseQuizAnswer, placedBetPick, QuizValidationError, seededIndex } from './quiz';
+import {
+	createQuizService,
+	loadQuizQuestion,
+	loadQuizQuestions,
+	parseQuizAnswer,
+	placedBetPick,
+	QuizValidationError,
+	seededIndex
+} from './quiz';
 import { createApiHandler, type ApiHandler } from './router';
 
 let db: SqlExecutor;
@@ -87,6 +95,15 @@ describe('loadQuizQuestion', () => {
 		expect(q?.oddsOu25).toBeNull();
 		expect(await loadQuizQuestion(db, 3)).toBeNull();
 		expect(await loadQuizQuestion(db, 4242)).toBeNull();
+	});
+
+	it('kötegelt betöltés (Q3b) = egyenkénti betöltés; ismeretlen/odds nélküli kimarad', async () => {
+		const ids = [101, 3, 100, 4242, 100];
+		const batch = await loadQuizQuestions(db, ids);
+		expect([...batch.keys()].sort()).toEqual([100, 101]);
+		for (const id of ids) expect(batch.get(id) ?? null).toEqual(await loadQuizQuestion(db, id));
+		expect(batch.get(100)?.home.form).toEqual(['W', 'D']);
+		expect((await loadQuizQuestions(db, [])).size).toBe(0);
 	});
 });
 

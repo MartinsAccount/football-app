@@ -270,3 +270,5 @@
 | 2026-11-17 | Q3: kvíz-oldal állapota | komponens-state (`OwnBets`-minta), nincs MobX-store | egyoldalas, más oldal nem olvassa; később könnyen store-ba emelhető | nem |
 | 2026-11-17 | Q3: válasz-interakció | a tipp-gomb (odds-szal) azonnal beküld; a bizalom előtte választható, opcionális; skip-nél nem küldjük | egy kattintás/kérdés; az odds és a gomb egy elem, kevesebb hely mobilon | igen |
 | 2026-11-17 | Q3: menüpont | „Saját stílus” a Kiértékelés után | a cél a profil, nem a kvíz maga | igen |
+| 2026-11-17 | Q3b: kvíz/profil kötegelés módja | `loadQuizQuestions`: 4 SQL (fejlécek, nyitó odds `unnest`-tel, liga-szezonok `(league_id, season) IN unnest`, az érintett csapatok összes lejátszott meccse), a forma/tabella memóriában | kevés lekérdezés, a core függvények változatlanok; a csapat-meccsek teljes betöltése sok adatnál nőhet (akkor ablakolás) | nem |
+| 2026-11-17 | Q3b: `next()` jelöltpróbálás | 8-as kötegekben a seedelt kezdőindextől, az első használható jelölt | ugyanaz a kimenet, mint egyenként; a legtöbbször az első jó, a köteg kicsi | nem |
