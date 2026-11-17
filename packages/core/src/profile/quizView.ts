@@ -170,8 +170,8 @@ const OWNER_PICK_LABEL: Record<QuizPick, string> = {
 	under: 'kevesebb mint 2,5 gól'
 };
 
-/** Ajánlás-kimenet → kvíz-tipp (az egyezés-jelzéshez). */
-export const OUTCOME_TO_PICK: Record<SnapshotOutcome, QuizPick> = {
+/** Ajánlás-kimenet → kvíz-tipp (az egyezés-jelzéshez); a BTTS-nek nincs kvíz-megfelelője. */
+export const OUTCOME_TO_PICK: Partial<Record<SnapshotOutcome, QuizPick>> = {
 	Home: '1',
 	Draw: 'X',
 	Away: '2',

@@ -12,7 +12,9 @@ export const TIPPMIX_LABEL: Record<SnapshotOutcome, string> = {
 	Draw: 'Végeredmény · X',
 	Away: 'Végeredmény · 2',
 	Over: 'Gólok száma 2,5 · Felett',
-	Under: 'Gólok száma 2,5 · Alatt'
+	Under: 'Gólok száma 2,5 · Alatt',
+	Yes: 'Mindkét csapat szerez gólt · Igen',
+	No: 'Mindkét csapat szerez gólt · Nem'
 };
 
 /** A szelvényhez szükséges tipp-adatok (dátum ISO szövegként). */

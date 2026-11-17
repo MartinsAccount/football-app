@@ -1,7 +1,11 @@
 import { formatAge, formatDateRange, RecommendationItem, RecommendationSnapshot, TIPPMIX_LABEL } from '@football/core';
 import { ITip } from '../../components/TipCard/tipView';
 
-const MARKET_NAME: Record<RecommendationItem['market'], string> = { h2h: 'Match Winner', ou25: 'Over/Under 2.5' };
+const MARKET_NAME: Record<RecommendationItem['market'], string> = {
+	h2h: 'Match Winner',
+	ou25: 'Over/Under 2.5',
+	btts: 'Both Teams Score'
+};
 
 /** Pillanatkép-tétel → TipCard nézet-modell (ISO szöveg → Date). */
 export const toTip = (item: RecommendationItem): ITip => ({

@@ -3,12 +3,13 @@
 import type { MatchResult } from '../features/types';
 import type { ConfidenceLevel, RecommendationRules } from './recommend';
 
-export type SnapshotMarket = 'h2h' | 'ou25';
-export type SnapshotOutcome = 'Home' | 'Draw' | 'Away' | 'Over' | 'Under';
+export type SnapshotMarket = 'h2h' | 'ou25' | 'btts';
+export type SnapshotOutcome = 'Home' | 'Draw' | 'Away' | 'Over' | 'Under' | 'Yes' | 'No';
 
 export const SNAPSHOT_OUTCOMES: Record<SnapshotMarket, SnapshotOutcome[]> = {
 	h2h: ['Home', 'Draw', 'Away'],
-	ou25: ['Over', 'Under']
+	ou25: ['Over', 'Under'],
+	btts: ['Yes', 'No']
 };
 
 export interface SnapshotFormEntry {

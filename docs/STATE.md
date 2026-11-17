@@ -76,8 +76,7 @@ CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil A
 `GET /api/draws` + web blokk~~ kész (D2a `e1ae827`, D2b `git log --grep=D2b`). 36h. ~~D3 – 12.8 mobil blokk~~ kész
 (`git log --grep=D3`). **A ROADMAP 12 kész.**
 
-37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
-    Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
+37. ~~I27 – 7.5a BTTS piac végig~~ kész (`git log --grep=I27`).
 38. **I28 – 7.5b Double Chance + gólvonalak (1,5 / 3,5).** ugyanígy; a `market` referencia-sorok mockból. ~8 fájl.
 39. **I29 – 9.2a React 18 + MobX 6 (frontend).** `makeObservable` a store-okban, `createRoot`, a `legacy-peer-deps` megszűnik, ha
     a mobx-react 7 engedi; screenshotok egyeznek. Ha > 10 fájl: store-onként bontva (9.2b).
@@ -210,10 +209,13 @@ catalog)`, `missingCoverage`csak`false`-ra, a kézi `SETTINGS_LEAGUES`coverage-e
 `scripts/backtest-model-v1.ts` (`npm run backtest:v1 -w @football/db`) → `docs/analysis/backtests/2026-11-16-model-v1.md`; holdout
 1X2 LL M2 0,9857 / M1 0,9905 / v0 0,9959 / záró 0,9608; O/U M2 0,6791 / v0 0,6808 / záró 0,6652; pipeline változatlan |
 
-| I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit | `9fb57a2` | terv `docs/plans/model-v1.md`; core `model/ordinalLogit.ts`
-(`fitOrdinalLogit`, `ordinalLogitProbabilities`, `eloLogitSamples`, `eloDiff`, `eloLogitPrediction`, `ELO_LOGIT_VERSION`) + 7
-teszt; db `scripts/backtest-elo-logit.ts` (`npm run backtest:elo-logit -w @football/db`); holdout 2024 1X2 LL: M1 0,9905 / v0
-0,9959 / nyitó 0,9640 / záró 0,9608; pipeline változatlan | | I24 – 8.3 Régi arbitrázs-út kivezetése | `e375c40` | törölve:
+| I25 – 6.0 + 6.1 Modell-v1 terv + ordinális logit | `9fb57a2` | terv `docs/plans/model-v1.md`; core `model/ordinalLogit.ts` | I27
+– 7.5a BTTS piac végig | `git log --grep=I27` | core `marketResultIndex`/`bttsOutcome` (közös elszámolás: kiértékelő job + saját
+tippek, 8 = Yes/No, vonal nélkül); pipeline `MARKETS` + `pModelBy[8]` a DC-mátrix `bttsYes/No`-jából; snapshot `btts` +
+`TIPPMIX_LABEL`/szelvény-feltöltés; web `MARKET_NAME`; a Beállítások katalógus már tartalmazta | (`fitOrdinalLogit`,
+`ordinalLogitProbabilities`, `eloLogitSamples`, `eloDiff`, `eloLogitPrediction`, `ELO_LOGIT_VERSION`) + 7 teszt; db
+`scripts/backtest-elo-logit.ts` (`npm run backtest:elo-logit -w @football/db`); holdout 2024 1X2 LL: M1 0,9905 / v0 0,9959 / nyitó
+0,9640 / záró 0,9608; pipeline változatlan | | I24 – 8.3 Régi arbitrázs-út kivezetése | `e375c40` | törölve:
 `LegacyArbitragePage`, Arbitrázs `components/`/`models/`/`services/`/`stores/`, `FetchService(3)`, `ApiURLs`,
 `services/fixtures/`, `LocalStorageUtil`, `core/constants/{BetTypes,Bookmakers,constants}`, `core/models`; `MainStore` +
 `OddsContent` + `vite-env.d.ts` igazítva; terv `docs/plans/i24-arbitrage-legacy-removal.md`; screenshot
@@ -251,6 +253,10 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
   `docs/plans/screens/d3-ma-{1440,390}.png` |
 
 ## Polish backlog
+
+- I27: a CSV-pillanatkép (`npm run recommendations`) BTTS-odds nélkül fut (a football-data CSV-ben nincs BTTS-oszlop), így a `/`
+  oldalon BTTS-ajánlás csak a DB-pipeline-ból jöhetne; a kvíz-egyezés BTTS-re nem értelmezett; a backtest/Kiértékelés-oldal
+  (`BacktestMarket`) csak h2h/ou25.
 
 - D2/D3: `/api/draws` minden kérésre DC-t illeszt (~0,6 s) – napi cache; a weben a tényező-indok csak `title`-tooltip (mobilon a
   csip alatti sor); a mobil a szerver alap-ablakát kéri (most → +3 nap), mentett 2025-ös adattal üres; nincs mobil screenshot.
@@ -459,6 +465,10 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I27 kész (7.5a BTTS).** Elszámolás egy helyen: core `marketResultIndex(marketId, line, gh, ga)` (1 / 5 vonallal / 8) – a
+  szerver `evaluation.ts` és a core `ownBets.ts` is ezt hívja; új piacnál (I28: 12 Double Chance, 5 más vonallal) ide kell
+  felvenni. Pipeline: `predictions.ts` `MARKETS` + `pModelBy`; meccsenként 7 predikció-sor (volt 5). Következő: 38 (I28).
 
 - **D3 kész (12.8) – a ROADMAP 12 kész.** Nézet-modell: core `draw/drawWatchView.ts` (`drawRows`, `drawSubtitle`, szerkezeti
   `DrawWatchViewInput`, mert a core nem függhet a contracttól); a csip `direction: 'up'|'down'` + `aria`. Mobil: `/draws` képernyő

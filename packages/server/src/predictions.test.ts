@@ -26,7 +26,7 @@ async function seed(db: SqlExecutor) {
 	await db.exec(`INSERT INTO league (id, name) VALUES (39, 'Premier League'); INSERT INTO season (league_id, year) VALUES (39, 2024);
 		INSERT INTO followed_league (league_id) VALUES (39);
 		INSERT INTO bookmaker (id, name, stored) VALUES (16, 'Unibet', true), (8, 'Bet365', true), (4, 'Pinnacle', true);
-		INSERT INTO market (id, name, stored) VALUES (1, 'Match Winner', true), (5, 'Goals Over/Under', true);`);
+		INSERT INTO market (id, name, stored) VALUES (1, 'Match Winner', true), (5, 'Goals Over/Under', true), (8, 'Both Teams Score', true);`);
 	const src = items.map((i) =>
 		i.fixture!.date!.startsWith(DAY)
 			? { ...i, fixture: { ...i.fixture, status: { short: 'NS' } }, goals: { home: null, away: null }, score: {} }
@@ -44,12 +44,12 @@ async function seed(db: SqlExecutor) {
 	};
 }
 
-/** Egy snapshot a meccsekre: 3 iroda, 1X2 + O/U 2.5 (a Bet365 a hazaira a legjobb). */
+/** Egy snapshot a meccsekre: 3 iroda, 1X2 + O/U 2.5 + BTTS (a Bet365 a hazaira a legjobb). */
 async function seedOdds(db: SqlExecutor, ids: readonly number[], capturedAt: string) {
-	const books: [number, number[], number[]][] = [
-		[16, [2.1, 3.4, 3.6], [1.9, 1.95]],
-		[8, [2.25, 3.3, 3.4], [1.85, 2.0]],
-		[4, [2.15, 3.5, 3.5], [1.93, 1.97]]
+	const books: [number, number[], number[], number[]][] = [
+		[16, [2.1, 3.4, 3.6], [1.9, 1.95], [1.75, 2.05]],
+		[8, [2.25, 3.3, 3.4], [1.85, 2.0], [1.8, 2.0]],
+		[4, [2.15, 3.5, 3.5], [1.93, 1.97], [1.78, 2.08]]
 	];
 	await new SqlRepository(db).insertOddsSnapshots(
 		ids.map((fixtureId) => ({
@@ -57,9 +57,10 @@ async function seedOdds(db: SqlExecutor, ids: readonly number[], capturedAt: str
 			capturedAt,
 			source: 'api-football' as const,
 			kind: 'late' as const,
-			quotes: books.flatMap(([bookmakerId, h2h, ou]) => [
+			quotes: books.flatMap(([bookmakerId, h2h, ou, btts]) => [
 				...['Home', 'Draw', 'Away'].map((selection, k) => ({ bookmakerId, marketId: 1, selection, line: null, odd: h2h[k] })),
-				...['Over', 'Under'].map((selection, k) => ({ bookmakerId, marketId: 5, selection, line: 2.5, odd: ou[k] }))
+				...['Over', 'Under'].map((selection, k) => ({ bookmakerId, marketId: 5, selection, line: 2.5, odd: ou[k] })),
+				...['Yes', 'No'].map((selection, k) => ({ bookmakerId, marketId: 8, selection, line: null, odd: btts[k] }))
 			])
 		}))
 	);
@@ -78,7 +79,7 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 
 		const r1 = await runPredictions(db, ids, { now });
 		expect(r1.runId).not.toBeNull();
-		expect(r1.predictions).toBe(ids.length * 5);
+		expect(r1.predictions).toBe(ids.length * 7);
 		const first = await predictionRows(db);
 
 		const r2 = await runPredictions(db, ids, { now });
@@ -123,7 +124,7 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 			)
 		).rows;
 		for (const id of ids) {
-			for (const m of [1, 5]) {
+			for (const m of [1, 5, 8]) {
 				const sum = rows.filter((r) => r.f === id && r.m === m).reduce((s, r) => s + r.p, 0);
 				expect(sum).toBeCloseTo(1, 9);
 			}
@@ -182,7 +183,7 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 				[filtered.runId, blockedFixture]
 			)
 		).rows[0].n;
-		expect(blocked).toBe(5);
+		expect(blocked).toBe(7); // 1X2 3 + O/U 2 + BTTS 2
 	});
 
 	it('odds nélkül, elkezdett meccsre vagy üres listára nincs futás', async () => {
@@ -190,7 +191,7 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 		const { ids, t0 } = await seed(db);
 		expect(await runPredictions(db, ids, { now: new Date(t0 - 2 * HOUR) })).toMatchObject({ runId: null, predictions: 0 });
 		await seedOdds(db, ids, new Date(t0 - 3 * HOUR).toISOString());
-		expect((await runPredictions(db, ids, { now: new Date(t0 + HOUR) })).predictions).toBeLessThan(ids.length * 5);
+		expect((await runPredictions(db, ids, { now: new Date(t0 + HOUR) })).predictions).toBeLessThan(ids.length * 7);
 		expect((await runPredictions(db, [], { now: new Date(t0 - 2 * HOUR) })).runId).toBeNull();
 	});
 

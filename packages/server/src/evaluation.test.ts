@@ -63,6 +63,22 @@ describe('buildEvaluationRows (tiszta)', () => {
 		expect(partial).toMatchObject([{ outcome: 'win', brier: null, log_loss: null }]);
 		expect(buildEvaluationRows([cand({ m: 99 })], new Map())).toEqual([]);
 	});
+
+	it('BTTS (8): 2–1 → Yes nyer, No veszít, teljes eloszlásból Brier', () => {
+		const rows = buildEvaluationRows(
+			[cand({ id: 1, m: 8, sel: 'Yes', p: 0.6, odd: 1.8 }), cand({ id: 2, m: 8, sel: 'No', p: 0.4, odd: 2.05 })],
+			new Map([[`${FT}:8:Yes:`, { snapshotId: 9, odd: 1.7 }]])
+		);
+		expect(rows.map((r) => [r.prediction_id, r.outcome])).toEqual([
+			[1, 'win'],
+			[2, 'loss']
+		]);
+		expect(rows[0].profit_units).toBeCloseTo(0.8);
+		expect(rows[0].brier).toBeCloseTo(0.16 + 0.16);
+		expect(rows[0].closing_odd).toBe(1.7);
+		const clean = buildEvaluationRows([cand({ m: 8, sel: 'Yes', gh: 3, ga: 0 })], new Map());
+		expect(clean[0].outcome).toBe('loss');
+	});
 });
 
 /** Liga, szezon, 2 meccs (NS), modell + futás + 2×5 predikció; egy korai snapshot (a predikcióé) és egy záró-közeli. */

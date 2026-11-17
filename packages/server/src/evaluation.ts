@@ -4,8 +4,7 @@ import {
 	flatProfit,
 	isVoidStatus,
 	logLoss,
-	outcome1x2,
-	overUnderOutcome,
+	marketResultIndex,
 	settleBet,
 	type BetOutcome,
 	type EvaluationRecord
@@ -61,9 +60,7 @@ const lineKey = (line: number | null) => (line === null ? '' : String(line));
 function resultIndex(c: EvaluationCandidate): number | null | undefined {
 	if (isVoidStatus(c.status)) return null;
 	if (c.gh === null || c.ga === null) return undefined;
-	if (c.m === 1 && c.line === null) return outcome1x2(c.gh, c.ga);
-	if (c.m === 5 && c.line !== null) return overUnderOutcome(c.gh + c.ga, c.line);
-	return undefined;
+	return marketResultIndex(c.m, c.line, c.gh, c.ga);
 }
 
 /** Tiszta: a jelölt sorokból és a záró odds-okból az `evaluation` sorok (a nem értékelhetők kimaradnak). */

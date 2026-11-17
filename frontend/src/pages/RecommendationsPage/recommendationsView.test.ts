@@ -7,7 +7,7 @@ const item = (fixtureId: number, kickoff: string, outcome: RecommendationItem['o
 	league: 'Premier League',
 	leagueSize: 20,
 	kickoff,
-	market: outcome === 'Over' || outcome === 'Under' ? 'ou25' : 'h2h',
+	market: outcome === 'Over' || outcome === 'Under' ? 'ou25' : outcome === 'Yes' || outcome === 'No' ? 'btts' : 'h2h',
 	outcome,
 	pModel: 0.5,
 	pModelRaw: 0.55,
@@ -48,6 +48,11 @@ describe('recommendationsView', () => {
 		expect(tip.kickoff).toEqual(new Date('2025-04-12T14:00:00.000Z'));
 		expect(tip.home.last5[0].date).toBeInstanceOf(Date);
 		expect(tip.stakeUnits).toBe(1);
+	});
+
+	it('labels a BTTS item (I27)', () => {
+		const tip = toTip(item(8, '2025-04-12T14:00:00.000Z', 'Yes'));
+		expect([tip.market, tip.tippmixLabel]).toEqual(['Both Teams Score', 'Mindkét csapat szerez gólt · Igen']);
 	});
 
 	it('groups by Budapest day relative to the snapshot "now", sorted by kickoff', () => {

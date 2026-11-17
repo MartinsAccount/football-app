@@ -1,5 +1,7 @@
 import {
 	brierScore,
+	bttsOutcome,
+	marketResultIndex,
 	calibrationBuckets,
 	closingLineValue,
 	flatProfit,
@@ -20,6 +22,19 @@ describe('kimenetel', () => {
 		expect(overUnderOutcome(3, 2.5)).toBe(0);
 		expect(overUnderOutcome(2, 2.5)).toBe(1);
 		expect(overUnderOutcome(2, 2)).toBeNull();
+	});
+
+	it('BTTS index és piac-id szerinti eredmény-index', () => {
+		expect(bttsOutcome(1, 1)).toBe(0);
+		expect(bttsOutcome(2, 0)).toBe(1);
+		expect(bttsOutcome(0, 0)).toBe(1);
+		expect(marketResultIndex(8, null, 0, 3)).toBe(1);
+		expect(marketResultIndex(8, null, 2, 1)).toBe(0);
+		expect(marketResultIndex(8, 2.5, 2, 1)).toBeUndefined();
+		expect(marketResultIndex(1, null, 2, 1)).toBe(0);
+		expect(marketResultIndex(5, 2, 1, 1)).toBeNull();
+		expect(marketResultIndex(5, null, 1, 1)).toBeUndefined();
+		expect(marketResultIndex(12, null, 1, 1)).toBeUndefined();
 	});
 
 	it('elszámolás: win / loss / void, void státuszok', () => {

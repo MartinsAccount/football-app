@@ -42,12 +42,13 @@ describe('slipToPlacedBet', () => {
 
 	it('maps a single O/U leg to market 5 with the 2.5 line', () => {
 		expect(slipToPlacedBet(slip([leg(7, 'Under')]))).toMatchObject({ marketId: 5, selection: 'Under', line: 2.5 });
+		expect(slipToPlacedBet(slip([leg(7, 'Yes')]))).toMatchObject({ marketId: 8, selection: 'Yes', line: null });
 	});
 
 	it('keeps combos, legacy legs without outcome, unknown outcomes and invalid odds/stake local', () => {
 		expect(slipToPlacedBet(slip([leg(1, 'Home'), leg(2, 'Away')]))).toBeNull();
 		expect(slipToPlacedBet(slip([leg(1)]))).toBeNull();
-		expect(slipToPlacedBet(slip([leg(1, 'Yes')]))).toBeNull();
+		expect(slipToPlacedBet(slip([leg(1, 'Home/Draw')]))).toBeNull();
 		expect(slipToPlacedBet(slip([leg(1, 'Home', 1)]))).toBeNull();
 		expect(slipToPlacedBet(slip([leg(1, 'Home')], 0))).toBeNull();
 	});

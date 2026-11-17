@@ -37,7 +37,8 @@ const MAX_ODD = 9999.999; // numeric(7, 3)
 /** A pipeline piacai: API-Football piac-id, kimenetek (a modell sorrendjében), vonal. */
 const MARKETS = [
 	{ id: 1, code: 'h2h', selections: ['Home', 'Draw', 'Away'], line: null },
-	{ id: 5, code: 'ou25', selections: ['Over', 'Under'], line: 2.5 }
+	{ id: 5, code: 'ou25', selections: ['Over', 'Under'], line: 2.5 },
+	{ id: 8, code: 'btts', selections: ['Yes', 'No'], line: null }
 ] as const;
 
 /** A pipeline piacai (a kiértékelő job is ezt a kimenet-sorrendet használja). */
@@ -247,7 +248,11 @@ export async function runPredictions(
 		});
 		const blocked = warnings.some((w) => w.blocking);
 		const pr = pred.probabilities;
-		const pModelBy: Record<number, number[]> = { 1: [pr.home, pr.draw, pr.away], 5: [pr.over25, pr.under25] };
+		const pModelBy: Record<number, number[]> = {
+			1: [pr.home, pr.draw, pr.away],
+			5: [pr.over25, pr.under25],
+			8: [pr.bttsYes, pr.bttsNo]
+		};
 
 		const markets = MARKETS.flatMap((m) => {
 			const books = [...(odds.byMarket.get(m.id) ?? new Map<number, number[]>())].filter(([, o]) =>

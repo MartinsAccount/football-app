@@ -16,6 +16,28 @@ export const outcome1x2 = (homeGoals: number, awayGoals: number): 0 | 1 | 2 =>
 export const overUnderOutcome = (totalGoals: number, line: number): 0 | 1 | null =>
 	totalGoals > line ? 0 : totalGoals < line ? 1 : null;
 
+/** BTTS kimenet: 0 = Igen (mindkét csapat szerzett gólt), 1 = Nem. */
+export const bttsOutcome = (homeGoals: number, awayGoals: number): 0 | 1 => (homeGoals > 0 && awayGoals > 0 ? 0 : 1);
+
+/** API-Football piac-id-k, amelyeket a kiértékelés elszámol (kimenet-sorrend: 1X2 [Home, Draw, Away], O/U [Over, Under], BTTS [Yes, No]). */
+export const SETTLED_MARKET_IDS = { h2h: 1, overUnder: 5, btts: 8 } as const;
+
+/**
+ * Egy piac eredmény-indexe a rendes játékidő eredményéből; `null` = push (egész O/U-vonal pontos egyezése), `undefined` = nem
+ * elszámolható piac vagy hiányzó/fölösleges vonal.
+ */
+export const marketResultIndex = (
+	marketId: number,
+	line: number | null,
+	homeGoals: number,
+	awayGoals: number
+): number | null | undefined => {
+	if (marketId === SETTLED_MARKET_IDS.h2h && line === null) return outcome1x2(homeGoals, awayGoals);
+	if (marketId === SETTLED_MARKET_IDS.overUnder && line !== null) return overUnderOutcome(homeGoals + awayGoals, line);
+	if (marketId === SETTLED_MARKET_IDS.btts && line === null) return bttsOutcome(homeGoals, awayGoals);
+	return undefined;
+};
+
 /** Tipp elszámolása: `resultIndex === null` (void meccs vagy push) → void. */
 export const settleBet = (selectionIndex: number, resultIndex: number | null): BetOutcome =>
 	resultIndex === null ? 'void' : selectionIndex === resultIndex ? 'win' : 'loss';

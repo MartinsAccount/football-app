@@ -1,13 +1,5 @@
 import type { EvaluationRecord } from './dbSummary';
-import {
-	isVoidStatus,
-	outcome1x2,
-	overUnderOutcome,
-	settleBet,
-	summarizeBets,
-	type BetOutcome,
-	type BetSummary
-} from './evaluation';
+import { isVoidStatus, marketResultIndex, settleBet, summarizeBets, type BetOutcome, type BetSummary } from './evaluation';
 
 /**
  * A tulajdonos ténylegesen megtett tippjei (ROADMAP 5.6, PRD 6/3. pont): „saját” ROI a modell ROI-ja mellett. Tiszta
@@ -19,7 +11,8 @@ import {
 /** Elszámolható piacok: API-Football piac-id → kimenetek (a kiértékelő job sorrendjében). */
 export const OWN_BET_MARKETS: Readonly<Record<number, { selections: readonly string[]; needsLine: boolean }>> = {
 	1: { selections: ['Home', 'Draw', 'Away'], needsLine: false },
-	5: { selections: ['Over', 'Under'], needsLine: true }
+	5: { selections: ['Over', 'Under'], needsLine: true },
+	8: { selections: ['Yes', 'No'], needsLine: false }
 };
 
 const FINISHED = ['FT', 'AET', 'PEN'];
@@ -67,9 +60,8 @@ export function placedBetOutcome(r: PlacedBetRecord): BetOutcome | null {
 	if (!market || k < 0 || market.needsLine !== (r.line !== null)) return null;
 	if (isVoidStatus(r.status)) return 'void';
 	if (!FINISHED.includes(r.status) || r.homeGoals === null || r.awayGoals === null) return null;
-	const result =
-		r.marketId === 1 ? outcome1x2(r.homeGoals, r.awayGoals) : overUnderOutcome(r.homeGoals + r.awayGoals, r.line as number);
-	return settleBet(k, result);
+	const result = marketResultIndex(r.marketId, r.line, r.homeGoals, r.awayGoals);
+	return result === undefined ? null : settleBet(k, result);
 }
 
 /** Tétsúlyos profit pénzben. */

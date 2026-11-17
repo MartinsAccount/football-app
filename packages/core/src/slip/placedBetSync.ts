@@ -27,7 +27,9 @@ const OUTCOME_MARKET: Readonly<Record<string, { marketId: number; line: number |
 	Draw: { marketId: 1, line: null },
 	Away: { marketId: 1, line: null },
 	Over: { marketId: 5, line: 2.5 },
-	Under: { marketId: 5, line: 2.5 }
+	Under: { marketId: 5, line: 2.5 },
+	Yes: { marketId: 8, line: null },
+	No: { marketId: 8, line: null }
 };
 
 /** Feltölthető-e a szelvény; `null` = csak helyben marad (kombinált, vagy ismeretlen/nem elszámolható kimenet). */

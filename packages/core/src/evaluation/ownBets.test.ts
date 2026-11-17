@@ -46,6 +46,9 @@ describe('placedBetOutcome', () => {
 		expect(placedBetOutcome(bet({ selection: 'Draw' }))).toBe('loss');
 		expect(placedBetOutcome(bet({ marketId: 5, selection: 'Over', line: 2.5 }))).toBe('win');
 		expect(placedBetOutcome(bet({ marketId: 5, selection: 'Under', line: 3 }))).toBe('void'); // push
+		expect(placedBetOutcome(bet({ marketId: 8, selection: 'Yes' }))).toBe('win');
+		expect(placedBetOutcome(bet({ marketId: 8, selection: 'No', awayGoals: 0 }))).toBe('win');
+		expect(placedBetOutcome(bet({ marketId: 8, selection: 'Yes', awayGoals: 0 }))).toBe('loss');
 	});
 
 	it('a kapcsolt kiértékelés kimenete elsőbbséget kap', () => {
@@ -55,7 +58,8 @@ describe('placedBetOutcome', () => {
 	it('void meccs, függő meccs, nem elszámolható piac/kimenet', () => {
 		expect(placedBetOutcome(bet({ status: 'PST', homeGoals: null, awayGoals: null }))).toBe('void');
 		expect(placedBetOutcome(bet({ status: 'NS', homeGoals: null, awayGoals: null }))).toBeNull();
-		expect(placedBetOutcome(bet({ marketId: 8, selection: 'Yes' }))).toBeNull();
+		expect(placedBetOutcome(bet({ marketId: 12, selection: 'Home/Draw' }))).toBeNull();
+		expect(placedBetOutcome(bet({ marketId: 8, selection: 'Yes', line: 2.5 }))).toBeNull();
 		expect(placedBetOutcome(bet({ selection: 'X' }))).toBeNull();
 		expect(placedBetOutcome(bet({ marketId: 5, selection: 'Over', line: null }))).toBeNull();
 	});
