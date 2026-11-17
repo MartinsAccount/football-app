@@ -265,7 +265,7 @@
 > Terv: [`plans/owner-style-and-draws.md`](plans/owner-style-and-draws.md). Lokális, 0 élő hívás.
 
 - [x] **12.1 (Q1)** core profil-mag: kvíz-jellemzők, logreg, profil-szöveg, utánzó pontszám. (`28dc22a`)
-- [x] **12.2 (Q2)** DB-tábla + kvíz/profil API. (`HASH`)
+- [x] **12.2 (Q2)** DB-tábla + kvíz/profil API. (`584c50d`)
 - [ ] **12.3 (Q3)** web kvíz-oldal + profilkártya.
 - [ ] **12.4 (Q4)** mobil kvíz-képernyő.
 - [ ] **12.5 (Q5)** „Te ezt raknád” jelölés az ajánlásokon.

@@ -68,11 +68,12 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
     `docs/plans/owner-style-and-draws.md`. Az élő ajánlási szabályok maradnak (DECISIONS 2026-11-17).
 
 36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös
-CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`HASH`). 36c. **Q3 –
-12.3 web `/quiz`** kérdés-kártya, válaszgombok, eredmény a válasz után, profilkártya; screenshot 1440/390. 36d. **Q4 – 12.4 mobil
-`quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5 – 12.5** „Te ezt raknád” jelölés az ajánlás-listán (web + mobil).
-36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script → `docs/analysis/backtests/2026-11-17-draws.md`. 36g.
-**D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 – 12.8** mobil blokk.
+CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`584c50d`). 36c.
+**Q3 – 12.3 web `/quiz`** kérdés-kártya, válaszgombok, eredmény a válasz után, profilkártya; screenshot 1440/390. 36d. **Q4 – 12.4
+mobil `quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5 – 12.5** „Te ezt raknád” jelölés az ajánlás-listán (web +
+mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script →
+`docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 –
+12.8** mobil blokk.
 
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
@@ -222,7 +223,7 @@ teszt; db `scripts/backtest-elo-logit.ts` (`npm run backtest:elo-logit -w @footb
 `986708d` | core `evaluation/ownBets.ts` (`placedBetOutcome`, `settlePlacedBet`, `summarizeOwnBets`), db `SqlPlacedBetRepository`
 (`placedBets.ts`, `PlacedBetRefError`), server `placedBets.ts` + router `GET/POST /api/bets`, contract
 `PlacedBetInput`/`PlacedBetDto`/`PlacedBetsResponse` + `listPlacedBets`/`createPlacedBet`; terv `docs/plans/i23-placed-bet.md`;
-migráció nem kellett (0004) | | Q2 – 12.2 Kvíz/profil API | `HASH` | db `0008_owner_answer.sql` (additív, PK `fixture_id` =
+migráció nem kellett (0004) | | Q2 – 12.2 Kvíz/profil API | `584c50d` | db `0008_owner_answer.sql` (additív, PK `fixture_id` =
 upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `loadQuizQuestion`, `parseQuizAnswer`,
 `placedBetPick`, `seededIndex`) + router `GET /api/quiz/next[?seed=]`, `POST /api/quiz/answer`, `GET /api/profile`; contract
 `QuizNextResponse`/`QuizAnswerResponse`/`ProfileResponse` + `getQuizQuestion`/`answerQuiz`/`getProfile`; Vite-proxy `quiz/`,
