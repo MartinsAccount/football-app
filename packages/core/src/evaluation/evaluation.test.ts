@@ -10,6 +10,7 @@ import {
 	outcome1x2,
 	overUnderOutcome,
 	settleBet,
+	settleSelection,
 	summarizeBets,
 	summarizeProbabilities
 } from './evaluation';
@@ -45,6 +46,20 @@ describe('kimenetel', () => {
 		expect(settleBet(1, null)).toBe('void');
 		expect(isVoidStatus('PST')).toBe(true);
 		expect(isVoidStatus('FT')).toBe(false);
+	});
+
+	it('Double Chance (I28b): kimenetenként nyer/veszít, egy eredményre két kimenet nyer', () => {
+		// [Home/Draw, Home/Away, Draw/Away]
+		expect([0, 1, 2].map((k) => settleSelection(12, null, k, 2, 1))).toEqual(['win', 'win', 'loss']);
+		expect([0, 1, 2].map((k) => settleSelection(12, null, k, 1, 1))).toEqual(['win', 'loss', 'win']);
+		expect([0, 1, 2].map((k) => settleSelection(12, null, k, 0, 2))).toEqual(['loss', 'win', 'win']);
+		expect(settleSelection(12, 2.5, 0, 1, 1)).toBeUndefined();
+		expect(settleSelection(12, null, 3, 1, 1)).toBeUndefined();
+		// a többi piacon a `marketResultIndex` + `settleBet` szabálya
+		expect(settleSelection(1, null, 0, 2, 1)).toBe('win');
+		expect(settleSelection(5, 2, 0, 1, 1)).toBe('void');
+		expect(settleSelection(8, null, 1, 0, 0)).toBe('win');
+		expect(settleSelection(99, null, 0, 0, 0)).toBeUndefined();
 	});
 
 	it('flat profit', () => {

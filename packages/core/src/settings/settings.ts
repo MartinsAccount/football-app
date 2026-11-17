@@ -80,7 +80,7 @@ export const leagueCatalog = (rows: readonly LeagueCatalogRow[] | null, followed
 	return [...manual, ...extra];
 };
 
-export type SettingsMarketKey = 'h2h' | 'ou25' | 'btts';
+export type SettingsMarketKey = 'h2h' | 'ou25' | 'btts' | 'dc';
 
 export interface ISettingsMarket {
 	key: SettingsMarketKey;
@@ -92,7 +92,8 @@ export interface ISettingsMarket {
 export const SETTINGS_MARKETS: readonly ISettingsMarket[] = [
 	{ key: 'h2h', label: '1X2', hint: 'Végeredmény', outcomes: 3 },
 	{ key: 'ou25', label: 'Gól 2,5', hint: 'Több / kevesebb', outcomes: 2 },
-	{ key: 'btts', label: 'Mindkét csapat', hint: 'Igen / nem', outcomes: 2 }
+	{ key: 'btts', label: 'Mindkét csapat', hint: 'Igen / nem', outcomes: 2 },
+	{ key: 'dc', label: 'Kétesélyes', hint: '1X / 12 / X2', outcomes: 3 }
 ];
 
 /** API-Football iroda-id-k. */

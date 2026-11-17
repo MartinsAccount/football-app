@@ -30,13 +30,16 @@ const clampP = (p: number) => Math.min(1 - 1e-9, Math.max(1e-9, p));
 const logit = (p: number) => Math.log(clampP(p) / (1 - clampP(p)));
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 
-/** `logit(p) = w · logit(p_modell) + (1 − w) · logit(p_piac)` kimenetenként, utána renormálva (Σp = 1). */
-export const blendProbabilities = (pModel: readonly number[], pMarket: readonly number[], w: number): number[] => {
+/**
+ * `logit(p) = w · logit(p_modell) + (1 − w) · logit(p_piac)` kimenetenként, utána renormálva Σp = `mass`-ra (Double Chance: 2;
+ * ott a renormálás után (0, 1)-be vágva).
+ */
+export const blendProbabilities = (pModel: readonly number[], pMarket: readonly number[], w: number, mass = 1): number[] => {
 	if (pModel.length !== pMarket.length) throw new Error('A modell és a piac kimenetszáma eltér.');
 	if (!(w >= 0 && w <= 1)) throw new Error(`A súly a [0, 1] tartományba essen: ${w}`);
 	const raw = pModel.map((p, i) => sigmoid(w * logit(p) + (1 - w) * logit(pMarket[i])));
 	const sum = raw.reduce((s, p) => s + p, 0);
-	return raw.map((p) => p / sum);
+	return raw.map((p) => (mass === 1 ? p / sum : clampP((p / sum) * mass)));
 };
 
 export interface BookmakerOdds {
@@ -68,18 +71,22 @@ export interface MarketEvaluation {
 
 /**
  * Egy piac értékelése: a legnagyobb EV-jű kimenet a legjobb elérhető oddson, és hogy átmegy-e a §5 szűrőin.
- * `null`, ha nincs érvényes odds.
+ * `null`, ha nincs érvényes odds. `mass`: a kimenetek valószínűség-összege (Double Chance: 2).
  */
 export const evaluateMarket = (
 	pModel: readonly number[],
 	oddsByBookmaker: readonly BookmakerOdds[],
 	rules: RecommendationRules = DEFAULT_RECOMMENDATION_RULES,
-	blocked = false
+	blocked = false,
+	mass = 1
 ): MarketEvaluation | null => {
 	const rows = oddsByBookmaker.filter((b) => b.odds.length === pModel.length && b.odds.every((o) => Number.isFinite(o) && o > 1));
 	if (rows.length === 0) return null;
-	const pMarket = consensusFairProbabilities(rows.map((r) => r.odds));
-	const pFinal = blendProbabilities(pModel, pMarket, rules.blendWeight);
+	const pMarket = consensusFairProbabilities(
+		rows.map((r) => r.odds),
+		mass
+	);
+	const pFinal = blendProbabilities(pModel, pMarket, rules.blendWeight, mass);
 	const best = bestOdds(rows.map((r) => r.odds));
 	let i = 0;
 	for (let k = 1; k < pFinal.length; k++) if (pFinal[k] * best[k].odds > pFinal[i] * best[i].odds) i = k;

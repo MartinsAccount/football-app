@@ -5,7 +5,7 @@ import {
 	isVoidStatus,
 	logLoss,
 	marketResultIndex,
-	settleBet,
+	settleSelection,
 	type BetOutcome,
 	type EvaluationRecord
 } from '@football/core';
@@ -16,7 +16,8 @@ import { PREDICTION_MARKETS } from './predictions';
  * Kiértékelő job (ROADMAP 5.3, strategy.md §7.2): a `results` után a lezárt meccsek még ki nem értékelt `prediction` soraira
  * egy-egy `evaluation` sor (a core `evaluation/` képleteivel). Befejezett (FT/AET/PEN) meccs: a rendes játékidő eredménye
  * (`ft_*`, ennek hiányában `goals_*`); PST/CANC/ABD → void (profit 0, Brier/log-loss/CLV `null`). A Brier és a log-loss a
- * piac teljes eloszlására (egy futás × meccs × piac × vonal) számol, és a csoport minden sorára ugyanaz kerül. A profit flat
+ * piac teljes eloszlására (egy futás × meccs × piac × vonal) számol, és a csoport minden sorára ugyanaz kerül; a nem kizáró
+ * Double Chance-nél (Σp = 2) `null` (az 1X2 sorai lefedik ugyanazt az eloszlást). A profit flat
  * 1 egység a predikció `best_odd`-jára. CLV: a kezdés előtti utolsó snapshot tárolt quote-jainak maximuma (záró-közeli).
  * Idempotens: `ON CONFLICT (prediction_id) DO NOTHING` – a már kiértékelt sor nem változik.
  * TODO(polish): ázsiai vonalak (half_win/half_loss), a záró odds az `odds_best`-ből is.
@@ -56,13 +57,6 @@ export interface EvaluationCandidate {
 
 const lineKey = (line: number | null) => (line === null ? '' : String(line));
 
-/** A piac kimenet-indexe a meccs eredményéből; `null` = void (push vagy void meccs); `undefined` = nem értékelhető piac. */
-function resultIndex(c: EvaluationCandidate): number | null | undefined {
-	if (isVoidStatus(c.status)) return null;
-	if (c.gh === null || c.ga === null) return undefined;
-	return marketResultIndex(c.m, c.line, c.gh, c.ga);
-}
-
 /** Tiszta: a jelölt sorokból és a záró odds-okból az `evaluation` sorok (a nem értékelhetők kimaradnak). */
 export function buildEvaluationRows(
 	candidates: readonly EvaluationCandidate[],
@@ -77,17 +71,20 @@ export function buildEvaluationRows(
 	for (const group of groups.values()) {
 		const first = group[0];
 		const selections = PREDICTION_MARKETS.find((m) => m.id === first.m)?.selections as readonly string[] | undefined;
-		const idx = resultIndex(first);
-		if (!selections || idx === undefined) continue;
+		const voidMatch = isVoidStatus(first.status);
+		if (!selections || (!voidMatch && (first.gh === null || first.ga === null))) continue;
+		// Kizáró piacnál a nyerő index (Brier/log-loss); `null` = void/push, `undefined` = nem kizáró (DC) vagy nem értékelhető.
+		const idx = voidMatch ? null : marketResultIndex(first.m, first.line, first.gh!, first.ga!);
 		const bySel = new Map(group.map((c) => [c.sel, c]));
 		const complete = selections.every((s) => bySel.has(s));
 		const probs = selections.map((s) => bySel.get(s)?.p ?? NaN);
-		const brier = complete && idx !== null ? brierScore(probs, idx) : null;
-		const ll = complete && idx !== null ? logLoss(probs, idx) : null;
+		const brier = complete && typeof idx === 'number' ? brierScore(probs, idx) : null;
+		const ll = complete && typeof idx === 'number' ? logLoss(probs, idx) : null;
 		for (const c of group) {
 			const k = selections.indexOf(c.sel);
 			if (k < 0 || c.odd === null || !(c.odd > 1)) continue;
-			const outcome = settleBet(k, idx);
+			const outcome = voidMatch ? 'void' : settleSelection(c.m, c.line, k, c.gh!, c.ga!);
+			if (!outcome) continue;
 			const close =
 				outcome === 'void' && isVoidStatus(c.status) ? undefined : closing.get(`${c.fx}:${c.m}:${c.sel}:${lineKey(c.line)}`);
 			out.push({

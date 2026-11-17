@@ -77,11 +77,8 @@ CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil A
 (`git log --grep=D3`). **A ROADMAP 12 kész.**
 
 37. ~~I27 – 7.5a BTTS piac végig~~ kész (`git log --grep=I27`).
-38. ~~I28a – 7.5b gólvonalak (1,5 / 3,5)~~ kész (`git log --grep=I28a`). 38b. **I28b – 7.5b Double Chance (12).** Nem kizáró
-    kimenetek (Σp = 2): core elszámolás (`marketResultIndex` helyett kimenet-szintű nyer/veszít), margin-mentesítés 2-es tömegre
-    (`consensusFairProbabilities`/`blendProbabilities`/`evaluateMarket` opcionális `mass`), pipeline `MARKETS` + `pModelBy` (h+d,
-    h+a, d+a), kiértékelő job Brier/LL (DC-nél `null` vagy bináris), `ownBets` 12, snapshot `Home/Draw`…, `SETTINGS_MARKET_IDS`
-    (tárolási hatókör). ~9 fájl.
+38. ~~I28a – 7.5b gólvonalak (1,5 / 3,5)~~ kész (`git log --grep=I28a`). 38b. ~~I28b – 7.5b Double Chance (12)~~ kész
+    (`git log --grep=I28b`). **A ROADMAP 7.5 kész.**
 39. **I29 – 9.2a React 18 + MobX 6 (frontend).** `makeObservable` a store-okban, `createRoot`, a `legacy-peer-deps` megszűnik, ha
     a mobx-react 7 engedi; screenshotok egyeznek. Ha > 10 fájl: store-onként bontva (9.2b).
 
@@ -258,6 +255,8 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 
 ## Polish backlog
 
+- I28b: a DC fair p arányos margin-mentesítéssel Σp = 2-re (nem az 1X2-ből levezetve); a blend után (0, 1)-be vágva. A DC
+  Brier/log-loss `null` (a dashboard DC-sorainál nincs Brier). A CSV-pillanatkép/backtest nem ismeri a DC-t.
 - I28a: a CSV-pillanatkép és a backtest (`BacktestMarket`) csak 2,5-ös vonalat ismer (a football-data CSV-ben nincs 1,5 / 3,5); az
   1,5 / 3,5 ajánlás csak a DB-pipeline-ból jön. A Beállítások `ou25` kulcsa az 5-ös piac minden vonalát tárolja.
 
@@ -472,6 +471,12 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I28b kész (7.5b Double Chance, a ROADMAP 7.5 kész).** core `settleSelection(marketId, line, k, gh, ga)` minden piacra (DC:
+  `DOUBLE_CHANCE_COVERS` 1X/12/X2); a `marketResultIndex` csak kizáró piacra. `mass` paraméter (alap 1) a
+  `consensusFairProbabilities` / `blendProbabilities` / `evaluateMarket`-ben. Pipeline: `MARKETS` elemein `mass`, `dc` (id 12,
+  `pModel` = h+d, h+a, d+a) → meccsenként 14 predikció-sor. Job: DC Brier/LL `null`. Snapshot-kimenet = API-szelekció
+  (`Home/Draw`…), Beállítások `dc: 12` (nem alapértelmezett). Következő: 39 (I29 React 18 + MobX 6).
 
 - **I28a kész (7.5b gólvonalak).** core `marketProbabilities` + `over15/under15/over35/under35`; snapshot `ou15`/`ou35` (kimenet
   `Over15`…`Under35`, a 2,5 marad `Over`/`Under`), közös `SNAPSHOT_OUTCOME_MARKET` (kimenet → piac-id, selection, vonal; a

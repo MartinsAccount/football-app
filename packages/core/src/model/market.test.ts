@@ -24,6 +24,13 @@ describe('piaci baseline', () => {
 		expect(fairProbabilities([2, 2])).toEqual([0.5, 0.5]);
 	});
 
+	it('konszenzus 2-es tömegre (Double Chance): Σp = 2, arányos margin-mentesítés', () => {
+		const p = consensusFairProbabilities([[1.25, 1.33, 1.5]], 2);
+		expect(sum(p)).toBeCloseTo(2, 12);
+		expect(p[0] / p[2]).toBeCloseTo(1.5 / 1.25, 12);
+		for (const x of p) expect(x).toBeLessThan(1);
+	});
+
 	it('konszenzus: irodánkénti fair p átlaga, Σp = 1', () => {
 		const p = consensusFairProbabilities([
 			[2, 2],

@@ -22,15 +22,18 @@ export const fairProbabilities = (odds: readonly number[]): number[] => {
 	return implied.map((p) => p / sum);
 };
 
-/** Konszenzus fair valószínűség: irodánként fair p, ezek átlaga, újranormálva (Σp = 1). */
-export const consensusFairProbabilities = (oddsByBookmaker: readonly (readonly number[])[]): number[] => {
+/**
+ * Konszenzus fair valószínűség: irodánként fair p, ezek átlaga, újranormálva Σp = `mass`-ra. A `mass` a kimenetek
+ * valószínűség-összege: kizáró kimeneteknél 1, a nem kizáró Double Chance-nél (1X / 12 / X2) 2 (arányos margin-mentesítés).
+ */
+export const consensusFairProbabilities = (oddsByBookmaker: readonly (readonly number[])[], mass = 1): number[] => {
 	if (oddsByBookmaker.length === 0) throw new Error('Legalább egy iroda oddsa kell.');
 	const n = oddsByBookmaker[0].length;
 	if (oddsByBookmaker.some((o) => o.length !== n)) throw new Error('Az irodák kimenetszáma eltér.');
 	const sums = new Array<number>(n).fill(0);
 	for (const odds of oddsByBookmaker) fairProbabilities(odds).forEach((p, i) => (sums[i] += p));
 	const total = sums.reduce((s, p) => s + p, 0);
-	return sums.map((s) => s / total);
+	return sums.map((s) => (s / total) * mass);
 };
 
 export interface BestOdd {

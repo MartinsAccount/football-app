@@ -11,8 +11,8 @@ import {
 // Web/mobil `ISettings` ↔ szerver `GET/PUT /api/settings` (ROADMAP 2.3, I18a). A core nem függhet a `@football/contract`-tól
 // (az függ a core-tól), ezért itt a szerver-alak szerkezeti mása áll; a contract `SettingsResponse`/`SettingsUpdate` ennek megfelel.
 
-/** Piac-kulcs → API-Football bet-id (`market.id`): 1 = Match Winner, 5 = Goals Over/Under, 8 = Both Teams Score. */
-export const SETTINGS_MARKET_IDS: Readonly<Record<SettingsMarketKey, number>> = { h2h: 1, ou25: 5, btts: 8 };
+/** Piac-kulcs → API-Football bet-id (`market.id`): 1 = Match Winner, 5 = Goals Over/Under, 8 = Both Teams Score, 12 = Double Chance. */
+export const SETTINGS_MARKET_IDS: Readonly<Record<SettingsMarketKey, number>> = { h2h: 1, ou25: 5, btts: 8, dc: 12 };
 
 /** A `SettingsResponse` része, amit a leképezés használ. */
 export interface RemoteSettingsShape {

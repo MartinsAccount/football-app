@@ -28,6 +28,14 @@ describe('blendProbabilities', () => {
 		expect(out[0]).toBeLessThan(0.6);
 	});
 
+	it('2-es tömeg (Double Chance): Σp = 2, minden p < 1', () => {
+		const out = blendProbabilities([0.8, 0.75, 0.45], [0.78, 0.72, 0.5], 0.25, 2);
+		expect(sum(out)).toBeCloseTo(2, 9);
+		for (const x of out) expect(x).toBeLessThan(1);
+		const edge = blendProbabilities([0.999, 0.6, 0.401], [0.98, 0.62, 0.4], 0.5, 2);
+		for (const x of edge) expect(x).toBeLessThan(1);
+	});
+
 	it('hibás bemenet', () => {
 		expect(() => blendProbabilities([0.5, 0.5], [1], 0.5)).toThrow();
 		expect(() => blendProbabilities([0.5, 0.5], [0.5, 0.5], 1.5)).toThrow();
@@ -69,6 +77,17 @@ describe('evaluateMarket', () => {
 		const e = evaluateMarket([0.7, 0.3], longshot, { ...DEFAULT_RECOMMENDATION_RULES, blendWeight: 1 })!;
 		expect(e.outcomeIndex).toBe(1);
 		expect(e.rejections).toContain('odds a tartományon kívül');
+	});
+
+	it('Double Chance (mass = 2): a piaci p Σ = 2 szerint margin-mentes, EV a legjobb oddson', () => {
+		const dc = books(Array.from({ length: 5 }, (_, i) => [1.3 + i * 0.01, 1.3, 1.6]));
+		const e = evaluateMarket([0.85, 0.7, 0.45], dc, { ...DEFAULT_RECOMMENDATION_RULES, blendWeight: 1 }, false, 2)!;
+		expect(e.outcomeIndex).toBe(0);
+		expect(e.odds).toBeCloseTo(1.34, 9);
+		expect(e.pFinal).toBeCloseTo(0.85, 9);
+		expect(e.ev).toBeCloseTo(0.85 * 1.34 - 1, 9);
+		expect(e.pMarket).toBeGreaterThan(0.7);
+		expect(e.pMarket).toBeLessThan(0.8);
 	});
 
 	it('érvényes odds nélkül null', () => {

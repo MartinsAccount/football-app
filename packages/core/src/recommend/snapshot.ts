@@ -3,7 +3,7 @@
 import type { MatchResult } from '../features/types';
 import type { ConfidenceLevel, RecommendationRules } from './recommend';
 
-export type SnapshotMarket = 'h2h' | 'ou15' | 'ou25' | 'ou35' | 'btts';
+export type SnapshotMarket = 'h2h' | 'ou15' | 'ou25' | 'ou35' | 'btts' | 'dc';
 /** A 2,5-ös gólvonal kimenete történeti okból `Over`/`Under`; az 1,5 / 3,5 vonalé a vonallal képzett név (I28a). */
 export type SnapshotOutcome =
 	| 'Home'
@@ -16,14 +16,18 @@ export type SnapshotOutcome =
 	| 'Over35'
 	| 'Under35'
 	| 'Yes'
-	| 'No';
+	| 'No'
+	| 'Home/Draw'
+	| 'Home/Away'
+	| 'Draw/Away';
 
 export const SNAPSHOT_OUTCOMES: Record<SnapshotMarket, SnapshotOutcome[]> = {
 	h2h: ['Home', 'Draw', 'Away'],
 	ou15: ['Over15', 'Under15'],
 	ou25: ['Over', 'Under'],
 	ou35: ['Over35', 'Under35'],
-	btts: ['Yes', 'No']
+	btts: ['Yes', 'No'],
+	dc: ['Home/Draw', 'Home/Away', 'Draw/Away']
 };
 
 /** Pillanatkép-kimenet → API-Football piac-id, kimenet-név és vonal (a `placed_bet` / `prediction` sor kulcsa). */
@@ -40,7 +44,10 @@ export const SNAPSHOT_OUTCOME_MARKET: Readonly<
 	Over35: { marketId: 5, selection: 'Over', line: 3.5 },
 	Under35: { marketId: 5, selection: 'Under', line: 3.5 },
 	Yes: { marketId: 8, selection: 'Yes', line: null },
-	No: { marketId: 8, selection: 'No', line: null }
+	No: { marketId: 8, selection: 'No', line: null },
+	'Home/Draw': { marketId: 12, selection: 'Home/Draw', line: null },
+	'Home/Away': { marketId: 12, selection: 'Home/Away', line: null },
+	'Draw/Away': { marketId: 12, selection: 'Draw/Away', line: null }
 };
 
 export interface SnapshotFormEntry {

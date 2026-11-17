@@ -6,7 +6,8 @@ const MARKET_NAME: Record<RecommendationItem['market'], string> = {
 	ou15: 'Over/Under 1.5',
 	ou25: 'Over/Under 2.5',
 	ou35: 'Over/Under 3.5',
-	btts: 'Both Teams Score'
+	btts: 'Both Teams Score',
+	dc: 'Double Chance'
 };
 
 /** Pillanatkép-tétel → TipCard nézet-modell (ISO szöveg → Date). */

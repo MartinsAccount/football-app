@@ -18,7 +18,10 @@ export const TIPPMIX_LABEL: Record<SnapshotOutcome, string> = {
 	Over35: 'Gólok száma 3,5 · Felett',
 	Under35: 'Gólok száma 3,5 · Alatt',
 	Yes: 'Mindkét csapat szerez gólt · Igen',
-	No: 'Mindkét csapat szerez gólt · Nem'
+	No: 'Mindkét csapat szerez gólt · Nem',
+	'Home/Draw': 'Kétesélyes · 1X',
+	'Home/Away': 'Kétesélyes · 12',
+	'Draw/Away': 'Kétesélyes · X2'
 };
 
 /** A szelvényhez szükséges tipp-adatok (dátum ISO szövegként). */

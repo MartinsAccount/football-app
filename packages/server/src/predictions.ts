@@ -34,13 +34,17 @@ const UPCOMING = ['NS', 'TBD'];
 const DAY = 86_400_000;
 const MAX_ODD = 9999.999; // numeric(7, 3)
 
-/** A pipeline piacai: API-Football piac-id, kód (egyedi; a gólvonalak közös id-n), kimenetek (a modell sorrendjében), vonal. */
+/**
+ * A pipeline piacai: API-Football piac-id, kód (egyedi; a gólvonalak közös id-n), kimenetek (a modell sorrendjében), vonal,
+ * valószínűség-tömeg (a nem kizáró Double Chance-nél Σp = 2).
+ */
 const MARKETS = [
-	{ id: 1, code: 'h2h', selections: ['Home', 'Draw', 'Away'], line: null },
-	{ id: 5, code: 'ou15', selections: ['Over', 'Under'], line: 1.5 },
-	{ id: 5, code: 'ou25', selections: ['Over', 'Under'], line: 2.5 },
-	{ id: 5, code: 'ou35', selections: ['Over', 'Under'], line: 3.5 },
-	{ id: 8, code: 'btts', selections: ['Yes', 'No'], line: null }
+	{ id: 1, code: 'h2h', selections: ['Home', 'Draw', 'Away'], line: null, mass: 1 },
+	{ id: 5, code: 'ou15', selections: ['Over', 'Under'], line: 1.5, mass: 1 },
+	{ id: 5, code: 'ou25', selections: ['Over', 'Under'], line: 2.5, mass: 1 },
+	{ id: 5, code: 'ou35', selections: ['Over', 'Under'], line: 3.5, mass: 1 },
+	{ id: 8, code: 'btts', selections: ['Yes', 'No'], line: null, mass: 1 },
+	{ id: 12, code: 'dc', selections: ['Home/Draw', 'Home/Away', 'Draw/Away'], line: null, mass: 2 }
 ] as const;
 
 /** A pipeline piacai (a kiértékelő job is ezt a kimenet-sorrendet használja). */
@@ -255,7 +259,8 @@ export async function runPredictions(
 			ou15: [pr.over15, pr.under15],
 			ou25: [pr.over25, pr.under25],
 			ou35: [pr.over35, pr.under35],
-			btts: [pr.bttsYes, pr.bttsNo]
+			btts: [pr.bttsYes, pr.bttsNo],
+			dc: [pr.home + pr.draw, pr.home + pr.away, pr.draw + pr.away]
 		};
 
 		const markets = MARKETS.flatMap((m) => {
@@ -268,7 +273,8 @@ export async function runPredictions(
 				pModel,
 				books.map(([b, o]) => ({ bookmaker: String(b), odds: o })),
 				rules,
-				blocked
+				blocked,
+				m.mass
 			);
 			return e ? [{ m, books, pModel, e }] : [];
 		});
@@ -277,8 +283,11 @@ export async function runPredictions(
 		const seasonMin = Math.min(played('home'), played('away'));
 
 		for (const { m, books, pModel, e } of markets) {
-			const pMarket = consensusFairProbabilities(books.map(([, o]) => o));
-			const pFinal = blendProbabilities(pModel, pMarket, rules.blendWeight);
+			const pMarket = consensusFairProbabilities(
+				books.map(([, o]) => o),
+				m.mass
+			);
+			const pFinal = blendProbabilities(pModel, pMarket, rules.blendWeight, m.mass);
 			const best = bestOdds(books.map(([, o]) => o));
 			const features = {
 				model: pred.inputs,

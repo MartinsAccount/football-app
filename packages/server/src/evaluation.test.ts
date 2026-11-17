@@ -50,6 +50,26 @@ describe('buildEvaluationRows (tiszta)', () => {
 		expect(rows[1]).toMatchObject({ closing_snapshot_id: null, clv: null });
 	});
 
+	it('Double Chance (12): 2–1 → 1X és 12 nyer, X2 veszít; Brier/log-loss null (nem kizáró kimenetek)', () => {
+		const rows = buildEvaluationRows(
+			[
+				cand({ id: 1, m: 12, sel: 'Home/Draw', p: 0.8, odd: 1.3 }),
+				cand({ id: 2, m: 12, sel: 'Home/Away', p: 0.75, odd: 1.35 }),
+				cand({ id: 3, m: 12, sel: 'Draw/Away', p: 0.45, odd: 2.1 })
+			],
+			new Map([[`${FT}:12:Home/Draw:`, { snapshotId: 9, odd: 1.25 }]])
+		);
+		expect(rows.map((r) => [r.prediction_id, r.outcome, r.brier, r.log_loss])).toEqual([
+			[1, 'win', null, null],
+			[2, 'win', null, null],
+			[3, 'loss', null, null]
+		]);
+		expect(rows[0].profit_units).toBeCloseTo(0.3);
+		expect(rows[0].clv).toBeCloseTo(1.3 / 1.25 - 1);
+		const voids = buildEvaluationRows([cand({ id: 4, m: 12, sel: 'Draw/Away', status: 'PST', gh: null, ga: null })], new Map());
+		expect(voids.map((r) => r.outcome)).toEqual(['void']);
+	});
+
 	it('PST → void, 0 profit, nincs Brier/CLV; hiányos eloszlás → Brier null; ismeretlen piac kimarad', () => {
 		const voids = buildEvaluationRows(
 			[cand({ id: 1, status: 'PST', gh: null, ga: null }), cand({ id: 2, sel: 'Draw', status: 'PST', gh: null, ga: null })],

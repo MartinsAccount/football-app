@@ -19,12 +19,22 @@ export const overUnderOutcome = (totalGoals: number, line: number): 0 | 1 | null
 /** BTTS kimenet: 0 = Igen (mindkét csapat szerzett gólt), 1 = Nem. */
 export const bttsOutcome = (homeGoals: number, awayGoals: number): 0 | 1 => (homeGoals > 0 && awayGoals > 0 ? 0 : 1);
 
-/** API-Football piac-id-k, amelyeket a kiértékelés elszámol (kimenet-sorrend: 1X2 [Home, Draw, Away], O/U [Over, Under], BTTS [Yes, No]). */
-export const SETTLED_MARKET_IDS = { h2h: 1, overUnder: 5, btts: 8 } as const;
+/**
+ * API-Football piac-id-k, amelyeket a kiértékelés elszámol (kimenet-sorrend: 1X2 [Home, Draw, Away], O/U [Over, Under], BTTS
+ * [Yes, No], Double Chance [Home/Draw, Home/Away, Draw/Away]).
+ */
+export const SETTLED_MARKET_IDS = { h2h: 1, overUnder: 5, btts: 8, doubleChance: 12 } as const;
+
+/** Double Chance kimenetenként a lefedett 1X2-indexek: 1X, 12, X2. A kimenetek nem kizárók (Σp = 2). */
+export const DOUBLE_CHANCE_COVERS: readonly (readonly (0 | 1 | 2)[])[] = [
+	[0, 1],
+	[0, 2],
+	[1, 2]
+];
 
 /**
- * Egy piac eredmény-indexe a rendes játékidő eredményéből; `null` = push (egész O/U-vonal pontos egyezése), `undefined` = nem
- * elszámolható piac vagy hiányzó/fölösleges vonal.
+ * Egy kizáró kimenetű piac eredmény-indexe a rendes játékidő eredményéből; `null` = push (egész O/U-vonal pontos egyezése),
+ * `undefined` = nem elszámolható piac, hiányzó/fölösleges vonal vagy nem kizáró piac (Double Chance → `settleSelection`).
  */
 export const marketResultIndex = (
 	marketId: number,
@@ -41,6 +51,25 @@ export const marketResultIndex = (
 /** Tipp elszámolása: `resultIndex === null` (void meccs vagy push) → void. */
 export const settleBet = (selectionIndex: number, resultIndex: number | null): BetOutcome =>
 	resultIndex === null ? 'void' : selectionIndex === resultIndex ? 'win' : 'loss';
+
+/**
+ * Egy kimenet elszámolása a rendes játékidő eredményéből, minden elszámolható piacon (a nem kizáró Double Chance-en is, ahol
+ * egy eredményre két kimenet nyer). `undefined` = nem elszámolható piac, vonal vagy kimenet-index.
+ */
+export const settleSelection = (
+	marketId: number,
+	line: number | null,
+	selectionIndex: number,
+	homeGoals: number,
+	awayGoals: number
+): BetOutcome | undefined => {
+	if (marketId === SETTLED_MARKET_IDS.doubleChance) {
+		const covers = line === null ? DOUBLE_CHANCE_COVERS[selectionIndex] : undefined;
+		return covers ? (covers.includes(outcome1x2(homeGoals, awayGoals)) ? 'win' : 'loss') : undefined;
+	}
+	const result = marketResultIndex(marketId, line, homeGoals, awayGoals);
+	return result === undefined ? undefined : settleBet(selectionIndex, result);
+};
 
 /** Flat (1 egységes) profit: win → `odd − 1`, loss → `−1`, void → 0. */
 export const flatProfit = (outcome: BetOutcome, odds: number): number => {
