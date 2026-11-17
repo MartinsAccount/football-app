@@ -67,7 +67,7 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 **Saját stílus + döntetlen-figyelő (ROADMAP 12, tulajdonosi kérés 2026-11-17 – ELŐRE sorolva):** terv
 `docs/plans/owner-style-and-draws.md`. Az élő ajánlási szabályok maradnak (DECISIONS 2026-11-17).
 
-36a. ~~Q1 – 12.1 core `profile/`~~ kész (`owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös CV).
+36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös CV).
 36b. **Q2 – 12.2** db `0008_owner_answer.sql` (additív) + repo; server `GET /api/quiz/next`, `POST /api/quiz/answer`,
     `GET /api/profile`; contract DTO-k; Vite-proxy.
 36c. **Q3 – 12.3 web `/quiz`** kérdés-kártya, válaszgombok, eredmény a válasz után, profilkártya; screenshot 1440/390.
