@@ -69,11 +69,10 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 
 36a. ~~Q1 – 12.1 core `profile/`~~ kész (`28dc22a`, `owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös
 CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil API; contract; Vite-proxy~~ kész (`584c50d`). 36c.
-**Q3 – 12.3 web `/quiz`** kérdés-kártya, válaszgombok, eredmény a válasz után, profilkártya; screenshot 1440/390. 36d. **Q4 – 12.4
-mobil `quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5 – 12.5** „Te ezt raknád” jelölés az ajánlás-listán (web +
-mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script →
-`docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk. 36h. **D3 –
-12.8** mobil blokk.
+~~Q3 – 12.3 web `/quiz`~~ kész (`HASH`). 36d. **Q4 – 12.4 mobil `quiz`** képernyő (link a fejlécből/Beállításokból). 36e. **Q5 –
+12.5** „Te ezt raknád” jelölés az ajánlás-listán (web + mobil). 36f. **D1 – 12.6 core `draw/`** jellemzők + logreg,
+`backtest:draws` script → `docs/analysis/backtests/2026-11-17-draws.md`. 36g. **D2 – 12.7** `GET /api/draws` + web
+„Döntetlen-esélyek” blokk. 36h. **D3 – 12.8** mobil blokk.
 
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
@@ -227,12 +226,16 @@ migráció nem kellett (0004) | | Q2 – 12.2 Kvíz/profil API | `584c50d` | db 
 upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `loadQuizQuestion`, `parseQuizAnswer`,
 `placedBetPick`, `seededIndex`) + router `GET /api/quiz/next[?seed=]`, `POST /api/quiz/answer`, `GET /api/profile`; contract
 `QuizNextResponse`/`QuizAnswerResponse`/`ProfileResponse` + `getQuizQuestion`/`answerQuiz`/`getProfile`; Vite-proxy `quiz/`,
-`profile`; dev.ts bekötve |
+`profile`; dev.ts bekötve | | Q3 – 12.3 Web kvíz-oldal | `HASH` | `frontend/src/pages/QuizPage/` (`QuizPage.tsx`,
+`ProfileCard.tsx`, `quizView.ts` + teszt), route `/quiz`, menüpont „Saját stílus”; screenshot
+`docs/plans/screens/q3-quiz-{dark,answered-light}-{1440,390}.png` |
 
 ## Polish backlog
 
 - Q2: `/api/quiz/next` minden jelölt id-t betölt, `/api/profile` mintánként ~4 lekérdezés – sok adatnál SQL-mintavétel/kötegelés.
-  A kvíz nem szűr a követett ligákra; a `migrate.test` TABLES listájában nincs `owner_answer`.
+  **Mérve (Q3): 28 válasznál a `/api/profile` ~20 s a helyi PGlite-on** → a profilkártya lassan frissül; kötegelt lekérdezés kell.
+- Q3: billentyű-gyorsgombok (1/X/2/O/U/S), válasz-előzmények, a súlyok teljes listája lenyitóban; 390 px-en a fejléc-nav 2 sorba
+  tör (5 menüpont). A kvíz nem szűr a követett ligákra; a `migrate.test` TABLES listájában nincs `owner_answer`.
 
 - I26: M2 feljutó csapatai att = def = 0-ról indulnak (ligaátlag; másodosztályos adat nincs) – feljutó-prior (pl. a kieső csapatok
   átlaga) javíthatna; a Hesse-közelítés a τ kereszttagjait elhagyja (lassabb konvergencia, eredmény ugyanaz); a v1-riport fájlneve
@@ -431,6 +434,11 @@ upsert) + `SqlOwnerAnswerRepository`; server `quiz.ts` (`createQuizService`, `lo
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **Q3 kész (12.3).** Web `/quiz` (menü „Saját stílus”): `pages/QuizPage/` komponens-state (mint `OwnBets`, nincs MobX-store); a
+  tipp-gomb azonnal beküld (bizalom előtte, opcionális), utána `.oe-verdict` + „Következő”; a profil minden válasz után újratölt
+  (régi marad, amíg jön). Mobil (36d) a `quizView.ts` szövegeit/formázóit átveheti (vagy core-ba emelheti). Lassú `/api/profile`:
+  lásd polish backlog. Screenshot-seed: `.data/pglite` másolata a scratchpadben + 28 válasz POST-tal.
 
 - **Q2 kész (12.2).** API: `client.getQuizQuestion(seed?)` → `{ question: QuizQuestion | null }` (lejátszott, nyitó 1X2-s, még nem
   válaszolt meccs; nyitó odds: `opening_csv` > kezdés előtti legkorábbi snapshot, iroda: CSV-átlag > B365 > PS); `answerQuiz` →

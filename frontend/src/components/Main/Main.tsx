@@ -6,6 +6,7 @@ import EvaluationPage from '../../pages/EvaluationPage/EvaluationPage';
 import SettingsPage from '../../pages/SettingsPage/SettingsPage';
 import ArbitragePage from '../../pages/ArbitragePage/ArbitragePage';
 import MatchPage from '../../pages/MatchPage/MatchPage';
+import QuizPage from '../../pages/QuizPage/QuizPage';
 
 // Route-ok a PRD 5.8 szerint. A régi /odds és /fixtures a Ma oldalra irányít (az odds-mozgás és a
 // meccs-statisztika a TipCard MatchDetails részébe olvad, ROADMAP H). A régi /legacy/* nézetek az M1
@@ -21,6 +22,9 @@ class Main extends Component {
 						</Route>
 						<Route path="/evaluation">
 							<EvaluationPage />
+						</Route>
+						<Route path="/quiz">
+							<QuizPage />
 						</Route>
 						<Route path="/settings">
 							<SettingsPage />

@@ -267,3 +267,6 @@
 | 2026-11-17 | Q2: forma és tabella | forma: utolsó 5 lejátszott meccs bármely sorozatban; tabellahely: core `deriveStandings` a liga-szezon kezdés előtti meccseiből (0 meccs → null), nem a `standing_derived` | nem függ attól, hogy a `standing_derived` ki van-e töltve | nem |
 | 2026-11-17 | Q2: kérdésválasztás | jelöltek id szerint; `?seed=` → mulberry32-index, nélküle Math.random; nyitó odds nélküli jelöltet átlép; elfogyott → 200 `{ question: null }` | determinisztikus teszt és UI-újratöltés; a null egyszerűbb a kliensnek, mint a 404 | nem |
 | 2026-11-17 | Q2: saját fogadás a profilban | meccsenként az első `placed_bet`; 1X2 (Home/Draw/Away) és O/U 2,5 képezhető le, más piac kimarad; kvízválasz esetén a kvíz nyer | egylábú, egyszerű leképezés; nincs duplikált minta | igen |
+| 2026-11-17 | Q3: kvíz-oldal állapota | komponens-state (`OwnBets`-minta), nincs MobX-store | egyoldalas, más oldal nem olvassa; később könnyen store-ba emelhető | nem |
+| 2026-11-17 | Q3: válasz-interakció | a tipp-gomb (odds-szal) azonnal beküld; a bizalom előtte választható, opcionális; skip-nél nem küldjük | egy kattintás/kérdés; az odds és a gomb egy elem, kevesebb hely mobilon | igen |
+| 2026-11-17 | Q3: menüpont | „Saját stílus” a Kiértékelés után | a cél a profil, nem a kvíz maga | igen |

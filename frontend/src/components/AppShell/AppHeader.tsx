@@ -14,6 +14,7 @@ interface IAppHeaderProps {
 const NAV_ITEMS: { to: string; label: string; exact?: boolean }[] = [
 	{ to: '/', label: 'Ma', exact: true },
 	{ to: '/evaluation', label: 'Kiértékelés' },
+	{ to: '/quiz', label: 'Saját stílus' },
 	{ to: '/arbitrage', label: 'Arbitrázs' },
 	{ to: '/settings', label: 'Beállítások' }
 ];
