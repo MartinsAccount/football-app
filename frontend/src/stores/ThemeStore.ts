@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import {
 	effectiveTheme,
 	resolveThemePreference,
@@ -80,6 +80,7 @@ export class ThemeStore {
 		const stored = env.load();
 		this.preference = resolveThemePreference(url, stored);
 		this.systemLight = env.systemPrefersLight();
+		makeObservable(this);
 		env.onSystemChange(
 			action((light: boolean) => {
 				this.systemLight = light;

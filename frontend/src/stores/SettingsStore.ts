@@ -1,4 +1,4 @@
-import { action, computed, flow, observable } from 'mobx';
+import { action, computed, flow, makeObservable, observable } from 'mobx';
 import {
 	estimateSettings,
 	ISettings,
@@ -94,6 +94,7 @@ export class SettingsStore {
 	constructor(private storage: ISettingsStorage = localSettingsStorage, private remote?: ISettingsRemote) {
 		this.saved = sanitizeSettings(storage.load());
 		this.draft = this.saved;
+		makeObservable(this);
 		if (remote) {
 			this.sync();
 			this.loadCatalog();

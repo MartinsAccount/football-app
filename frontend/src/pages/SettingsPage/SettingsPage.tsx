@@ -174,9 +174,11 @@ class SettingsPage extends Component<ISettingsPageProps, ISettingsPageState> {
 	componentDidMount() {
 		window.addEventListener('scroll', this.onScroll, { passive: true });
 		// A szerver-betöltés és az (aszinkron) mentés után a szövegmezők a piszkozatot kövessék (I18a).
+		// mobx-react 7+: a `this.props` reakcióban nem olvasható (ROADMAP 9.2a), ezért a store-t előre kivesszük.
+		const store = this.store;
 		this.disposeSync = reaction(
-			() => this.store.saved,
-			() => !this.store.dirty && this.resync()
+			() => store.saved,
+			() => !store.dirty && this.resync()
 		);
 	}
 

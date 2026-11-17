@@ -1,4 +1,4 @@
-import { action, computed, observable, runInAction } from 'mobx';
+import { action, computed, makeObservable, observable, runInAction } from 'mobx';
 import {
 	formatPairing,
 	ISavedSlip,
@@ -73,6 +73,7 @@ export class SlipStore {
 	) {
 		this.saved = storage.load();
 		this.stake = this.stakeOptions[1] ?? DEFAULT_STAKE;
+		makeObservable(this);
 	}
 
 	/** Tét-lépcső (az appban a `/settings` alapegységéből). */

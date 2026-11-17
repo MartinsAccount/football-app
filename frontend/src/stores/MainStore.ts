@@ -1,4 +1,4 @@
-import { action, flow, observable, reaction } from 'mobx';
+import { action, flow, makeObservable, observable, reaction } from 'mobx';
 import { OddsStore } from '../pages/OddsPage/stores/OddsStore';
 import { readApi } from '../services/readApi';
 import { localSettingsStorage, SettingsStore } from './SettingsStore';
@@ -21,6 +21,8 @@ export class MainStore {
 
 	constructor() {
 		this.Sport = 'football';
+		// MobX 6: a dekorátorok csak ezzel élnek; a mezőknek már létezniük kell (ROADMAP 9.2a).
+		makeObservable(this);
 
 		this.OddsStore = new OddsStore(this);
 		this.ThemeStore = new ThemeStore();

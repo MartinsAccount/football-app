@@ -1,4 +1,4 @@
-import { action, computed, flow, observable } from 'mobx';
+import { action, computed, flow, makeObservable, observable } from 'mobx';
 import { MainStore } from '../../../stores/MainStore';
 import { ITableRow } from '../models/ITableRow';
 import { ODDS_INFO } from '../constants/oddsInfo';
@@ -22,19 +22,20 @@ export class OddsStore {
 	@observable public MainStore: MainStore;
 	// public OddsService: OddsService;
 	/** Ligánként a lejátszott meccsek 1X2 oddsokkal (olvasó API, ROADMAP 1.8). */
-	@observable Matches: Partial<Record<LeagueKey, OddsMatch[]>>;
+	@observable Matches: Partial<Record<LeagueKey, OddsMatch[]>> = undefined;
 	@observable loadError: string = null;
 
 	@observable oddsInfos: typeof ODDS_INFO;
 	@observable drawInfos: typeof DRAW_INFO;
 
-	@observable currentLeague: ICurruntLeagues;
+	@observable currentLeague: ICurruntLeagues = undefined;
 
 	constructor(MainStore: MainStore) {
 		this.MainStore = MainStore;
 
 		this.oddsInfos = { ...ODDS_INFO };
 		this.drawInfos = { ...DRAW_INFO };
+		makeObservable(this);
 	}
 
 	/** Lusta betöltés: az OddsPage mountjakor fut (nem az app indulásakor), egyszer. */

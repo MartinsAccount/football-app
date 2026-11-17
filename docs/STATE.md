@@ -10,6 +10,8 @@ piacok), 9.2 (MobX 6 / React 18). Kimarad: 1.6 deploy, 💸 3.7/4.1/6.4, 🔶 6.
 ingestion-alap (I1–I23b), a Supabase-bekötés és a Mobil M1–M11b kész. Ha a szeletlista kiürült, vagy csak blokkolt elem maradt,
 ide (e fejezet alá) külön sorba, üres sorok közé: `ALL_DONE`
 
+ALL_DONE
+
 M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesült (lezárva).
 
 Floodlight v0.2 redesign: lezárva.
@@ -79,8 +81,8 @@ CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil A
 37. ~~I27 – 7.5a BTTS piac végig~~ kész (`git log --grep=I27`).
 38. ~~I28a – 7.5b gólvonalak (1,5 / 3,5)~~ kész (`git log --grep=I28a`). 38b. ~~I28b – 7.5b Double Chance (12)~~ kész
     (`git log --grep=I28b`). **A ROADMAP 7.5 kész.**
-39. **I29 – 9.2a React 18 + MobX 6 (frontend).** `makeObservable` a store-okban, `createRoot`, a `legacy-peer-deps` megszűnik, ha
-    a mobx-react 7 engedi; screenshotok egyeznek. Ha > 10 fájl: store-onként bontva (9.2b).
+39. ~~I29 – 9.2 React 18 + MobX 6 (frontend)~~ kész (`git log --grep=I29`; egy szeletben, bontás nem kellett). **A ROADMAP 9.2
+    kész.**
 
 **Supabase (ROADMAP 1.4–1.8):** élő API-Football-hívás nem kell; Vercel-deploy továbbra is BLOCKERS. A `DATABASE_URL` a gyökér
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
@@ -255,6 +257,8 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 
 ## Polish backlog
 
+- I29: a class komponensek maradnak (inject/observer); funkcionális + hook átírás és StrictMode nincs. A React 18 automatikus
+  batching miatt az `act()`-figyelmeztetések a tesztekben nem lettek átnézve. A `react-router-dom` 5 marad (v6 külön szelet).
 - I28b: a DC fair p arányos margin-mentesítéssel Σp = 2-re (nem az 1X2-ből levezetve); a blend után (0, 1)-be vágva. A DC
   Brier/log-loss `null` (a dashboard DC-sorainál nincs Brier). A CSV-pillanatkép/backtest nem ismeri a DC-t.
 - I28a: a CSV-pillanatkép és a backtest (`BacktestMarket`) csak 2,5-ös vonalat ismer (a football-data CSV-ben nincs 1,5 / 3,5); az
@@ -471,6 +475,12 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I29 kész (9.2 React 18.3 + MobX 6.16 + mobx-react 9, RTL 14).** A dekorátorok maradnak: minden store konstruktorában
+  `makeObservable(this)` a mezők beállítása UTÁN, de a flow/action hívások ELŐTT (hiányzó mező csendben nem lesz observable →
+  inicializálatlan observable mezőnek `= undefined` kell). `index.tsx`: `createRoot` + `configure({ enforceActions: 'never' })`.
+  mobx-react 7+: `this.props` reakcióban/computedben tilos (SettingsPage javítva). A gyökér `.npmrc` törölve, `npm ci` tiszta
+  nélküle. **A CLAUDE.md (MobX v5, `.npmrc` legacy-peer-deps) elavult – a tulajdonos frissítse.** Screens: `i29-*`. A lista üres.
 
 - **I28b kész (7.5b Double Chance, a ROADMAP 7.5 kész).** core `settleSelection(marketId, line, k, gh, ga)` minden piacra (DC:
   `DOUBLE_CHANCE_COVERS` 1X/12/X2); a `marketResultIndex` csak kizáró piacra. `mass` paraméter (alap 1) a

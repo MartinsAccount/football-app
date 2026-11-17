@@ -225,7 +225,8 @@
 - [x] **9.0 🔶 Döntés (ADR-0007):** Vite + Vitest, a MobX v5 marad — elfogadva 2026-11-12.
 - [ ] **9.1 ~~CRA → Vite~~ → előrehozva: 0.7.**, a MobX v5 marad, a viselkedés változatlan. _Ellenőrzés:_ a build, a tesztek és a
       három régi útvonal screenshotja egyezik.
-- [ ] **9.2 MobX 5 → 6, React 17 → 18**, a `--legacy-peer-deps` megszűnik. _Ellenőrzés:_ tiszta `npm ci`; a screenshotok egyeznek.
+- [x] **9.2 MobX 5 → 6, React 17 → 18** (I29, `git log --grep=I29`), a `--legacy-peer-deps` megszűnik. _Ellenőrzés:_ tiszta
+      `npm ci`; a screenshotok egyeznek.
 
 ## 10. Aktuális szezon: football-data.org (2. kör, a UI és az üzleti logika után)
 

@@ -36,7 +36,7 @@ function pwaPrecache(): Plugin {
 }
 
 export default defineConfig({
-	// A MobX v5 legacy dekorátorai (@observable, @inject, @observer): dev módban a plugin-react
+	// A MobX 6 legacy dekorátorai (makeObservable(this) a konstruktorban) (@observable, @inject, @observer): dev módban a plugin-react
 	// Babellel parse-ol (Fast Refresh), ezért kell a 'decorators-legacy' szintaxis; az átalakítást
 	// az esbuild végzi a tsconfig experimentalDecorators + useDefineForClassFields:false alapján.
 	plugins: [react({ babel: { parserOpts: { plugins: ['decorators-legacy'] } } }), pwaPrecache()],

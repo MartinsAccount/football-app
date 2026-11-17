@@ -7,6 +7,7 @@ import OfflineIndicator from './OfflineIndicator';
 
 interface IAppShellProps {
 	MainStore?: MainStore;
+	children?: React.ReactNode;
 }
 
 /** DESIGN §13: AppHeader + tartalom egy közös konténerben (max. 1280, gutter 28/18). */
