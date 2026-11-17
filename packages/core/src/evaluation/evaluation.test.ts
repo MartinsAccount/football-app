@@ -33,6 +33,8 @@ describe('kimenetel', () => {
 		expect(marketResultIndex(8, 2.5, 2, 1)).toBeUndefined();
 		expect(marketResultIndex(1, null, 2, 1)).toBe(0);
 		expect(marketResultIndex(5, 2, 1, 1)).toBeNull();
+		expect(marketResultIndex(5, 1.5, 1, 1)).toBe(0); // I28a: 1,5 vonal
+		expect(marketResultIndex(5, 3.5, 2, 1)).toBe(1); // I28a: 3,5 vonal
 		expect(marketResultIndex(5, null, 1, 1)).toBeUndefined();
 		expect(marketResultIndex(12, null, 1, 1)).toBeUndefined();
 	});

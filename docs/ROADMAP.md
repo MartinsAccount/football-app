@@ -205,7 +205,8 @@
 - [x] **7.3 Piaci kombinálás (`w`)** + az EV-küszöb hangolása a CLV alapján. _Ellenőrzés:_ backtest-riport. — I26b
       (`backtest/blend.ts`, riport `analysis/backtests/2026-11-16-blend.md`; validációs optimum w = 0, élesítés 🔶).
 - [ ] **7.4 Indoklás-UI:** a tényezők hozzájárulása az ajánlásnál és a meccs-részletben. _Ellenőrzés:_ screenshot.
-- [ ] **7.5 További piacok:** BTTS, Double Chance, gólvonalak. — BTTS kész (I27, `git log --grep=I27`); DC + gólvonalak: I28.
+- [ ] **7.5 További piacok:** BTTS, Double Chance, gólvonalak. — BTTS kész (I27, `git log --grep=I27`); gólvonalak 1,5 / 3,5 kész
+      (I28a, `git log --grep=I28a`); DC: I28b.
 - [ ] **7.6 Tört-Kelly opció** (a beállításokban; csak ha a [`strategy.md` §6](analysis/strategy.md#6-tétkezelés) feltételei
       teljesülnek).
 

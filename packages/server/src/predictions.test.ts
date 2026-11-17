@@ -60,6 +60,8 @@ async function seedOdds(db: SqlExecutor, ids: readonly number[], capturedAt: str
 			quotes: books.flatMap(([bookmakerId, h2h, ou, btts]) => [
 				...['Home', 'Draw', 'Away'].map((selection, k) => ({ bookmakerId, marketId: 1, selection, line: null, odd: h2h[k] })),
 				...['Over', 'Under'].map((selection, k) => ({ bookmakerId, marketId: 5, selection, line: 2.5, odd: ou[k] })),
+				...['Over', 'Under'].map((selection, k) => ({ bookmakerId, marketId: 5, selection, line: 1.5, odd: [1.3, 3.5][k] })),
+				...['Over', 'Under'].map((selection, k) => ({ bookmakerId, marketId: 5, selection, line: 3.5, odd: [3.4, 1.32][k] })),
 				...['Yes', 'No'].map((selection, k) => ({ bookmakerId, marketId: 8, selection, line: null, odd: btts[k] }))
 			])
 		}))
@@ -79,7 +81,7 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 
 		const r1 = await runPredictions(db, ids, { now });
 		expect(r1.runId).not.toBeNull();
-		expect(r1.predictions).toBe(ids.length * 7);
+		expect(r1.predictions).toBe(ids.length * 11);
 		const first = await predictionRows(db);
 
 		const r2 = await runPredictions(db, ids, { now });
@@ -111,6 +113,7 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 			await db.query<{
 				f: number;
 				m: number;
+				line: number | null;
 				sel: string;
 				p: number;
 				best: number;
@@ -119,15 +122,24 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 				features: { standing: { asOf: string; home: { played: number } }; model: unknown; match: unknown; odds: unknown };
 				explanation: string[];
 			}>(
-				`SELECT fixture_id::float8 AS f, market_id::float8 AS m, selection AS sel, p_model AS p, best_odd::float8 AS best,
+				`SELECT fixture_id::float8 AS f, market_id::float8 AS m, line::float8 AS line, selection AS sel, p_model AS p, best_odd::float8 AS best,
 					best_bookmaker_id::float8 AS bk, is_recommendation AS rec, features, explanation FROM prediction`
 			)
 		).rows;
 		for (const id of ids) {
-			for (const m of [1, 5, 8]) {
-				const sum = rows.filter((r) => r.f === id && r.m === m).reduce((s, r) => s + r.p, 0);
+			for (const [m, line] of [
+				[1, null],
+				[5, 1.5],
+				[5, 2.5],
+				[5, 3.5],
+				[8, null]
+			]) {
+				const sum = rows.filter((r) => r.f === id && r.m === m && r.line === line).reduce((s, r) => s + r.p, 0);
 				expect(sum).toBeCloseTo(1, 9);
 			}
+			const over = (line: number) => rows.find((r) => r.f === id && r.m === 5 && r.line === line && r.sel === 'Over')!.p;
+			expect(over(1.5)).toBeGreaterThan(over(2.5));
+			expect(over(2.5)).toBeGreaterThan(over(3.5));
 			expect(rows.filter((r) => r.f === id && r.rec).length).toBeLessThanOrEqual(1);
 		}
 		const home = rows.find((r) => r.m === 1 && r.sel === 'Home')!;
@@ -183,7 +195,7 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 				[filtered.runId, blockedFixture]
 			)
 		).rows[0].n;
-		expect(blocked).toBe(7); // 1X2 3 + O/U 2 + BTTS 2
+		expect(blocked).toBe(11); // 1X2 3 + O/U 1,5/2,5/3,5 3×2 + BTTS 2
 	});
 
 	it('odds nélkül, elkezdett meccsre vagy üres listára nincs futás', async () => {
@@ -191,7 +203,7 @@ describe('predikció-pipeline (friss memória-PGlite, mentett PL 2024, 0 élő h
 		const { ids, t0 } = await seed(db);
 		expect(await runPredictions(db, ids, { now: new Date(t0 - 2 * HOUR) })).toMatchObject({ runId: null, predictions: 0 });
 		await seedOdds(db, ids, new Date(t0 - 3 * HOUR).toISOString());
-		expect((await runPredictions(db, ids, { now: new Date(t0 + HOUR) })).predictions).toBeLessThan(ids.length * 7);
+		expect((await runPredictions(db, ids, { now: new Date(t0 + HOUR) })).predictions).toBeLessThan(ids.length * 11);
 		expect((await runPredictions(db, [], { now: new Date(t0 - 2 * HOUR) })).runId).toBeNull();
 	});
 

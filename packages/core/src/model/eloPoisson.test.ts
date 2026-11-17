@@ -56,6 +56,13 @@ describe('Poisson / Dixon–Coles', () => {
 		const p = marketProbabilities(scoreMatrix(1.6, 1.1, -0.08));
 		expect(p.home + p.draw + p.away).toBeCloseTo(1, 12);
 		expect(p.over25 + p.under25).toBeCloseTo(1, 12);
+		expect(p.over15).toBeGreaterThan(p.over25);
+		expect(p.over25).toBeGreaterThan(p.over35);
+		expect(p.over35 + p.under35).toBeCloseTo(1, 12);
+		const m = scoreMatrix(1.6, 1.1, -0.08);
+		const atLeast = (n: number) => m.reduce((s, row, i) => s + row.reduce((t, v, j) => t + (i + j >= n ? v : 0), 0), 0);
+		expect(p.over15).toBeCloseTo(atLeast(2), 12);
+		expect(p.over35).toBeCloseTo(atLeast(4), 12);
 		expect(p.home).toBeGreaterThan(p.away);
 		const sym = marketProbabilities(scoreMatrix(1.3, 1.3));
 		expect(sym.home).toBeCloseTo(sym.away, 12);

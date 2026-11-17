@@ -11,8 +11,12 @@ export const TIPPMIX_LABEL: Record<SnapshotOutcome, string> = {
 	Home: 'Végeredmény · 1',
 	Draw: 'Végeredmény · X',
 	Away: 'Végeredmény · 2',
+	Over15: 'Gólok száma 1,5 · Felett',
+	Under15: 'Gólok száma 1,5 · Alatt',
 	Over: 'Gólok száma 2,5 · Felett',
 	Under: 'Gólok száma 2,5 · Alatt',
+	Over35: 'Gólok száma 3,5 · Felett',
+	Under35: 'Gólok száma 3,5 · Alatt',
 	Yes: 'Mindkét csapat szerez gólt · Igen',
 	No: 'Mindkét csapat szerez gólt · Nem'
 };

@@ -34,10 +34,12 @@ const UPCOMING = ['NS', 'TBD'];
 const DAY = 86_400_000;
 const MAX_ODD = 9999.999; // numeric(7, 3)
 
-/** A pipeline piacai: API-Football piac-id, kimenetek (a modell sorrendjében), vonal. */
+/** A pipeline piacai: API-Football piac-id, kód (egyedi; a gólvonalak közös id-n), kimenetek (a modell sorrendjében), vonal. */
 const MARKETS = [
 	{ id: 1, code: 'h2h', selections: ['Home', 'Draw', 'Away'], line: null },
+	{ id: 5, code: 'ou15', selections: ['Over', 'Under'], line: 1.5 },
 	{ id: 5, code: 'ou25', selections: ['Over', 'Under'], line: 2.5 },
+	{ id: 5, code: 'ou35', selections: ['Over', 'Under'], line: 3.5 },
 	{ id: 8, code: 'btts', selections: ['Yes', 'No'], line: null }
 ] as const;
 
@@ -111,8 +113,8 @@ interface Target {
 interface OddsAt {
 	snapshotId: number;
 	capturedAt: string;
-	/** Piac-id → iroda-id → kimenet-sorrendű oddsok. */
-	byMarket: Map<number, Map<number, number[]>>;
+	/** Piac-kód → iroda-id → kimenet-sorrendű oddsok. */
+	byMarket: Map<string, Map<number, number[]>>;
 }
 
 /** A meccs legutóbbi (`captured_at ≤ now`) snapshotja a pipeline piacain, irodánként. `null`, ha nincs. */
@@ -134,12 +136,12 @@ async function latestOdds(db: SqlExecutor, fixtureId: number, now: Date): Promis
 		[fixtureId, now.toISOString()]
 	);
 	if (!rows.length) return null;
-	const byMarket = new Map<number, Map<number, number[]>>();
+	const byMarket = new Map<string, Map<number, number[]>>();
 	for (const r of rows) {
 		const market = MARKETS.find((m) => m.id === r.m && (m.line === null ? r.line === null : r.line === m.line));
 		const k = market ? (market.selections as readonly string[]).indexOf(r.s) : -1;
 		if (!market || k < 0) continue;
-		const books = byMarket.get(market.id) ?? byMarket.set(market.id, new Map()).get(market.id)!;
+		const books = byMarket.get(market.code) ?? byMarket.set(market.code, new Map()).get(market.code)!;
 		const odds =
 			books.get(r.b) ??
 			books
@@ -248,18 +250,20 @@ export async function runPredictions(
 		});
 		const blocked = warnings.some((w) => w.blocking);
 		const pr = pred.probabilities;
-		const pModelBy: Record<number, number[]> = {
-			1: [pr.home, pr.draw, pr.away],
-			5: [pr.over25, pr.under25],
-			8: [pr.bttsYes, pr.bttsNo]
+		const pModelBy: Record<(typeof MARKETS)[number]['code'], number[]> = {
+			h2h: [pr.home, pr.draw, pr.away],
+			ou15: [pr.over15, pr.under15],
+			ou25: [pr.over25, pr.under25],
+			ou35: [pr.over35, pr.under35],
+			btts: [pr.bttsYes, pr.bttsNo]
 		};
 
 		const markets = MARKETS.flatMap((m) => {
-			const books = [...(odds.byMarket.get(m.id) ?? new Map<number, number[]>())].filter(([, o]) =>
+			const books = [...(odds.byMarket.get(m.code) ?? new Map<number, number[]>())].filter(([, o]) =>
 				o.every((x) => Number.isFinite(x) && x > 1)
 			);
 			if (!books.length) return [];
-			const pModel = pModelBy[m.id];
+			const pModel = pModelBy[m.code];
 			const e = evaluateMarket(
 				pModel,
 				books.map(([b, o]) => ({ bookmaker: String(b), odds: o })),
@@ -269,7 +273,7 @@ export async function runPredictions(
 			return e ? [{ m, books, pModel, e }] : [];
 		});
 		const allowed = teamFilterAllows({ leagueId: t.league, homeTeamId: t.homeTeamId, awayTeamId: t.awayTeamId }, teamFilter);
-		const pick = allowed ? pickRecommendation(markets.map((x) => ({ ...x.e, marketId: x.m.id }))) : null;
+		const pick = allowed ? pickRecommendation(markets.map((x) => ({ ...x.e, code: x.m.code }))) : null;
 		const seasonMin = Math.min(played('home'), played('away'));
 
 		for (const { m, books, pModel, e } of markets) {
@@ -288,7 +292,7 @@ export async function runPredictions(
 				...(allowed ? {} : { teamFilterBlocked: true })
 			};
 			m.selections.forEach((selection, i) => {
-				const isRec = pick?.marketId === m.id && pick.outcomeIndex === i;
+				const isRec = pick?.code === m.code && pick.outcomeIndex === i;
 				const edge = pFinal[i] - pMarket[i];
 				out.push({
 					fixture_id: t.id,

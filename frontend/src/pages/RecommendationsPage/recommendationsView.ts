@@ -3,7 +3,9 @@ import { ITip } from '../../components/TipCard/tipView';
 
 const MARKET_NAME: Record<RecommendationItem['market'], string> = {
 	h2h: 'Match Winner',
+	ou15: 'Over/Under 1.5',
 	ou25: 'Over/Under 2.5',
+	ou35: 'Over/Under 3.5',
 	btts: 'Both Teams Score'
 };
 

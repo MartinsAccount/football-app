@@ -1,6 +1,7 @@
 import { formatEv, formatFt, formatPercent, formatUnits, formatDecimal } from '../format/format';
 import type { BetSummary } from '../evaluation/evaluation';
 import type { OwnBetsSummary } from '../evaluation/ownBets';
+import { SNAPSHOT_OUTCOME_MARKET, type SnapshotOutcome } from '../recommend/snapshot';
 import type { ISavedSlip, SlipSync } from './savedSlip';
 
 /**
@@ -21,27 +22,16 @@ export interface PlacedBetDraft {
 	note: string;
 }
 
-/** Snapshot-kimenet → API-Football piac + vonal (a pillanatkép O/U-ja mindig 2,5; DESIGN §7.4 `TIPPMIX_LABEL`). */
-const OUTCOME_MARKET: Readonly<Record<string, { marketId: number; line: number | null }>> = {
-	Home: { marketId: 1, line: null },
-	Draw: { marketId: 1, line: null },
-	Away: { marketId: 1, line: null },
-	Over: { marketId: 5, line: 2.5 },
-	Under: { marketId: 5, line: 2.5 },
-	Yes: { marketId: 8, line: null },
-	No: { marketId: 8, line: null }
-};
-
 /** Feltölthető-e a szelvény; `null` = csak helyben marad (kombinált, vagy ismeretlen/nem elszámolható kimenet). */
 export const slipToPlacedBet = (slip: ISavedSlip): PlacedBetDraft | null => {
 	if (slip.legs.length !== 1) return null;
 	const leg = slip.legs[0];
-	const m = leg.outcome ? OUTCOME_MARKET[leg.outcome] : undefined;
+	const m = leg.outcome ? SNAPSHOT_OUTCOME_MARKET[leg.outcome as SnapshotOutcome] : undefined;
 	if (!m || !(leg.tippmixOdds > 1) || !(slip.stake > 0)) return null;
 	return {
 		fixtureId: leg.fixtureId,
 		marketId: m.marketId,
-		selection: leg.outcome as string,
+		selection: m.selection,
 		line: m.line,
 		oddTaken: leg.tippmixOdds,
 		stake: slip.stake,

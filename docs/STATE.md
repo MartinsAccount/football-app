@@ -77,7 +77,11 @@ CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil A
 (`git log --grep=D3`). **A ROADMAP 12 kész.**
 
 37. ~~I27 – 7.5a BTTS piac végig~~ kész (`git log --grep=I27`).
-38. **I28 – 7.5b Double Chance + gólvonalak (1,5 / 3,5).** ugyanígy; a `market` referencia-sorok mockból. ~8 fájl.
+38. ~~I28a – 7.5b gólvonalak (1,5 / 3,5)~~ kész (`git log --grep=I28a`). 38b. **I28b – 7.5b Double Chance (12).** Nem kizáró
+    kimenetek (Σp = 2): core elszámolás (`marketResultIndex` helyett kimenet-szintű nyer/veszít), margin-mentesítés 2-es tömegre
+    (`consensusFairProbabilities`/`blendProbabilities`/`evaluateMarket` opcionális `mass`), pipeline `MARKETS` + `pModelBy` (h+d,
+    h+a, d+a), kiértékelő job Brier/LL (DC-nél `null` vagy bináris), `ownBets` 12, snapshot `Home/Draw`…, `SETTINGS_MARKET_IDS`
+    (tárolási hatókör). ~9 fájl.
 39. **I29 – 9.2a React 18 + MobX 6 (frontend).** `makeObservable` a store-okban, `createRoot`, a `legacy-peer-deps` megszűnik, ha
     a mobx-react 7 engedi; screenshotok egyeznek. Ha > 10 fájl: store-onként bontva (9.2b).
 
@@ -253,6 +257,9 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
   `docs/plans/screens/d3-ma-{1440,390}.png` |
 
 ## Polish backlog
+
+- I28a: a CSV-pillanatkép és a backtest (`BacktestMarket`) csak 2,5-ös vonalat ismer (a football-data CSV-ben nincs 1,5 / 3,5); az
+  1,5 / 3,5 ajánlás csak a DB-pipeline-ból jön. A Beállítások `ou25` kulcsa az 5-ös piac minden vonalát tárolja.
 
 - I27: a CSV-pillanatkép (`npm run recommendations`) BTTS-odds nélkül fut (a football-data CSV-ben nincs BTTS-oszlop), így a `/`
   oldalon BTTS-ajánlás csak a DB-pipeline-ból jöhetne; a kvíz-egyezés BTTS-re nem értelmezett; a backtest/Kiértékelés-oldal
@@ -465,6 +472,12 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I28a kész (7.5b gólvonalak).** core `marketProbabilities` + `over15/under15/over35/under35`; snapshot `ou15`/`ou35` (kimenet
+  `Over15`…`Under35`, a 2,5 marad `Over`/`Under`), közös `SNAPSHOT_OUTCOME_MARKET` (kimenet → piac-id, selection, vonal; a
+  `placedBetSync` ezt használja). Pipeline: `MARKETS` és az odds-térkép **kód** szerint (`ou15`/`ou25`/`ou35` közös id = 5);
+  meccsenként 11 predikció-sor. Az elszámolás már vonal-független volt. Következő: 38b (I28b Double Chance) – lásd a lista
+  leírását.
 
 - **I27 kész (7.5a BTTS).** Elszámolás egy helyen: core `marketResultIndex(marketId, line, gh, ga)` (1 / 5 vonallal / 8) – a
   szerver `evaluation.ts` és a core `ownBets.ts` is ezt hívja; új piacnál (I28: 12 Double Chance, 5 más vonallal) ide kell

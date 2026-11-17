@@ -7,7 +7,16 @@ const item = (fixtureId: number, kickoff: string, outcome: RecommendationItem['o
 	league: 'Premier League',
 	leagueSize: 20,
 	kickoff,
-	market: outcome === 'Over' || outcome === 'Under' ? 'ou25' : outcome === 'Yes' || outcome === 'No' ? 'btts' : 'h2h',
+	market:
+		outcome.startsWith('Over') || outcome.startsWith('Under')
+			? outcome.endsWith('15')
+				? 'ou15'
+				: outcome.endsWith('35')
+				? 'ou35'
+				: 'ou25'
+			: outcome === 'Yes' || outcome === 'No'
+			? 'btts'
+			: 'h2h',
 	outcome,
 	pModel: 0.5,
 	pModelRaw: 0.55,
@@ -53,6 +62,13 @@ describe('recommendationsView', () => {
 	it('labels a BTTS item (I27)', () => {
 		const tip = toTip(item(8, '2025-04-12T14:00:00.000Z', 'Yes'));
 		expect([tip.market, tip.tippmixLabel]).toEqual(['Both Teams Score', 'Mindkét csapat szerez gólt · Igen']);
+	});
+
+	it('labels the 1,5 / 3,5 goal lines (I28a)', () => {
+		const over15 = toTip(item(9, '2025-04-12T14:00:00.000Z', 'Over15'));
+		const under35 = toTip(item(9, '2025-04-12T14:00:00.000Z', 'Under35'));
+		expect([over15.market, over15.tippmixLabel]).toEqual(['Over/Under 1.5', 'Gólok száma 1,5 · Felett']);
+		expect([under35.market, under35.tippmixLabel]).toEqual(['Over/Under 3.5', 'Gólok száma 3,5 · Alatt']);
 	});
 
 	it('groups by Budapest day relative to the snapshot "now", sorted by kickoff', () => {

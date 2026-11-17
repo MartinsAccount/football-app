@@ -32,8 +32,12 @@ export interface MarketProbabilities {
 	home: number;
 	draw: number;
 	away: number;
+	over15: number;
+	under15: number;
 	over25: number;
 	under25: number;
+	over35: number;
+	under35: number;
 	bttsYes: number;
 	bttsNo: number;
 }
@@ -42,16 +46,32 @@ export const marketProbabilities = (matrix: readonly (readonly number[])[]): Mar
 	let home = 0;
 	let draw = 0;
 	let away = 0;
+	let over15 = 0;
 	let over25 = 0;
+	let over35 = 0;
 	let bttsYes = 0;
 	matrix.forEach((row, i) =>
 		row.forEach((p, j) => {
 			if (i > j) home += p;
 			else if (i === j) draw += p;
 			else away += p;
+			if (i + j > 1.5) over15 += p;
 			if (i + j > 2.5) over25 += p;
+			if (i + j > 3.5) over35 += p;
 			if (i > 0 && j > 0) bttsYes += p;
 		})
 	);
-	return { home, draw, away, over25, under25: 1 - over25, bttsYes, bttsNo: 1 - bttsYes };
+	return {
+		home,
+		draw,
+		away,
+		over15,
+		under15: 1 - over15,
+		over25,
+		under25: 1 - over25,
+		over35,
+		under35: 1 - over35,
+		bttsYes,
+		bttsNo: 1 - bttsYes
+	};
 };
