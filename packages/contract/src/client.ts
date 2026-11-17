@@ -15,6 +15,7 @@ import type {
 	PlacedBetInput,
 	PlacedBetsResponse,
 	ProfileResponse,
+	ProfilePicksResponse,
 	QuizAnswerInput,
 	QuizAnswerResponse,
 	QuizNextResponse,
@@ -91,6 +92,8 @@ export interface ApiClient {
 	answerQuiz(input: QuizAnswerInput): Promise<QuizAnswerResponse>;
 	/** A tulajdonos-profil (top 3 tulajdonság, CV-egyezés vs. favorit). */
 	getProfile(): Promise<ProfileResponse>;
+	/** „Te ezt raknád” a megadott meccsekre (legfeljebb 100). „Kevés adat” → `picks: []`. */
+	getProfilePicks(fixtureIds: readonly number[]): Promise<ProfilePicksResponse>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -174,6 +177,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 		createPlacedBet: (input) => request<PlacedBetDto>('POST', '/api/bets', input),
 		getQuizQuestion: (seed) => get<QuizNextResponse>(`/api/quiz/next${seed === undefined ? '' : `?seed=${seed}`}`),
 		answerQuiz: (input) => request<QuizAnswerResponse>('POST', '/api/quiz/answer', input),
-		getProfile: () => get<ProfileResponse>('/api/profile')
+		getProfile: () => get<ProfileResponse>('/api/profile'),
+		getProfilePicks: (fixtureIds) => get<ProfilePicksResponse>(`/api/profile/picks?ids=${fixtureIds.join(',')}`)
 	};
 }

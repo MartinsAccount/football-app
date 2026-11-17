@@ -4,8 +4,10 @@ import type {
 	ArbitrageSnapshot,
 	BacktestReport,
 	EvaluationSummary,
+	ImitatedPick,
 	OwnBetsSummary,
 	OwnerProfile,
+	OwnerProfileStatus,
 	ProfileCrossValidation,
 	QuizAnswer,
 	QuizQuestion,
@@ -349,4 +351,13 @@ export interface ProfileResponse {
 		/** Kihagyott minták (nincs nyitó 1X2 odds, vagy a fogadás nem képezhető le). */
 		ignored: number;
 	};
+}
+
+/** Egy utánzott tipp (Q5): a profil szerint ezt raknád erre a meccsre. */
+export type ProfilePickDto = ImitatedPick & { fixtureId: number };
+
+/** `GET /api/profile/picks?ids=1,2,3`: „Te ezt raknád” a kért meccsekre; „kevés adat” profilnál `picks: []`. */
+export interface ProfilePicksResponse {
+	status: OwnerProfileStatus;
+	picks: ProfilePickDto[];
 }

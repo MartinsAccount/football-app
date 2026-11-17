@@ -1,6 +1,7 @@
 import type { MatchResult } from '../features/types';
 import { formatDateTime, formatOdds, formatPairing, formatPercent, formatScore } from '../format/format';
-import { MIN_PROFILE_SAMPLES, type OwnerProfile, type ProfileCrossValidation } from './profile';
+import type { SnapshotOutcome } from '../recommend/snapshot';
+import { MIN_PROFILE_SAMPLES, type ImitatedPick, type OwnerProfile, type ProfileCrossValidation } from './profile';
 import type { QuizAnswer, QuizPick, QuizQuestion, QuizTeam } from './types';
 
 // Platformfüggetlen kvíz-szövegek/formázók (ROADMAP 12.3–12.4): a web `/quiz` és a mobil `quiz` képernyő közös nézet-logikája.
@@ -158,3 +159,45 @@ export const sourcesText = (s: ProfileSourcesView): string =>
 	]
 		.filter(Boolean)
 		.join(' · ');
+
+// --- „Te ezt raknád” (ROADMAP 12.5, Q5): az ajánlás-lista csipje (web + mobil) ---
+
+const OWNER_PICK_LABEL: Record<QuizPick, string> = {
+	'1': '1',
+	X: 'X',
+	'2': '2',
+	over: 'több mint 2,5 gól',
+	under: 'kevesebb mint 2,5 gól'
+};
+
+/** Ajánlás-kimenet → kvíz-tipp (az egyezés-jelzéshez). */
+export const OUTCOME_TO_PICK: Record<SnapshotOutcome, QuizPick> = {
+	Home: '1',
+	Draw: 'X',
+	Away: '2',
+	Over: 'over',
+	Under: 'under'
+};
+
+export interface OwnerPickChip {
+	/** „Te ezt raknád: 1 (62%)” */
+	label: string;
+	/** Rövid indok (tooltip / másodlagos sor): „Fő tényezők: Favorit ↑, Formaelőny ↓” */
+	detail: string;
+	/** Az ajánlott tipp = az utánzott tipp. */
+	matches: boolean;
+	/** Felolvasható összegzés. */
+	aria: string;
+}
+
+/** Utánzott tipp → csip-szövegek; `recommended` az ajánlás kimenete (egyezés-jelzéshez). */
+export const ownerPickChip = (
+	p: Pick<ImitatedPick, 'pick' | 'probability' | 'factors'>,
+	recommended?: SnapshotOutcome
+): OwnerPickChip => {
+	const label = `Te ezt raknád: ${OWNER_PICK_LABEL[p.pick]} (${formatPercent(p.probability)})`;
+	const factors = p.factors.map((f) => `${f.label} ${f.contribution > 0 ? '↑' : '↓'}`).join(', ');
+	const detail = factors ? `Fő tényezők: ${factors}` : 'A profilod alapján';
+	const matches = recommended !== undefined && OUTCOME_TO_PICK[recommended] === p.pick;
+	return { label, detail, matches, aria: `${label}${matches ? ', egyezik a stílusoddal' : ''}. ${detail}.` };
+};

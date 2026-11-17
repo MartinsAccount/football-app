@@ -2,6 +2,7 @@ import {
 	buildOwnerProfile,
 	crossValidateProfile,
 	deriveStandings,
+	imitatePick,
 	teamForm,
 	type PlayedMatch,
 	type ProfileSample,
@@ -10,7 +11,7 @@ import {
 	type QuizQuestion
 } from '@football/core';
 import { SqlOwnerAnswerRepository, type OwnerAnswerRepository, type SqlExecutor } from '@football/db';
-import type { ProfileResponse, QuizAnswerResponse, QuizResultDto } from '@football/contract';
+import type { ProfilePicksResponse, ProfileResponse, QuizAnswerResponse, QuizResultDto } from '@football/contract';
 
 /**
  * Saját stílus API (ROADMAP 12.2, Q2; terv: docs/plans/owner-style-and-draws.md A). `GET /api/quiz/next` egy még meg nem
@@ -25,6 +26,26 @@ export interface QuizService {
 	next(seed: number | null): Promise<QuizQuestion | null>;
 	answer(body: unknown): Promise<QuizAnswerResponse>;
 	profile(): Promise<ProfileResponse>;
+	/**
+	 * „Te ezt raknád” (Q5, ROADMAP 12.5): a profil szerinti utánzott tipp a megadott (jellemzően közelgő) meccsekre. A kérdés
+	 * ugyanúgy épül, mint a kvízben (nyitó/legkorábbi odds a kezdés előtt, forma, tabella); nyitó 1X2-odds nélküli meccs
+	 * kimarad. „Kevés adat” profilnál üres lista.
+	 */
+	picks(fixtureIds: readonly number[]): Promise<ProfilePicksResponse>;
+}
+
+/** `GET /api/profile/picks` legfeljebb ennyi meccsre. */
+export const MAX_PICK_IDS = 100;
+
+/** `ids` query (`1,2,3`) → egyedi pozitív egészek; hiányzó/üres → `[]`; hibás → `QuizValidationError`. */
+export function parsePickIds(raw: string | null): number[] {
+	if (raw === null || raw.trim() === '') return [];
+	const parts = raw.split(',').map((x) => x.trim());
+	if (!parts.every((x) => /^\d{1,15}$/.test(x) && Number(x) > 0))
+		throw new QuizValidationError("az 'ids' vesszővel elválasztott pozitív egészek listája legyen");
+	const ids = [...new Set(parts.map(Number))];
+	if (ids.length > MAX_PICK_IDS) throw new QuizValidationError(`legfeljebb ${MAX_PICK_IDS} meccs kérhető egyszerre`);
+	return ids;
 }
 
 const FINISHED = ['FT', 'AET', 'PEN'];
@@ -235,7 +256,51 @@ export function createQuizService(
 ): QuizService {
 	const answers = opts.answers ?? new SqlOwnerAnswerRepository(db);
 	const random = opts.random ?? Math.random;
+
+	/** A profil mintái: kvízválaszok + a leképezhető egylábú saját fogadások, egy kötegben (Q3b). */
+	const loadSamples = async (): Promise<{ samples: ProfileSample[]; quizCount: number; ignored: number }> => {
+		const samples: ProfileSample[] = [];
+		let ignored = 0;
+		const quiz = await answers.list();
+		const answered = new Set(quiz.map((a) => a.fixtureId));
+		const { rows: bets } = await db.query<{ fx: number; m: number; s: string; line: number | null }>(
+			`SELECT DISTINCT ON (fixture_id) fixture_id::float8 AS fx, market_id::float8 AS m, selection AS s, line::float8 AS line
+			 FROM placed_bet ORDER BY fixture_id, placed_at, id`
+		);
+		const betIds = bets.filter((b) => !answered.has(b.fx) && placedBetPick(b.m, b.s, b.line)).map((b) => b.fx);
+		const questions = await loadQuizQuestions(db, [...answered, ...betIds]);
+		for (const a of quiz) {
+			const question = questions.get(a.fixtureId);
+			if (question) samples.push({ question, answer: { fixtureId: a.fixtureId, pick: a.pick, confidence: a.confidence } });
+			else ignored++;
+		}
+		const quizCount = samples.length;
+		for (const b of bets) {
+			if (answered.has(b.fx)) continue;
+			const pick = placedBetPick(b.m, b.s, b.line);
+			const question = pick && questions.get(b.fx);
+			if (pick && question && (pick === '1' || pick === 'X' || pick === '2' || question.oddsOu25))
+				samples.push({ question, answer: { fixtureId: b.fx, pick } });
+			else ignored++;
+		}
+		return { samples, quizCount, ignored };
+	};
+
 	return {
+		async picks(fixtureIds) {
+			const { samples } = await loadSamples();
+			const profile = buildOwnerProfile(samples);
+			if (profile.status !== 'ok' || !fixtureIds.length) return { status: profile.status, picks: [] };
+			const questions = await loadQuizQuestions(db, fixtureIds);
+			const picks: ProfilePicksResponse['picks'] = [];
+			for (const id of fixtureIds) {
+				const question = questions.get(id);
+				const imitated = question && imitatePick(profile, question);
+				if (imitated) picks.push({ fixtureId: id, ...imitated });
+			}
+			return { status: profile.status, picks };
+		},
+
 		async next(seed) {
 			// TODO(polish): sok jelöltnél SQL-oldali mintavétel (most az összes id betöltődik).
 			const { rows } = await db.query<{ id: number }>(
@@ -269,31 +334,7 @@ export function createQuizService(
 		},
 
 		async profile() {
-			const samples: ProfileSample[] = [];
-			let ignored = 0;
-			const quiz = await answers.list();
-			const answered = new Set(quiz.map((a) => a.fixtureId));
-			const { rows: bets } = await db.query<{ fx: number; m: number; s: string; line: number | null }>(
-				`SELECT DISTINCT ON (fixture_id) fixture_id::float8 AS fx, market_id::float8 AS m, selection AS s, line::float8 AS line
-				 FROM placed_bet ORDER BY fixture_id, placed_at, id`
-			);
-			// Egy köteg: a megválaszolt + a leképezhető saját fogadások meccsei (Q3b).
-			const betIds = bets.filter((b) => !answered.has(b.fx) && placedBetPick(b.m, b.s, b.line)).map((b) => b.fx);
-			const questions = await loadQuizQuestions(db, [...answered, ...betIds]);
-			for (const a of quiz) {
-				const question = questions.get(a.fixtureId);
-				if (question) samples.push({ question, answer: { fixtureId: a.fixtureId, pick: a.pick, confidence: a.confidence } });
-				else ignored++;
-			}
-			const quizCount = samples.length;
-			for (const b of bets) {
-				if (answered.has(b.fx)) continue;
-				const pick = placedBetPick(b.m, b.s, b.line);
-				const question = pick && questions.get(b.fx);
-				if (pick && question && (pick === '1' || pick === 'X' || pick === '2' || question.oddsOu25))
-					samples.push({ question, answer: { fixtureId: b.fx, pick } });
-				else ignored++;
-			}
+			const { samples, quizCount, ignored } = await loadSamples();
 			return {
 				profile: buildOwnerProfile(samples),
 				crossValidation: crossValidateProfile(samples),

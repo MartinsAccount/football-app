@@ -43,6 +43,8 @@ export type {
 	QuizResultDto,
 	QuizAnswerResponse,
 	ProfileResponse,
+	ProfilePickDto,
+	ProfilePicksResponse,
 	ApiErrorCode,
 	ApiErrorBody
 } from './dto';

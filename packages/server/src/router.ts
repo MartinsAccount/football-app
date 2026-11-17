@@ -24,6 +24,7 @@ import type {
 	OddsResponse,
 	PlacedBetDto,
 	PlacedBetsResponse,
+	ProfilePicksResponse,
 	ProfileResponse,
 	QuizAnswerResponse,
 	QuizNextResponse,
@@ -33,7 +34,7 @@ import type { SnapshotSource } from './snapshots';
 import { applySettingsUpdate, readSettings, SettingsValidationError } from './settings';
 import { EMPTY_BUDGET_DETAILS, type BudgetDetails } from './budget';
 import { parsePlacedBetInput, PlacedBetValidationError, readPlacedBets } from './placedBets';
-import { QuizValidationError, type QuizService } from './quiz';
+import { parsePickIds, QuizValidationError, type QuizService } from './quiz';
 
 /**
  * Az olvasó API (ROADMAP 1.5): keretrendszer-független Web `Request → Response` kezelő, így ugyanaz fut a lokális
@@ -197,10 +198,12 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 				return json(201, settlePlacedBet(created) satisfies PlacedBetDto);
 			}
 
-			if (isQuizAnswer || path === '/api/quiz/next' || path === '/api/profile') {
+			if (isQuizAnswer || path === '/api/quiz/next' || path === '/api/profile' || path === '/api/profile/picks') {
 				if (!deps.quiz) return fail(404, 'not-found', 'A kvíz/profil API nincs bekötve');
 				if (isQuizAnswer) return json(200, (await deps.quiz.answer(await readJson())) satisfies QuizAnswerResponse);
 				if (path === '/api/profile') return json(200, (await deps.quiz.profile()) satisfies ProfileResponse);
+				if (path === '/api/profile/picks')
+					return json(200, (await deps.quiz.picks(parsePickIds(url.searchParams.get('ids')))) satisfies ProfilePicksResponse);
 				const rawSeed = url.searchParams.get('seed');
 				if (rawSeed !== null && !/^-?\d{1,9}$/.test(rawSeed)) throw new BadRequest("a 'seed' egész szám legyen");
 				return json(200, {

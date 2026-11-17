@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { OwnerProfile, ProfileCrossValidation } from './profile';
 import type { QuizQuestion } from './types';
 import {
+	ownerPickChip,
 	answerRows,
 	type QuizAnswerView,
 	answerVerdict,
@@ -78,5 +79,33 @@ describe('quizView', () => {
 		});
 		expect(crossValidationTiles({ ...cv, status: 'kevés adat' })).toBeNull();
 		expect(sourcesText({ quiz: 12, placedBets: 0, ignored: 1 })).toBe('12 kvízválasz · 1 kihagyott minta');
+	});
+});
+
+describe('ownerPickChip (Q5)', () => {
+	const p = {
+		pick: '1' as const,
+		probability: 0.623,
+		factors: [
+			{ label: 'Favorit', contribution: 0.8 },
+			{ label: 'Formaelőny', contribution: -0.2 }
+		]
+	};
+
+	it('címke, indok, egyezés az ajánlással', () => {
+		const c = ownerPickChip(p, 'Home');
+		expect(c.label).toBe('Te ezt raknád: 1 (62%)');
+		expect(c.detail).toBe('Fő tényezők: Favorit ↑, Formaelőny ↓');
+		expect(c.matches).toBe(true);
+		expect(c.aria).toContain('egyezik a stílusoddal');
+	});
+
+	it('eltérő ajánlás / ajánlás nélkül nincs egyezés; gólpiac és üres tényezőlista', () => {
+		expect(ownerPickChip(p, 'Over').matches).toBe(false);
+		expect(ownerPickChip(p).matches).toBe(false);
+		const c = ownerPickChip({ pick: 'under', probability: 0.4, factors: [] }, 'Under');
+		expect(c.label).toBe('Te ezt raknád: kevesebb mint 2,5 gól (40%)');
+		expect(c.detail).toBe('A profilod alapján');
+		expect(c.matches).toBe(true);
 	});
 });

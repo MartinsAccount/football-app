@@ -5,6 +5,7 @@ import {
 	createQuizService,
 	loadQuizQuestion,
 	loadQuizQuestions,
+	parsePickIds,
 	parseQuizAnswer,
 	placedBetPick,
 	QuizValidationError,
@@ -143,5 +144,54 @@ describe('quiz/profile API (Q2)', () => {
 		const { db: d, repo } = await openMemoryRepository();
 		const bare = createApiHandler({ repo, budget: new SqlBudgetStore(d) });
 		expect((await bare(new Request('http://localhost/api/profile'))).status).toBe(404);
+	});
+});
+
+describe('„Te ezt raknád” (Q5)', () => {
+	it('parsePickIds: lista, üres, hibás, túl hosszú', () => {
+		expect(parsePickIds('3, 1,3')).toEqual([3, 1]);
+		expect(parsePickIds(null)).toEqual([]);
+		expect(parsePickIds('')).toEqual([]);
+		for (const bad of ['1,x', '0', '-1', '1,,2']) expect(() => parsePickIds(bad)).toThrow(QuizValidationError);
+		expect(() => parsePickIds(Array.from({ length: 101 }, (_, i) => i + 1).join(','))).toThrow(QuizValidationError);
+	});
+
+	it('GET /api/profile/picks: kevés adatnál üres; elég válasznál utánzott tipp a közelgő, oddsos meccsre', async () => {
+		expect(await client.getProfilePicks([100])).toEqual({ status: 'kevés adat', picks: [] });
+		expect((await h(new Request('http://localhost/api/profile/picks?ids=a'))).status).toBe(400);
+
+		// Közelgő meccs a kezdés előtti odds-snapshottal (eredmény nélkül).
+		await db.exec(`
+			INSERT INTO fixture (id, league_id, season, kickoff_at, status, home_team_id, away_team_id) VALUES
+				(104, 39, 2024, '2024-02-10T15:00:00Z', 'NS', 1, 3);
+			INSERT INTO odds_snapshot (id, fixture_id, captured_at, source, kind) VALUES (4, 104, '2024-02-09T00:00:00Z', 'manual', 'adhoc');
+			INSERT INTO odds_quote (snapshot_id, bookmaker_id, market_id, selection, line, odd) VALUES
+				(4, 8, 1, 'Home', NULL, 1.6), (4, 8, 1, 'Draw', NULL, 4.0), (4, 8, 1, 'Away', NULL, 5.5);
+		`);
+		// 22 válasz: mindig a hazai favoritot (100: 1,95) rakta, a kiegyenlítettnél (101) döntetlent.
+		const answers = {
+			upsert: async () => {
+				throw new Error('nem kell');
+			},
+			list: async () =>
+				Array.from({ length: 22 }, (_, i) => ({
+					fixtureId: i % 2 ? 101 : 100,
+					pick: (i % 2 ? 'X' : '1') as '1' | 'X',
+					answeredAt: '2024-03-01T00:00:00.000Z'
+				}))
+		};
+		const hh = createApiHandler({
+			repo: (await openMemoryRepository()).repo,
+			budget: new SqlBudgetStore(db),
+			quiz: createQuizService(db, { answers })
+		});
+		const c = createApiClient({ baseUrl: 'http://localhost', fetch: (url, init) => hh(new Request(url, init)) });
+		const res = await c.getProfilePicks([104, 103, 4242]);
+		expect(res.status).toBe('ok');
+		expect(res.picks.map((p) => p.fixtureId)).toEqual([104]); // 103: nincs odds, 4242: nincs ilyen
+		expect(res.picks[0].pick).toBe('1');
+		expect(res.picks[0].probability).toBeGreaterThan(0.5);
+		expect(res.picks[0].factors.length).toBeGreaterThan(0);
+		expect((await c.getProfilePicks([])).picks).toEqual([]);
 	});
 });
