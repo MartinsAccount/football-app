@@ -260,6 +260,19 @@
 - [ ] **11.7+ Expo-képernyők** fokozatosan (Kiértékelés ✓ M7, Szelvény ✓ M8, Beállítások ✓ M9, Arbitrázs ✓ M10, Meccs-részlet:
       adat ✓ M11a, képernyő ✓ M11b, API-keret ✓ I21); APK-build (EAS).
 
+## 12. Saját stílus + döntetlen-figyelő (tulajdonosi kérés, 2026-11-17)
+
+> Terv: [`plans/owner-style-and-draws.md`](plans/owner-style-and-draws.md). Lokális, 0 élő hívás.
+
+- [ ] **12.1 (Q1)** core profil-mag: kvíz-jellemzők, logreg, profil-szöveg, utánzó pontszám.
+- [ ] **12.2 (Q2)** DB-tábla + kvíz/profil API.
+- [ ] **12.3 (Q3)** web kvíz-oldal + profilkártya.
+- [ ] **12.4 (Q4)** mobil kvíz-képernyő.
+- [ ] **12.5 (Q5)** „Te ezt raknád” jelölés az ajánlásokon.
+- [ ] **12.6 (D1)** core döntetlen-modell + backtest-riport.
+- [ ] **12.7 (D2)** `/api/draws` + web blokk.
+- [ ] **12.8 (D3)** mobil blokk.
+
 ## Parkoló (nem-célok, újranyitható)
 
 Automatikus fogadásleadás · élő (in-play) odds · push / e-mail értesítés · más sportágak (kosárlabda, baseball) · több felhasználó

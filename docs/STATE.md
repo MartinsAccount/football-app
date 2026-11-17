@@ -64,6 +64,20 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
     `docs/analysis/backtests/2026-11-16-model-v1.md`).
 36. ~~I26b – 7.3 Piaci kombinálás (`w`) + EV-küszöb hangolása~~ kész (`0c10896`; prioritás-módosítás az I26 negatív ROI-ja miatt;
     core `backtest/blend.ts`, riport `docs/analysis/backtests/2026-11-16-blend.md`; validációs optimum w = 0 → élesítés 🔶).
+**Saját stílus + döntetlen-figyelő (ROADMAP 12, tulajdonosi kérés 2026-11-17 – ELŐRE sorolva):** terv
+`docs/plans/owner-style-and-draws.md`. Az élő ajánlási szabályok maradnak (DECISIONS 2026-11-17).
+
+36a. **Q1 – 12.1 core `profile/`** kvíz-kérdés jellemzői, válasz-típus, L2-logreg, profil-szöveg (top 3 súly), utánzó pontszám,
+    min. 20 minta; tesztek.
+36b. **Q2 – 12.2** db `0008_owner_answer.sql` (additív) + repo; server `GET /api/quiz/next`, `POST /api/quiz/answer`,
+    `GET /api/profile`; contract DTO-k; Vite-proxy.
+36c. **Q3 – 12.3 web `/quiz`** kérdés-kártya, válaszgombok, eredmény a válasz után, profilkártya; screenshot 1440/390.
+36d. **Q4 – 12.4 mobil `quiz`** képernyő (link a fejlécből/Beállításokból).
+36e. **Q5 – 12.5** „Te ezt raknád” jelölés az ajánlás-listán (web + mobil).
+36f. **D1 – 12.6 core `draw/`** jellemzők + logreg, `backtest:draws` script → `docs/analysis/backtests/2026-11-17-draws.md`.
+36g. **D2 – 12.7** `GET /api/draws` + web „Döntetlen-esélyek” blokk.
+36h. **D3 – 12.8** mobil blokk.
+
 37. **I27 – 7.5a BTTS piac végig.** core elszámolás (`settleBet`/kiértékelő job) + ajánlás (`evaluateMarket`) + pipeline a
     Poisson-mátrix BTTS-éből; Beállítások piac-katalógus; UI-címke. ~8 fájl.
 38. **I28 – 7.5b Double Chance + gólvonalak (1,5 / 3,5).** ugyanígy; a `market` referencia-sorok mockból. ~8 fájl.
