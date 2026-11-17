@@ -52,3 +52,7 @@ export * from './recommend/recommend';
 export * from './recommend/snapshot';
 export * from './ingest/tasks';
 export * from './ingest/queue';
+export * from './profile/types';
+export * from './profile/logreg';
+export * from './profile/features';
+export * from './profile/profile';

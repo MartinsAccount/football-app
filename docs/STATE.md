@@ -67,8 +67,7 @@ ugyanebből a mátrixból jönnek; a 9.2 függőség-csere a végére, mert nagy
 **Saját stílus + döntetlen-figyelő (ROADMAP 12, tulajdonosi kérés 2026-11-17 – ELŐRE sorolva):** terv
 `docs/plans/owner-style-and-draws.md`. Az élő ajánlási szabályok maradnak (DECISIONS 2026-11-17).
 
-36a. **Q1 – 12.1 core `profile/`** kvíz-kérdés jellemzői, válasz-típus, L2-logreg, profil-szöveg (top 3 súly), utánzó pontszám,
-    min. 20 minta; tesztek.
+36a. ~~Q1 – 12.1 core `profile/`~~ kész (`owner-logreg@1.0.0`; jellemzők, L2-logreg, profil-szöveg, utánzás, 5-szörös CV).
 36b. **Q2 – 12.2** db `0008_owner_answer.sql` (additív) + repo; server `GET /api/quiz/next`, `POST /api/quiz/answer`,
     `GET /api/profile`; contract DTO-k; Vite-proxy.
 36c. **Q3 – 12.3 web `/quiz`** kérdés-kártya, válaszgombok, eredmény a válasz után, profilkártya; screenshot 1440/390.
@@ -427,6 +426,12 @@ migráció nem kellett (0004) |
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **Q1 kész (12.1).** Core `profile/`: `QuizQuestion`/`QuizAnswer`/`ProfileSample` (types.ts), `profileFeatures(q, pick)` +
+  `PROFILE_FEATURES` (15 nevesített jellemző, magyar címke + profil-frázis), `fitLogisticRegression` (L2, Newton), `buildOwnerProfile`
+  (`MIN_PROFILE_SAMPLES = 20` nem-skip, alatta 'kevés adat'), `imitatePick`, `crossValidateProfile` (vs. `favouritePick`).
+  Liga és modell-EV még nem jellemző (DECISIONS); a Q2 DTO-ja a `QuizQuestion`-t töltse a DB-ből (forma: utolsó 5 W/D/L, tabellahely
+  a meccs előtt – `features/standings`). Következő: 36b (Q2).
 
 - **I26b kész (7.3).** Core `backtest/blend.ts` (`linearBlend`, `blend`, `blendScores`, `blendBets`, `chooseThreshold`); a
   logit-keverés az élő `recommend.blendProbabilities`. Riport: `npm run backtest:blend -w @football/db` (~12 s) →
