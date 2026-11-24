@@ -12,7 +12,7 @@ A repóban ma **nincs** `api/` mappa és `vercel.json`, és a webes kliens nem t
 
 | Szelet | Mit | Megjegyzés |
 |---|---|---|
-| **I30 – 1.6a Vercel-belépési pont** | `api/[...path].ts` (catch-all) → `createApiHandler({...})`, valódi Postgres (`DATABASE_URL`), `auth: authConfigFromEnv`, `cron: createCronHandler({ store, config })` **worker nélkül** (no-op tick); `vercel.json`: `buildCommand`, `outputDirectory: frontend/build`, SPA-rewrite (`/((?!api/).*)` → `/index.html`), `maxDuration: 300`, 15 perces schedule | Ne a `dev.ts`-t másold: ott a `createDbIngestWorker` **mock** klienst kap → mock adat kerülne az éles Supabase-be. Élő ingestion = 3.7 💸, külön. |
+| **I30 – 1.6a Vercel-belépési pont** | `api/index.ts` + rewrite `/api/:path*` → `/api/index` (⚠️ hogy Next.js nélkül működik-e az `api/[...path].ts` catch-all, a doksiból nem derült ki) → `createApiHandler({...})`, valódi Postgres (`DATABASE_URL`), `auth: authConfigFromEnv`, `cron: createCronHandler({ store, config })` **worker nélkül** (no-op tick); `vercel.json`: `buildCommand`, `outputDirectory: frontend/build`, SPA-rewrite (`/((?!api/).*)` → `/index.html`), `maxDuration: 300`, 15 perces schedule **path targettel** (`/api/cron/tick`) | Ne a `dev.ts`-t másold: ott a `createDbIngestWorker` **mock** klienst kap → mock adat kerülne az éles Supabase-be. Élő ingestion = 3.7 💸, külön. Schedules: csak a *path target* kap `Authorization: Bearer <CRON_SECRET>`-et (alapból POST); a *function target* nem kap titkot → a tick-kezelő productionben 401-et adna. A tick GET-et és POST-ot is elfogad. |
 | **I31 – 1.6b Web-login (session cookie)** | `POST /api/login` (jelszó → `APP_PASSWORD_HASH`), httpOnly + Secure + SameSite=Strict cookie (`SESSION_SECRET`), `Authorizer` a `auth.ts` bővítési pontján, login-oldal a weben, rate limit | Ma a web `createApiClient({ baseUrl: '' })` tokent nem küld, productionben (`NODE_ENV=production`) pedig hash nélkül **minden** `/api/*` 401 → a web e nélkül üres. |
 
 Kockázatok, amelyeket az első **preview** deploy dönt el:
@@ -28,10 +28,11 @@ Kockázatok, amelyeket az első **preview** deploy dönt el:
 
 ### B1. Ág és fiók
 1. **Production ág = `master`.** A Vercel a `master`-t deployolja productionbe, minden más ág (pl. `autodev`) preview-t kap.
-   Az A-szeletek után: `autodev` → `master` merge (PR).
+   Sorrend: az I30 az `autodev`-on → projekt-import (B2) → az `autodev` **preview** deployján dőlnek el a fenti kockázatok →
+   csak utána `autodev` → `master` merge (PR) = első production deploy.
 2. Vercel-fiók: <https://vercel.com/signup> → *Continue with GitHub* → **Hobby** (ingyenes, csak nem kereskedelmi használat).
 
-### B2. Projekt létrehozása (az A-szeletek merge-e után)
+### B2. Projekt létrehozása (amint az I30 az `autodev`-on van)
 1. Dashboard → **Add New… → Project** → *Import Git Repository* → `football-app` (ha nem látszik: *Adjust GitHub App
    Permissions*, és add hozzá a repót).
 2. Beállítások az importnál:
@@ -46,7 +47,7 @@ Mindegyik **Sensitive**, környezet: **Production** + **Preview**. Az értéket 
 | Név | Honnan | Mire |
 |---|---|---|
 | `DATABASE_URL` | Supabase → Connect → Transaction pooler URI (jelszóval) | DB |
-| `CRON_SECRET` | `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` | A Vercel a schedule-hívásnál automatikusan `Authorization: Bearer <CRON_SECRET>`-et küld |
+| `CRON_SECRET` | `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` | A Vercel a klasszikus cron és a Schedules *path target* hívásánál automatikusan `Authorization: Bearer <CRON_SECRET>`-et küld (function targetnél nem) |
 | `APP_API_TOKEN_HASH` | `npm run token -w @football/server` (a tokent tedd a mobilapp Beállításaiba) | Mobil / curl Bearer |
 | `APP_PASSWORD_HASH`, `SESSION_SECRET` | az I31 ad hozzá generáló scriptet | Web-login |
 
@@ -57,7 +58,8 @@ Mindegyik **Sensitive**, környezet: **Production** + **Preview**. Az értéket 
 - **Vercel Authentication → „Standard Protection”** csak a preview-kat védi, a production domaint **nem**.
 - **„All Deployments”** Hobby-n is elérhető, a productiont is védi – de akkor a mobilapp és egy külső pinger nem jut be
   (BLOCKERS 2026-11-13).
-- **Javaslat:** Standard Protection + az app saját védelme (Bearer + session, productionben fail-closed). 🔶 a te döntésed.
+- **Javaslat:** Standard Protection + az app saját védelme (Bearer + session, productionben fail-closed). Ez eltér az
+  `architecture.md` §6-tól, amely a productionre is Vercel Authenticationt tervezett (még a mobil-ADR előtt). 🔶 a te döntésed.
 
 ### B5. Ütemező (Settings → Cron Jobs / Schedules)
 - A `vercel.json` 15 perces schedule-t kér. ⚠️ A doksi ellentmondásos: a klasszikus Cron Jobs Hobby-n **naponta egyszer**
