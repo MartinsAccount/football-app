@@ -1,0 +1,5153 @@
+{
+	"generatedAt": "2025-04-12T07:00:00.000Z",
+	"now": "2025-04-12T07:00:00.000Z",
+	"source": "football-data CSV (2024/25, nyitó odds)",
+	"markets": [
+		{
+			"key": "h2h",
+			"label": "Végeredmény",
+			"outcomes": [
+				{
+					"key": "Home",
+					"label": "Hazai"
+				},
+				{
+					"key": "Draw",
+					"label": "Döntetlen"
+				},
+				{
+					"key": "Away",
+					"label": "Vendég"
+				}
+			]
+		},
+		{
+			"key": "ou25",
+			"label": "Gólok 2,5",
+			"outcomes": [
+				{
+					"key": "Over",
+					"label": "Több mint 2,5"
+				},
+				{
+					"key": "Under",
+					"label": "Kevesebb mint 2,5"
+				}
+			]
+		}
+	],
+	"bookmakers": [
+		"Bet365",
+		"Bwin",
+		"Betfair",
+		"Pinnacle",
+		"William Hill",
+		"1xBet"
+	],
+	"fixtures": [
+		{
+			"fixtureId": 1208338,
+			"league": "Premier League",
+			"kickoff": "2025-04-12T11:30:00.000Z",
+			"home": "Man City",
+			"away": "Crystal Palace",
+			"oddsAt": "2025-04-10T11:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.52,
+							"stakeShare": 0.6415124945573759
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.84,
+							"stakeShare": 0.20146673382793623
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 6.21,
+							"stakeShare": 0.1570207716146878
+						}
+					],
+					"sum": 1.0255369029032437,
+					"margin": -0.024901008272788627,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.55,
+							"stakeShare": 0.6228710462287105
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.56,
+							"stakeShare": 0.3771289537712896
+						}
+					],
+					"sum": 1.0357862903225805,
+					"margin": -0.03454987834549861,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208771,
+			"league": "La Liga",
+			"kickoff": "2025-04-12T12:00:00.000Z",
+			"home": "Sociedad",
+			"away": "Mallorca",
+			"oddsAt": "2025-04-10T12:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.82,
+							"stakeShare": 0.5413025674680755
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 3.45,
+							"stakeShare": 0.28555671675127464
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 5.69,
+							"stakeShare": 0.1731407157806498
+						}
+					],
+					"sum": 1.0150525463431401,
+					"margin": -0.014829327208102594,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.6,
+							"stakeShare": 0.37046004842615016
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.53,
+							"stakeShare": 0.62953995157385
+						}
+					],
+					"sum": 1.0382101558572145,
+					"margin": -0.03680387409200958,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223914,
+			"league": "Serie A",
+			"kickoff": "2025-04-12T13:00:00.000Z",
+			"home": "Venezia",
+			"away": "Monza",
+			"oddsAt": "2025-04-10T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.82,
+							"stakeShare": 0.5425480680176342
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 3.77,
+							"stakeShare": 0.26191975697403036
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 5.05,
+							"stakeShare": 0.19553217500833553
+						}
+					],
+					"sum": 1.0127223408206678,
+					"margin": -0.012562516207905716,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2.1,
+							"stakeShare": 0.4629156010230179
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.81,
+							"stakeShare": 0.5370843989769821
+						}
+					],
+					"sum": 1.02867666403578,
+					"margin": -0.027877237851662406,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224234,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-12T13:30:00.000Z",
+			"home": "Bochum",
+			"away": "Augsburg",
+			"oddsAt": "2025-04-10T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.51,
+							"stakeShare": 0.3931267418467729
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.55,
+							"stakeShare": 0.2779572174747605
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 3,
+							"stakeShare": 0.3289160406784666
+						}
+					],
+					"sum": 1.0134298486803959,
+					"margin": -0.013251877964600256,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2.02,
+							"stakeShare": 0.48205128205128206
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.88,
+							"stakeShare": 0.517948717948718
+						}
+					],
+					"sum": 1.0269643985675163,
+					"margin": -0.026256410256410234,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224231,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-12T13:30:00.000Z",
+			"home": "Hoffenheim",
+			"away": "Mainz",
+			"oddsAt": "2025-04-10T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.76,
+							"stakeShare": 0.3569767095100349
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.56,
+							"stakeShare": 0.276757224226881
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.69,
+							"stakeShare": 0.3662660662630841
+						}
+					],
+					"sum": 1.0149649288801155,
+					"margin": -0.014744281752303912,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.76,
+							"stakeShare": 0.5510204081632654
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.16,
+							"stakeShare": 0.44897959183673464
+						}
+					],
+					"sum": 1.0311447811447811,
+					"margin": -0.03020408163265309,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224235,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-12T13:30:00.000Z",
+			"home": "Holstein Kiel",
+			"away": "St Pauli",
+			"oddsAt": "2025-04-10T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 3.31,
+							"stakeShare": 0.2977453342443093
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.6,
+							"stakeShare": 0.27376029343018443
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 2.3,
+							"stakeShare": 0.4284943723255061
+						}
+					],
+					"sum": 1.0146751900988078,
+					"margin": -0.014462943651336047,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2,
+							"stakeShare": 0.48849104859335046
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.91,
+							"stakeShare": 0.5115089514066496
+						}
+					],
+					"sum": 1.0235602094240837,
+					"margin": -0.023017902813299074,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224227,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-12T13:30:00.000Z",
+			"home": "Leverkusen",
+			"away": "Union Berlin",
+			"oddsAt": "2025-04-10T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.37,
+							"stakeShare": 0.7206364407953763
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 5.61,
+							"stakeShare": 0.17598430015858563
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 9.55,
+							"stakeShare": 0.10337925904603826
+						}
+					],
+					"sum": 1.0128921686136767,
+					"margin": -0.012728076110334552,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.63,
+							"stakeShare": 0.5914786967418546
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.36,
+							"stakeShare": 0.4085213032581454
+						}
+					],
+					"sum": 1.0372257460746594,
+					"margin": -0.03588972431077697,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224233,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-12T13:30:00.000Z",
+			"home": "M'gladbach",
+			"away": "Freiburg",
+			"oddsAt": "2025-04-10T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.26,
+							"stakeShare": 0.4365388980309823
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.73,
+							"stakeShare": 0.2644980990750724
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 3.3,
+							"stakeShare": 0.29896300289394545
+						}
+					],
+					"sum": 1.013604693881806,
+					"margin": -0.013422090449980106,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.67,
+							"stakeShare": 0.5793450881612091
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.3,
+							"stakeShare": 0.420654911838791
+						}
+					],
+					"sum": 1.033585003905233,
+					"margin": -0.0324937027707809,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208335,
+			"league": "Premier League",
+			"kickoff": "2025-04-12T14:00:00.000Z",
+			"home": "Brighton",
+			"away": "Leicester",
+			"oddsAt": "2025-04-10T14:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Bet365",
+							"odds": 1.29,
+							"stakeShare": 0.7583632510325097
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 6.11,
+							"stakeShare": 0.1601126994814955
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 12,
+							"stakeShare": 0.0815240494859948
+						}
+					],
+					"sum": 1.0221932528958753,
+					"margin": -0.02171140616806233,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.63,
+							"stakeShare": 0.5894206549118388
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.34,
+							"stakeShare": 0.41057934508816124
+						}
+					],
+					"sum": 1.0408473598657648,
+					"margin": -0.03924433249370285,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208340,
+			"league": "Premier League",
+			"kickoff": "2025-04-12T14:00:00.000Z",
+			"home": "Nott'm Forest",
+			"away": "Everton",
+			"oddsAt": "2025-04-10T14:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.14,
+							"stakeShare": 0.4575383385573343
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.48,
+							"stakeShare": 0.28135978290594693
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 3.75,
+							"stakeShare": 0.2611018785367188
+						}
+					],
+					"sum": 1.0213127081319153,
+					"margin": -0.02086795548730458,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.24,
+							"stakeShare": 0.43147208121827413
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.7,
+							"stakeShare": 0.5685279187817259
+						}
+					],
+					"sum": 1.0346638655462184,
+					"margin": -0.033502538071065846,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208341,
+			"league": "Premier League",
+			"kickoff": "2025-04-12T14:00:00.000Z",
+			"home": "Southampton",
+			"away": "Aston Villa",
+			"oddsAt": "2025-04-10T14:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Bet365",
+							"odds": 6,
+							"stakeShare": 0.1635387295486791
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.64,
+							"stakeShare": 0.21147249510605057
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 1.57,
+							"stakeShare": 0.6249887753452704
+						}
+					],
+					"sum": 1.0191265832052125,
+					"margin": -0.018767622707925424,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.62,
+							"stakeShare": 0.5970149253731344
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.4,
+							"stakeShare": 0.4029850746268657
+						}
+					],
+					"sum": 1.0339506172839505,
+					"margin": -0.03283582089552228,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208767,
+			"league": "La Liga",
+			"kickoff": "2025-04-12T14:15:00.000Z",
+			"home": "Getafe",
+			"away": "Las Palmas",
+			"oddsAt": "2025-04-10T14:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.82,
+							"stakeShare": 0.5419956128141459
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.54,
+							"stakeShare": 0.2786531116728095
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Bet365",
+							"odds": 5.5,
+							"stakeShare": 0.17935127551304467
+						}
+					],
+					"sum": 1.013754606974946,
+					"margin": -0.013567984678254374,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2.5,
+							"stakeShare": 0.39024390243902446
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.6,
+							"stakeShare": 0.6097560975609757
+						}
+					],
+					"sum": 1.025,
+					"margin": -0.024390243902438935,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214007,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-12T15:00:00.000Z",
+			"home": "Monaco",
+			"away": "Marseille",
+			"oddsAt": "2025-04-10T15:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.08,
+							"stakeShare": 0.47335203366058903
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4,
+							"stakeShare": 0.24614305750350632
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 3.51,
+							"stakeShare": 0.2805049088359046
+						}
+					],
+					"sum": 1.0156695156695157,
+					"margin": -0.015427769985974726,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.53,
+							"stakeShare": 0.6313253012048193
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.62,
+							"stakeShare": 0.3686746987951807
+						}
+					],
+					"sum": 1.035274160554807,
+					"margin": -0.03407228915662641,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223909,
+			"league": "Serie A",
+			"kickoff": "2025-04-12T16:00:00.000Z",
+			"home": "Inter",
+			"away": "Cagliari",
+			"oddsAt": "2025-04-10T16:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.36,
+							"stakeShare": 0.7229232386961093
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Betfair",
+							"odds": 5.5,
+							"stakeShare": 0.17875920084121977
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 10,
+							"stakeShare": 0.09831756046267089
+						}
+					],
+					"sum": 1.0171122994652406,
+					"margin": -0.01682439537329128,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.76,
+							"stakeShare": 0.5475578406169666
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.13,
+							"stakeShare": 0.4524421593830334
+						}
+					],
+					"sum": 1.0376653862569356,
+					"margin": -0.0362982005141389,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224229,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-12T16:30:00.000Z",
+			"home": "Bayern Munich",
+			"away": "Dortmund",
+			"oddsAt": "2025-04-10T16:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.47,
+							"stakeShare": 0.6693509097119946
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 5.36,
+							"stakeShare": 0.1835719845665358
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 6.69,
+							"stakeShare": 0.14707710572146965
+						}
+					],
+					"sum": 1.0163161041138227,
+					"margin": -0.016054162723367904,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.4,
+							"stakeShare": 0.6846846846846846
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 3.04,
+							"stakeShare": 0.3153153153153153
+						}
+					],
+					"sum": 1.043233082706767,
+					"margin": -0.04144144144144157,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208334,
+			"league": "Premier League",
+			"kickoff": "2025-04-12T16:30:00.000Z",
+			"home": "Arsenal",
+			"away": "Brentford",
+			"oddsAt": "2025-04-10T16:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.65,
+							"stakeShare": 0.5948619315840088
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Bet365",
+							"odds": 4.33,
+							"stakeShare": 0.22667948894078854
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 5.5,
+							"stakeShare": 0.17845857947520263
+						}
+					],
+					"sum": 1.018825670095878,
+					"margin": -0.018477812886385503,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.81,
+							"stakeShare": 0.5370843989769821
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 2.1,
+							"stakeShare": 0.4629156010230179
+						}
+					],
+					"sum": 1.02867666403578,
+					"margin": -0.027877237851662406,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1212940,
+			"league": "La Liga",
+			"kickoff": "2025-04-12T16:30:00.000Z",
+			"home": "Celta",
+			"away": "Espanol",
+			"oddsAt": "2025-04-10T16:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.67,
+							"stakeShare": 0.5899121160678177
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.91,
+							"stakeShare": 0.2519573488064592
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 6.23,
+							"stakeShare": 0.1581305351257232
+						}
+					],
+					"sum": 1.0150705145726167,
+					"margin": -0.014846766166744518,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.08,
+							"stakeShare": 0.46803069053708446
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.83,
+							"stakeShare": 0.5319693094629157
+						}
+					],
+					"sum": 1.0272173182009245,
+					"margin": -0.026496163682864227,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1213999,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-12T17:00:00.000Z",
+			"home": "Toulouse",
+			"away": "Lille",
+			"oddsAt": "2025-04-10T17:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.96,
+							"stakeShare": 0.33442175255283785
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.44,
+							"stakeShare": 0.28775825219662793
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 2.62,
+							"stakeShare": 0.37781999525053434
+						}
+					],
+					"sum": 1.0102149015694195,
+					"margin": -0.010111612443600038,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.19,
+							"stakeShare": 0.44132653061224486
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.73,
+							"stakeShare": 0.5586734693877551
+						}
+					],
+					"sum": 1.034655686647135,
+					"margin": -0.03349489795918381,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223910,
+			"league": "Serie A",
+			"kickoff": "2025-04-12T18:45:00.000Z",
+			"home": "Juventus",
+			"away": "Lecce",
+			"oddsAt": "2025-04-10T18:45:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.35,
+							"stakeShare": 0.7283999392189637
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 5.35,
+							"stakeShare": 0.1838018538216077
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 11.2,
+							"stakeShare": 0.08779820695942867
+						}
+					],
+					"sum": 1.0169423428769222,
+					"margin": -0.01666008205439895,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.95,
+							"stakeShare": 0.5
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.95,
+							"stakeShare": 0.5
+						}
+					],
+					"sum": 1.0256410256410258,
+					"margin": -0.025000000000000133,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208769,
+			"league": "La Liga",
+			"kickoff": "2025-04-12T19:00:00.000Z",
+			"home": "Leganes",
+			"away": "Barcelona",
+			"oddsAt": "2025-04-10T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 9.4,
+							"stakeShare": 0.10531592301503807
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 6.35,
+							"stakeShare": 0.1559007364317099
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 1.34,
+							"stakeShare": 0.738783340553252
+						}
+					],
+					"sum": 1.010131950400452,
+					"margin": -0.010030323658642204,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.46,
+							"stakeShare": 0.6556603773584905
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.78,
+							"stakeShare": 0.34433962264150947
+						}
+					],
+					"sum": 1.0446437370651425,
+					"margin": -0.04273584905660388,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214003,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-12T19:05:00.000Z",
+			"home": "Strasbourg",
+			"away": "Nice",
+			"oddsAt": "2025-04-10T19:05:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.62,
+							"stakeShare": 0.37618117864488626
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.53,
+							"stakeShare": 0.2792052940650431
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.86,
+							"stakeShare": 0.34461352729007066
+						}
+					],
+					"sum": 1.0146158579434967,
+					"margin": -0.014405311950397959,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.85,
+							"stakeShare": 0.5256410256410255
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 2.05,
+							"stakeShare": 0.4743589743589744
+						}
+					],
+					"sum": 1.028345418589321,
+					"margin": -0.027564102564102577,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223905,
+			"league": "Serie A",
+			"kickoff": "2025-04-13T10:30:00.000Z",
+			"home": "Atalanta",
+			"away": "Bologna",
+			"oddsAt": "2025-04-11T10:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 2.04,
+							"stakeShare": 0.48294899647220624
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.69,
+							"stakeShare": 0.26699619317162626
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 3.94,
+							"stakeShare": 0.25005481035616767
+						}
+					],
+					"sum": 1.0150058950574574,
+					"margin": -0.014784047196699235,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.07,
+							"stakeShare": 0.47193877551020413
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.85,
+							"stakeShare": 0.5280612244897959
+						}
+					],
+					"sum": 1.023632327980154,
+					"margin": -0.023086734693877453,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208770,
+			"league": "La Liga",
+			"kickoff": "2025-04-13T12:00:00.000Z",
+			"home": "Osasuna",
+			"away": "Girona",
+			"oddsAt": "2025-04-11T12:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 2.52,
+							"stakeShare": 0.39259849843864186
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.42,
+							"stakeShare": 0.2892831041126835
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 3.11,
+							"stakeShare": 0.3181183974486745
+						}
+					],
+					"sum": 1.010766466004239,
+					"margin": -0.010651783934622405,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.15,
+							"stakeShare": 0.45012787723785164
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.76,
+							"stakeShare": 0.5498721227621484
+						}
+					],
+					"sum": 1.0332980972515857,
+					"margin": -0.032225063938619014,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208336,
+			"league": "Premier League",
+			"kickoff": "2025-04-13T13:00:00.000Z",
+			"home": "Chelsea",
+			"away": "Ipswich",
+			"oddsAt": "2025-04-11T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Bet365",
+							"odds": 1.27,
+							"stakeShare": 0.7710795113158423
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Bet365",
+							"odds": 7,
+							"stakeShare": 0.13989585419587425
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 11,
+							"stakeShare": 0.08902463448828361
+						}
+					],
+					"sum": 1.0211678085693832,
+					"margin": -0.020729020628880268,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.44,
+							"stakeShare": 0.6635514018691588
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.84,
+							"stakeShare": 0.33644859813084116
+						}
+					],
+					"sum": 1.0465571205007824,
+					"margin": -0.04448598130841119,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208337,
+			"league": "Premier League",
+			"kickoff": "2025-04-13T13:00:00.000Z",
+			"home": "Liverpool",
+			"away": "West Ham",
+			"oddsAt": "2025-04-11T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.31,
+							"stakeShare": 0.7456741925571506
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 6.09,
+							"stakeShare": 0.1603995389572853
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 10.4,
+							"stakeShare": 0.09392626848556417
+						}
+					],
+					"sum": 1.0237162372592747,
+					"margin": -0.02316680775013258,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.54,
+							"stakeShare": 0.6262135922330097
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.58,
+							"stakeShare": 0.37378640776699024
+						}
+					],
+					"sum": 1.0369475485754556,
+					"margin": -0.03563106796116511,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208342,
+			"league": "Premier League",
+			"kickoff": "2025-04-13T13:00:00.000Z",
+			"home": "Wolves",
+			"away": "Tottenham",
+			"oddsAt": "2025-04-11T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.27,
+							"stakeShare": 0.4295291441215367
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.63,
+							"stakeShare": 0.2686036245608508
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 3.23,
+							"stakeShare": 0.3018672313176125
+						}
+					],
+					"sum": 1.0256082512449596,
+					"margin": -0.024968842844111605,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.7,
+							"stakeShare": 0.5685279187817259
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.24,
+							"stakeShare": 0.43147208121827413
+						}
+					],
+					"sum": 1.0346638655462184,
+					"margin": -0.033502538071065846,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214004,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-13T13:00:00.000Z",
+			"home": "St Etienne",
+			"away": "Brest",
+			"oddsAt": "2025-04-11T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Betfair",
+							"odds": 3.6,
+							"stakeShare": 0.2749405325826921
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.77,
+							"stakeShare": 0.26254268363333993
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.14,
+							"stakeShare": 0.46251678378396793
+						}
+					],
+					"sum": 1.0103194867938665,
+					"margin": -0.010214082702308613,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.73,
+							"stakeShare": 0.5586734693877551
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.19,
+							"stakeShare": 0.44132653061224486
+						}
+					],
+					"sum": 1.034655686647135,
+					"margin": -0.03349489795918381,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223907,
+			"league": "Serie A",
+			"kickoff": "2025-04-13T13:00:00.000Z",
+			"home": "Fiorentina",
+			"away": "Parma",
+			"oddsAt": "2025-04-11T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.75,
+							"stakeShare": 0.562730951961992
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.9,
+							"stakeShare": 0.2525074784444836
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 5.33,
+							"stakeShare": 0.18476156959352455
+						}
+					],
+					"sum": 1.0154560886268202,
+					"margin": -0.015220834066514088,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.98,
+							"stakeShare": 0.4936061381074168
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.93,
+							"stakeShare": 0.5063938618925831
+						}
+					],
+					"sum": 1.023185220076412,
+					"margin": -0.022659846547314788,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223908,
+			"league": "Serie A",
+			"kickoff": "2025-04-13T13:00:00.000Z",
+			"home": "Verona",
+			"away": "Genoa",
+			"oddsAt": "2025-04-11T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 3.07,
+							"stakeShare": 0.32352337024518685
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.15,
+							"stakeShare": 0.3153069036992773
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 2.75,
+							"stakeShare": 0.3611697260555358
+						}
+					],
+					"sum": 1.0068295801194824,
+					"margin": -0.0067832533472764744,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.82,
+							"stakeShare": 0.34112149532710284
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.46,
+							"stakeShare": 0.6588785046728972
+						}
+					],
+					"sum": 1.0395414359273292,
+					"margin": -0.038037383177569994,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224228,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-13T13:30:00.000Z",
+			"home": "Stuttgart",
+			"away": "Werder Bremen",
+			"oddsAt": "2025-04-11T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.69,
+							"stakeShare": 0.5871953369334453
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.63,
+							"stakeShare": 0.2143326391830502
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 5,
+							"stakeShare": 0.19847202388350452
+						}
+					],
+					"sum": 1.0076986977136504,
+					"margin": -0.007639880582477554,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.47,
+							"stakeShare": 0.6516587677725119
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 2.75,
+							"stakeShare": 0.34834123222748814
+						}
+					],
+					"sum": 1.043908472479901,
+					"margin": -0.04206161137440756,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208768,
+			"league": "La Liga",
+			"kickoff": "2025-04-13T14:15:00.000Z",
+			"home": "Alaves",
+			"away": "Real Madrid",
+			"oddsAt": "2025-04-11T14:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 5.55,
+							"stakeShare": 0.17767999167496693
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.32,
+							"stakeShare": 0.22826943374908942
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 1.66,
+							"stakeShare": 0.5940505745759437
+						}
+					],
+					"sum": 1.0140713002158785,
+					"margin": -0.013876046203933567,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.73,
+							"stakeShare": 0.5609137055837563
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.21,
+							"stakeShare": 0.43908629441624364
+						}
+					],
+					"sum": 1.0305233698637304,
+					"margin": -0.029619289340101607,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214005,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-13T15:15:00.000Z",
+			"home": "Angers",
+			"away": "Montpellier",
+			"oddsAt": "2025-04-11T15:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2,
+							"stakeShare": 0.49511819116135664
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.76,
+							"stakeShare": 0.26336073997944504
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Bet365",
+							"odds": 4.1,
+							"stakeShare": 0.24152106885919838
+						}
+					],
+					"sum": 1.0098598858329009,
+					"margin": -0.009763617677286729,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.91,
+							"stakeShare": 0.5102564102564103
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.99,
+							"stakeShare": 0.4897435897435898
+						}
+					],
+					"sum": 1.026072772238154,
+					"margin": -0.025410256410256293,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214000,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-13T15:15:00.000Z",
+			"home": "Le Havre",
+			"away": "Rennes",
+			"oddsAt": "2025-04-11T15:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 3.73,
+							"stakeShare": 0.26436587075983603
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.56,
+							"stakeShare": 0.2769900836893788
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.15,
+							"stakeShare": 0.4586440455507853
+						}
+					],
+					"sum": 1.01411167021957,
+					"margin": -0.013915302065811597,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2.01,
+							"stakeShare": 0.4846153846153846
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.89,
+							"stakeShare": 0.5153846153846154
+						}
+					],
+					"sum": 1.0266129669114745,
+					"margin": -0.02592307692307705,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224230,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-13T15:30:00.000Z",
+			"home": "Ein Frankfurt",
+			"away": "Heidenheim",
+			"oddsAt": "2025-04-11T15:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.77,
+							"stakeShare": 0.5562860184887868
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.22,
+							"stakeShare": 0.23332375656994137
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 4.68,
+							"stakeShare": 0.2103902249412719
+						}
+					],
+					"sum": 1.0156137897321929,
+					"margin": -0.015373747274847527,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.69,
+							"stakeShare": 0.5710659898477157
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.25,
+							"stakeShare": 0.4289340101522842
+						}
+					],
+					"sum": 1.0361604207758055,
+					"margin": -0.0348984771573605,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208339,
+			"league": "Premier League",
+			"kickoff": "2025-04-13T15:30:00.000Z",
+			"home": "Newcastle",
+			"away": "Man United",
+			"oddsAt": "2025-04-11T15:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.69,
+							"stakeShare": 0.5773874094551563
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 4.29,
+							"stakeShare": 0.22745564614900093
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 5,
+							"stakeShare": 0.19515694439584283
+						}
+					],
+					"sum": 1.024816209431594,
+					"margin": -0.024215278020785935,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.67,
+							"stakeShare": 0.5772151898734177
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.28,
+							"stakeShare": 0.42278481012658226
+						}
+					],
+					"sum": 1.037398886437651,
+					"margin": -0.03605063291139243,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223906,
+			"league": "Serie A",
+			"kickoff": "2025-04-13T16:00:00.000Z",
+			"home": "Como",
+			"away": "Torino",
+			"oddsAt": "2025-04-11T16:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.97,
+							"stakeShare": 0.5019655926483043
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.66,
+							"stakeShare": 0.2701836659882949
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 4.34,
+							"stakeShare": 0.2278507413634008
+						}
+					],
+					"sum": 1.0112530034575953,
+					"margin": -0.01112778248284052,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.19,
+							"stakeShare": 0.4427480916030535
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.74,
+							"stakeShare": 0.5572519083969466
+						}
+					],
+					"sum": 1.031333648244371,
+					"margin": -0.03038167938931291,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208766,
+			"league": "La Liga",
+			"kickoff": "2025-04-13T16:30:00.000Z",
+			"home": "Betis",
+			"away": "Villarreal",
+			"oddsAt": "2025-04-11T16:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.41,
+							"stakeShare": 0.41022387383304626
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.65,
+							"stakeShare": 0.2708601468322306
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Bet365",
+							"odds": 3.1,
+							"stakeShare": 0.3189159793347231
+						}
+					],
+					"sum": 1.011491007237116,
+					"margin": -0.011360464062358355,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.74,
+							"stakeShare": 0.5561224489795918
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.18,
+							"stakeShare": 0.4438775510204082
+						}
+					],
+					"sum": 1.033428240008436,
+					"margin": -0.03234693877551009,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214001,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-13T18:45:00.000Z",
+			"home": "Auxerre",
+			"away": "Lyon",
+			"oddsAt": "2025-04-11T18:45:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 3.61,
+							"stakeShare": 0.2742384748631292
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4,
+							"stakeShare": 0.24750022356397408
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.07,
+							"stakeShare": 0.4782613015728968
+						}
+					],
+					"sum": 1.010100097688921,
+					"margin": -0.009999105744103676,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.63,
+							"stakeShare": 0.5925
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.37,
+							"stakeShare": 0.4075
+						}
+					],
+					"sum": 1.0354378607853796,
+					"margin": -0.03422499999999995,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223911,
+			"league": "Serie A",
+			"kickoff": "2025-04-13T18:45:00.000Z",
+			"home": "Lazio",
+			"away": "Roma",
+			"oddsAt": "2025-04-11T18:45:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.92,
+							"stakeShare": 0.33746802252416386
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.39,
+							"stakeShare": 0.2906804205812857
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.65,
+							"stakeShare": 0.3718515568945504
+						}
+					],
+					"sum": 1.0148094947281585,
+					"margin": -0.014593374229441514,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.17,
+							"stakeShare": 0.44642857142857145
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.75,
+							"stakeShare": 0.5535714285714286
+						}
+					],
+					"sum": 1.032258064516129,
+					"margin": -0.03125,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208764,
+			"league": "La Liga",
+			"kickoff": "2025-04-13T19:00:00.000Z",
+			"home": "Ath Bilbao",
+			"away": "Vallecano",
+			"oddsAt": "2025-04-11T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.83,
+							"stakeShare": 0.5406351004631634
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.54,
+							"stakeShare": 0.279480857019093
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Bet365",
+							"odds": 5.5,
+							"stakeShare": 0.17988404251774348
+						}
+					],
+					"sum": 1.0107521449560906,
+					"margin": -0.010637766152410855,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.4,
+							"stakeShare": 0.4029850746268657
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.62,
+							"stakeShare": 0.5970149253731344
+						}
+					],
+					"sum": 1.0339506172839505,
+					"margin": -0.03283582089552228,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223912,
+			"league": "Serie A",
+			"kickoff": "2025-04-14T18:45:00.000Z",
+			"home": "Napoli",
+			"away": "Empoli",
+			"oddsAt": "2025-04-12T18:45:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.35,
+							"stakeShare": 0.7285497865307808
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 5.29,
+							"stakeShare": 0.1859248037460405
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 11.5,
+							"stakeShare": 0.08552540972317862
+						}
+					],
+					"sum": 1.0167331793040677,
+					"margin": -0.016457788183445787,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.96,
+							"stakeShare": 0.49872122762148335
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.95,
+							"stakeShare": 0.5012787723785167
+						}
+					],
+					"sum": 1.023024594453166,
+					"margin": -0.022506393861892682,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208333,
+			"league": "Premier League",
+			"kickoff": "2025-04-14T19:00:00.000Z",
+			"home": "Bournemouth",
+			"away": "Fulham",
+			"oddsAt": "2025-04-12T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.18,
+							"stakeShare": 0.4508026174979386
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.79,
+							"stakeShare": 0.259300714022561
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 3.39,
+							"stakeShare": 0.28989666847950035
+						}
+					],
+					"sum": 1.0175530898118017,
+					"margin": -0.017250293854493837,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.75,
+							"stakeShare": 0.5535714285714286
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.17,
+							"stakeShare": 0.44642857142857145
+						}
+					],
+					"sum": 1.032258064516129,
+					"margin": -0.03125,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208765,
+			"league": "La Liga",
+			"kickoff": "2025-04-14T19:00:00.000Z",
+			"home": "Ath Madrid",
+			"away": "Valladolid",
+			"oddsAt": "2025-04-12T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Bet365",
+							"odds": 1.14,
+							"stakeShare": 0.8623663332183512
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 10,
+							"stakeShare": 0.09830976198689204
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 25,
+							"stakeShare": 0.039323904794756816
+						}
+					],
+					"sum": 1.0171929824561403,
+					"margin": -0.016902380131079697,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.5,
+							"stakeShare": 0.6428571428571429
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.7,
+							"stakeShare": 0.35714285714285715
+						}
+					],
+					"sum": 1.037037037037037,
+					"margin": -0.0357142857142857,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208311,
+			"league": "Premier League",
+			"kickoff": "2025-04-16T18:30:00.000Z",
+			"home": "Newcastle",
+			"away": "Crystal Palace",
+			"oddsAt": "2025-04-14T18:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.74,
+							"stakeShare": 0.5611939295890549
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 4.01,
+							"stakeShare": 0.24351058291395403
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Bet365",
+							"odds": 5,
+							"stakeShare": 0.19529548749699113
+						}
+					],
+					"sum": 1.0240892022816521,
+					"margin": -0.023522562515044365,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.73,
+							"stakeShare": 0.5620253164556962
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.22,
+							"stakeShare": 0.43797468354430374
+						}
+					],
+					"sum": 1.0284851325313753,
+					"margin": -0.02769620253164562,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214016,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-18T18:45:00.000Z",
+			"home": "Rennes",
+			"away": "Nantes",
+			"oddsAt": "2025-04-16T18:45:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.87,
+							"stakeShare": 0.5299170206315145
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.79,
+							"stakeShare": 0.26146301545671036
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Bet365",
+							"odds": 4.75,
+							"stakeShare": 0.2086199639117752
+						}
+					],
+					"sum": 1.009137916822307,
+					"margin": -0.009055171419067753,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.01,
+							"stakeShare": 0.48593350383631717
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.9,
+							"stakeShare": 0.5140664961636828
+						}
+					],
+					"sum": 1.0238282272846295,
+					"margin": -0.023273657289002547,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1212941,
+			"league": "La Liga",
+			"kickoff": "2025-04-18T19:00:00.000Z",
+			"home": "Espanol",
+			"away": "Getafe",
+			"oddsAt": "2025-04-16T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Bet365",
+							"odds": 2.88,
+							"stakeShare": 0.3470426369204367
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 2.96,
+							"stakeShare": 0.33766310619285733
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 3.17,
+							"stakeShare": 0.31529425688670587
+						}
+					],
+					"sum": 1.0005174733092714,
+					"margin": -0.0005172056691422622,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 3.06,
+							"stakeShare": 0.3139013452914798
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.4,
+							"stakeShare": 0.6860986547085202
+						}
+					],
+					"sum": 1.0410830999066294,
+					"margin": -0.039461883408071774,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208774,
+			"league": "La Liga",
+			"kickoff": "2025-04-19T12:00:00.000Z",
+			"home": "Vallecano",
+			"away": "Valencia",
+			"oddsAt": "2025-04-17T12:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.35,
+							"stakeShare": 0.41992134403827686
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.31,
+							"stakeShare": 0.29813146782173733
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 3.5,
+							"stakeShare": 0.28194718813998587
+						}
+					],
+					"sum": 1.0133610042332803,
+					"margin": -0.013184841510049394,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.39,
+							"stakeShare": 0.4054726368159204
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.63,
+							"stakeShare": 0.5945273631840796
+						}
+					],
+					"sum": 1.0319069743563416,
+					"margin": -0.03092039800995028,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223919,
+			"league": "Serie A",
+			"kickoff": "2025-04-19T13:00:00.000Z",
+			"home": "Lecce",
+			"away": "Como",
+			"oddsAt": "2025-04-17T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 3.85,
+							"stakeShare": 0.2592567849686847
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.61,
+							"stakeShare": 0.27649269311064717
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 2.15,
+							"stakeShare": 0.464250521920668
+						}
+					],
+					"sum": 1.0018648490593347,
+					"margin": -0.0018613778705637296,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.13,
+							"stakeShare": 0.45384615384615384
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.77,
+							"stakeShare": 0.5461538461538462
+						}
+					],
+					"sum": 1.0344553194875468,
+					"margin": -0.03330769230769237,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224240,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-19T13:30:00.000Z",
+			"home": "Freiburg",
+			"away": "Hoffenheim",
+			"oddsAt": "2025-04-17T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 1.96,
+							"stakeShare": 0.503168567807351
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.97,
+							"stakeShare": 0.24841571609632443
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 3.97,
+							"stakeShare": 0.24841571609632443
+						}
+					],
+					"sum": 1.0139824191641393,
+					"margin": -0.013789607097592027,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.78,
+							"stakeShare": 0.5447570332480818
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.13,
+							"stakeShare": 0.4552429667519181
+						}
+					],
+					"sum": 1.0312813208841063,
+					"margin": -0.030332480818414442,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224238,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-19T13:30:00.000Z",
+			"home": "Heidenheim",
+			"away": "Bayern Munich",
+			"oddsAt": "2025-04-17T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Betfair",
+							"odds": 10.5,
+							"stakeShare": 0.09404558974977296
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 6.49,
+							"stakeShare": 0.1521538817215125
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 1.31,
+							"stakeShare": 0.7538005285287146
+						}
+					],
+					"sum": 1.012680078794712,
+					"margin": -0.012521307627383793,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.4,
+							"stakeShare": 0.6860986547085202
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 3.06,
+							"stakeShare": 0.3139013452914798
+						}
+					],
+					"sum": 1.0410830999066294,
+					"margin": -0.039461883408071774,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224242,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-19T13:30:00.000Z",
+			"home": "Mainz",
+			"away": "Wolfsburg",
+			"oddsAt": "2025-04-17T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.06,
+							"stakeShare": 0.47911252847988317
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.83,
+							"stakeShare": 0.2576949892085011
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 3.75,
+							"stakeShare": 0.2631924823116158
+						}
+					],
+					"sum": 1.0132001656146754,
+					"margin": -0.01302819133144073,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.83,
+							"stakeShare": 0.5295629820051414
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.06,
+							"stakeShare": 0.47043701799485865
+						}
+					],
+					"sum": 1.0318849806355774,
+					"margin": -0.030899742930591168,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224236,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-19T13:30:00.000Z",
+			"home": "RB Leipzig",
+			"away": "Holstein Kiel",
+			"oddsAt": "2025-04-17T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.34,
+							"stakeShare": 0.7342779142497369
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 6.22,
+							"stakeShare": 0.15818848956505588
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 9.15,
+							"stakeShare": 0.10753359618520737
+						}
+					],
+					"sum": 1.0163299783828208,
+					"margin": -0.016067594905352478,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.41,
+							"stakeShare": 0.6802721088435374
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 3,
+							"stakeShare": 0.31972789115646255
+						}
+					],
+					"sum": 1.0425531914893618,
+					"margin": -0.04081632653061229,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224239,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-19T13:30:00.000Z",
+			"home": "Werder Bremen",
+			"away": "Bochum",
+			"oddsAt": "2025-04-17T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.77,
+							"stakeShare": 0.5565420810683752
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.27,
+							"stakeShare": 0.23069777130937333
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 4.63,
+							"stakeShare": 0.2127601476222514
+						}
+					],
+					"sum": 1.015146510265445,
+					"margin": -0.014920516508975967,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.57,
+							"stakeShare": 0.6142506142506142
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.5,
+							"stakeShare": 0.3857493857493858
+						}
+					],
+					"sum": 1.0369426751592357,
+					"margin": -0.035626535626535616,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208344,
+			"league": "Premier League",
+			"kickoff": "2025-04-19T14:00:00.000Z",
+			"home": "Brentford",
+			"away": "Brighton",
+			"oddsAt": "2025-04-17T14:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 2.56,
+							"stakeShare": 0.3852311386832099
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.85,
+							"stakeShare": 0.2561536922153292
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 2.75,
+							"stakeShare": 0.3586151691014609
+						}
+					],
+					"sum": 1.0140016233766234,
+					"margin": -0.01380828497098252,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.62,
+							"stakeShare": 0.595
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 2.38,
+							"stakeShare": 0.405
+						}
+					],
+					"sum": 1.0374520178441746,
+					"margin": -0.03609999999999991,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208345,
+			"league": "Premier League",
+			"kickoff": "2025-04-19T14:00:00.000Z",
+			"home": "Crystal Palace",
+			"away": "Bournemouth",
+			"oddsAt": "2025-04-17T14:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 2.59,
+							"stakeShare": 0.37748581014748417
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 3.61,
+							"stakeShare": 0.2708277696071978
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.78,
+							"stakeShare": 0.351686420245318
+						}
+					],
+					"sum": 1.022820926565521,
+					"margin": -0.022311751718016026,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.81,
+							"stakeShare": 0.5358974358974359
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.09,
+							"stakeShare": 0.46410256410256406
+						}
+					],
+					"sum": 1.0309550873668352,
+					"margin": -0.030025641025641203,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208346,
+			"league": "Premier League",
+			"kickoff": "2025-04-19T14:00:00.000Z",
+			"home": "Everton",
+			"away": "Man City",
+			"oddsAt": "2025-04-17T14:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Betfair",
+							"odds": 4,
+							"stakeShare": 0.2451239353678539
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 3.74,
+							"stakeShare": 0.262164636757063
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 1.99,
+							"stakeShare": 0.49271142787508315
+						}
+					],
+					"sum": 1.0198922419584553,
+					"margin": -0.019504258528584395,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.86,
+							"stakeShare": 0.523076923076923
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 2.04,
+							"stakeShare": 0.4769230769230769
+						}
+					],
+					"sum": 1.027830487033523,
+					"margin": -0.02707692307692311,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208352,
+			"league": "Premier League",
+			"kickoff": "2025-04-19T14:00:00.000Z",
+			"home": "West Ham",
+			"away": "Southampton",
+			"oddsAt": "2025-04-17T14:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.52,
+							"stakeShare": 0.6427113242933729
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 4.61,
+							"stakeShare": 0.21191349521169772
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 6.72,
+							"stakeShare": 0.14537518049492956
+						}
+					],
+					"sum": 1.0236240003479413,
+					"margin": -0.023078787074073404,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.73,
+							"stakeShare": 0.5631313131313131
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.23,
+							"stakeShare": 0.43686868686868685
+						}
+					],
+					"sum": 1.0264651753544676,
+					"margin": -0.025782828282828407,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208773,
+			"league": "La Liga",
+			"kickoff": "2025-04-19T14:15:00.000Z",
+			"home": "Barcelona",
+			"away": "Celta",
+			"oddsAt": "2025-04-17T14:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.34,
+							"stakeShare": 0.7427989156464931
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 6.53,
+							"stakeShare": 0.1524273425675805
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 9.5,
+							"stakeShare": 0.1047737417859264
+						}
+					],
+					"sum": 1.004671171425856,
+					"margin": -0.004649453033699125,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.36,
+							"stakeShare": 0.7075268817204301
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 3.29,
+							"stakeShare": 0.2924731182795699
+						}
+					],
+					"sum": 1.0392454854282138,
+					"margin": -0.03776344086021499,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214012,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-19T15:00:00.000Z",
+			"home": "Paris SG",
+			"away": "Le Havre",
+			"oddsAt": "2025-04-17T15:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.15,
+							"stakeShare": 0.8626788428204487
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 11.31,
+							"stakeShare": 0.0877171237173754
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 20,
+							"stakeShare": 0.049604033462175796
+						}
+					],
+					"sum": 1.0079825471879447,
+					"margin": -0.0079193307564841,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.25,
+							"stakeShare": 0.7619047619047619
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 4,
+							"stakeShare": 0.23809523809523808
+						}
+					],
+					"sum": 1.05,
+					"margin": -0.04761904761904767,
+					"bookmakerCount": 1,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223921,
+			"league": "Serie A",
+			"kickoff": "2025-04-19T16:00:00.000Z",
+			"home": "Monza",
+			"away": "Napoli",
+			"oddsAt": "2025-04-17T16:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 16.5,
+							"stakeShare": 0.06062216880835722
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 6.1,
+							"stakeShare": 0.1639779975963761
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Bet365",
+							"odds": 1.29,
+							"stakeShare": 0.7753998335952667
+						}
+					],
+					"sum": 0.9997342852851812,
+					"margin": 0.00026578533789400893,
+					"bookmakerCount": 4,
+					"band": "arb"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.88,
+							"stakeShare": 0.5191815856777493
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 2.03,
+							"stakeShare": 0.4808184143222507
+						}
+					],
+					"sum": 1.024525731055445,
+					"margin": -0.023938618925831268,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224243,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-19T16:30:00.000Z",
+			"home": "Union Berlin",
+			"away": "Stuttgart",
+			"oddsAt": "2025-04-17T16:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.97,
+							"stakeShare": 0.3324164855152833
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.54,
+							"stakeShare": 0.2788917971696021
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 2.54,
+							"stakeShare": 0.3886917173151147
+						}
+					],
+					"sum": 1.012886999808126,
+					"margin": -0.012723038019608501,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.82,
+							"stakeShare": 0.5321336760925449
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.07,
+							"stakeShare": 0.4678663239074551
+						}
+					],
+					"sum": 1.032542336890163,
+					"margin": -0.03151670951156804,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208343,
+			"league": "Premier League",
+			"kickoff": "2025-04-19T16:30:00.000Z",
+			"home": "Aston Villa",
+			"away": "Newcastle",
+			"oddsAt": "2025-04-17T16:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.42,
+							"stakeShare": 0.40322700627845387
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 3.7,
+							"stakeShare": 0.2637322581605022
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.93,
+							"stakeShare": 0.3330407355610438
+						}
+					],
+					"sum": 1.0247903390937831,
+					"margin": -0.024190644806141637,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.66,
+							"stakeShare": 0.5818639798488666
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.31,
+							"stakeShare": 0.41813602015113355
+						}
+					],
+					"sum": 1.0353100714546497,
+					"margin": -0.034105793450881605,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208781,
+			"league": "La Liga",
+			"kickoff": "2025-04-19T16:30:00.000Z",
+			"home": "Mallorca",
+			"away": "Leganes",
+			"oddsAt": "2025-04-17T16:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.96,
+							"stakeShare": 0.5083612040133779
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.23,
+							"stakeShare": 0.30847924454062564
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 5.44,
+							"stakeShare": 0.18315955144599647
+						}
+					],
+					"sum": 1.003625134264232,
+					"margin": -0.0036120401337792485,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2.63,
+							"stakeShare": 0.36778846153846156
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.53,
+							"stakeShare": 0.6322115384615384
+						}
+					],
+					"sum": 1.0338229081239594,
+					"margin": -0.03271634615384622,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214015,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-19T17:00:00.000Z",
+			"home": "Monaco",
+			"away": "Strasbourg",
+			"oddsAt": "2025-04-17T17:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.62,
+							"stakeShare": 0.612463617173624
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 4.79,
+							"stakeShare": 0.2071380083134177
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 5.5,
+							"stakeShare": 0.18039837451295834
+						}
+					],
+					"sum": 1.0078703996588478,
+					"margin": -0.00780894017872924,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.46,
+							"stakeShare": 0.65807962529274
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.81,
+							"stakeShare": 0.34192037470725994
+						}
+					],
+					"sum": 1.0408033929703115,
+					"margin": -0.03920374707259955,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223923,
+			"league": "Serie A",
+			"kickoff": "2025-04-19T18:45:00.000Z",
+			"home": "Roma",
+			"away": "Verona",
+			"oddsAt": "2025-04-17T18:45:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.44,
+							"stakeShare": 0.6843426128177721
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.65,
+							"stakeShare": 0.2119254542919552
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 9.5,
+							"stakeShare": 0.10373193289027281
+						}
+					],
+					"sum": 1.0147613657800414,
+					"margin": -0.014546637542408258,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.09,
+							"stakeShare": 0.46547314578005117
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.82,
+							"stakeShare": 0.5345268542199487
+						}
+					],
+					"sum": 1.0279194489720807,
+					"margin": -0.02716112531969317,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208776,
+			"league": "La Liga",
+			"kickoff": "2025-04-19T19:00:00.000Z",
+			"home": "Las Palmas",
+			"away": "Ath Madrid",
+			"oddsAt": "2025-04-17T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Betfair",
+							"odds": 6,
+							"stakeShare": 0.16456296461596392
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.37,
+							"stakeShare": 0.22594457384342875
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 1.62,
+							"stakeShare": 0.6094924615406072
+						}
+					],
+					"sum": 1.0127835692290308,
+					"margin": -0.01262221230421634,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.81,
+							"stakeShare": 0.5335051546391752
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.07,
+							"stakeShare": 0.46649484536082475
+						}
+					],
+					"sum": 1.0355779752849175,
+					"margin": -0.03435567010309282,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214013,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-19T19:05:00.000Z",
+			"home": "Marseille",
+			"away": "Montpellier",
+			"oddsAt": "2025-04-17T19:05:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.23,
+							"stakeShare": 0.8025682182985554
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 7.5,
+							"stakeShare": 0.1316211878009631
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 15,
+							"stakeShare": 0.06581059390048155
+						}
+					],
+					"sum": 1.0130081300813008,
+					"margin": -0.01284109149277679,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.4,
+							"stakeShare": 0.6818181818181818
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 3,
+							"stakeShare": 0.3181818181818181
+						}
+					],
+					"sum": 1.0476190476190477,
+					"margin": -0.045454545454545525,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208778,
+			"league": "La Liga",
+			"kickoff": "2025-04-20T12:00:00.000Z",
+			"home": "Valladolid",
+			"away": "Osasuna",
+			"oddsAt": "2025-04-18T12:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 4.91,
+							"stakeShare": 0.20435088121836145
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.75,
+							"stakeShare": 0.2675634204752413
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 1.9,
+							"stakeShare": 0.5280856983063973
+						}
+					],
+					"sum": 0.9966484439203915,
+					"margin": 0.0033628267821548263,
+					"bookmakerCount": 4,
+					"band": "arb"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.11,
+							"stakeShare": 0.46035805626598464
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.8,
+							"stakeShare": 0.5396419437340153
+						}
+					],
+					"sum": 1.0294892048446551,
+					"margin": -0.028644501278772383,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208347,
+			"league": "Premier League",
+			"kickoff": "2025-04-20T13:00:00.000Z",
+			"home": "Fulham",
+			"away": "Chelsea",
+			"oddsAt": "2025-04-18T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Pinnacle",
+							"odds": 2.9,
+							"stakeShare": 0.3418200334618463
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Bet365",
+							"odds": 3.7,
+							"stakeShare": 0.2679129991998254
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.54,
+							"stakeShare": 0.3902669673383284
+						}
+					],
+					"sum": 1.0087986438787415,
+					"margin": -0.0087219029606459,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.84,
+							"stakeShare": 0.5282051282051282
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 2.06,
+							"stakeShare": 0.4717948717948718
+						}
+					],
+					"sum": 1.0289151540734487,
+					"margin": -0.028102564102564065,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208348,
+			"league": "Premier League",
+			"kickoff": "2025-04-20T13:00:00.000Z",
+			"home": "Ipswich",
+			"away": "Arsenal",
+			"oddsAt": "2025-04-18T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 8.35,
+							"stakeShare": 0.11695521109591972
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 5,
+							"stakeShare": 0.19531520253018594
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 1.42,
+							"stakeShare": 0.6877295863738943
+						}
+					],
+					"sum": 1.0239858311545924,
+					"margin": -0.023423987349070252,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.74,
+							"stakeShare": 0.5549872122762148
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.17,
+							"stakeShare": 0.44501278772378516
+						}
+					],
+					"sum": 1.0355421367657185,
+					"margin": -0.03432225063938621,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208350,
+			"league": "Premier League",
+			"kickoff": "2025-04-20T13:00:00.000Z",
+			"home": "Man United",
+			"away": "Wolves",
+			"oddsAt": "2025-04-18T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.03,
+							"stakeShare": 0.48067535065368044
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.67,
+							"stakeShare": 0.2658776462743791
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 3.85,
+							"stakeShare": 0.25344700307194057
+						}
+					],
+					"sum": 1.0248306612113809,
+					"margin": -0.024229038173028794,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.97,
+							"stakeShare": 0.49487179487179483
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.93,
+							"stakeShare": 0.5051282051282052
+						}
+					],
+					"sum": 1.0257489282238763,
+					"margin": -0.025102564102564173,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214011,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-20T13:00:00.000Z",
+			"home": "Lille",
+			"away": "Auxerre",
+			"oddsAt": "2025-04-18T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.55,
+							"stakeShare": 0.6383086749459277
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.49,
+							"stakeShare": 0.22035154703033136
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Bet365",
+							"odds": 7,
+							"stakeShare": 0.14133977802374112
+						}
+					],
+					"sum": 1.0107355824002133,
+					"margin": -0.010621553833812136,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.9,
+							"stakeShare": 0.5128205128205129
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 2,
+							"stakeShare": 0.4871794871794872
+						}
+					],
+					"sum": 1.026315789473684,
+					"margin": -0.02564102564102555,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223917,
+			"league": "Serie A",
+			"kickoff": "2025-04-20T13:00:00.000Z",
+			"home": "Empoli",
+			"away": "Venezia",
+			"oddsAt": "2025-04-18T13:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.37,
+							"stakeShare": 0.415847190913348
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.13,
+							"stakeShare": 0.314874710052599
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 3.66,
+							"stakeShare": 0.2692780990340532
+						}
+					],
+					"sum": 1.0146537898772627,
+					"margin": -0.014442157535365152,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.41,
+							"stakeShare": 0.40198511166253104
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.62,
+							"stakeShare": 0.598014888337469
+						}
+					],
+					"sum": 1.0322217099533835,
+					"margin": -0.031215880893300185,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224241,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-20T13:30:00.000Z",
+			"home": "Augsburg",
+			"away": "Ein Frankfurt",
+			"oddsAt": "2025-04-18T13:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.69,
+							"stakeShare": 0.36626228046848375
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.48,
+							"stakeShare": 0.28311653289086813
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.81,
+							"stakeShare": 0.3506211866406481
+						}
+					],
+					"sum": 1.0149754198559877,
+					"margin": -0.014754465539778772,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.92,
+							"stakeShare": 0.5076923076923077
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.98,
+							"stakeShare": 0.4923076923076923
+						}
+					],
+					"sum": 1.0258838383838385,
+					"margin": -0.02523076923076928,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208779,
+			"league": "La Liga",
+			"kickoff": "2025-04-20T14:15:00.000Z",
+			"home": "Villarreal",
+			"away": "Sociedad",
+			"oddsAt": "2025-04-18T14:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.76,
+							"stakeShare": 0.5678260374565948
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 3.99,
+							"stakeShare": 0.25046963055729493
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 5.5,
+							"stakeShare": 0.18170433198611033
+						}
+					],
+					"sum": 1.00062656641604,
+					"margin": -0.0006261740763932044,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.98,
+							"stakeShare": 0.4923076923076923
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.92,
+							"stakeShare": 0.5076923076923077
+						}
+					],
+					"sum": 1.0258838383838385,
+					"margin": -0.02523076923076928,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214010,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-20T15:15:00.000Z",
+			"home": "Brest",
+			"away": "Lens",
+			"oddsAt": "2025-04-18T15:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.45,
+							"stakeShare": 0.40194174757281553
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.45,
+							"stakeShare": 0.28543689320388355
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 3.15,
+							"stakeShare": 0.312621359223301
+						}
+					],
+					"sum": 1.015478655230208,
+					"margin": -0.015242718446601855,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.92,
+							"stakeShare": 0.5076923076923077
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.98,
+							"stakeShare": 0.4923076923076923
+						}
+					],
+					"sum": 1.0258838383838385,
+					"margin": -0.02523076923076928,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214009,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-20T15:15:00.000Z",
+			"home": "Nice",
+			"away": "Angers",
+			"oddsAt": "2025-04-18T15:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.42,
+							"stakeShare": 0.6933598072630467
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 5.16,
+							"stakeShare": 0.19080831905300896
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 8.5,
+							"stakeShare": 0.11583187368394426
+						}
+					],
+					"sum": 1.0156708605486087,
+					"margin": -0.015429073686473727,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.76,
+							"stakeShare": 0.5487179487179488
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.14,
+							"stakeShare": 0.4512820512820513
+						}
+					],
+					"sum": 1.0354715378079864,
+					"margin": -0.03425641025641024,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214014,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-20T15:15:00.000Z",
+			"home": "Reims",
+			"away": "Toulouse",
+			"oddsAt": "2025-04-18T15:15:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 3.36,
+							"stakeShare": 0.2943944893287791
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.59,
+							"stakeShare": 0.2755335610430913
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 2.3,
+							"stakeShare": 0.43007194962812945
+						}
+					],
+					"sum": 1.0109531883481262,
+					"margin": -0.010834515855302262,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2.06,
+							"stakeShare": 0.4731457800511509
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.85,
+							"stakeShare": 0.526854219948849
+						}
+					],
+					"sum": 1.025977433744424,
+					"margin": -0.025319693094629225,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224237,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-20T15:30:00.000Z",
+			"home": "Dortmund",
+			"away": "M'gladbach",
+			"oddsAt": "2025-04-18T15:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.45,
+							"stakeShare": 0.6854474239228684
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 5.46,
+							"stakeShare": 0.1820327407853771
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 7.5,
+							"stakeShare": 0.13251983529175454
+						}
+					],
+					"sum": 1.0061386888973096,
+					"margin": -0.006101235311840925,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.37,
+							"stakeShare": 0.700218818380744
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 3.2,
+							"stakeShare": 0.29978118161925604
+						}
+					],
+					"sum": 1.04242700729927,
+					"margin": -0.04070021881838071,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208349,
+			"league": "Premier League",
+			"kickoff": "2025-04-20T15:30:00.000Z",
+			"home": "Leicester",
+			"away": "Liverpool",
+			"oddsAt": "2025-04-18T15:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 11.9,
+							"stakeShare": 0.08227598707541965
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 6.96,
+							"stakeShare": 0.14067302387895028
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 1.26,
+							"stakeShare": 0.7770509890456301
+						}
+					],
+					"sum": 1.021362568015712,
+					"margin": -0.020915753802505987,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.44,
+							"stakeShare": 0.6611764705882353
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.81,
+							"stakeShare": 0.33882352941176475
+						}
+					],
+					"sum": 1.0503163305654408,
+					"margin": -0.04790588235294113,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223915,
+			"league": "Serie A",
+			"kickoff": "2025-04-20T16:00:00.000Z",
+			"home": "Bologna",
+			"away": "Inter",
+			"oddsAt": "2025-04-18T16:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Betfair",
+							"odds": 3.5,
+							"stakeShare": 0.2835650324764564
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.24,
+							"stakeShare": 0.30632025113197453
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.42,
+							"stakeShare": 0.4101147163915692
+						}
+					],
+					"sum": 1.0075794015187953,
+					"margin": -0.007522386332402542,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.24,
+							"stakeShare": 0.43147208121827413
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.7,
+							"stakeShare": 0.5685279187817259
+						}
+					],
+					"sum": 1.0346638655462184,
+					"margin": -0.033502538071065846,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208780,
+			"league": "La Liga",
+			"kickoff": "2025-04-20T16:30:00.000Z",
+			"home": "Sevilla",
+			"away": "Alaves",
+			"oddsAt": "2025-04-18T16:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.11,
+							"stakeShare": 0.4741164178055273
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.29,
+							"stakeShare": 0.3040685840637272
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Pinnacle",
+							"odds": 4.51,
+							"stakeShare": 0.2218149981307456
+						}
+					],
+					"sum": 0.9996145070924274,
+					"margin": 0.000385641569662587,
+					"bookmakerCount": 4,
+					"band": "arb"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2.75,
+							"stakeShare": 0.35141509433962265
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.49,
+							"stakeShare": 0.6485849056603774
+						}
+					],
+					"sum": 1.0347773032336791,
+					"margin": -0.03360849056603776,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1224244,
+			"league": "Bundesliga",
+			"kickoff": "2025-04-20T17:30:00.000Z",
+			"home": "St Pauli",
+			"away": "Leverkusen",
+			"oddsAt": "2025-04-18T17:30:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 5.5,
+							"stakeShare": 0.17911309064773864
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.97,
+							"stakeShare": 0.24814156135077142
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 1.72,
+							"stakeShare": 0.5727453480014899
+						}
+					],
+					"sum": 1.0151026994211343,
+					"margin": -0.01487800143743745,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 2.03,
+							"stakeShare": 0.47948717948717956
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Bet365",
+							"odds": 1.87,
+							"stakeShare": 0.5205128205128204
+						}
+					],
+					"sum": 1.0273701957271937,
+					"margin": -0.026641025641025662,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1214008,
+			"league": "Ligue 1",
+			"kickoff": "2025-04-20T18:45:00.000Z",
+			"home": "St Etienne",
+			"away": "Lyon",
+			"oddsAt": "2025-04-18T18:45:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "Bet365",
+							"odds": 5.25,
+							"stakeShare": 0.19024190241902417
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.64,
+							"stakeShare": 0.21525215252152521
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 1.68,
+							"stakeShare": 0.5945059450594505
+						}
+					],
+					"sum": 1.001231527093596,
+					"margin": -0.0012300123001229846,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Bet365",
+							"odds": 1.44,
+							"stakeShare": 0.6651162790697673
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.86,
+							"stakeShare": 0.33488372093023255
+						}
+					],
+					"sum": 1.0440947940947942,
+					"margin": -0.04223255813953497,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1223920,
+			"league": "Serie A",
+			"kickoff": "2025-04-20T18:45:00.000Z",
+			"home": "Milan",
+			"away": "Atalanta",
+			"oddsAt": "2025-04-18T18:45:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.66,
+							"stakeShare": 0.3702886285854888
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 3.56,
+							"stakeShare": 0.27667633484196635
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.79,
+							"stakeShare": 0.35303503657254487
+						}
+					],
+					"sum": 1.0152616650966548,
+					"margin": -0.01503224796259972,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.7,
+							"stakeShare": 0.569620253164557
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.25,
+							"stakeShare": 0.43037974683544306
+						}
+					],
+					"sum": 1.0326797385620914,
+					"margin": -0.03164556962025311,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208775,
+			"league": "La Liga",
+			"kickoff": "2025-04-20T19:00:00.000Z",
+			"home": "Real Madrid",
+			"away": "Ath Bilbao",
+			"oddsAt": "2025-04-18T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 1.71,
+							"stakeShare": 0.5780257484197022
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "1xBet",
+							"odds": 4.08,
+							"stakeShare": 0.2422607916170811
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "Betfair",
+							"odds": 5.5,
+							"stakeShare": 0.17971345996321653
+						}
+					],
+					"sum": 1.011711542671295,
+					"margin": -0.01157597020230905,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.75,
+							"stakeShare": 0.5524296675191815
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.16,
+							"stakeShare": 0.44757033248081834
+						}
+					],
+					"sum": 1.0343915343915344,
+					"margin": -0.03324808184143224,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208351,
+			"league": "Premier League",
+			"kickoff": "2025-04-21T19:00:00.000Z",
+			"home": "Tottenham",
+			"away": "Nott'm Forest",
+			"oddsAt": "2025-04-19T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.55,
+							"stakeShare": 0.3833372337935877
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 3.78,
+							"stakeShare": 0.2586005148607536
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.73,
+							"stakeShare": 0.3580622513456587
+						}
+					],
+					"sum": 1.023007493595729,
+					"margin": -0.022490053826351608,
+					"bookmakerCount": 4,
+					"band": "far"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 1.61,
+							"stakeShare": 0.599502487562189
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 2.41,
+							"stakeShare": 0.40049751243781095
+						}
+					],
+					"sum": 1.0360557717584598,
+					"margin": -0.03480099502487555,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		},
+		{
+			"fixtureId": 1208777,
+			"league": "La Liga",
+			"kickoff": "2025-04-21T19:00:00.000Z",
+			"home": "Girona",
+			"away": "Betis",
+			"oddsAt": "2025-04-19T19:00:00.000Z",
+			"opportunities": [
+				{
+					"market": "h2h",
+					"legs": [
+						{
+							"outcome": "Home",
+							"bookmaker": "1xBet",
+							"odds": 2.96,
+							"stakeShare": 0.334946234585351
+						},
+						{
+							"outcome": "Draw",
+							"bookmaker": "Pinnacle",
+							"odds": 3.55,
+							"stakeShare": 0.27927911390778565
+						},
+						{
+							"outcome": "Away",
+							"bookmaker": "1xBet",
+							"odds": 2.57,
+							"stakeShare": 0.38577465150686346
+						}
+					],
+					"sum": 1.008633037048667,
+					"margin": -0.008559145627360931,
+					"bookmakerCount": 4,
+					"band": "near"
+				},
+				{
+					"market": "ou25",
+					"legs": [
+						{
+							"outcome": "Over",
+							"bookmaker": "Pinnacle",
+							"odds": 2.03,
+							"stakeShare": 0.47948717948717956
+						},
+						{
+							"outcome": "Under",
+							"bookmaker": "Pinnacle",
+							"odds": 1.87,
+							"stakeShare": 0.5205128205128204
+						}
+					],
+					"sum": 1.0273701957271937,
+					"margin": -0.026641025641025662,
+					"bookmakerCount": 2,
+					"band": "far"
+				}
+			]
+		}
+	]
+}

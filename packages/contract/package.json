@@ -1,0 +1,19 @@
+{
+	"name": "@football/contract",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Read-API contract shared by server, web and mobile: response DTO types, error format and a platform-independent fetch client (no DOM, no Node, no storage).",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"dependencies": {
+		"@football/core": "0.1.0"
+	},
+	"scripts": {
+		"test": "vitest",
+		"test:ci": "vitest run",
+		"typecheck": "tsc --noEmit",
+		"verify": "npm run typecheck && npm run test:ci"
+	}
+}

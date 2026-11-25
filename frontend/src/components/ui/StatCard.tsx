@@ -13,7 +13,7 @@ interface IStatCardProps {
 const StatCard: React.FC<IStatCardProps> = ({ label, value, accent = false, sub }) => (
 	<Card className="flex flex-col gap-1 p-5">
 		<span className="text-sm text-text-muted">{label}</span>
-		<span className={`text-3xl font-semibold ${accent ? 'text-accent' : 'text-text'}`}>{value}</span>
+		<span className={`text-3xl font-semibold ${accent ? 'text-accent-text' : 'text-text'}`}>{value}</span>
 		{sub !== undefined && sub !== null && <span className="text-sm text-text-muted">{sub}</span>}
 	</Card>
 );

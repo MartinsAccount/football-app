@@ -1,0 +1,21 @@
+{
+	"name": "@football/api-client",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "The single API-Football v3 client (server-side only): budget guard, serialized calls, errors handling, paging, call log, mock mode.",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"test": "vitest",
+		"test:ci": "vitest run",
+		"typecheck": "tsc --noEmit",
+		"verify": "npm run typecheck && npm run test:ci",
+		"fetch:history": "vite-node scripts/fetch-history.ts"
+	},
+	"devDependencies": {
+		"@football/db": "0.1.0",
+		"@types/node": "^22.20.5"
+	}
+}

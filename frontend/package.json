@@ -5,21 +5,27 @@
 	"type": "module",
 	"dependencies": {
 		"@testing-library/jest-dom": "^5.14.1",
-		"@testing-library/react": "^11.2.7",
+		"@testing-library/react": "^14.3.1",
 		"@testing-library/user-event": "^12.8.3",
 		"@types/node": "^12.20.19",
-		"@types/react": "^17.0.17",
-		"@types/react-dom": "^17.0.9",
-		"mobx": "^5.15.7",
-		"mobx-react": "^5.4.4",
-		"react": "^17.0.2",
-		"react-dom": "^17.0.2",
+		"@types/react": "^18.3.12",
+		"@types/react-dom": "^18.3.1",
+		"mobx": "^6.13.5",
+		"mobx-react": "^9.1.1",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
 		"react-router-dom": "^5.3.0",
 		"uuid": "^8.3.2",
 		"web-vitals": "^1.1.2",
-		"@football/core": "*"
+		"@football/core": "*",
+		"@football/contract": "*"
 	},
 	"scripts": {
+		"tokens": "node src/design/tokens/build-tokens.mjs",
+		"tokens:check": "node src/design/tokens/build-tokens.mjs --check",
+		"predev": "npm run tokens",
+		"prestart": "npm run tokens",
+		"prebuild": "npm run tokens",
 		"start": "vite",
 		"dev": "vite",
 		"build": "vite build",
@@ -27,7 +33,7 @@
 		"test": "vitest",
 		"test:ci": "vitest run",
 		"typecheck": "tsc --noEmit",
-		"verify": "npm run typecheck && npm run test:ci && npm run build"
+		"verify": "npm run tokens:check && npm run typecheck && npm run test:ci && npm run build"
 	},
 	"devDependencies": {
 		"@vitejs/plugin-react": "^4.3.4",

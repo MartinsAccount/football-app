@@ -147,6 +147,13 @@ fontossági sorrendet tartja (a kezdés előtti odds-snapshot megelőzi a backfi
   A teljes piac pásztázása (`/odds/mapping`) opcionális, kézzel indítható, és
   budget-figyelmeztetés előzi meg.
 
+### 5.6b Saját stílus és döntetlen-figyelő (P1, tulajdonosi kérés 2026-11-17)
+
+- **Saját stílus:** kvíz múltbeli meccsekből („mit raknál meg?”) + a rögzített fogadások alapján megmagyarázható profil
+  (logisztikus regresszió, nevesített tényezők), és „Te ezt raknád” jelölés a mai meccseken. Terv:
+  [`plans/owner-style-and-draws.md`](plans/owner-style-and-draws.md).
+- **Döntetlen-figyelő:** külön p(X)-becslés és rangsor indoklással, backtesttel a piachoz mérve.
+
 ### 5.7 Hosting és hozzáférés-védelem (P0)
 
 - Hosztolt frontend és API (Vercel vagy Netlify, döntés: D2), menedzselt adatbázis
@@ -223,7 +230,8 @@ fontossági sorrendet tartja (a kezdés előtti odds-snapshot megelőzi a backfi
 - Élő (in-play) odds és élő eredménykövetés, push értesítés (egy napi e-mail vagy
   értesítés később újranyitható).
 - Más sportágak (kosárlabda, baseball: a régi kódban lévő URL-ek kivezethetők).
-- Mobil-first UI (a cél: mobilon olvasható legyen).
+- ~~Mobil-first UI~~ — **újranyitva 2026-11-13** (ADR-0010): telepíthető PWA + később Expo Android-app, teljes
+  funkcióval. A push értesítés továbbra is nem-cél.
 - Gépi tanulási „fekete doboz” modell, amely nem ad indoklást. **Megmagyarázhatóság
   nélküli modell nem kerül élesbe.**
 - Fizetős adatforrás. *Kivétel:* ha a szezon-hozzáférés mérése (ROADMAP 0.0)

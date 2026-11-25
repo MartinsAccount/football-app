@@ -148,6 +148,7 @@ odds viszi — ezt a 4.1 tárolási szabályai szorítják le.
 | `DATABASE_URL` | Hosting env (a Marketplace injektálja) | Dev: Neon branch vagy lokális Postgres (Docker). |
 | `CRON_SECRET` | Hosting env | `Authorization: Bearer` a tick-végponton. |
 | `APP_PASSWORD_HASH`, `SESSION_SECRET` | Hosting env | Az alkalmazásszintű belépéshez (6. fejezet). |
+| `APP_API_TOKEN_HASH` | Hosting env | A mobilkliens Bearer tokenjének sha256-hash-e (ADR-0005). |
 | `API_DAILY_LIMIT` (100), `API_RESERVE` (5), `API_MIN_INTERVAL_MS` (7000) | env vagy `setting` tábla | A budget-őr paraméterei. |
 | `USE_FIXTURES=true` | dev és teszt | A mock kliens rögzített válaszokból dolgozik, élő hívás nincs. |
 
@@ -165,6 +166,9 @@ odds viszi — ezt a 4.1 tárolási szabályai szorítják le.
 Indoklás: ha a platformot később lecseréljük, vagy a platformvédelem kikapcsol (pl. egy
 preview-beállítás miatt), az adat és a kvóta akkor se legyen nyilvános. Teljes
 auth-szolgáltatás (Auth.js, Supabase Auth) **egy felhasználóhoz túlzás**.
+
+**Mobil (ADR-0005, 2026-11-13):** a natív kliens nem jut át a Vercel Authenticationön, ezért az API a session mellett
+`Authorization: Bearer <token>`-t is elfogad (hash: `APP_API_TOKEN_HASH`).
 
 ## 7. Ingestion: ütemező, feladatsor, kvóta-elszámolás
 
@@ -233,7 +237,7 @@ fut**. (ADR-jelölt, ha a tulajdonos a Pythont preferálja.)
 
 ```
 frontend/            # SPA (a mai mappa; Vite-migráció után is itt marad)
-api/                 # Vercel-függvények: api/recommendations.ts, api/cron/tick.ts, ...
+scripts/vercel-build.mjs  # Vercel Build Output API: egy függvény (/api/*, packages/server vercelEntry.ts bundle) + static (I30)
 packages/core/       # tiszta TS: arbitrage/, model/, evaluation/, features/ (+ Jest/Vitest)
 packages/db/         # séma (Drizzle), migrációk, repository-függvények
 packages/api-client/ # API-Football kliens: budget-őr, naplózás, mock mód, fixture-ök
@@ -340,7 +344,8 @@ a kódban a magyar domain-nevek (pl. `Vegeredmeny`) a `market.code` mezőben él
 | ADR-0002 | **Adatforrás / API-csomag** | ✅ Elfogadva: Free, 2022–2024 | minden ingestion |
 | ADR-0003 | **Hosting** | ✅ Elfogadva: Vercel Hobby | ütemező, auth |
 | ADR-0004 | **Adatbázis + ORM** | ✅ Elfogadva: Supabase Postgres (ORM: Drizzle javaslat, nyitott) | adatmodell |
-| ADR-0005 | **Hozzáférés-védelem** | Vercel Authentication + egyfelhasználós app-session | deploy |
+| ADR-0005 | **Hozzáférés-védelem** | ✅ Elfogadva: web-session + Bearer token (mobil) | deploy |
+| ADR-0010 | **Mobil** | ✅ Elfogadva: PWA most, Expo később | mobil |
 | ADR-0006 | **Ütemezés és feladatsor** | 15 perces tick + `ingest_task` + advisory lock; tartalék: külső pinger | ingestion |
 | ADR-0007 | **Frontend toolchain** | ✅ Elfogadva: Vite + Vitest, MobX v5 marad (később v6) | UI-munka |
 | ADR-0008 | **Repó-szerkezet** (npm workspaces, `packages/core`) | ✅ Elfogadva | minden backend-szelet |

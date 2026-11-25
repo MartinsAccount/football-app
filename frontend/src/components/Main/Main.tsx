@@ -1,74 +1,43 @@
-import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Switch, Route, NavLink, Redirect } from 'react-router-dom';
-import { MainStore } from '../../stores/MainStore';
-import OddsPage from '../../pages/OddsPage/OddsPage';
-import FixturePage from '../../pages/FixturePage/FixturePage';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+import AppShell from '../AppShell/AppShell';
+import RecommendationsPage from '../../pages/RecommendationsPage/RecommendationsPage';
+import EvaluationPage from '../../pages/EvaluationPage/EvaluationPage';
+import SettingsPage from '../../pages/SettingsPage/SettingsPage';
 import ArbitragePage from '../../pages/ArbitragePage/ArbitragePage';
-import LoadingScreen from '../LoadingScreen/LoadingScreen';
-import Pill from '../ui/Pill';
+import MatchPage from '../../pages/MatchPage/MatchPage';
+import QuizPage from '../../pages/QuizPage/QuizPage';
 
-interface IMainProps {
-	MainStore?: MainStore;
-}
-
-// Az aktív állapotot az aria-current variánssal stílusozzuk: a NavLink (RRv5)
-// az aktív linkre aria-current="page"-et tesz, és az aria-[current=page]:* utility
-// magasabb specificitású, ezért megbízhatóan felülírja az inaktív (text-text-muted /
-// border-transparent) alapot — szemben az activeClassName-mel, ahol ütköző utility-knél
-// a CSS-sorrend dönt, nem a class-string.
-const tab =
-	'inline-flex items-center h-14 border-b-2 border-transparent text-sm no-underline transition-colors ' +
-	'text-text-muted hover:text-text ' +
-	'aria-[current=page]:text-accent aria-[current=page]:border-accent aria-[current=page]:font-medium';
-
-@inject('MainStore')
-@observer
-class Main extends Component<IMainProps> {
+// Route-ok a PRD 5.8 szerint. A régi /odds és /fixtures a Ma oldalra irányít (az odds-mozgás és a
+// meccs-statisztika a TipCard MatchDetails részébe olvad, ROADMAP H). A régi /legacy/* nézetek az M1
+// zárásával kikerültek a routingból (ui-audit P0/P1, DECISIONS 2026-11-13); a kódjuk a 8.3-ig marad.
+class Main extends Component {
 	render() {
-		const { MainStore } = this.props;
-
 		return (
 			<Router>
-				<div className="min-h-screen bg-bg text-text">
-					{MainStore.isLoading && <LoadingScreen />}
-
-					<nav className="sticky top-0 z-50 flex items-center gap-8 h-14 px-6 bg-surface border-b border-border-subtle">
-						<div className="flex items-center gap-2">
-							<span className="h-7 w-7 rounded-md bg-brand" />
-							<span className="font-semibold text-text">Odds elemző</span>
-						</div>
-
-						<div className="flex items-center gap-6">
-							<NavLink className={tab} to="/odds">
-								Odds műveletek
-							</NavLink>
-							<NavLink className={tab} to="/fixtures">
-								Meccs statisztikák
-							</NavLink>
-							<NavLink className={tab} to="/arbitrage">
-								Arbitrage
-							</NavLink>
-						</div>
-
-						<div className="ml-auto">
-							<Pill>Fetch #{MainStore.fetchNumber}</Pill>
-						</div>
-					</nav>
-
+				<AppShell>
 					<Switch>
-						<Route path="/odds">
-							<OddsPage />
+						<Route exact path="/">
+							<RecommendationsPage />
 						</Route>
-						<Route path="/fixtures">
-							<FixturePage />
+						<Route path="/evaluation">
+							<EvaluationPage />
+						</Route>
+						<Route path="/quiz">
+							<QuizPage />
+						</Route>
+						<Route path="/settings">
+							<SettingsPage />
 						</Route>
 						<Route path="/arbitrage">
 							<ArbitragePage />
 						</Route>
-						<Redirect exact from="/" to="/odds" />
+						<Route path="/match/:id" render={({ match }) => <MatchPage id={Number(match.params.id)} />} />
+						<Redirect from="/odds" to="/" />
+						<Redirect from="/fixtures" to="/" />
+						<Redirect to="/" />
 					</Switch>
-				</div>
+				</AppShell>
 			</Router>
 		);
 	}

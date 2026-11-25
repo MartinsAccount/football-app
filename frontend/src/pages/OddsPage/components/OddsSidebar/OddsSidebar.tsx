@@ -28,17 +28,6 @@ class OddsSidebar extends Component<IOddsSidebarProps> {
 						/>
 					))}
 				</nav>
-
-				<div className="mt-auto p-4">
-					<button
-						type="button"
-						onClick={() => OddsStore.saveOdds('all')}
-						className="appearance-none border-0 cursor-pointer w-full flex items-center justify-center gap-2 bg-accent text-bg font-semibold rounded-lg px-4 py-3 text-sm transition-opacity hover:opacity-90"
-					>
-						<span className="h-4 w-4 rounded-[3px] border border-current opacity-80 shrink-0" />
-						Összes odds mentése
-					</button>
-				</div>
 			</aside>
 		);
 	}

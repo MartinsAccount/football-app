@@ -15,3 +15,16 @@ Thumbs.db
 
 # Dependencies (workspaces install at the root)
 node_modules/
+
+# Autonomous dev loop
+.autodev/
+STOP
+football-app-autonom/
+
+# Design kit source archive (unpacked into frontend/src/design/)
+odds-elemzo-design-kit.zip
+*.zip
+.data/
+
+# Vercel CLI (link, local build output)
+.vercel/

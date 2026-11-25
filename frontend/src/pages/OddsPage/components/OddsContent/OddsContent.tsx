@@ -6,8 +6,8 @@ import { ITableRow } from '../../models/ITableRow';
 import Card from '../../../../components/ui/Card';
 import StatCard from '../../../../components/ui/StatCard';
 import Pill from '../../../../components/ui/Pill';
-import { CURRENT_SEASON } from '../../../../core/constants/constants';
-import { LEAGUE_COUNTRY, LEAGUE_LABEL, seasonLabel } from '../../constants/leagueMeta';
+import { ODDS_STATS_SEASON } from '../../services/OddsService';
+import { LEAGUE_LABEL, seasonLabel } from '../../constants/leagueMeta';
 
 interface IOddsContentProps {
 	MainStore?: MainStore;
@@ -16,21 +16,20 @@ interface IOddsContentProps {
 @inject('MainStore')
 @observer
 class OddsContent extends Component<IOddsContentProps> {
-	private get arbitrageCount(): number {
-		const { currentLeague } = this.props.MainStore.OddsStore;
-		const country = currentLeague && currentLeague !== 'all' ? LEAGUE_COUNTRY[currentLeague] : null;
-		const arbitrages = this.props.MainStore.ArbitrageStore.Arbitrages || [];
-
-		return arbitrages.filter((fx) => {
-			const matchCountry = !country || fx.country === country;
-			const good = fx.arbitrages?.some((a) => a.arbitrage != null && Number(a.arbitrage) < 1);
-			return matchCountry && good;
-		}).length;
-	}
-
 	render() {
 		const { OddsStore } = this.props.MainStore;
-		const { currentLeague, oddsInfos } = OddsStore;
+		const { currentLeague, oddsInfos, loadError } = OddsStore;
+
+		if (loadError) {
+			return (
+				<section className="flex-1 bg-bg p-8">
+					<Card className="flex flex-col items-center justify-center gap-2 p-16 text-center">
+						<h2 className="text-lg font-semibold text-text">Az odds-adatok nem tölthetők be</h2>
+						<p className="text-sm text-text-muted">Az olvasó API (:5100) nem érhető el: {loadError}</p>
+					</Card>
+				</section>
+			);
+		}
 
 		if (!currentLeague) {
 			return (
@@ -55,13 +54,12 @@ class OddsContent extends Component<IOddsContentProps> {
 							{LEAGUE_LABEL[currentLeague]} liga · {sum} mérkőzés
 						</p>
 					</div>
-					<Pill>Szezon {seasonLabel(CURRENT_SEASON)}</Pill>
+					<Pill>Szezon {seasonLabel(ODDS_STATS_SEASON)}</Pill>
 				</header>
 
-				<div className="grid grid-cols-3 gap-4 mb-6">
+				<div className="grid grid-cols-2 gap-4 mb-6">
 					<StatCard label="Elemzett meccs" value={sum} />
 					<StatCard label="Esélyes nyert" value={`${favoritePct}%`} accent />
-					<StatCard label="Arbitrage" value={this.arbitrageCount} />
 				</div>
 
 				<Card className="overflow-hidden">

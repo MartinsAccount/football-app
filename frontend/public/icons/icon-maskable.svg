@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+	<!-- Maskable változat: teljes kitöltés, a jel a 80%-os biztonsági zónán belül (r ≤ 205). -->
+	<rect width="512" height="512" fill="#0B1220" />
+	<g transform="translate(256 256)" fill="none" stroke="#35E0C2">
+		<circle r="136" stroke-width="24" />
+		<path d="M0 -136 V136 M-136 0 H136" stroke-width="12" opacity=".5" />
+	</g>
+	<circle cx="256" cy="256" r="42" fill="#35E0C2" />
+</svg>

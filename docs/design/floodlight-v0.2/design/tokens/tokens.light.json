@@ -1,0 +1,72 @@
+{
+  "$description": "VILÁGOS téma – csak felülírások a tokens.json-hoz képest (ugyanazok az útvonalak). Ami itt nincs, az a sötét alapból öröklődik (méretek, betűk, és a hivatkozó tokenek, pl. data.model → accent.default).",
+  "color": {
+    "bg": {
+      "canvas":   { "$type": "color", "$value": "#F5F7FA" },
+      "surface":  { "$type": "color", "$value": "#FFFFFF" },
+      "raised":   { "$type": "color", "$value": "#F2F5F9" },
+      "inset":    { "$type": "color", "$value": "#F5F7FA" },
+      "track":    { "$type": "color", "$value": "#E3E8EF" },
+      "selected": { "$type": "color", "$value": "#EEF9F6" },
+      "best-row": { "$type": "color", "$value": "#F5F7FA" }
+    },
+    "border": {
+      "default": { "$type": "color", "$value": "#E1E6ED" },
+      "strong":  { "$type": "color", "$value": "#CBD3DE" }
+    },
+    "text": {
+      "primary":   { "$type": "color", "$value": "#0F1A2B" },
+      "secondary": { "$type": "color", "$value": "#334155" },
+      "muted":     { "$type": "color", "$value": "#5B6779" }
+    },
+    "on": {
+      "bg": { "$type": "color", "$value": "#0F1A2B" },
+      "fg": { "$type": "color", "$value": "#FFFFFF" }
+    },
+    "accent": {
+      "default": { "$type": "color", "$value": "#14B8A0" },
+      "text":    { "$type": "color", "$value": "#0A7F6E" },
+      "on":      { "$type": "color", "$value": "#0F1A2B" }
+    },
+    "signal": {
+      "negative":      { "$type": "color", "$value": "#E4572E" },
+      "negative-text": { "$type": "color", "$value": "#C2410C" },
+      "negative-on":   { "$type": "color", "$value": "#FFFFFF" },
+      "warning":       { "$type": "color", "$value": "#F2B544" },
+      "warning-text":  { "$type": "color", "$value": "#9A4A07" },
+      "neutral":       { "$type": "color", "$value": "#B6C0CE" }
+    },
+    "status": {
+      "ok-bg":   { "$type": "color", "$value": "#E3F6F2" },
+      "ok-fg":   { "$type": "color", "$value": "#0A6E5F" },
+      "fail-bg": { "$type": "color", "$value": "#FDE7E0" },
+      "fail-fg": { "$type": "color", "$value": "#B23A12" }
+    },
+    "tint": {
+      "warning-bg":      { "$type": "color", "$value": "#FFF6E5" },
+      "warning-border":  { "$type": "color", "$value": "#F3D9A4" },
+      "negative-bg":     { "$type": "color", "$value": "#FDF1EC" },
+      "negative-border": { "$type": "color", "$value": "#F5CDBE" },
+      "negative-soft":   { "$type": "color", "$value": "#F7C9B9" },
+      "positive-bg":     { "$type": "color", "$value": "#E3F6F2" },
+      "positive-border": { "$type": "color", "$value": "#BFE6DF" }
+    },
+    "data": {
+      "market": { "$type": "color", "$value": "#A3AEBF" }
+    },
+    "result": {
+      "loss": { "$type": "color", "$value": "#F08A6B", "$description": "Világosban a vereség-chip lágyabb, hogy a sötét betű olvasható maradjon" },
+      "on":   { "$type": "color", "$value": "#0F1A2B" }
+    },
+    "zone": {
+      "champions":  { "$type": "color", "$value": "#BFD3F2" },
+      "europe":     { "$type": "color", "$value": "#D9D2F0" },
+      "mid":        { "$type": "color", "$value": "#E8ECF2" },
+      "relegation": { "$type": "color", "$value": "#F2C6C6" }
+    },
+    "overlay": { "$type": "color", "$value": "rgba(15, 26, 43, 0.35)" }
+  },
+  "shadow": {
+    "card": { "$type": "shadow", "$value": "0 1px 2px rgba(15, 26, 43, 0.05)" }
+  }
+}

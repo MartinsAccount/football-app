@@ -23,7 +23,7 @@ const Button: React.FC<IButtonProps> = ({
 
 	let look: string;
 	if (active) {
-		look = 'bg-accent/10 border-accent text-accent';
+		look = 'bg-accent/10 border-accent text-accent-text';
 	} else if (variant === 'primary') {
 		look = 'bg-accent border-accent text-bg hover:opacity-90';
 	} else {
