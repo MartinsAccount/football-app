@@ -21,6 +21,21 @@ export { authorize, authConfigFromEnv, hashToken } from './auth';
 export { createCronHandler, createTickRunner, cronAuthorize, cronConfigFromEnv, noopWorker, TICK_BUDGET_MS } from './cron';
 export type { CronConfig, TickDeps, TickOutcome, TickWorker } from './cron';
 export type { AuthConfig, AuthResult, Authorizer } from './auth';
+export {
+	createLoginHandler,
+	createLoginLimiter,
+	createSessionAuthorizer,
+	hashPassword,
+	readCookie,
+	sessionConfigFromEnv,
+	sessionEnabled,
+	signSession,
+	verifyPassword,
+	verifySession,
+	SESSION_COOKIE,
+	SESSION_TTL_SECONDS
+} from './session';
+export type { SessionConfig } from './session';
 export { createDbIngestWorker, createIngestWorker, noopHandler, toFailureKind } from './ingestWorker';
 export { createReferenceHandler, toMarketRows, toNamedRows, toTeamRows } from './reference';
 export {

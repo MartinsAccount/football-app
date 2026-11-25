@@ -2,12 +2,15 @@ import { inject, observer } from 'mobx-react';
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
 import { MainStore } from '../../stores/MainStore';
+import { AuthStore } from '../../stores/AuthStore';
 import { isFixtureMode } from '../../services/dataMode';
 import BudgetChip from './BudgetChip';
 import ThemeToggle from './ThemeToggle';
 
 interface IAppHeaderProps {
 	MainStore?: MainStore;
+	/** I31: a kilépés gomb csak akkor látszik, ha van web-login (tesztben hiányozhat). */
+	AuthStore?: AuthStore;
 }
 
 // DESIGN §7.1 – a szelvény a Ma oldalon él (SlipPanel), az Odds nézet a meccs-részletekbe olvad (ROADMAP H).
@@ -19,11 +22,12 @@ const NAV_ITEMS: { to: string; label: string; exact?: boolean }[] = [
 	{ to: '/settings', label: 'Beállítások' }
 ];
 
-@inject('MainStore')
+// Mapper-forma: a hiányzó AuthStore (pl. tesztben) nem dob hibát, ellentétben az @inject('AuthStore')-szal.
+@inject(({ MainStore, AuthStore }: IAppHeaderProps) => ({ MainStore, AuthStore }))
 @observer
 class AppHeader extends Component<IAppHeaderProps> {
 	render() {
-		const { MainStore } = this.props;
+		const { MainStore, AuthStore } = this.props;
 		const fixture = isFixtureMode();
 
 		return (
@@ -48,6 +52,29 @@ class AppHeader extends Component<IAppHeaderProps> {
 					{/* Budget-panel (I19): a pill a `/api/budget` napi keretét mutatja, kattintásra lenyílik. */}
 					<BudgetChip fixture={fixture} localCalls={MainStore.fetchNumber} />
 					<ThemeToggle store={MainStore.ThemeStore} />
+					{AuthStore?.loginEnabled && (
+						<button
+							className="oe-btn oe-btn--icon"
+							type="button"
+							aria-label="Kilépés"
+							title="Kilépés"
+							onClick={() => AuthStore.logout()}
+						>
+							<svg
+								width="18"
+								height="18"
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="1.8"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<path d="M9 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3M16 17l5-5-5-5M21 12H9" />
+							</svg>
+						</button>
+					)}
 				</div>
 			</header>
 		);

@@ -10,6 +10,7 @@ import { openTarget, parseTargetArgs, SqlCronStore, SqlPlacedBetRepository, SqlS
 import { createApiHandler } from '../src/router';
 import { toNodeListener } from '../src/node';
 import { authConfigFromEnv } from '../src/auth';
+import { createLoginHandler, createSessionAuthorizer, sessionConfigFromEnv, sessionEnabled } from '../src/session';
 import { createCronHandler, cronConfigFromEnv } from '../src/cron';
 import { createDbIngestWorker } from '../src/ingestWorker';
 import { loadIngestMocks } from '../src/referenceMocks';
@@ -30,11 +31,17 @@ if (!args.pg && !process.env.DATABASE_URL && !existsSync(dataDir))
 const { db, repo, label } = await openTarget({ pg: args.pg, dataDir, envFile: join(ROOT, '.env') });
 const port = Number(process.env.API_PORT ?? 5100);
 // Védelem: `APP_API_TOKEN_HASH` env (token: `npm run token -w @football/server`); hiányában lokálisan nyitott.
-const auth = authConfigFromEnv(process.env);
+// Web-login (I31): `APP_PASSWORD_HASH` + `SESSION_SECRET` env esetén a session-süti is engedélyez (`npm run password`).
+const session = sessionConfigFromEnv(process.env);
+const loginEnabled = sessionEnabled(session);
+const auth = {
+	...authConfigFromEnv(process.env),
+	authorizers: loginEnabled ? [createSessionAuthorizer(session)] : []
+};
 console.log(
 	`[api] auth: ${
-		auth.tokenHash
-			? 'Bearer token kötelező'
+		auth.tokenHash || loginEnabled
+			? [auth.tokenHash && 'Bearer token', loginEnabled && 'web-login (süti)'].filter(Boolean).join(' vagy ') + ' kötelező'
 			: auth.production
 			? 'nincs hash → minden kérés 401'
 			: 'nyitott (nincs APP_API_TOKEN_HASH)'
@@ -54,6 +61,8 @@ createServer(
 			leagueTeams: (id) => loadLeagueTeams(db, id),
 			budgetDetails: (day) => loadBudgetDetails(db, day),
 			auth,
+			login: createLoginHandler(session),
+			loginEnabled,
 			// Arbitrázs (I22): a DB odds-snapshotjaiból, közelgő meccs hiányában a mentett JSON.
 			snapshots: withDbArbitrage(fileSnapshotSource(join(ROOT, 'data')), () => loadArbitrageSnapshot(db, { now: new Date() })),
 			// Ütemező (1.7): `CRON_SECRET` env; hiányában lokálisan nyitott. Lokális ütemezés: `npm run tick -- --every 15`.

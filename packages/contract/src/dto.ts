@@ -277,7 +277,14 @@ export interface SettingsUpdate {
 }
 
 /** Hibakódok, amelyeket a server az `{ error, message }` törzsben ad. */
-export type ApiErrorCode = 'bad-request' | 'unauthorized' | 'not-found' | 'method' | 'internal';
+export type ApiErrorCode = 'bad-request' | 'unauthorized' | 'not-found' | 'method' | 'rate-limited' | 'internal';
+
+/** `GET /api/session` (nyilvános, I31): be van-e lépve a kérés (süti vagy Bearer), és van-e a szerveren web-login. */
+export interface SessionResponse {
+	authenticated: boolean;
+	/** `false`: a szerveren nincs `APP_PASSWORD_HASH` + `SESSION_SECRET` (a login-űrlap nem használható). */
+	loginEnabled: boolean;
+}
 
 /** Minden nem-2xx válasz törzse. */
 export interface ApiErrorBody {

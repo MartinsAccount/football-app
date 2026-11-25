@@ -10,6 +10,7 @@ import {
 } from '@football/db';
 import { authorize, type AuthConfig } from './auth';
 import type {
+	SessionResponse,
 	ApiErrorBody,
 	ApiErrorCode,
 	BudgetResponse,
@@ -54,6 +55,10 @@ export interface ApiDeps {
 	snapshots?: SnapshotSource;
 	/** Ütemező (`/api/cron/*`, `createCronHandler`): saját `CRON_SECRET`-védelme van, az app-auth nem vonatkozik rá. */
 	cron?: (req: Request) => Promise<Response>;
+	/** Web-login (`POST /api/login|logout`, I31): `createLoginHandler`. Hiányában 404. Az app-auth nem vonatkozik rá. */
+	login?: (req: Request) => Promise<Response>;
+	/** A `GET /api/session` `loginEnabled` mezője: van-e a szerveren jelszó-hash + session-titok. */
+	loginEnabled?: boolean;
 	/** Beállítás-API (`GET/PUT /api/settings`, I3). Hiányában a végpont 404-et ad. */
 	settings?: SettingsRepository;
 	/** Kiértékelő dashboard (`GET /api/evaluation?model=`, I17): a kiértékelt predikciók forrása. Hiányában 404. */
@@ -159,6 +164,14 @@ export function createApiHandler(deps: ApiDeps): ApiHandler {
 		const url = new URL(req.url);
 		const path = url.pathname.replace(/\/+$/, '');
 		if (deps.cron && path.startsWith('/api/cron/')) return deps.cron(req);
+		// Web-login (I31): a belépés és az állapot-lekérdezés az app-auth előtt, különben be sem lehetne lépni.
+		if (path === '/api/login' || path === '/api/logout')
+			return deps.login ? deps.login(req) : fail(404, 'not-found', 'A szerveren nincs web-login');
+		if (path === '/api/session') {
+			if (req.method !== 'GET') return fail(405, 'method', 'Csak GET engedélyezett');
+			const authenticated = deps.auth ? (await authorize(req, deps.auth)).ok : true;
+			return json(200, { authenticated, loginEnabled: Boolean(deps.loginEnabled) } satisfies SessionResponse);
+		}
 		if (deps.auth) {
 			const auth = await authorize(req, deps.auth);
 			if (!auth.ok) return fail(401, 'unauthorized', auth.message, { 'www-authenticate': 'Bearer' });

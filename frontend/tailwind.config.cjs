@@ -102,7 +102,8 @@ module.exports = {
 				card: 'var(--shadow-card)'
 			},
 			maxWidth: {
-				container: 'var(--size-container)'
+				container: 'var(--size-container)',
+				aside: 'var(--size-aside-basis)'
 			},
 			transitionDuration: {
 				fast: 'var(--motion-fast)',

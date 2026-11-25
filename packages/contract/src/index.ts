@@ -38,6 +38,7 @@ export type {
 	PlacedBetInput,
 	PlacedBetDto,
 	PlacedBetsResponse,
+	SessionResponse,
 	QuizNextResponse,
 	QuizAnswerInput,
 	QuizResultDto,

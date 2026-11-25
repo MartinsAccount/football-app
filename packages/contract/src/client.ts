@@ -17,6 +17,7 @@ import type {
 	ProfileResponse,
 	ProfilePicksResponse,
 	DrawsResponse,
+	SessionResponse,
 	DrawsQuery,
 	QuizAnswerInput,
 	QuizAnswerResponse,
@@ -98,6 +99,11 @@ export interface ApiClient {
 	getProfilePicks(fixtureIds: readonly number[]): Promise<ProfilePicksResponse>;
 	/** Döntetlen-figyelő (D2): a [from, to) ablak meccsei p(X) szerint; alap: most → +3 nap, 10 elem. */
 	getDraws(query?: DrawsQuery): Promise<DrawsResponse>;
+	/** Web-login állapota (nyilvános végpont). */
+	getSession(): Promise<SessionResponse>;
+	/** Belépés az admin-jelszóval; siker → httpOnly süti (azonos origin). Hibás → `ApiError` 401, túl sok próba → 429. */
+	login(password: string): Promise<Pick<SessionResponse, 'authenticated'>>;
+	logout(): Promise<Pick<SessionResponse, 'authenticated'>>;
 }
 
 /** `FixtureQuery` → query-string a `parseFixtureQuery` paraméterneveivel (`status` vesszővel). Üres értéket kihagy. */
@@ -190,6 +196,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 			if (query.limit !== undefined) q.set('limit', String(query.limit));
 			const s = q.toString();
 			return get<DrawsResponse>(`/api/draws${s ? `?${s}` : ''}`);
-		}
+		},
+		getSession: () => get<SessionResponse>('/api/session'),
+		login: (password) => request<Pick<SessionResponse, 'authenticated'>>('POST', '/api/login', { password }),
+		logout: () => request<Pick<SessionResponse, 'authenticated'>>('POST', '/api/logout', {})
 	};
 }

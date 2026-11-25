@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openMemoryRepository, SqlCronStore } from '@football/db';
 import { hashToken } from './auth';
+import { hashPassword } from './session';
 import { createVercelHandler, lazyExecutor, type ClosableExecutor } from './vercel';
 
 const TOKEN = 'tok-123';
@@ -78,6 +79,41 @@ describe('createVercelHandler', () => {
 	it('hiányzó DATABASE_URL (szinkron dobó opener) → 503, nem 500', async () => {
 		const { handler } = await setup({ APP_API_TOKEN_HASH: await hashToken(TOKEN) }, { throwSync: true });
 		expect((await handler(req('/api/fixtures', { token: TOKEN }))).status).toBe(503);
+	});
+
+	it('web-login: session-állapot → belépés → a süti a védett végpontot is nyitja; a logout törli a sütit', async () => {
+		const env = { APP_PASSWORD_HASH: await hashPassword('admin-jelszo-123', { iterations: 1000 }), SESSION_SECRET: SECRET };
+		const { handler, stats } = await setup(env);
+		const session = await handler(req('/api/session'));
+		expect(await session.json()).toEqual({ authenticated: false, loginEnabled: true });
+		expect((await handler(req('/api/fixtures'))).status).toBe(401);
+		expect(stats.opened).toBe(0);
+
+		const login = await handler(
+			new Request('https://example.vercel.app/api/login', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ password: 'admin-jelszo-123' })
+			})
+		);
+		expect(login.status).toBe(200);
+		const setCookie = login.headers.get('set-cookie')!;
+		expect(setCookie).toContain('Secure'); // a Vercel-handler mindig production
+		const cookie = { cookie: setCookie.split(';')[0] };
+
+		expect(await (await handler(new Request('https://example.vercel.app/api/session', { headers: cookie }))).json()).toEqual({
+			authenticated: true,
+			loginEnabled: true
+		});
+		expect((await handler(new Request('https://example.vercel.app/api/fixtures', { headers: cookie }))).status).toBe(200);
+		const out = await handler(new Request('https://example.vercel.app/api/logout', { method: 'POST' }));
+		expect(out.headers.get('set-cookie')).toContain('Max-Age=0');
+	});
+
+	it('web-login env nélkül: loginEnabled false, a login 503', async () => {
+		const { handler } = await setup({});
+		expect(await (await handler(req('/api/session'))).json()).toEqual({ authenticated: false, loginEnabled: false });
+		expect((await handler(req('/api/login', { method: 'POST' }))).status).toBe(503);
 	});
 
 	it('pillanatkép-fájl hiányában a végpont 404 (nem 500)', async () => {

@@ -9,6 +9,7 @@ import { loadEvaluationRecords } from './evaluation';
 import { loadLeagueCatalog, loadLeagueTeams } from './leagues';
 import { createQuizService } from './quiz';
 import { createApiHandler, type ApiHandler } from './router';
+import { createLoginHandler, createSessionAuthorizer, sessionConfigFromEnv, sessionEnabled } from './session';
 import { fileSnapshotSource, withDbArbitrage } from './snapshots';
 
 /**
@@ -19,6 +20,8 @@ import { fileSnapshotSource, withDbArbitrage } from './snapshots';
  * - **DB kérésenként, lustán:** az első lekérdezés nyitja, a válasz után zárjuk. A 401-es kérés nem nyit kapcsolatot.
  *   A Fluid Compute egy példányon párhuzamos kéréseket futtat; egy közös `pg.Client` mindet sorba fűzné, és egy
  *   befagyasztott példány elhalt kapcsolata is gond lenne. TODO(polish): kapcsolat-újrahasznosítás, ha a késleltetés zavar.
+ * - **Web-login (I31):** `APP_PASSWORD_HASH` + `SESSION_SECRET` esetén a session-süti is engedélyez; a login-kezelő
+ *   (és a hibás próbálkozások számlálója) példányonként egyszer jön létre.
  * - **Tick worker nélkül** (no-op): az éles ingestion a 3.7 💸 szelet. A `dev.ts` mock-workerét szándékosan NEM vesszük át,
  *   különben mock adat kerülne a Supabase-be.
  * - Az advisory lock session-szintű → `DATABASE_URL` = Supabase **Session pooler** (5432), nem a Transaction pooler.
@@ -63,10 +66,13 @@ const dbUnavailable = (): Response =>
 
 export function createVercelHandler(deps: VercelHandlerDeps): ApiHandler {
 	const env = { ...deps.env, NODE_ENV: 'production' };
-	const auth = authConfigFromEnv(env);
+	const now = deps.now ?? (() => new Date());
+	const session = sessionConfigFromEnv(env);
+	const loginEnabled = sessionEnabled(session);
+	const auth = { ...authConfigFromEnv(env), authorizers: loginEnabled ? [createSessionAuthorizer(session, now)] : [] };
+	const login = createLoginHandler(session, { now });
 	const cronConfig = cronConfigFromEnv(env);
 	const files = fileSnapshotSource(deps.dataDir);
-	const now = deps.now ?? (() => new Date());
 
 	return async (req) => {
 		let connectFailed = false;
@@ -92,6 +98,8 @@ export function createVercelHandler(deps: VercelHandlerDeps): ApiHandler {
 				leagueTeams: (id) => loadLeagueTeams(db, id),
 				budgetDetails: (day) => loadBudgetDetails(db, day),
 				auth,
+				login,
+				loginEnabled,
 				now,
 				snapshots: withDbArbitrage(files, () => loadArbitrageSnapshot(db, { now: now() })),
 				cron: createCronHandler({ store: new SqlCronStore(db), worker: deps.worker, config: cronConfig, now })

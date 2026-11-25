@@ -10,7 +10,8 @@ piacok), 9.2 (MobX 6 / React 18). Kimarad: 1.6 deploy, 💸 3.7/4.1/6.4, 🔶 6.
 ingestion-alap (I1–I23b), a Supabase-bekötés és a Mobil M1–M11b kész. Ha a szeletlista kiürült, vagy csak blokkolt elem maradt,
 ide (e fejezet alá) külön sorba, üres sorok közé: `ALL_DONE`
 
-**Deploy-előkészítés (ROADMAP 1.6, a tulajdonos kérésére 2026-11-25):** I30 kész, I31 nyitott (lásd „Következő szeletek”).
+**Deploy-előkészítés (ROADMAP 1.6, a tulajdonos kérésére 2026-11-25):** I30 és I31 kész; hátra: a két login-env a Vercelen,
+production-deploy, B4 védelmi döntés 🔶, 24 órás cron-ellenőrzés (1.7).
 
 M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesült (lezárva).
 
@@ -93,8 +94,8 @@ Az SB1–SB6 kész, a Supabase-fázisban nincs több nyitott szelet (deploy: BLO
 tulajdonosi lépések (BLOCKERS 2026-11-25).
 
 40. ~~I30 – 1.6a Vercel-belépési pont~~ kész (`git log --grep=I30`; Build Output API, terv `docs/plans/i30-vercel-entry.md`).
-41. **I31 – 1.6b Web-login (session cookie)** – `POST /api/login` (`APP_PASSWORD_HASH`), httpOnly + Secure + SameSite=Strict
-    cookie (`SESSION_SECRET`), `Authorizer` az `auth.ts` bővítési pontján, login-oldal a weben, rate limit, hash-generáló script.
+41. ~~I31 – 1.6b Web-login~~ kész (`git log --grep=I31`; terv `docs/plans/i31-web-login.md`). Élesítéshez a tulajdonos:
+    `npm run password -w @football/server` → `APP_PASSWORD_HASH` + `SESSION_SECRET` a Vercelbe, majd deploy.
 
 <!-- Javasolt nagy sorrend, ha a ROADMAP.md mást mond, az az irányadó:
 A. Design (frontend/src/design/DESIGN.md): A1 tokenek bekötése + format.ts (core) → A2 komponensek → A3 oldalak
@@ -264,6 +265,8 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 | I30 – 1.6a Vercel-belépési pont | `git log --grep=I30` | Build Output API: `scripts/vercel-build.mjs` (static + esbuild-bundle `api.func` + `config.json` route-ok és `cron-tick` schedule), `vercel.json` csak `buildCommand`; server `vercel.ts` `createVercelHandler` (fail-closed, kérésenkénti lusta DB, no-op tick) + teszt, `vercelEntry.ts`; db `pg.ts` `client.on('error')`; runbook `docs/deploy/vercel.md` frissítve (Session pooler!) |
 
 ## Polish backlog
+- I31: a login-limiter példányonkénti memória (DB-alapú kellene több példánynál); lejárt süti esetén az app nem dob vissza magától a
+  login-oldalra (a hívások 401-et adnak, oldalfrissítés kell); a PWA-gyorsítótárban kilépés után is ott marad a korábbi API-adat.
 
 - I30: Schedules function target (`@vercel/schedules`, `schedule/v1beta`) a path target + `CRON_SECRET` helyett; DB-kapcsolat
   újrahasznosítása példányon belül; a bundle a PGlite-ot is tartalmazza (a `@football/db` barrel miatt, ~1 MB) – aliasolható.
@@ -486,6 +489,11 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I31 kész (web-login).** server `session.ts` (PBKDF2-jelszó, HMAC-süti, login/logout, limiter) + router `/api/session|login|logout`
+  az app-auth előtt; Vercel-handler és dev.ts bekötve (csak ha mindkét env megvan); contract `getSession/login/logout`, hibakód
+  `rate-limited`; web `AuthStore` + `AuthGate` (a MainStore csak belépés után épül) + `LoginPage` + kilépés-gomb. A headless
+  Edge 500 px alatt nem méretez: 390-es képet Playwright-tal kell. Screens: `i31-*`.
 
 - **I30 élesben is kész (2026-11-25):** Vercel-projekt + env + production/preview fut (cdg1), tokennel 200, schedule 15 percenként ok – runbook „Első deploy – tapasztalatok”. Nyitott: B4 🔶, I31, 24 órás cron-ellenőrzés.
 - **I30 kész (1.6a Vercel-belépési pont, Build Output API).** `npm run build && node scripts/vercel-build.mjs` →
