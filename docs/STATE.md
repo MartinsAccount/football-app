@@ -96,6 +96,8 @@ tulajdonosi lépések (BLOCKERS 2026-11-25).
 40. ~~I30 – 1.6a Vercel-belépési pont~~ kész (`git log --grep=I30`; Build Output API, terv `docs/plans/i30-vercel-entry.md`).
 41. ~~I31 – 1.6b Web-login~~ kész (`git log --grep=I31`; terv `docs/plans/i31-web-login.md`). Élesítéshez a tulajdonos:
     `npm run password -w @football/server` → `APP_PASSWORD_HASH` + `SESSION_SECRET` a Vercelbe, majd deploy.
+42. **I32 – 1.7 lezárás** – 2026-11-26 után: `select status, count(*) from cron_run where started_at > now() - interval '24 hours'
+    group by 1` (~96 `ok`, 0 `locked`); ha rendben: ROADMAP 1.7 `[x]`, és élő login-próba után 1.6 `[x]`.
 
 <!-- Javasolt nagy sorrend, ha a ROADMAP.md mást mond, az az irányadó:
 A. Design (frontend/src/design/DESIGN.md): A1 tokenek bekötése + format.ts (core) → A2 komponensek → A3 oldalak

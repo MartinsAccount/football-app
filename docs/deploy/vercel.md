@@ -79,6 +79,8 @@ curl --ssl-no-revoke -i $D/api/budget                                   # 1.6: 4
 curl --ssl-no-revoke -i -H "Authorization: Bearer <token>" $D/api/budget # 1.6: 200
 curl --ssl-no-revoke -i $D/api/cron/tick                                # 401 (titok nélkül)
 curl --ssl-no-revoke -i -H "Authorization: Bearer <token>" $D/api/backtest # 200 JSON: a .func-ba másolt pillanatkép (404 = rossz fájl-elrendezés)
+curl --ssl-no-revoke -i $D/api/session                                 # 200 {"authenticated":false,"loginEnabled":true} (I31)
+curl --ssl-no-revoke -i -X POST -H "content-type: application/json" -d '{"password":"rossz"}' $D/api/login # 401 "Hibás jelszó" (400 = a törzs nem ér el a függvényig)
 # 503 "Az adatbázis nem érhető el" = DATABASE_URL hiányzik/rossz (Functions-log: a hiba szövege, a cím nélkül)
 ```
 
