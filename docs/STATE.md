@@ -489,7 +489,7 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 
 - **I30 kész (1.6a Vercel-belépési pont, Build Output API).** `npm run build && node scripts/vercel-build.mjs` →
   `.vercel/output`; füstteszt: `node scripts/vercel-build.mjs --serve` (5300). A `vercel build` CLI Windows-on nem fut
-  (symlink EPERM). A Supabase most `tenant/user … not found`-ot ad (szüneteltetett projekt?) → BLOCKERS. A deploy és az env-ek
+  (symlink EPERM). Supabase: újraindítva, 0006–0008 migrálva, a csomag a valódi DB-n füsttesztelve (olvasás + 2 no-op tick ok). A deploy és az env-ek
   tulajdonosi lépések (runbook B2–B5); `DATABASE_URL` = **Session pooler (5432)**. Következő: 41 (I31 web-login). A ROADMAP 1.6
   csak sikeres deploy után `[x]`. A CLAUDE.md „Planned … `api/`” sora elavult (Build Output API lett) – a tulajdonos frissítse.
 

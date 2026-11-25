@@ -14,7 +14,7 @@ projekt, titkok), **C** – ellenőrzés és visszaállás.
 | **I31 – 1.6b Web-login (session cookie)** | `POST /api/login` (jelszó → `APP_PASSWORD_HASH`), httpOnly + Secure + SameSite=Strict cookie (`SESSION_SECRET`), `Authorizer` a `auth.ts` bővítési pontján, login-oldal a weben, rate limit | Ma a web `createApiClient({ baseUrl: '' })` tokent nem küld, a Vercelen pedig hash nélkül **minden** `/api/*` 401 → a web e nélkül üres. |
 
 Helyben igazolva (2026-11-25): a csomag sima Node 22 alatt betölt; token nélkül 401, rossz `CRON_SECRET`-tel 401, elérhetetlen
-DB-nél 503; a `pg` a csomagban TLS-sel eléri a Supabase poolert. Csak az első **preview** deploy dönti el:
+DB-nél 503. A valódi Supabase-en (Session pooler) a csomagon át: `/api/fixtures`, `/api/budget`, `/api/leagues`, `/api/backtest` 200, két egymás utáni no-op tick `ok` (a lock felszabadul). Ingyenes csomagon a projekt kb. 1 hét inaktivitás után szünetel → dashboard: Restore/Resume. Csak az első **preview** deploy dönti el:
 
 - a Vercel a „Other” presetnél átveszi-e a `buildCommand` által írt `.vercel/output`-ot (a build-logban: nincs „No Output
   Directory” hiba, a Deployments → Functions alatt látszik az `/api`);
