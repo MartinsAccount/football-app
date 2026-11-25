@@ -312,3 +312,4 @@
 | 2026-11-25 | I30: Supabase pooler | **Session pooler (5432)** a runbook korábbi Transaction poolere (6543) helyett | a tick `pg_try_advisory_lock`-ja session-szintű; tranzakciós poolingnál a lock és az unlock más backendre kerülhet → szivárgó lock, minden tick `locked` | igen |
 | 2026-11-25 | I30: ütemező-target | Schedules **path target** (`/api/cron/tick`, `CRON_SECRET`) a `config.json`-ban, a Vercel skill által javasolt function target helyett | kódváltozás nélkül megy, és a külső pinger-tartalék ugyanazt az utat használja; function target (`@vercel/schedules`, béta) később | igen |
 | 2026-11-25 | I30: fail-closed | a Vercel-handler `production: true`-t kap a `NODE_ENV`-től függetlenül | preview-n se legyen nyitott API hash/titok nélkül | nem |
+| 2026-11-25 | I30: függvény-régió | `cdg1` (Párizs) a `.vc-config.json`-ban | a Supabase eu-west-3 (Párizs); az alapértelmezett iad1-ből kérésenként több óceánon átívelő lekérdezés + TLS-kézfogás | nem |

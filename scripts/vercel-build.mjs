@@ -4,6 +4,7 @@
 //   .vercel/output/static/                 ← frontend/build
 //   .vercel/output/functions/api.func/     ← index.mjs (bundle) + data/*/*-v0.json + .vc-config.json
 //   .vercel/output/config.json             ← route-ok (API → függvény, fájlrendszer, SPA-fallback) + 15 perces schedule
+// Régió: cdg1 (Párizs), a Supabase (eu-west-3) mellett – iad1-ből minden lekérdezés óceánt szelne át.
 // Lokálisan: `npm run build && node scripts/vercel-build.mjs`, majd `node scripts/vercel-build.mjs --serve` (port 5300).
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -50,7 +51,14 @@ if (process.argv.includes('--serve')) {
 	writeFileSync(
 		join(FUNC, '.vc-config.json'),
 		JSON.stringify(
-			{ runtime: 'nodejs22.x', handler: 'index.mjs', launcherType: 'Nodejs', shouldAddHelpers: false, maxDuration: 300 },
+			{
+				runtime: 'nodejs22.x',
+				handler: 'index.mjs',
+				launcherType: 'Nodejs',
+				shouldAddHelpers: false,
+				maxDuration: 300,
+				regions: ['cdg1']
+			},
 			null,
 			2
 		)
