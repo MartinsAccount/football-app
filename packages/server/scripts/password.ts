@@ -6,7 +6,7 @@ import { createInterface } from 'node:readline/promises';
 import { hashPassword } from '../src/session';
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
-const password = await rl.question('Új admin-jelszó (min. 12 karakter): ');
+const password = await rl.question('Új admin-jelszó (min. 8 karakter, ne szótári szó): ');
 const again = await rl.question('Még egyszer: ');
 rl.close();
 
@@ -14,8 +14,8 @@ if (password !== again) {
 	console.error('A két jelszó nem egyezik – semmi sem készült.');
 	process.exit(1);
 }
-if (password.length < 12) {
-	console.error('Legalább 12 karakter legyen – semmi sem készült.');
+if (password.length < 8) {
+	console.error('Legalább 8 karakter legyen – semmi sem készült.');
 	process.exit(1);
 }
 
