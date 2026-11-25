@@ -491,7 +491,7 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
   `.vercel/output`; füstteszt: `node scripts/vercel-build.mjs --serve` (5300). A `vercel build` CLI Windows-on nem fut
   (symlink EPERM). A Supabase most `tenant/user … not found`-ot ad (szüneteltetett projekt?) → BLOCKERS. A deploy és az env-ek
   tulajdonosi lépések (runbook B2–B5); `DATABASE_URL` = **Session pooler (5432)**. Következő: 41 (I31 web-login). A ROADMAP 1.6
-  csak sikeres deploy után `[x]`.
+  csak sikeres deploy után `[x]`. A CLAUDE.md „Planned … `api/`” sora elavult (Build Output API lett) – a tulajdonos frissítse.
 
 - **I29 kész (9.2 React 18.3 + MobX 6.16 + mobx-react 9, RTL 14).** A dekorátorok maradnak: minden store konstruktorában
   `makeObservable(this)` a mezők beállítása UTÁN, de a flow/action hívások ELŐTT (hiányzó mező csendben nem lesz observable →

@@ -70,12 +70,15 @@ export function createVercelHandler(deps: VercelHandlerDeps): ApiHandler {
 
 	return async (req) => {
 		let connectFailed = false;
-		const db = lazyExecutor(() =>
-			deps.openDb().catch((e) => {
+		// Async burok: a szinkron dobó nyitás (pl. hiányzó `DATABASE_URL`) is 503 legyen, ne 500.
+		const db = lazyExecutor(async () => {
+			try {
+				return await deps.openDb();
+			} catch (e) {
 				connectFailed = true;
 				throw e;
-			})
-		);
+			}
+		});
 		try {
 			const handler = createApiHandler({
 				repo: new SqlRepository(db),

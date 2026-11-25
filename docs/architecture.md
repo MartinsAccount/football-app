@@ -237,7 +237,7 @@ fut**. (ADR-jelölt, ha a tulajdonos a Pythont preferálja.)
 
 ```
 frontend/            # SPA (a mai mappa; Vite-migráció után is itt marad)
-api/                 # Vercel-függvények: api/recommendations.ts, api/cron/tick.ts, ...
+scripts/vercel-build.mjs  # Vercel Build Output API: egy függvény (/api/*, packages/server vercelEntry.ts bundle) + static (I30)
 packages/core/       # tiszta TS: arbitrage/, model/, evaluation/, features/ (+ Jest/Vitest)
 packages/db/         # séma (Drizzle), migrációk, repository-függvények
 packages/api-client/ # API-Football kliens: budget-őr, naplózás, mock mód, fixture-ök

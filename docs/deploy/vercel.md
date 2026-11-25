@@ -78,6 +78,8 @@ D=https://<projekt>.vercel.app
 curl --ssl-no-revoke -i $D/api/budget                                   # 1.6: 401 (vagy Vercel-login), token nélkül
 curl --ssl-no-revoke -i -H "Authorization: Bearer <token>" $D/api/budget # 1.6: 200
 curl --ssl-no-revoke -i $D/api/cron/tick                                # 401 (titok nélkül)
+curl --ssl-no-revoke -i -H "Authorization: Bearer <token>" $D/api/backtest # 200 JSON: a .func-ba másolt pillanatkép (404 = rossz fájl-elrendezés)
+# 503 "Az adatbázis nem érhető el" = DATABASE_URL hiányzik/rossz (Functions-log: a hiba szövege, a cím nélkül)
 ```
 
 - Web: a `$D` betölt, login után a Kezdőlap adatot mutat; screenshot 1440 + 390 px.

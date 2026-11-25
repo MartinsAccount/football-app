@@ -11,10 +11,10 @@ const AT = new Date('2026-11-25T10:00:00Z');
 const EMPTY_DATA = mkdtempSync(join(tmpdir(), 'vercel-data-'));
 
 /** Egy közös PGlite; az `openDb` kérésenként „nyit” (számlál), a `close` nem zárja le ténylegesen. */
-async function setup(env: Record<string, string | undefined>, opts: { failOpen?: boolean } = {}) {
+async function setup(env: Record<string, string | undefined>, opts: { failOpen?: boolean; throwSync?: boolean } = {}) {
 	const { db } = await openMemoryRepository();
 	const stats = { opened: 0, closed: 0 };
-	const openDb = async (): Promise<ClosableExecutor> => {
+	const asyncOpen = async (): Promise<ClosableExecutor> => {
 		if (opts.failOpen) throw new Error('connect ECONNREFUSED');
 		stats.opened++;
 		return {
@@ -22,6 +22,11 @@ async function setup(env: Record<string, string | undefined>, opts: { failOpen?:
 			query: (sql, params) => db.query(sql, params),
 			close: async () => void stats.closed++
 		};
+	};
+	// A valódi opener (`openPg(readDatabaseUrl())`) hiányzó env-nél szinkron dob.
+	const openDb = (): Promise<ClosableExecutor> => {
+		if (opts.throwSync) throw new Error('DATABASE_URL hiányzik');
+		return asyncOpen();
 	};
 	const handler = createVercelHandler({ env, openDb, dataDir: EMPTY_DATA, now: () => AT });
 	return { db, stats, handler };
@@ -68,6 +73,11 @@ describe('createVercelHandler', () => {
 		const res = await handler(req('/api/fixtures', { token: TOKEN }));
 		expect(res.status).toBe(503);
 		expect(await res.json()).toEqual({ error: 'internal', message: 'Az adatbázis nem érhető el' });
+	});
+
+	it('hiányzó DATABASE_URL (szinkron dobó opener) → 503, nem 500', async () => {
+		const { handler } = await setup({ APP_API_TOKEN_HASH: await hashToken(TOKEN) }, { throwSync: true });
+		expect((await handler(req('/api/fixtures', { token: TOKEN }))).status).toBe(503);
 	});
 
 	it('pillanatkép-fájl hiányában a végpont 404 (nem 500)', async () => {
