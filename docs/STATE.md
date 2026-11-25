@@ -487,6 +487,7 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
 
+- **I30 élesben is kész (2026-11-25):** Vercel-projekt + env + production/preview fut (cdg1), tokennel 200, schedule 15 percenként ok – runbook „Első deploy – tapasztalatok”. Nyitott: B4 🔶, I31, 24 órás cron-ellenőrzés.
 - **I30 kész (1.6a Vercel-belépési pont, Build Output API).** `npm run build && node scripts/vercel-build.mjs` →
   `.vercel/output`; füstteszt: `node scripts/vercel-build.mjs --serve` (5300). A `vercel build` CLI Windows-on nem fut
   (symlink EPERM). Supabase: újraindítva, 0006–0008 migrálva, a csomag a valódi DB-n füsttesztelve (olvasás + 2 no-op tick ok). A deploy és az env-ek

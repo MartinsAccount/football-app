@@ -1,6 +1,6 @@
 # Vercel-deploy és ütemező – runbook (ROADMAP 1.6, 1.7)
 
-> Állapot: 2026-11-25 (I30 kész az `autodev`-on). **Még egyszer sem futott le** – az első deploy után javítsd, ahol eltér a valóságtól. A Vercel-tények
+> Állapot: 2026-11-25. **Első deploy kész** (lásd „Első deploy – tapasztalatok” lent). Korábbi megjegyzés: **még egyszer sem futott le** – az első deploy után javítsd, ahol eltér a valóságtól. A Vercel-tények
 > forrása a vercel.com/docs (2026-11-24-i olvasás); ahol ⚠️ áll, ott a doksi ellentmondásos vagy nem ellenőrzött.
 
 Három rész: **A** – kód-előfeltételek (agent-szeletek, ezek nélkül a deploy nem működik), **B** – tulajdonosi lépések (fiók,
@@ -100,3 +100,17 @@ curl --ssl-no-revoke -i -H "Authorization: Bearer <token>" $D/api/backtest # 200
   `npx vercel logs`, `npx vercel deploy` (preview).
 - A CLAUDE.md „Csak itt állj meg” szabálya szerint az agent magától **nem** deployol productionbe és nem állít be projektet; ezt
   a tulajdonos egy-egy sessionre kifejezetten engedélyezheti. Titkot az agent akkor sem lát és nem ír: azokat te viszed fel.
+
+## Első deploy – tapasztalatok (2026-11-25)
+
+- **GitHub-app:** a Vercel GitHub-integrációt a tulajdonos telepítette (*Only select repositories* → `football-app`); utána a
+  projektet az agent hozta létre a Vercel MCP-vel (`create_git_project`, `deploy: false`), majd Framework *Other*, Node **22.x**.
+- **Az első deploy productionbe ment**, pedig az `autodev`-ról jött (a projektnek még nem volt deployja); a következő push már
+  preview lett. A production így egy `autodev`-commiton fut, amíg nem jön `master`-deploy.
+- **Build Output API működik:** a `buildCommand` által írt `.vercel/output`-ot a Vercel átveszi; a függvény az eredeti
+  útvonalat látja (token nélkül a saját JSON-401); SPA-fallback rendben; tokennel `/api/budget|fixtures|leagues|backtest` 200.
+- **Régió:** alapból iad1 → `.vc-config.json` `regions: ['cdg1']` (a Supabase eu-west-3 mellett); a válasz `X-Vercel-Id`
+  fejlécében `cdg1` látszik.
+- **Schedule:** a `config.json` path-targetes `cron-tick` productionben azonnal aktív lett; 15 percenként `ok` sor a `cron_run`-ban.
+- **Védelem:** a projekt alapból `all_except_custom_domains` Vercel Authenticationt kapott (a production `*.vercel.app` is
+  védett). Az agent a védett címeket a Vercel MCP share linkjével (`_vercel_share`, 23 óra) tesztelte. B4 döntés nyitott.
