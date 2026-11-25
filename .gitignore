@@ -25,3 +25,6 @@ football-app-autonom/
 odds-elemzo-design-kit.zip
 *.zip
 .data/
+
+# Vercel CLI (link, local build output)
+.vercel/

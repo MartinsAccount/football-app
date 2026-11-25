@@ -21,6 +21,9 @@ export async function openPg(connectionString: string): Promise<PgExecutor> {
 		query_timeout: 120_000,
 		keepAlive: true
 	});
+	// Egy háttérben elhalt kapcsolat (pooler-timeout, befagyasztott függvény) `error` eseménye kezelő nélkül leállítaná a
+	// folyamatot; a következő lekérdezés úgyis hibát kap.
+	client.on('error', (e) => console.error('[pg]', e.message));
 	await client.connect();
 	// Egy kliensen a párhuzamos `client.query()` elavult (pg@9-ben megszűnik): a hívásokat sorba fűzzük (a szerver is
 	// `Promise.all`-lal kérdez).

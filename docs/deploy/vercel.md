@@ -1,28 +1,29 @@
 # Vercel-deploy és ütemező – runbook (ROADMAP 1.6, 1.7)
 
-> Állapot: 2026-11-24. **Még egyszer sem futott le** – az első deploy után javítsd, ahol eltér a valóságtól. A Vercel-tények
+> Állapot: 2026-11-25 (I30 kész az `autodev`-on). **Még egyszer sem futott le** – az első deploy után javítsd, ahol eltér a valóságtól. A Vercel-tények
 > forrása a vercel.com/docs (2026-11-24-i olvasás); ahol ⚠️ áll, ott a doksi ellentmondásos vagy nem ellenőrzött.
 
 Három rész: **A** – kód-előfeltételek (agent-szeletek, ezek nélkül a deploy nem működik), **B** – tulajdonosi lépések (fiók,
 projekt, titkok), **C** – ellenőrzés és visszaállás.
 
-## A. Kód-előfeltételek (még nincsenek kész)
-
-A repóban ma **nincs** `api/` mappa és `vercel.json`, és a webes kliens nem tud bejelentkezni. Sorrendben:
+## A. Kód-előfeltételek
 
 | Szelet | Mit | Megjegyzés |
 |---|---|---|
-| **I30 – 1.6a Vercel-belépési pont** | `api/index.ts` + rewrite `/api/:path*` → `/api/index` (⚠️ hogy Next.js nélkül működik-e az `api/[...path].ts` catch-all, a doksiból nem derült ki) → `createApiHandler({...})`, valódi Postgres (`DATABASE_URL`), `auth: authConfigFromEnv`, `cron: createCronHandler({ store, config })` **worker nélkül** (no-op tick); `vercel.json`: `buildCommand`, `outputDirectory: frontend/build`, SPA-rewrite (`/((?!api/).*)` → `/index.html`), `maxDuration: 300`, 15 perces schedule **path targettel** (`/api/cron/tick`) | Ne a `dev.ts`-t másold: ott a `createDbIngestWorker` **mock** klienst kap → mock adat kerülne az éles Supabase-be. Élő ingestion = 3.7 💸, külön. Schedules: csak a *path target* kap `Authorization: Bearer <CRON_SECRET>`-et (alapból POST); a *function target* nem kap titkot → a tick-kezelő productionben 401-et adna. A tick GET-et és POST-ot is elfogad. |
-| **I31 – 1.6b Web-login (session cookie)** | `POST /api/login` (jelszó → `APP_PASSWORD_HASH`), httpOnly + Secure + SameSite=Strict cookie (`SESSION_SECRET`), `Authorizer` a `auth.ts` bővítési pontján, login-oldal a weben, rate limit | Ma a web `createApiClient({ baseUrl: '' })` tokent nem küld, productionben (`NODE_ENV=production`) pedig hash nélkül **minden** `/api/*` 401 → a web e nélkül üres. |
+| ✅ **I30 – 1.6a Vercel-belépési pont** (2026-11-25) | **Build Output API v3:** a `vercel.json` csak `buildCommand` (`npm run build && node scripts/vercel-build.mjs`). A script a `frontend/build`-et a `.vercel/output/static`-ba másolja, a `packages/server/src/vercelEntry.ts`-t esbuild-del egy fájlba csomagolja (`functions/api.func/index.mjs`, `nodejs22.x`, `maxDuration: 300`, a `data/*/*-v0.json` pillanatképek mellé), és megírja a `config.json`-t: `/api*` → függvény, fájlrendszer, SPA-fallback, `schedules.cron-tick` (`*/15 * * * *`, path `/api/cron/tick`). A handler (`createVercelHandler`): fail-closed (`production` mindig igaz), kérésenként lusta DB-kapcsolat (`openPg(DATABASE_URL)`, migráció nincs), tick **worker nélkül** (no-op). | Miért nem zero-config `api/index.ts`: a workspace-csomagok TS-forrásként, kiterjesztés nélküli ESM-importokkal mennek, ezt a Node-builder nem garantáltan futtatja, a `vercel build` pedig Windows-on nem fut (symlink-jog). Helyben: `npm run build && node scripts/vercel-build.mjs`, majd `node scripts/vercel-build.mjs --serve` (port 5300). Élő ingestion = 3.7 💸, külön. |
+| **I31 – 1.6b Web-login (session cookie)** | `POST /api/login` (jelszó → `APP_PASSWORD_HASH`), httpOnly + Secure + SameSite=Strict cookie (`SESSION_SECRET`), `Authorizer` a `auth.ts` bővítési pontján, login-oldal a weben, rate limit | Ma a web `createApiClient({ baseUrl: '' })` tokent nem küld, a Vercelen pedig hash nélkül **minden** `/api/*` 401 → a web e nélkül üres. |
 
-Kockázatok, amelyeket az első **preview** deploy dönt el:
+Helyben igazolva (2026-11-25): a csomag sima Node 22 alatt betölt; token nélkül 401, rossz `CRON_SECRET`-tel 401, elérhetetlen
+DB-nél 503; a `pg` a csomagban TLS-sel eléri a Supabase poolert. Csak az első **preview** deploy dönti el:
 
-- **Bundling:** a workspace-csomagok TS-forrásként mennek (`exports: ./src/index.ts`); a Vercel Node-buildernek ezt le kell
-  fordítania. Az `openTarget` a PGlite-ot is behúzza → a belépési pont közvetlenül a pg-megnyitót hívja.
-- **Fájlrendszer:** `fileSnapshotSource(data/)` és `loadIngestMocks` lemezről olvas → a függvényben csak DB-forrás legyen
-  (vagy `includeFiles`).
-- **Supabase serverlessből:** a **pooler** connection stringet használd (Supabase → Connect → *Transaction pooler*, port 6543),
-  ne a direktet; a pg-kliens prepared statementjeit ellenőrizni kell vele.
+- a Vercel a „Other” presetnél átveszi-e a `buildCommand` által írt `.vercel/output`-ot (a build-logban: nincs „No Output
+  Directory” hiba, a Deployments → Functions alatt látszik az `/api`);
+- a függvény az eredeti útvonalat látja-e a route után (C: a `/api/budget` a saját JSON-401-et adja, nem 404-et);
+- a path-targetes schedule a `config.json`-ból felveszi-e magát (Settings → Schedules: `cron-tick`).
+
+**Tartalék, ha a Build Output API nem megy:** `api/index.ts` (`export default { fetch: createVercelHandler({...}) }`),
+`vercel.json`-ban `outputDirectory: frontend/build`, rewrite `/api/(.*)` → `/api/index` + SPA-rewrite, `functions` alatt
+`includeFiles: data/*/*-v0.json` és `maxDuration`, `schedules` ugyanígy.
 
 ## B. Tulajdonosi lépések
 
@@ -36,7 +37,7 @@ Kockázatok, amelyeket az első **preview** deploy dönt el:
 1. Dashboard → **Add New… → Project** → *Import Git Repository* → `football-app` (ha nem látszik: *Adjust GitHub App
    Permissions*, és add hozzá a repót).
 2. Beállítások az importnál:
-   - **Root Directory:** a repó gyökere (`./`) – az `api/` a gyökérben van.
+   - **Root Directory:** a repó gyökere (`./`) – a `vercel.json` és a `scripts/vercel-build.mjs` a gyökérben van.
    - **Framework Preset:** *Other* (a `vercel.json` vezérel); Build/Output mezőket ne írd felül.
    - **Environment Variables:** itt még hagyd üresen, a B3-ban veszed fel (az első build így elbukhat – nem baj).
 3. **Deploy.** A kapott domain: `https://<projekt>.vercel.app` – ezt írd be lent a C-be.
@@ -46,7 +47,7 @@ Mindegyik **Sensitive**, környezet: **Production** + **Preview**. Az értéket 
 
 | Név | Honnan | Mire |
 |---|---|---|
-| `DATABASE_URL` | Supabase → Connect → Transaction pooler URI (jelszóval) | DB |
+| `DATABASE_URL` | Supabase → Connect → **Session pooler** URI (port 5432, jelszóval) – **nem** a Transaction pooler: a tick advisory lockja session-szintű, tranzakciós poolingnál szivárogna | DB (kérésenként egy rövid kapcsolat; a Session pooler kapcsolatkorlátja ezt bőven bírja egy felhasználóval) |
 | `CRON_SECRET` | `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` | A Vercel a klasszikus cron és a Schedules *path target* hívásánál automatikusan `Authorization: Bearer <CRON_SECRET>`-et küld (function targetnél nem) |
 | `APP_API_TOKEN_HASH` | `npm run token -w @football/server` (a tokent tedd a mobilapp Beállításaiba) | Mobil / curl Bearer |
 | `APP_PASSWORD_HASH`, `SESSION_SECRET` | az I31 ad hozzá generáló scriptet | Web-login |
@@ -62,8 +63,11 @@ Mindegyik **Sensitive**, környezet: **Production** + **Preview**. Az értéket 
   `architecture.md` §6-tól, amely a productionre is Vercel Authenticationt tervezett (még a mobil-ADR előtt). 🔶 a te döntésed.
 
 ### B5. Ütemező (Settings → Cron Jobs / Schedules)
-- A `vercel.json` 15 perces schedule-t kér. ⚠️ A doksi ellentmondásos: a klasszikus Cron Jobs Hobby-n **naponta egyszer**
-  (±59 perc), az új **Schedules (béta)** Hobby-n **15 percenként** (15 perc jitterrel). Ha a deploy elutasítja vagy nem fut:
+- A schedule a build által írt `.vercel/output/config.json`-ban van (`cron-tick`, `*/15 * * * *`, path `/api/cron/tick`,
+  alapból POST). Hobby-n a **Schedules (béta)** 15 percenként futhat, a jitter mindig 15 perc (a klasszikus Cron Jobs Hobby-n
+  csak naponta egyszer). **A preview-kon az új schedule alapból inaktív**, productionben aktív; preview-n kipróbálni:
+  Settings → Schedules → *Run Schedule*, vagy `vercel schedules enable cron-tick --git-branch autodev --for 2h`.
+- Ha a deploy elutasítja vagy nem fut:
 - **Tartalék – külső pinger:** <https://cron-job.org> (ingyenes) → új job: URL `https://<domain>/api/cron/tick`, 15 perc,
   fejléc `Authorization: Bearer <CRON_SECRET>`. Ehhez a production nem lehet „All Deployments” védelem alatt.
 

@@ -10,7 +10,7 @@ piacok), 9.2 (MobX 6 / React 18). Kimarad: 1.6 deploy, 💸 3.7/4.1/6.4, 🔶 6.
 ingestion-alap (I1–I23b), a Supabase-bekötés és a Mobil M1–M11b kész. Ha a szeletlista kiürült, vagy csak blokkolt elem maradt,
 ide (e fejezet alá) külön sorba, üres sorok közé: `ALL_DONE`
 
-ALL_DONE
+**Deploy-előkészítés (ROADMAP 1.6, a tulajdonos kérésére 2026-11-25):** I30 kész, I31 nyitott (lásd „Következő szeletek”).
 
 M1 (docs/GOAL-M1.md): S01–S24 kész, az M1 végállapota teljesült (lezárva).
 
@@ -88,6 +88,13 @@ CV). 36b. ~~Q2 – 12.2 db `0008_owner_answer.sql` + repo; server kvíz/profil A
 `.env`-ben (ne módosítsd, ne írd ki). Csak upsert/insert, adatvesztő művelet nincs. Valódi DB-hez: `NODE_OPTIONS=--use-system-ca`.
 
 Az SB1–SB6 kész, a Supabase-fázisban nincs több nyitott szelet (deploy: BLOCKERS).
+
+**Deploy (ROADMAP 1.6, runbook `docs/deploy/vercel.md`):** a kód-szeletek az agentéi; a projekt-import, az env-ek és a deploy
+tulajdonosi lépések (BLOCKERS 2026-11-25).
+
+40. ~~I30 – 1.6a Vercel-belépési pont~~ kész (`git log --grep=I30`; Build Output API, terv `docs/plans/i30-vercel-entry.md`).
+41. **I31 – 1.6b Web-login (session cookie)** – `POST /api/login` (`APP_PASSWORD_HASH`), httpOnly + Secure + SameSite=Strict
+    cookie (`SESSION_SECRET`), `Authorizer` az `auth.ts` bővítési pontján, login-oldal a weben, rate limit, hash-generáló script.
 
 <!-- Javasolt nagy sorrend, ha a ROADMAP.md mást mond, az az irányadó:
 A. Design (frontend/src/design/DESIGN.md): A1 tokenek bekötése + format.ts (core) → A2 komponensek → A3 oldalak
@@ -254,8 +261,12 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
   `draw/drawWatchView.ts` (a webről emelve; csip-címke `<tényező>: emeli/csökkenti` + `DRAW_FACTOR_LEGEND`); mobil `draws.tsx`
   (link a Beállítások alján, `loadWithCache` `oe_cache_draws`); web `DrawWatch` a core-ból; screenshot
   `docs/plans/screens/d3-ma-{1440,390}.png` |
+| I30 – 1.6a Vercel-belépési pont | `git log --grep=I30` | Build Output API: `scripts/vercel-build.mjs` (static + esbuild-bundle `api.func` + `config.json` route-ok és `cron-tick` schedule), `vercel.json` csak `buildCommand`; server `vercel.ts` `createVercelHandler` (fail-closed, kérésenkénti lusta DB, no-op tick) + teszt, `vercelEntry.ts`; db `pg.ts` `client.on('error')`; runbook `docs/deploy/vercel.md` frissítve (Session pooler!) |
 
 ## Polish backlog
+
+- I30: Schedules function target (`@vercel/schedules`, `schedule/v1beta`) a path target + `CRON_SECRET` helyett; DB-kapcsolat
+  újrahasznosítása példányon belül; a bundle a PGlite-ot is tartalmazza (a `@football/db` barrel miatt, ~1 MB) – aliasolható.
 
 - I29: a class komponensek maradnak (inject/observer); funkcionális + hook átírás és StrictMode nincs. A React 18 automatikus
   batching miatt az `act()`-figyelmeztetések a tesztekben nem lettek átnézve. A `react-router-dom` 5 marad (v6 külön szelet).
@@ -475,6 +486,12 @@ profile 7,3 s → 0,58 s, next 422 → 205 ms, kimenet bájtra azonos | | Q4 –
 - Fixture-mód: `/fixtures/statistics` és `/odds?bet=` szűrés nincs mentve (üres válasz); az `/odds/mapping` csak 1 mentett oldal.
 
 ## Jegyzet a következő sessionnek (max. 10 sor)
+
+- **I30 kész (1.6a Vercel-belépési pont, Build Output API).** `npm run build && node scripts/vercel-build.mjs` →
+  `.vercel/output`; füstteszt: `node scripts/vercel-build.mjs --serve` (5300). A `vercel build` CLI Windows-on nem fut
+  (symlink EPERM). A Supabase most `tenant/user … not found`-ot ad (szüneteltetett projekt?) → BLOCKERS. A deploy és az env-ek
+  tulajdonosi lépések (runbook B2–B5); `DATABASE_URL` = **Session pooler (5432)**. Következő: 41 (I31 web-login). A ROADMAP 1.6
+  csak sikeres deploy után `[x]`.
 
 - **I29 kész (9.2 React 18.3 + MobX 6.16 + mobx-react 9, RTL 14).** A dekorátorok maradnak: minden store konstruktorában
   `makeObservable(this)` a mezők beállítása UTÁN, de a flow/action hívások ELŐTT (hiányzó mező csendben nem lesz observable →
